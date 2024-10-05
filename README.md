@@ -66,6 +66,60 @@ Run smart contract test with `yarn hardhat:test`
 - Edit your frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
 - Edit your deployment scripts in `packages/hardhat/deploy`
 
+### Secret Network
+
+#### Setup
+
+* Reference https://docs.scrt.network/secret-network-documentation/development/readme-1
+
+* Install Git and Make - https://docs.scrt.network/secret-network-documentation/development/readme-1/setting-up-your-environment#install-requirements
+
+* Install Rust
+  ```
+  rustup update
+  rustup toolchain use stable
+  rustup target add wasm32-unknown-unknown
+  source "$HOME/.cargo/env"
+  ```
+* Install Cargo Generate
+  ```
+  cargo install cargo-generate --features vendored-openssl
+  ```
+
+* Install dependencies
+  ```
+  nvm use
+  npm install --global lerna
+  yarn set version 4.2.2
+  corepack enable
+  corepack prepare yarn@v4.2.2 --activate
+  ```
+
+#### Create, Compile and Deploy Contract (Example: Counter)
+
+* Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
+
+```
+mkdir -p packages/secret-contracts && cd packages/secret-contracts
+cargo generate --git https://github.com/scrtlabs/secret-template.git --name my-counter-contract
+```
+
+* Compile. Note: Outputs contract.wasm and contract.wasm.gz file in the root directory of the secret-contracts/my-counter-contract folder
+
+```
+cd packages/secret-contracts/my-counter-contract
+make build
+```
+
+* OPTIONAL - optimize contract code
+
+```
+yarn run secret:clean:uploadContract
+yarn run secret:start:uploadContract
+
+yarn run secret:clean:instantiateContract
+yarn run secret:start:instantiateContract
+```
 
 ## Documentation
 

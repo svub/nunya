@@ -2,10 +2,12 @@
   "name": "se-2",
   "version": "0.0.1",
   "private": true,
-  "workspaces": {
-    "packages": [
-      "packages/*"
-    ]
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "husky": "~8.0.3",
+    "lint-staged": "~13.2.2"
   },
   "scripts": {
     "account": "yarn workspace @se-2/hardhat account",
@@ -32,13 +34,13 @@
     "test": "yarn hardhat:test",
     "vercel": "yarn workspace @se-2/nextjs vercel",
     "vercel:yolo": "yarn workspace @se-2/nextjs vercel:yolo",
-    "verify": "yarn workspace @se-2/hardhat verify"
+    "verify": "yarn workspace @se-2/hardhat verify",
+    "secret:clean:uploadContract": "yarn workspace secret-upload-contract clean",
+    "secret:start:uploadContract": "yarn workspace secret-upload-contract start",
+    "secret:clean:instantiateContract": "yarn workspace secret-instantiate-contract clean",
+    "secret:start:instantiateContract": "yarn workspace secret-instantiate-contract start"
   },
-  "devDependencies": {
-    "husky": "~8.0.3",
-    "lint-staged": "~13.2.2"
-  },
-  "packageManager": "yarn@3.2.3",
+  "packageManager": "yarn@4.2.2",
   "engines": {
     "node": ">=18.18.0"
   }

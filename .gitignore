@@ -21,3 +21,13 @@ node_modules
 
 # cli
 dist
+
+**/node_modules/
+**/yarn-error.log
+**/.env
+.DS_Store
+.nx/cache
+tsconfig.tsbuildinfo
+.env
+packages/secret-upload-contract/.env
+packages/secret-instantiate-contract/.env
