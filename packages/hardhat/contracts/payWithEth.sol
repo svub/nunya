@@ -38,6 +38,7 @@ contract NunyaBusiness {
     event ReceiptEmitted(Receipt);
     event RequestSuccess(uint256 requestId);
     event SecretNetworkError(uint256 requestId, string message);
+    event HackingAttemptError(uint256 requestId);
 
     constructor(address _gateway) {
         gateway = _gateway;
@@ -67,8 +68,10 @@ contract NunyaBusiness {
         return(requestId);
     }
 
-    function newSecretUserCallback(uint256 requestId) public onlyGateway {
+    function newSecretUserCallback(uint256 requestId, bool success) public onlyGateway {
         require (expectedResult[requestId]==FunctionCallType.NEW_USER);
+        if (!success)
+            emit SecretNetworkError(requestId, "Error paying - duplicate user?");
         emit RequestSuccess(requestId);
     }
 
@@ -79,8 +82,10 @@ contract NunyaBusiness {
         return(requestId);
     }
 
-    function linkPaymentRefCallback(uint256 requestId) public onlyGateway{
+    function linkPaymentRefCallback(uint256 requestId, bool success) public onlyGateway{
         require (expectedResult[requestId]==FunctionCallType.NEW_REF);
+        if (!success)
+            emit SecretNetworkError(requestId, "Error paying - no user found?");
         emit RequestSuccess(requestId);
     }
     
@@ -115,9 +120,18 @@ contract NunyaBusiness {
         return gas;
     }
 
-    function payCallback(uint256 requestId, Receipt calldata _receipt) public payable onlyGateway {
+    function payCallback(uint256 requestId, bool success) public payable onlyGateway {
+        require (expectedResult[requestId]==FunctionCallType.PAY);
+        if (!success)
+            emit SecretNetworkError(requestId, "Error paying - wrong payment ref?");
+        emit RequestSuccess(requestId);
+    }
+
+    function payCallback(uint256 requestId, bool success, Receipt calldata _receipt) public payable onlyGateway {
         // TODO : use ecrecover to check receipt is signed by secret contract
         require (expectedResult[requestId]==FunctionCallType.PAY);
+        if (!success)
+            emit SecretNetworkError(requestId, "Error paying - wrong payment ref?");
         if (uint256(_receipt.sig)!=0)
             emit ReceiptEmitted(_receipt);
         emit RequestSuccess(requestId);
@@ -136,8 +150,10 @@ contract NunyaBusiness {
         return(requestId);
     }
 
-    function withdrawToCallback(uint256 requestId, uint256 amount, address payable withdrawalAddress) onlyGateway public {
+    function withdrawToCallback(uint256 requestId, bool success, uint256 amount, address payable withdrawalAddress) onlyGateway public {
         require (expectedResult[requestId]==FunctionCallType.WITHDRAW);
+        if (!success)
+            emit SecretNetworkError(requestId, "Error withdrawing - out of funds?");
         require(amount > 0, "Account not found or empty.");
         withdrawalAddress.transfer(amount);
         emit RequestSuccess(requestId);
