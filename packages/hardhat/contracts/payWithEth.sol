@@ -30,17 +30,17 @@ contract NunyaBusiness {
         bytes32 sig;
     }
 
-    address gateway;
+    address payable gateway;
     SecretContract secretContract;
     uint256 secretContractPubkey;
     mapping (uint256 => FunctionCallType) expectedResult;
 
     event ReceiptEmitted(Receipt);
-    event RequestSuccess(uint256 requestId);
+    event Request_success(uint256 requestId);
     event SecretNetworkError(uint256 requestId, string message);
     event HackingAttemptError(uint256 requestId);
 
-    constructor(address _gateway) payable {
+    constructor(address payable _gateway) payable {
         gateway = _gateway;
         secretContract = SecretContract(_gateway);
         // Lock secretContractPubkey to requestId so that only that request cn set it.
@@ -55,9 +55,9 @@ contract NunyaBusiness {
         _;
     }
 
-    function setSecretContractPubkeyCallback (uint256 requestId, uint256 _key) public onlyGateway {
+    function setSecretContractPubkeyCallback (uint256 _requestId, uint256 _key) public onlyGateway {
         // require (secretContractPubkey==0, "Key already set");
-        require (secretContractPubkey==requestId, "Only the contract constructor can trigger this function");
+        require (secretContractPubkey==_requestId, "Only the contract constructor can trigger this function");
         // TODO: Make sure it's our secret contract setting the key, not some interloper
         secretContractPubkey=_key;
     }
@@ -70,11 +70,11 @@ contract NunyaBusiness {
         return(requestId);
     }
 
-    function newSecretUserCallback(uint256 requestId, bool success) public onlyGateway {
-        require (expectedResult[requestId]==FunctionCallType.NEW_USER);
-        if (!success)
-            emit SecretNetworkError(requestId, "Error paying - duplicate user?");
-        emit RequestSuccess(requestId);
+    function newSecretUserCallback(uint256 _requestId, bool _success) public onlyGateway {
+        require (expectedResult[_requestId]==FunctionCallType.NEW_USER);
+        if (!_success)
+            emit SecretNetworkError(_requestId, "Error paying - duplicate user?");
+        emit Request_success(_requestId);
     }
 
     // Function wrapped in secret network payload encryption
@@ -85,29 +85,29 @@ contract NunyaBusiness {
         return(requestId);
     }
 
-    function linkPaymentRefCallback(uint256 requestId, bool success) public onlyGateway{
-        require (expectedResult[requestId]==FunctionCallType.NEW_REF);
-        if (!success)
-            emit SecretNetworkError(requestId, "Error paying - no user found?");
-        emit RequestSuccess(requestId);
+    function linkPaymentRefCallback(uint256 _requestId, bool _success) public onlyGateway{
+        require (expectedResult[_requestId]==FunctionCallType.NEW_REF);
+        if (!_success)
+            emit SecretNetworkError(_requestId, "Error paying - no user found?");
+        emit Request_success(_requestId);
     }
     
     // TODO: use ref encrypted with (user pubkey+salt)
-    function pay(string calldata ref, uint256 _value) public payable returns (uint256) {
+    function pay(string calldata _ref, uint256 _value) public payable returns (uint256) {
         // >= because we need gas for
         require (_value >= msg.value, "Naughty!");
         uint256 gasPaid = fundGateway();
-        uint256 requestId = secretContract.pay(ref, msg.value-gasPaid);
+        uint256 requestId = secretContract.pay(_ref, msg.value-gasPaid);
         expectedResult[requestId]=FunctionCallType.PAY;
         return(requestId);
     }
 
     // TODO: use ref encrypted with (user pubkey+salt)
-    function pay(string calldata ref, uint256 _value, uint256 _userPubkey) public payable returns (uint256) {
+    function pay(string calldata _ref, uint256 _value, uint256 _userPubkey) public payable returns (uint256) {
         // >= because we need gas for
         require (_value >= msg.value, "Naughty!");
         uint256 gasPaid = fundGateway();
-        uint256 requestId = secretContract.payWithReceipt(ref, msg.value-gasPaid, _userPubkey);
+        uint256 requestId = secretContract.payWithReceipt(_ref, msg.value-gasPaid, _userPubkey);
         expectedResult[requestId]==FunctionCallType.PAY;
         return(requestId);
     }
@@ -117,32 +117,33 @@ contract NunyaBusiness {
     //     secretContract.pay()
     // }
 
-    function fundGateway(uint256 gas) internal returns (uint256) {
-        // TODO: write the function
-        return gas;
+    function fundGateway(uint256 _gas) internal returns (uint256) {
+        gateway.transfer(_gas);
+        return _gas;
     }
 
     function fundGateway() internal returns (uint256) {
+        // TODO: calculate gas better than this!
         uint256 gas=1;
-        // TODO: write the function
+        gateway.transfer(gas);
         return gas;
     }
 
-    function payCallback(uint256 requestId, bool success) public payable onlyGateway {
-        require (expectedResult[requestId]==FunctionCallType.PAY);
-        if (!success)
-            emit SecretNetworkError(requestId, "Error paying - wrong payment ref?");
-        emit RequestSuccess(requestId);
+    function payCallback(uint256 _requestId, bool _success) public payable onlyGateway {
+        require (expectedResult[_requestId]==FunctionCallType.PAY);
+        if (!_success)
+            emit SecretNetworkError(_requestId, "Error paying - wrong payment ref?");
+        emit Request_success(_requestId);
     }
 
-    function payCallback(uint256 requestId, bool success, Receipt calldata _receipt) public payable onlyGateway {
+    function payCallback(uint256 _requestId, bool _success, Receipt calldata _receipt) public payable onlyGateway {
         // TODO : use ecrecover to check receipt is signed by secret contract
-        require (expectedResult[requestId]==FunctionCallType.PAY);
-        if (!success)
-            emit SecretNetworkError(requestId, "Error paying - wrong payment ref?");
+        require (expectedResult[_requestId]==FunctionCallType.PAY);
+        if (!_success)
+            emit SecretNetworkError(_requestId, "Error paying - wrong payment ref?");
         if (uint256(_receipt.sig)!=0)
             emit ReceiptEmitted(_receipt);
-        emit RequestSuccess(requestId);
+        emit Request_success(_requestId);
     }
 
     receive() external payable {
@@ -150,25 +151,25 @@ contract NunyaBusiness {
     }
 
     // Function wrapped in secret network payload encryption
-    function withdrawTo(string calldata secret, uint256 amount, address withdrawalAddress) public payable returns (uint256) {
-        require((amount > 0), "Account not found or empty.");
+    function withdrawTo(string calldata _secret, uint256 _amount, address _withdrawalAddress) public payable returns (uint256) {
+        require((_amount > 0), "Account not found or empty.");
         fundGateway(msg.value);
-        uint256 requestId = secretContract.withdraw(secret, withdrawalAddress);
+        uint256 requestId = secretContract.withdraw(_secret, _withdrawalAddress);
         // TODO: error check
         expectedResult[requestId]=FunctionCallType.WITHDRAW;
         return(requestId);
     }
 
-    function withdrawToCallback(uint256 requestId, bool success, uint256 amount, address payable withdrawalAddress) onlyGateway public {
-        require (expectedResult[requestId]==FunctionCallType.WITHDRAW);
-        if (!success)
-            emit SecretNetworkError(requestId, "Error withdrawing - out of funds?");
-        require(amount > 0, "Account not found or empty.");
-        withdrawalAddress.transfer(amount);
-        emit RequestSuccess(requestId);
+    function withdrawToCallback(uint256 _requestId, bool _success, uint256 _amount, address payable _withdrawalAddress) onlyGateway public {
+        require (expectedResult[_requestId]==FunctionCallType.WITHDRAW);
+        if (!_success)
+            emit SecretNetworkError(_requestId, "Error withdrawing - out of funds?");
+        require(_amount > 0, "Account not found or empty.");
+        _withdrawalAddress.transfer(_amount);
+        emit Request_success(_requestId);
     }
 
-    function emitSecretNetworkError(uint256 requestId, string memory _message) public onlyGateway {
-        emit SecretNetworkError(requestId, _message);
+    function emitSecretNetworkError(uint256 _requestId, string memory _message) public onlyGateway {
+        emit SecretNetworkError(_requestId, _message);
     }
 }
