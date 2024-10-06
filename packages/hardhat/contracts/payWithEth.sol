@@ -83,21 +83,21 @@ contract NunyaBusiness {
     }
     
     // TODO: use ref encrypted with (user pubkey+salt)
-    function pay(string calldata ref, uint256 _value) public payable returns (uint256) {
+    function pay(string calldata _ref, uint256 _value) public payable returns (uint256) {
         // >= because we need gas for
         require (_value >= msg.value, "Naughty!");
         uint256 gasPaid = fundGateway();
-        uint256 requestId = secretContract.pay(ref, msg.value-gasPaid);
+        uint256 requestId = secretContract.pay(_ref, msg.value-gasPaid);
         expectedResult[requestId]=FunctionCallType.PAY;
         return(requestId);
     }
 
     // TODO: use ref encrypted with (user pubkey+salt)
-    function pay(string calldata ref, uint256 _value, uint256 _userPubkey) public payable returns (uint256) {
+    function pay(string calldata _ref, uint256 _value, uint256 _userPubkey) public payable returns (uint256) {
         // >= because we need gas for
         require (_value >= msg.value, "Naughty!");
         uint256 gasPaid = fundGateway();
-        uint256 requestId = secretContract.payWithReceipt(ref, msg.value-gasPaid, _userPubkey);
+        uint256 requestId = secretContract.payWithReceipt(_ref, msg.value-gasPaid, _userPubkey);
         expectedResult[requestId]==FunctionCallType.PAY;
         return(requestId);
     }
@@ -126,9 +126,9 @@ contract NunyaBusiness {
     }
 
     // Function wrapped in secret network payload encryption
-    function withdrawTo(string calldata secret, uint256 amount, address withdrawalAddress) public returns (uint256) {
+    function withdrawTo(string calldata _secret, uint256 amount, address withdrawalAddress) public returns (uint256) {
         require((amount > 0), "Account not found or empty.");
-        uint256 requestId = secretContract.withdraw(secret, withdrawalAddress);
+        uint256 requestId = secretContract.withdraw(_secret, withdrawalAddress);
         // TODO: error check
         expectedResult[requestId]=FunctionCallType.WITHDRAW;
         return(requestId);
