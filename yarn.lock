@@ -2778,7 +2778,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:>=13.7.0":
+"@types/node@npm:*, @types/node@npm:>=13.7.0, @types/node@npm:^22.7.4":
   version: 22.7.4
   resolution: "@types/node@npm:22.7.4"
   dependencies:
@@ -9286,7 +9286,7 @@ __metadata:
 "json-stream-stringify@npm:^3.1.4":
   version: 3.1.6
   resolution: "json-stream-stringify@npm:3.1.6"
-  checksum: ce873e09fe18461960b7536f63e2f913a2cb242819513856ed1af58989d41846976e7177cb1fe3c835220023aa01e534d56b6d5c3290a5b23793a6f4cb93785e
+  checksum: 10/ce873e09fe18461960b7536f63e2f913a2cb242819513856ed1af58989d41846976e7177cb1fe3c835220023aa01e534d56b6d5c3290a5b23793a6f4cb93785e
   languageName: node
   linkType: hard
 
@@ -12194,20 +12194,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"secret-instantiate-contract@workspace:packages/secret-instantiate-contract":
-  version: 0.0.0-use.local
-  resolution: "secret-instantiate-contract@workspace:packages/secret-instantiate-contract"
-  dependencies:
-    dotenv: "npm:^16.4.5"
-    secretjs: "npm:^1.12.5"
-    typescript: "npm:^5.6.2"
-  languageName: unknown
-  linkType: soft
-
 "secret-upload-contract@workspace:packages/secret-upload-contract":
   version: 0.0.0-use.local
   resolution: "secret-upload-contract@workspace:packages/secret-upload-contract"
   dependencies:
+    "@types/node": "npm:^22.7.4"
     dotenv: "npm:^16.4.5"
     secretjs: "npm:^1.12.5"
     typescript: "npm:^5.6.2"

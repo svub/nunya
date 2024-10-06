@@ -6,7 +6,7 @@
     "packages/*"
   ],
   "engines": {
-    "node": "20"
+    "node": ">=18.18.0"
   },
   "devDependencies": {
     "husky": "~8.0.3",
@@ -43,8 +43,5 @@
     "secret:clean:instantiateContract": "yarn workspace secret-instantiate-contract clean",
     "secret:start:instantiateContract": "yarn workspace secret-instantiate-contract start"
   },
-  "packageManager": "yarn@4.2.2",
-  "engines": {
-    "node": ">=18.18.0"
-  }
+  "packageManager": "yarn@4.2.2"
 }
