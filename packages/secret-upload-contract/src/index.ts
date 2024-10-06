@@ -60,7 +60,6 @@ async function main () {
 
     let codeId: String | undefined;
     let contractCodeHash: String | undefined;
-    let contractAddress;
 
     let tx = await secretjs.tx.compute.storeCode(
       {
@@ -92,6 +91,8 @@ async function main () {
   };
 
   let instantiate_contract = async (params: CODE_PARAMS) => {
+    let contractAddress;
+
     if (!params.codeId || !params.contractCodeHash) {
       throw new Error("codeId or contractCodeHash is not set.");
     }
@@ -116,11 +117,13 @@ async function main () {
     );
 
     //Find the contract_address in the logs
-    const contractAddress = tx?.arrayLog?.find(
+    contractAddress = tx?.arrayLog?.find(
       (log) => log?.type === "message" && log?.key === "contract_address"
     )?.value;
 
     console.log("SECRET_ADDRESS: ", contractAddress);
+
+    return contractAddress;
   };
   
   // Chain the execution using promises
