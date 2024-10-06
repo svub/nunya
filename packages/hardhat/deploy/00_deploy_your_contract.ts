@@ -27,6 +27,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     // Contract constructor arguments
     args: [deployer],
     log: true,
+    gasLimit: 3000000, 
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
     // automatically mining the contract deployment transaction. There is no effect on live networks.
     autoMine: true,
