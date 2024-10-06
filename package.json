@@ -43,8 +43,5 @@
     "secret:clean:instantiateContract": "yarn workspace secret-instantiate-contract clean",
     "secret:start:instantiateContract": "yarn workspace secret-instantiate-contract start"
   },
-  "packageManager": "yarn@4.2.2",
-  "engines": {
-    "node": ">=18.18.0"
-  }
+  "packageManager": "yarn@4.2.2"
 }

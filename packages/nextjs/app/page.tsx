@@ -1,70 +1,163 @@
 "use client";
 
-import Link from "next/link";
+import { useState } from "react";
 import type { NextPage } from "next";
+import { TextEncoder } from "util";
+import { parseEther } from "viem";
 import { useAccount } from "wagmi";
-import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { Address } from "~~/components/scaffold-eth";
+import { Address, EtherInput } from "~~/components/scaffold-eth";
+import { useScaffoldWatchContractEvent, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+
+declare global {
+  interface Window {
+    temp: unknown;
+  }
+}
 
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
+  const [secret, setSecret] = useState("");
+  const [returnAddress, setReturnAddress] = useState("");
+  const [returnAmount, setReturnAmount] = useState("");
+  const [latestReference, setLastestReference] = useState("");
+  const [paymentReference, setPaymentReference] = useState("");
+  const [paymentAmount, setPaymentAmount] = useState("");
+  const [paymentReceipt, setPaymentReceipt] = useState("");
+  const { writeContractAsync } = useScaffoldWriteContract("PayWithEth");
+
+  const encoder: TextEncoder = new global.TextEncoder();
+  const decoder: TextDecoder = new global.TextDecoder();
+
+  useScaffoldWatchContractEvent({
+    contractName: "nunya",
+    eventName: "reference-created",
+    onLogs: logs => {
+      logs.map(log => {
+        const { referenceBytes } = log.args;
+        const reference: string = decoder.decode(referenceBytes as ArrayBuffer);
+        console.log("📡 Reference " + reference + " created");
+        setLastestReference(reference);
+      });
+    },
+  });
+
+  const handlePay = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    await writeContractAsync({
+      functionName: "pay",
+      value: parseEther(paymentAmount),
+      args: [encoder.encode(secret), returnAddress],
+    });
+  };
+
+  useScaffoldWatchContractEvent({
+    contractName: "nunya",
+    eventName: "payment-receipt-received",
+    onLogs: logs => {
+      logs.map(log => {
+        const { receiptBytes } = log.args;
+        // TODO extract the huamn readable part, show the bytes somehow (v2: show as QR code or write as file for book keeping)
+        const receipt: string = decoder.decode(receiptBytes as ArrayBuffer);
+        console.log("📡 Payment Receipt " + receipt + " created");
+        setPaymentReceipt(receipt);
+      });
+    },
+  });
+
+  const handleWithdrawal = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    // const { writeContractAsync } = useScaffoldWriteContract("PayWithEth");
+    // writeContractAsync({ functionName: "withdraw" });
+
+    // const encryptedSecret: ArrayBuffer = await encrypt(encoder.encode(secret));
+    await writeContractAsync({
+      functionName: "withdraw",
+      value: parseEther(returnAmount),
+      args: [encoder.encode(secret), returnAddress],
+    });
+  };
 
   return (
     <>
-      <div className="flex items-center flex-col flex-grow pt-10">
-        <div className="px-5">
-          <h1 className="text-center">
-            <span className="block text-2xl mb-2">Welcome to</span>
-            <span className="block text-4xl font-bold">Scaffold-ETH 2</span>
-          </h1>
-          <div className="flex justify-center items-center space-x-2 flex-col sm:flex-row">
-            <p className="my-2 font-medium">Connected Address:</p>
-            <Address address={connectedAddress} />
-          </div>
-
-          <p className="text-center text-lg">
-            Get started by editing{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              packages/nextjs/app/page.tsx
-            </code>
-          </p>
-          <p className="text-center text-lg">
-            Edit your smart contract{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              YourContract.sol
-            </code>{" "}
-            in{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              packages/hardhat/contracts
-            </code>
-          </p>
-        </div>
-
-        <div className="flex-grow bg-base-300 w-full mt-16 px-8 py-12">
-          <div className="flex justify-center items-center gap-12 flex-col sm:flex-row">
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <BugAntIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Tinker with your smart contract using the{" "}
-                <Link href="/debug" passHref className="link">
-                  Debug Contracts
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <MagnifyingGlassIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Explore your local transactions with the{" "}
-                <Link href="/blockexplorer" passHref className="link">
-                  Block Explorer
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
-          </div>
-        </div>
+      <h1 className="text-center">
+        <span className="block text-2xl mb-2">Welcome to</span>
+        <span className="block text-4xl font-bold">Scaffold-ETH 2</span>
+      </h1>
+      <div className="flex justify-center items-center space-x-2 flex-col sm:flex-row">
+        <p className="my-2 font-medium">How it works. TODO</p>
+        <Address address={connectedAddress} />
       </div>
+
+      <h2>Pay</h2>
+      <p className="text-center text-lg">
+        <form onSubmit={handlePay} className="flex items-center justify-end mb-5 space-x-3 mx-5">
+          <input
+            className="border-primary bg-base-100 text-base-content p-2 mr-2 w-full md:w-1/2 lg:w-1/3 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-accent"
+            type="text"
+            value={paymentReference}
+            placeholder="Your secret..."
+            onChange={e => setPaymentReference(e.target.value)}
+          />
+          <EtherInput value={paymentAmount} onChange={amount => setPaymentAmount(amount)} />
+          <button className="btn btn-sm btn-primary" type="submit">
+            Pay bill now.
+          </button>
+        </form>
+      </p>
+      <p>Receipt: {paymentReceipt}</p>
+
+      <h2>Make Ref</h2>
+      <p className="text-center text-lg">
+        <form onSubmit={handleWithdrawal} className="flex items-center justify-end mb-5 space-x-3 mx-5">
+          <input
+            className="border-primary bg-base-100 text-base-content p-2 mr-2 w-full md:w-1/2 lg:w-1/3 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-accent"
+            type="text"
+            value={secret}
+            placeholder="Your secret..."
+            onChange={e => setSecret(e.target.value)}
+          />
+          <button className="btn btn-sm btn-primary" type="submit">
+            Create new billing reference
+          </button>
+        </form>
+      </p>
+      <p>Reference: {latestReference}</p>
+
+      <h2>Withdraw</h2>
+      <p className="text-center text-lg">
+        <form onSubmit={handleWithdrawal} className="flex items-center justify-end mb-5 space-x-3 mx-5">
+          <input
+            className="border-primary bg-base-100 text-base-content p-2 mr-2 w-full md:w-1/2 lg:w-1/3 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-accent"
+            type="text"
+            value={secret}
+            placeholder="Your secret..."
+            onChange={e => setSecret(e.target.value)}
+          />
+          <input
+            className="border-primary bg-base-100 text-base-content p-2 mr-2 w-full md:w-1/2 lg:w-1/3 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-accent"
+            type="text"
+            value={returnAmount}
+            placeholder="Amount to withdraw..."
+            onChange={e => setReturnAmount(e.target.value)}
+          />
+          <input
+            className="border-primary bg-base-100 text-base-content p-2 mr-2 w-full md:w-1/2 lg:w-1/3 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-accent"
+            type="text"
+            value={returnAddress}
+            placeholder="Return address..."
+            onChange={e => setReturnAddress(e.target.value)}
+          />
+          <button className="btn btn-sm btn-primary" type="submit">
+            Withdraw
+          </button>
+        </form>
+      </p>
+
+      {/* <Link href="/debug" passHref className="link">Debug</Link>
+      <BugAntIcon className="h-8 w-8 fill-secondary" />
+      <MagnifyingGlassIcon className="h-8 w-8 fill-secondary" /> */}
     </>
   );
 };

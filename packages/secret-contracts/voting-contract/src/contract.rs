@@ -119,7 +119,7 @@ fn create_new_secret_user(
     NEW_SECRET_USER_MAP.insert(deps.storage, &new_key, &new_secret_user)?;
 
     let data = ResponseStoreMsg {
-        message: "Value store completed successfully".to_string(),
+        message: true,
     };
 
     let json_string =
@@ -186,7 +186,7 @@ fn create_link_payment_ref(
     LINK_PAYMENT_REF_MAP.insert(deps.storage, &new_key, &link_payment_reference)?;
 
     let data = ResponseStoreMsg {
-        message: "Value store completed successfully".to_string(),
+        message: true,
     };
 
     let json_string =
@@ -253,7 +253,7 @@ fn create_pay(
     PAY_MAP.insert(deps.storage, &new_key, &pay)?;
 
     let data = ResponseStoreMsg {
-        message: "Value store completed successfully".to_string(),
+        message: true,
     };
 
     let json_string =
@@ -327,7 +327,7 @@ fn create_pay_encrypted_with_receipt(
     PAY_ENCRYPTED_WITH_RECEIPT_MAP.insert(deps.storage, &new_key, &pay_encrypted_with_receipt)?;
 
     let data = ResponseStoreMsg {
-        message: "Value store completed successfully".to_string(),
+        message: true,
     };
 
     let json_string =
@@ -374,13 +374,13 @@ fn create_withdraw_to(
 
     // Parse as u256
     let amount = input
-        .amount
+        ._amount
         .parse::<u256>()
         .map_err(|err| StdError::generic_err(format!("Invalid amount: {}", err)))?;
 
     // Parse as u256
     let withdrawal_address = input
-        .withdrawalAddress
+        ._withdrawalAddress
         .parse::<String>()
         .map_err(|err| StdError::generic_err(format!("Invalid withdrawalAddress: {}", err)))?;
 
@@ -403,7 +403,7 @@ fn create_withdraw_to(
     WITHDRAW_TO_MAP.insert(deps.storage, &new_key, &withdrawal_to)?;
 
     let data = ResponseStoreMsg {
-        message: "Value store completed successfully".to_string(),
+        message: true,
     };
 
     let json_string =
@@ -445,6 +445,6 @@ fn retrieve_pubkey_query(deps: Deps, key: u32) -> StdResult<Binary> {
         .ok_or_else(|| StdError::generic_err("Value not found"))?;
 
     to_binary(&ResponseRetrievePubkeyMsg {
-        message: "Retrieved value successfully".to_string(),
+        message: true,
     })
 }
