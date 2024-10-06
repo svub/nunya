@@ -15,32 +15,35 @@ interface SecretContract {
 /**
  * @author
  */
-contract PayWithEth {
+contract NunyaBusiness {
     address gateway;
     SecretContract secretContract;
+    bytes32 secretContractPubkey;
 
-    event receiptEmmited(bytes32);
+    event receiptEmitted(bytes32);
 
     constructor(address _gateway) {
         gateway == _gateway;
     }
 
-    modifier onlyGateway () {
+    modifier onlyGateway {
         require (gateway, "No gateway set");
         require (msg.sender==gateway, "Only gateway can call callbacks. Use the user function instead");
         _;
     }
 
+    // Function wrapped in secret network payload encryption
     function makeRef(string calldata secret) public returns (string memory){
         string memory ref = secretContract.makeRef(secret);
         return ref;
     }
 
-    function makeRefCallback(string calldata secret) public returns (string memory){
+    function makeRefCallback(string calldata secret) public onlyGateway returns (string memory){
         string memory ref = secretContract.makeRef(secret);
         return ref;
     }
 
+    // Function wrapped in secret network payload encryption
     function pay(string calldata ref) public payable returns (uint256) {
         // TODO replace with proper type for proofs
         uint256 receipt = secretContract.pay(ref, msg.value);
@@ -52,24 +55,23 @@ contract PayWithEth {
     //     secretContract.pay()
     // }
 
-    function payCallback(string calldata ref) public payable returns (uint256) {
-        // TODO replace with proper type for proofs
-        uint256 receipt = secretContract.pay(ref, msg.value);
-        require(receipt > 0, "Payment reference not found");
-        return receipt;
+    function payCallback(bytes32 _receipt) public payable onlyGateway {
+        // TODO : use ecrecover to check recipt is signed by secret contract
+        emit receiptEmitted(_receipt);
     }
 
     receive() external payable {
 
     }
 
+    // Function wrapped in secret network payload encryption
     function withdraw(string calldata secret, address payable withdrawalAddress) public {
         uint256 amount = secretContract.withdraw(secret, withdrawalAddress);
         require(amount > 0, "Account not found or empty.");
         withdrawalAddress.transfer(amount);
     }
 
-    function withdrawCallback(string calldata secret, address payable withdrawalAddress) public {
+    function withdrawCallback(string calldata secret, address payable withdrawalAddress) onlyGateway public {
         uint256 amount = secretContract.withdraw(secret, withdrawalAddress);
         require(amount > 0, "Account not found or empty.");
         withdrawalAddress.transfer(amount);
