@@ -5,6 +5,9 @@
   "workspaces": [
     "packages/*"
   ],
+  "engines": {
+    "node": "20"
+  },
   "devDependencies": {
     "husky": "~8.0.3",
     "lint-staged": "~13.2.2"
