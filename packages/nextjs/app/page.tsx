@@ -4,8 +4,7 @@ import { useState } from "react";
 import type { NextPage } from "next";
 import { TextEncoder } from "util";
 import { parseEther } from "viem";
-import { useAccount } from "wagmi";
-import { Address, EtherInput } from "~~/components/scaffold-eth";
+import { EtherInput } from "~~/components/scaffold-eth";
 import { useScaffoldWatchContractEvent, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 declare global {
@@ -15,7 +14,7 @@ declare global {
 }
 
 const Home: NextPage = () => {
-  const { address: connectedAddress } = useAccount();
+  // const { address: connectedAddress } = useAccount();
   const [secret, setSecret] = useState("");
   const [returnAddress, setReturnAddress] = useState("");
   const [returnAmount, setReturnAmount] = useState("");
@@ -82,15 +81,14 @@ const Home: NextPage = () => {
   return (
     <>
       <h1 className="text-center">
-        <span className="block text-2xl mb-2">Welcome to</span>
-        <span className="block text-4xl font-bold">Scaffold-ETH 2</span>
+        <span className="block text-4xl font-bold">Nunya.business</span>
+        <span className="block text-2xl mb-2">Receive Business Payments</span>
       </h1>
       <div className="flex justify-center items-center space-x-2 flex-col sm:flex-row">
-        <p className="my-2 font-medium">How it works. TODO</p>
-        <Address address={connectedAddress} />
+        <p className="my-2 font-medium">... while not reveiling what you earned from others.</p>
       </div>
 
-      <h2>Pay</h2>
+      <h2 className="text-center text-xl mt-8">Make a payment</h2>
       <p className="text-center text-lg">
         <form onSubmit={handlePay} className="flex items-center justify-end mb-5 space-x-3 mx-5">
           <input
@@ -108,7 +106,7 @@ const Home: NextPage = () => {
       </p>
       <p>Receipt: {paymentReceipt}</p>
 
-      <h2>Make Ref</h2>
+      <h2 className="text-center text-xl mt-8">Create reference</h2>
       <p className="text-center text-lg">
         <form onSubmit={handleWithdrawal} className="flex items-center justify-end mb-5 space-x-3 mx-5">
           <input
@@ -125,7 +123,7 @@ const Home: NextPage = () => {
       </p>
       <p>Reference: {latestReference}</p>
 
-      <h2>Withdraw</h2>
+      <h2 className="text-center text-xl mt-8">Withdraw</h2>
       <p className="text-center text-lg">
         <form onSubmit={handleWithdrawal} className="flex items-center justify-end mb-5 space-x-3 mx-5">
           <input
