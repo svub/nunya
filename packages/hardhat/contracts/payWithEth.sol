@@ -7,9 +7,12 @@ import "hardhat/console.sol";
 // import "@openzeppelin/contracts/access/Ownable.sol";
 
 interface SecretContract {
-    function makeRef(string calldata secret) external returns (string memory);
-    function pay(string calldata ref, uint256 amout) external returns (uint256);
+    function newSecretUser(uint256 calldata secret) external returns (string memory);
+    function linkPaymentRef(uint256 calldata secret, string calldata ref) external returns (string memory);
+    function pay(string calldata ref, uint256 amount) external returns (uint256);
+    function payWithReceipt(string calldata ref, uint256 amount, uint256 userPubkey) external returns (uint256);
     function withdraw(string calldata secret, address withdrawalAddress) external returns (uint256);
+    function retreivePubkey() external returns (uint256);
 }
 
 /**
@@ -18,12 +21,13 @@ interface SecretContract {
 contract NunyaBusiness {
     address gateway;
     SecretContract secretContract;
-    bytes32 secretContractPubkey;
+    uint256 secretContractPubkey;
 
     event receiptEmitted(bytes32);
 
     constructor(address _gateway) {
-        gateway == _gateway;
+        gateway = _gateway;
+        secretContract = SecretContract(_gateway);
         secretContract.retreivePubkey();
     }
 
@@ -33,42 +37,64 @@ contract NunyaBusiness {
         _;
     }
 
-    function setSecretContractPubkey (bytes32 _key) public onlyGateway {
-        require (secretContractPubkey==bytes32(0), "Key already set");
+    function setSecretContractPubkey (uint256 _key) public onlyGateway {
+        require (secretContractPubkey==0, "Key already set");
         // TODO: Make sure it's our secret contract setting the key, not some interloper
         secretContractPubkey=_key;        
     }
 
     // Function wrapped in secret network payload encryption
-    function makeRef(string calldata secret) public returns (string memory){
-        string memory ref = secretContract.makeRef(secret);
-        return ref;
+    function newSecretUser(uint256 secret) public returns (string memory){
+        string memory ref = secretContract.linkPaymentRef(secret);
     }
 
-    function makeRefCallback(string calldata secret) public onlyGateway returns (string memory){
-        string memory ref = secretContract.makeRef(secret);
-        return ref;
+    function newSecretUserCallback(uint256 secret) public onlyGateway {
+        // TODO: emit requestId
     }
 
     // Function wrapped in secret network payload encryption
-    function pay(string calldata ref) public payable returns (uint256) {
-        // TODO replace with proper type for proofs
-        uint256 receipt = secretContract.pay(ref, msg.value);
-        require(receipt > 0, "Payment reference not found");
-        return receipt;
+    function linkPaymentRef(string calldata secret) public returns (string memory){
+        string memory ref = secretContract.linkPaymentRef(secret);
+    }
+
+    function linkPaymentRefCallback(string calldata secret) public onlyGateway returns (string memory){
+        string memory ref = secretContract.linkPaymentRef(secret);
+        return ref;
+    }
+    
+    // TODO: use ref encrypted with (user pubkey+salt)
+    function pay(string calldata ref, uint256 _value) public payable {
+        // >= because we need gas for
+        require (_value >= msg.value, "Naughty!");
+        uint256 gasPaid = fundGateway();
+        secretContract.pay(ref, msg.value-gasPaid);
+    }
+
+    // TODO: use ref encrypted with (user pubkey+salt)
+    function pay(string calldata ref, uint256 _value, uint256 _userPubkey) public payable {
+        // >= because we need gas for
+        require (_value >= msg.value, "Naughty!");
+        uint256 gasPaid = fundGateway();
+        secretContract.payWithReceipt(ref, msg.value-gasPaid, _userPubkey);
     }
     // useful? 
     // function payEncrypted(string EncryptedRef) payable {
     //     secretContract.pay()
     // }
 
+    function fundGateway() internal returns (uint256) {
+        uint256 gas=1;
+        // TODO: write the function
+        return gas;
+    }
+
     function payCallback(bytes32 _receipt) public payable onlyGateway {
-        // TODO : use ecrecover to check recipt is signed by secret contract
+        // TODO : use ecrecover to check receipt is signed by secret contract
         emit receiptEmitted(_receipt);
     }
 
     receive() external payable {
-
+        
     }
 
     // Function wrapped in secret network payload encryption
