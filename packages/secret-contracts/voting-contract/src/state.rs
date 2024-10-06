@@ -11,8 +11,6 @@ pub static LINK_PAYMENT_REF_MAP: Keymap<u32, Vec<LinkPaymentRef>> = Keymap::new(
 pub static PAY_MAP: Keymap<u32, Vec<PayRef>> = Keymap::new(b"PAY_MAP");
 pub static PAY_ENCRYPTED_WITH_RECEIPT_MAP: Keymap<u32, Vec<PayEnryptedWithReceipt>> = Keymap::new(b"PAY_ENCRYPTED_WITH_RECEIPT_MAP");
 pub static WITHDRAW_TO_MAP: Keymap<u32, Vec<WithdrawTo>> = Keymap::new(b"WITHDRAW_TO_MAP");
-// pub static PROPOSAL_MAP: Keymap<u32, Proposal> = Keymap::new(b"PROPOSAL_MAP");
-// pub static VOTE_MAP: Keymap<u32, Vec<Vote>> = Keymap::new(b"VOTE_MAP");
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct State {
@@ -51,22 +49,3 @@ pub struct WithdrawTo {
     pub amount: u256,
     pub withdrawalAddress: String, // u160, // u160(u256(bytes32))
 }
-
-// #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-// pub struct Proposal {
-//     pub name: String,
-//     pub description: String,
-//     pub end_time: u64,
-// }
-
-// #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-// pub struct Vote {
-//     pub vote: String,
-//     pub wallet_address: String,
-//     pub index: u32,
-// }
-
-// #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-// pub struct Votes {
-//     pub votes: Vec<Vote>,
-// }

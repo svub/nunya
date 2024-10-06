@@ -3,14 +3,11 @@ use crate::{
         ExecuteMsg, GatewayMsg, InstantiateMsg, QueryMsg,
         NewSecretUserStoreMsg, LinkPaymentRefStoreMsg, PayStoreMsg, PayEncryptedWithReceiptStoreMsg, WithdrawToStoreMsg,
         ResponseStoreMsg, ResponseRetrievePubkeyMsg,
-        // ProposalStoreMsg, ResponseRetrieveProposalMsg, ResponseRetrieveVotesMsg, ResponseStoreProposalMsg, VoteStoreMsg,
     },
     state::{
         NewSecretUser, LinkPaymentRef, Pay, PayEnryptedWithReceipt, WithdrawTo,
         State, CONFIG,
         PUBKEY_MAP, NEW_SECRET_USER_MAP, LINK_PAYMENT_REF_MAP, PAY_MAP, PAY_ENCRYPTED_WITH_RECEIPT_MAP, WITHDRAW_TO_MAP,
-        // PROPOSAL_MAP, VOTE_MAP,
-        // Proposal, State, Vote
     },
 };
 use cosmwasm_std::{
@@ -77,8 +74,6 @@ fn try_handle(
         "pay" => create_pay(deps, env, msg.input_values, msg.task, msg.input_hash),
         "payWithReceipt" => create_pay_encrypted_with_receipt(deps, env, msg.input_values, msg.task, msg.input_hash),
         "withdrawTo" => create_withdraw_to(deps, env, msg.input_values, msg.task, msg.input_hash),
-        // "create_proposal" => create_proposal(deps, env, msg.input_values, msg.task, msg.input_hash),
-        // "create_vote" => create_vote(deps, env, msg.input_values, msg.task, msg.input_hash),
 
         _ => Err(StdError::generic_err("invalid handle".to_string())),
     }
@@ -433,8 +428,6 @@ fn create_withdraw_to(
 pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
     let response = match msg {
         QueryMsg::RetrievePubkey { key } => retrieve_pubkey_query(deps, key),
-        // QueryMsg::RetrieveProposal { key } => retrieve_proposal_query(deps, key),
-        // QueryMsg::RetrieveVotes { key } => retrieve_votes_query(env, deps, key),
     };
     pad_query_result(response, BLOCK_SIZE)
 }

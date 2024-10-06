@@ -67,32 +67,11 @@ pub struct ResponseRetrievePubkeyMsg {
     pub message: bool,
 }
 
-// #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-// pub struct ResponseRetrieveProposalMsg {
-//     // value of the StorageItem
-//     pub name: String,
-//     pub description: String,
-//     pub end_time: u64,
-//     // response message
-//     pub message: String,
-// }
-
-// #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-// pub struct ResponseRetrieveVotesMsg {
-//     pub message: String,
-// }
-
-// #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-// #[serde(rename_all = "snake_case")]
-// pub enum QueryMsg {
-//     RetrieveProposal { key: u32 },
-//     RetrieveVotes { key: u32 },
-// }
-
-// #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
-// pub struct QueryResponse {
-//     pub message: String,
-// }
+// TODO: this may not be necessary
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub struct QueryResponse {
+    pub message: String,
+}
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
