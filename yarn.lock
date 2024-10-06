@@ -9085,9 +9085,9 @@ __metadata:
   linkType: hard
 
 "json-stream-stringify@npm:^3.1.4":
-  version: 3.1.5
-  resolution: "json-stream-stringify@npm:3.1.5"
-  checksum: 7f0972aa8ae63e7e19db474df707a0c984e391113260fa5b93377665c6ff74f8b4e8512baafa075cbe2203a65d45ea1a08a7ff303777ac4e8ef2cd924ed45827
+  version: 3.1.6
+  resolution: "json-stream-stringify@npm:3.1.6"
+  checksum: ce873e09fe18461960b7536f63e2f913a2cb242819513856ed1af58989d41846976e7177cb1fe3c835220023aa01e534d56b6d5c3290a5b23793a6f4cb93785e
   languageName: node
   linkType: hard
 
