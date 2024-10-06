@@ -113,13 +113,13 @@ make build
 
 * OPTIONAL - optimize contract code
 
+* Upload and Instantiate 
 ```
 yarn run secret:clean:uploadContract
 yarn run secret:start:uploadContract
-
-yarn run secret:clean:instantiateContract
-yarn run secret:start:instantiateContract
 ```
+* View logs at ./logs/instantiateOutput.log
+* View on Secret Testnet block explorer at https://testnet.ping.pub/secret/
 
 ## Documentation
 
