@@ -24,12 +24,18 @@ contract NunyaBusiness {
         OTHER, NEW_USER, NEW_REF, PAY, WITHDRAW
     }
 
+    struct Receipt {
+        uint256 paymentRef;
+        uint256 amount;
+        bytes32 sig;
+    }
+
     address gateway;
     SecretContract secretContract;
     uint256 secretContractPubkey;
     mapping (uint256 => FunctionCallType) expectedResult;
 
-    event receiptEmitted(bytes32);
+    event receiptEmitted(Receipt);
 
     constructor(address _gateway) {
         gateway = _gateway;
@@ -107,10 +113,10 @@ contract NunyaBusiness {
         return gas;
     }
 
-    function payCallback(uint256 requestId, bytes32 _receipt) public payable onlyGateway {
+    function payCallback(uint256 requestId, Receipt calldata _receipt) public payable onlyGateway {
         // TODO : use ecrecover to check receipt is signed by secret contract
         require (expectedResult[requestId]==FunctionCallType.PAY);
-        if (uint256(_receipt)!=0)
+        if (uint256(_receipt.sig)!=0)
             emit receiptEmitted(_receipt);
         // TODO :  emit requestId
     }
