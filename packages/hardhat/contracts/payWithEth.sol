@@ -12,7 +12,7 @@ interface SecretContract {
     function pay(string calldata ref, uint256 amount) external returns (uint256);
     function payWithReceipt(string calldata ref, uint256 amount, uint256 userPubkey) external returns (uint256);
     function withdraw(string calldata secret, address withdrawalAddress) external returns (uint256);
-    function retreivePubkey() external returns (uint256);
+    function retrievePubkey() external returns (uint256);
 }
 
 /**
@@ -42,7 +42,7 @@ contract NunyaBusiness {
         secretContract = SecretContract(_gateway);
         // Lock secretContractPubkey to requestId so that only that request cn set it.
         // TODO: make it better - if call fails, contract is stuck and needs redploy :P
-        secretContractPubkey = secretContract.retreivePubkey();
+        secretContractPubkey = secretContract.retrievePubkey();
     }
 
     modifier onlyGateway {
