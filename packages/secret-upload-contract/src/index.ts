@@ -50,6 +50,13 @@ async function main () {
 
   console.log('balance: ', balance);
 
+  type INIT_MSG = {
+    gateway_address: String,
+    gateway_hash: String,
+    gateway_key: String,
+    count: Number,
+  };
+
   type CODE_PARAMS = {
     codeId: String | undefined,
     contractCodeHash: String | undefined,
@@ -60,21 +67,25 @@ async function main () {
 
     let codeId: String | undefined;
     let contractCodeHash: String | undefined;
-
-    let tx = await secretjs.tx.compute.storeCode(
-      {
-        sender: wallet.address,
-        wasm_byte_code: contract_wasm,
-        source: "",
-        builder: "",
-      },
-      {
-        gasLimit: 5_000_000,
-      }
-    );
+    let tx: any;
+    try {
+      tx = await secretjs.tx.compute.storeCode(
+        {
+          sender: wallet.address,
+          wasm_byte_code: contract_wasm,
+          source: "",
+          builder: "",
+        },
+        {
+          gasLimit: 5_000_000,
+        }
+      );
+    } catch (e) {
+      console.log('error: ', e);
+    }
 
     codeId = String(
-      tx?.arrayLog?.find((log) => log?.type === "message" && log?.key === "code_id")?.value
+      tx?.arrayLog?.find((log: any) => log?.type === "message" && log?.key === "code_id")?.value
     );
 
     console.log("codeId: ", codeId);
@@ -91,6 +102,7 @@ async function main () {
   };
 
   let instantiate_contract = async (params: CODE_PARAMS) => {
+    console.log('params: ', params)
     let contractAddress;
 
     if (!params.codeId || !params.contractCodeHash) {
@@ -98,11 +110,13 @@ async function main () {
     }
     console.log("Instantiating contract...");
 
-    let initMsg = {
+    let initMsg: INIT_MSG = {
       gateway_address: gatewayAddress,
       gateway_hash: gatewayHash,
       gateway_key: gatewayPublicKeyBytes,
+      count: 1,
     };
+
     let tx = await secretjs.tx.compute.instantiateContract(
       {
         code_id: params.codeId.toString(),
@@ -115,6 +129,7 @@ async function main () {
         gasLimit: 400_000,
       }
     );
+    console.log('tx: ', tx)
 
     //Find the contract_address in the logs
     contractAddress = tx?.arrayLog?.find(
@@ -127,9 +142,9 @@ async function main () {
   };
   
   // Chain the execution using promises
-  upload_contract()
-    .then((res) => {
-      instantiate_contract(res);
+  await upload_contract()
+    .then(async (res) => {
+      await instantiate_contract(res);
     })
     .catch((error) => {
       console.error("Error:", error);
