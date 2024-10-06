@@ -37,7 +37,7 @@ contract NunyaBusiness {
 
     event ReceiptEmitted(Receipt);
     event RequestSuccess(uint256 requestId);
-    event Error(string message);
+    event SecretNetworkError(uint256 requestId, string message);
 
     constructor(address _gateway) {
         gateway = _gateway;
@@ -143,7 +143,7 @@ contract NunyaBusiness {
         emit RequestSuccess(requestId);
     }
 
-    function secretNetworkError(uint256 requestId, string memory _message) public onlyGateway {
-        emit Error(_message);
+    function emitSecretNetworkError(uint256 requestId, string memory _message) public onlyGateway {
+        emit SecretNetworkError(requestId, _message);
     }
 }
