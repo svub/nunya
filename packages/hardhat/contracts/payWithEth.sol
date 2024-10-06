@@ -40,11 +40,12 @@ contract NunyaBusiness {
     event SecretNetworkError(uint256 requestId, string message);
     event HackingAttemptError(uint256 requestId);
 
-    constructor(address _gateway) {
+    constructor(address _gateway) payable {
         gateway = _gateway;
         secretContract = SecretContract(_gateway);
         // Lock secretContractPubkey to requestId so that only that request cn set it.
         // TODO: make it better - if call fails, contract is stuck and needs redploy :P
+        fundGateway(msg.value);
         secretContractPubkey = secretContract.retrievePubkey();
     }
 
@@ -62,7 +63,8 @@ contract NunyaBusiness {
     }
 
     // Function wrapped in secret network payload encryption
-    function newSecretUser(uint256 _secret) public returns (uint256){
+    function newSecretUser(uint256 _secret) public payable returns (uint256){
+        fundGateway(msg.value);
         uint256 requestId = secretContract.newSecretUser(_secret);
         expectedResult[requestId]==FunctionCallType.NEW_USER;
         return(requestId);
@@ -76,7 +78,8 @@ contract NunyaBusiness {
     }
 
     // Function wrapped in secret network payload encryption
-    function linkPaymentRef(uint256 _secret, string calldata _ref) public returns (uint256){
+    function linkPaymentRef(uint256 _secret, string calldata _ref) public payable returns (uint256){
+        fundGateway(msg.value);
         uint256 requestId = secretContract.linkPaymentRef(_secret, _ref);
         expectedResult[requestId]=FunctionCallType.NEW_REF;
         return(requestId);
@@ -114,6 +117,11 @@ contract NunyaBusiness {
     //     secretContract.pay()
     // }
 
+    function fundGateway(uint256 gas) internal returns (uint256) {
+        // TODO: write the function
+        return gas;
+    }
+
     function fundGateway() internal returns (uint256) {
         uint256 gas=1;
         // TODO: write the function
@@ -142,8 +150,9 @@ contract NunyaBusiness {
     }
 
     // Function wrapped in secret network payload encryption
-    function withdrawTo(string calldata secret, uint256 amount, address withdrawalAddress) public returns (uint256) {
+    function withdrawTo(string calldata secret, uint256 amount, address withdrawalAddress) public payable returns (uint256) {
         require((amount > 0), "Account not found or empty.");
+        fundGateway(msg.value);
         uint256 requestId = secretContract.withdraw(secret, withdrawalAddress);
         // TODO: error check
         expectedResult[requestId]=FunctionCallType.WITHDRAW;
