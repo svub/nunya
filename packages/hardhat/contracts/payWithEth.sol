@@ -7,8 +7,8 @@ import "hardhat/console.sol";
 // import "@openzeppelin/contracts/access/Ownable.sol";
 
 interface SecretContract {
-    function newSecretUser(uint256 secret) external returns (string memory);
-    function linkPaymentRef(uint256 secret, string calldata ref) external returns (string memory);
+    function newSecretUser(uint256 secret) external returns (uint256);
+    function linkPaymentRef(uint256 secret, string calldata ref) external returns (uint256);
     function pay(string calldata ref, uint256 amount) external returns (uint256);
     function payWithReceipt(string calldata ref, uint256 amount, uint256 userPubkey) external returns (uint256);
     function withdraw(string calldata secret, address withdrawalAddress) external returns (uint256);
@@ -19,9 +19,14 @@ interface SecretContract {
  * @author
  */
 contract NunyaBusiness {
+    enum functionCallType {
+        OTHER, NEW_USER, NEW_REF, PAY, WITHDRAW
+    };
+
     address gateway;
     SecretContract secretContract;
     uint256 secretContractPubkey;
+    mapping (uint256, functionCallType) expectedResult;
 
     event receiptEmitted(bytes32);
 
@@ -44,37 +49,43 @@ contract NunyaBusiness {
     }
 
     // Function wrapped in secret network payload encryption
-    function newSecretUser(uint256 _secret) public returns (string memory){
-        string memory ref = secretContract.newSecretUser(_secret);
+    function newSecretUser(uint256 _secret) public returns (uint256){
+        uint256 requestId = secretContract.newSecretUser(_secret);
+        expectedResult[requestId]==NEW_USER;
     }
 
-    function newSecretUserCallback(uint256 _secret) public onlyGateway {
+    function newSecretUserCallback(uint256 requestId) public onlyGateway {
+        require (expectedResult[requestId]==NEW_USER);
         // TODO: emit requestId
     }
 
     // Function wrapped in secret network payload encryption
-    function linkPaymentRef(uint256 _secret, string calldata _ref) public returns (string memory){
-        string memory ref = secretContract.linkPaymentRef(_secret, _ref);
+    function linkPaymentRef(uint256 _secret, string calldata _ref) public returns (uint256){
+        uint256 requestId = secretContract.linkPaymentRef(_secret, _ref);
+        expectedResult[requestId]==NEW_REF;
     }
 
-    function linkPaymentRefCallback(uint256 _secret) public onlyGateway{
+    function linkPaymentRefCallback(uint256 requestId) public onlyGateway{
+        require (expectedResult[requestId]==NEW_REF);
         string memory ref = secretContract.linkPaymentRef(_secret, _ref);
     }
     
     // TODO: use ref encrypted with (user pubkey+salt)
-    function pay(string calldata ref, uint256 _value) public payable {
+    function pay(string calldata ref, uint256 _value) public payable returns (uint256) {
         // >= because we need gas for
         require (_value >= msg.value, "Naughty!");
         uint256 gasPaid = fundGateway();
-        secretContract.pay(ref, msg.value-gasPaid);
+        uint256 requestId = secretContract.pay(ref, msg.value-gasPaid);
+        expectedResult[requestId]==PAY;
     }
 
     // TODO: use ref encrypted with (user pubkey+salt)
-    function pay(string calldata ref, uint256 _value, uint256 _userPubkey) public payable {
+    function pay(string calldata ref, uint256 _value, uint256 _userPubkey) public payable returns (uint256) {
         // >= because we need gas for
         require (_value >= msg.value, "Naughty!");
         uint256 gasPaid = fundGateway();
-        secretContract.payWithReceipt(ref, msg.value-gasPaid, _userPubkey);
+        uint256 requestId = secretContract.payWithReceipt(ref, msg.value-gasPaid, _userPubkey);
+        expectedResult[requestId]==PAY;
     }
     // useful? 
     // function payEncrypted(string EncryptedRef) payable {
@@ -87,9 +98,11 @@ contract NunyaBusiness {
         return gas;
     }
 
-    function payCallback(bytes32 _receipt) public payable onlyGateway {
+    function payCallback(uint256 requestId, bytes32 _receipt) public payable onlyGateway {
         // TODO : use ecrecover to check receipt is signed by secret contract
-        emit receiptEmitted(_receipt);
+        require (expectedResult[requestId]==PAY);
+        if uint256(_receipt!=0)
+            emit receiptEmitted(_receipt);
     }
 
     receive() external payable {
@@ -97,13 +110,15 @@ contract NunyaBusiness {
     }
 
     // Function wrapped in secret network payload encryption
-    function withdraw(string calldata secret, address payable withdrawalAddress) public {
-        uint256 amount = secretContract.withdraw(secret, withdrawalAddress);
+    function withdraw(string calldata secret, address payable withdrawalAddress) public returns (uint256) {
         require(amount > 0, "Account not found or empty.");
-        withdrawalAddress.transfer(amount);
+        uint256 requestId = secretContract.withdraw(secret, withdrawalAddress);
+        // TODO: error check
+        expectedResult[requestId]==WiTHDRAW;
     }
 
-    function withdrawCallback(string calldata secret, address payable withdrawalAddress) onlyGateway public {
+    function withdrawCallback(uint256 requestId) onlyGateway public {
+        require (expectedResult[requestId]==WiTHDRAW);
         uint256 amount = secretContract.withdraw(secret, withdrawalAddress);
         require(amount > 0, "Account not found or empty.");
         withdrawalAddress.transfer(amount);
