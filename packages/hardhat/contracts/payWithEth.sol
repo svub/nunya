@@ -7,8 +7,8 @@ import "hardhat/console.sol";
 // import "@openzeppelin/contracts/access/Ownable.sol";
 
 interface SecretContract {
-    function newSecretUser(uint256 calldata secret) external returns (string memory);
-    function linkPaymentRef(uint256 calldata secret, string calldata ref) external returns (string memory);
+    function newSecretUser(uint256 secret) external returns (string memory);
+    function linkPaymentRef(uint256 secret, string calldata ref) external returns (string memory);
     function pay(string calldata ref, uint256 amount) external returns (uint256);
     function payWithReceipt(string calldata ref, uint256 amount, uint256 userPubkey) external returns (uint256);
     function withdraw(string calldata secret, address withdrawalAddress) external returns (uint256);
@@ -44,22 +44,21 @@ contract NunyaBusiness {
     }
 
     // Function wrapped in secret network payload encryption
-    function newSecretUser(uint256 secret) public returns (string memory){
-        string memory ref = secretContract.linkPaymentRef(secret);
+    function newSecretUser(uint256 _secret) public returns (string memory){
+        string memory ref = secretContract.newSecretUser(_secret);
     }
 
-    function newSecretUserCallback(uint256 secret) public onlyGateway {
+    function newSecretUserCallback(uint256 _secret) public onlyGateway {
         // TODO: emit requestId
     }
 
     // Function wrapped in secret network payload encryption
-    function linkPaymentRef(string calldata secret) public returns (string memory){
-        string memory ref = secretContract.linkPaymentRef(secret);
+    function linkPaymentRef(uint256 _secret, string calldata _ref) public returns (string memory){
+        string memory ref = secretContract.linkPaymentRef(_secret, _ref);
     }
 
-    function linkPaymentRefCallback(string calldata secret) public onlyGateway returns (string memory){
-        string memory ref = secretContract.linkPaymentRef(secret);
-        return ref;
+    function linkPaymentRefCallback(uint256 _secret) public onlyGateway{
+        string memory ref = secretContract.linkPaymentRef(_secret, _ref);
     }
     
     // TODO: use ref encrypted with (user pubkey+salt)
