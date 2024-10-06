@@ -35,7 +35,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
 
   // Get the deployed contract to interact with it after deploying.
   const nunya = await hre.ethers.getContract<Contract>("NunyaBusiness", deployer);
-  console.log("👋 Nunya contract:", nunya, await nunya.newSecretUser());
+  console.log("👋 Nunya contract:", nunya, await nunya.getAddress());
 };
 
 export default deployYourContract;
