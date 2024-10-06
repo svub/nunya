@@ -43,5 +43,8 @@
     "secret:clean:instantiateContract": "yarn workspace secret-instantiate-contract clean",
     "secret:start:instantiateContract": "yarn workspace secret-instantiate-contract start"
   },
-  "packageManager": "yarn@4.2.2"
+  "packageManager": "yarn@4.2.2",
+  "dependencies": {
+    "eslint-plugin-react": "^7.37.1"
+  }
 }

@@ -68,7 +68,7 @@ contract NunyaBusiness {
     function newSecretUser(uint256 _secret) public payable returns (uint256){
         fundGateway(msg.value);
         uint256 requestId = secretContract.newSecretUser(_secret);
-        expectedResult[requestId]==FunctionCallType.NEW_USER;
+        expectedResult[requestId]=FunctionCallType.NEW_USER;
         return(requestId);
     }
 
@@ -110,7 +110,7 @@ contract NunyaBusiness {
         require (_value >= msg.value, "Naughty!");
         uint256 gasPaid = fundGateway();
         uint256 requestId = secretContract.payWithReceipt(_ref, msg.value-gasPaid, _userPubkey);
-        expectedResult[requestId]==FunctionCallType.PAY;
+        expectedResult[requestId]=FunctionCallType.PAY;
         return(requestId);
     }
 
