@@ -77,7 +77,7 @@ Run smart contract test with `yarn hardhat:test`
 * Install Rust
   ```
   rustup update
-  rustup toolchain use stable
+  rustup default stable
   rustup target add wasm32-unknown-unknown
   source "$HOME/.cargo/env"
   ```
@@ -108,6 +108,18 @@ cargo generate --git https://github.com/scrtlabs/secret-template.git --name my-c
 
 ```
 cd packages/secret-contracts/my-counter-contract
+make build
+```
+
+* FIXME: attempt to fix on macOS hack https://github.com/briansmith/ring/issues/1824
+```
+cd packages/secret-contracts/nunya-contract
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install llvm
+echo 'export PATH="/opt/homebrew/opt/llvm/bin:$PATH"' >> ~/.zshrc
+export LDFLAGS="-L/opt/homebrew/opt/llvm/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/llvm/include"
+RUSTFLAGS='-C link-arg=-s' cargo build --release --target wasm32-unknown-unknown
 make build
 ```
 

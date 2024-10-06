@@ -16,7 +16,7 @@ console.log('wallet: ', wallet);
 
 const rootPath = path.resolve(__dirname, '../../../'); // relative to ./dist
 console.log('rootPath', rootPath)
-const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/my-counter-contract/contract.wasm`);
+const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/nunya-contract/contract.wasm`);
 
 const gatewayAddress = "secret10ex7r7c4y704xyu086lf74ymhrqhypayfk7fkj";
 
