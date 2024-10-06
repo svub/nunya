@@ -7,38 +7,135 @@ import "hardhat/console.sol";
 // import "@openzeppelin/contracts/access/Ownable.sol";
 
 interface SecretContract {
-    function makeRef(string calldata encrypteSecret) external returns (string memory);
-    function pay(string calldata ref, uint256 amout) external returns (uint256);
-    function withdraw(string calldata encrypteSecret, address withdrawalAddress) external returns (uint256);
+    function newSecretUser(uint256 secret) external returns (uint256);
+    function linkPaymentRef(uint256 secret, string calldata ref) external returns (uint256);
+    function pay(string calldata ref, uint256 amount) external returns (uint256);
+    function payWithReceipt(string calldata ref, uint256 amount, uint256 userPubkey) external returns (uint256);
+    function withdraw(string calldata secret, address withdrawalAddress) external returns (uint256);
+    function retrievePubkey() external returns (uint256);
 }
 
 /**
  * @author
  */
-contract PayWithEth {
+contract NunyaBusiness {
 
-    SecretContract secretContact;
-
-    function makeRef(string calldata encryptedSecret) public returns (string memory){
-        string memory ref = secretContact.makeRef(encryptedSecret);
-        return ref;
+    enum FunctionCallType {
+        OTHER, NEW_USER, NEW_REF, PAY, WITHDRAW
     }
 
-    function pay(string calldata ref) public payable returns (uint256) {
-        // TODO replace with proper type for proofs
-        uint256 paymentProof = secretContact.pay(ref, msg.value);
-        require(paymentProof > 0, "Payment reference not found");
-        return paymentProof;
+    struct Receipt {
+        uint256 paymentRef;
+        uint256 amount;
+        bytes32 sig;
     }
+
+    address gateway;
+    SecretContract secretContract;
+    uint256 secretContractPubkey;
+    mapping (uint256 => FunctionCallType) expectedResult;
+
+    event receiptEmitted(Receipt);
+
+    constructor(address _gateway) {
+        gateway = _gateway;
+        secretContract = SecretContract(_gateway);
+        // Lock secretContractPubkey to requestId so that only that request cn set it.
+        // TODO: make it better - if call fails, contract is stuck and needs redploy :P
+        secretContractPubkey = secretContract.retrievePubkey();
+    }
+
+    modifier onlyGateway {
+        require (gateway!=address(0), "No gateway set");
+        require (msg.sender==gateway, "Only gateway can call callbacks. Use the user function instead");
+        _;
+    }
+
+    function setSecretContractPubkeyCallback (uint256 requestId, uint256 _key) public onlyGateway {
+        // require (secretContractPubkey==0, "Key already set");
+        require (secretContractPubkey==requestId, "Only the contract constructor can trigger this function");
+        // TODO: Make sure it's our secret contract setting the key, not some interloper
+        secretContractPubkey=_key;
+    }
+
+    // Function wrapped in secret network payload encryption
+    function newSecretUser(uint256 _secret) public returns (uint256){
+        uint256 requestId = secretContract.newSecretUser(_secret);
+        expectedResult[requestId]==FunctionCallType.NEW_USER;
+        return(requestId);
+    }
+
+    function newSecretUserCallback(uint256 requestId) public onlyGateway {
+        require (expectedResult[requestId]==FunctionCallType.NEW_USER);
+        // TODO: emit requestId
+    }
+
+    // Function wrapped in secret network payload encryption
+    function linkPaymentRef(uint256 _secret, string calldata _ref) public returns (uint256){
+        uint256 requestId = secretContract.linkPaymentRef(_secret, _ref);
+        expectedResult[requestId]=FunctionCallType.NEW_REF;
+        return(requestId);
+    }
+
+    function linkPaymentRefCallback(uint256 requestId) public onlyGateway{
+        require (expectedResult[requestId]==FunctionCallType.NEW_REF);
+        // TODO :  emit requestId
+    }
+    
+    // TODO: use ref encrypted with (user pubkey+salt)
+    function pay(string calldata ref, uint256 _value) public payable returns (uint256) {
+        // >= because we need gas for
+        require (_value >= msg.value, "Naughty!");
+        uint256 gasPaid = fundGateway();
+        uint256 requestId = secretContract.pay(ref, msg.value-gasPaid);
+        expectedResult[requestId]=FunctionCallType.PAY;
+        return(requestId);
+    }
+
+    // TODO: use ref encrypted with (user pubkey+salt)
+    function pay(string calldata ref, uint256 _value, uint256 _userPubkey) public payable returns (uint256) {
+        // >= because we need gas for
+        require (_value >= msg.value, "Naughty!");
+        uint256 gasPaid = fundGateway();
+        uint256 requestId = secretContract.payWithReceipt(ref, msg.value-gasPaid, _userPubkey);
+        expectedResult[requestId]==FunctionCallType.PAY;
+        return(requestId);
+    }
+
     // useful? 
     // function payEncrypted(string EncryptedRef) payable {
-    //     secretContact.pay()
+    //     secretContract.pay()
     // }
 
-    receive() external payable {}
+    function fundGateway() internal returns (uint256) {
+        uint256 gas=1;
+        // TODO: write the function
+        return gas;
+    }
 
-    function withdraw(string calldata encryptedSecret, address payable withdrawalAddress) public {
-        uint256 amount = secretContact.withdraw(encryptedSecret, withdrawalAddress);
+    function payCallback(uint256 requestId, Receipt calldata _receipt) public payable onlyGateway {
+        // TODO : use ecrecover to check receipt is signed by secret contract
+        require (expectedResult[requestId]==FunctionCallType.PAY);
+        if (uint256(_receipt.sig)!=0)
+            emit receiptEmitted(_receipt);
+        // TODO :  emit requestId
+    }
+
+    receive() external payable {
+        
+    }
+
+    // Function wrapped in secret network payload encryption
+    function withdrawTo(string calldata secret, uint256 amount, address withdrawalAddress) public returns (uint256) {
+        require((amount > 0), "Account not found or empty.");
+        uint256 requestId = secretContract.withdraw(secret, withdrawalAddress);
+        // TODO: error check
+        expectedResult[requestId]=FunctionCallType.WITHDRAW;
+        return(requestId);
+    }
+
+    function withdrawToCallback(uint256 requestId, uint256 amount, address payable withdrawalAddress) onlyGateway public {
+        require (expectedResult[requestId]==FunctionCallType.WITHDRAW);
         require(amount > 0, "Account not found or empty.");
         withdrawalAddress.transfer(amount);
     }

@@ -1,0 +1,86 @@
+Starting deployment...
+codeId:  10593
+CODE_HASH: 5ea3b37c0f3b06a621e58327bd7235fd8c323a4a595b095914c5fd2a5511dc93
+params:  {
+  codeId: '10593',
+  contractCodeHash: '5ea3b37c0f3b06a621e58327bd7235fd8c323a4a595b095914c5fd2a5511dc93'
+}
+Instantiating contract...
+tx:  {
+  height: 7098192,
+  timestamp: '',
+  transactionHash: 'C5419257F2ED564093D27F1B73F4EAC4EAABC950EBE590C6B7C9C7B9CC434DEC',
+  code: 0,
+  codespace: '',
+  info: '',
+  tx: {
+    '@type': '/cosmos.tx.v1beta1.Tx',
+    body: {
+      messages: [Array],
+      memo: '',
+      timeout_height: '0',
+      extension_options: [],
+      non_critical_extension_options: []
+    },
+    auth_info: { signer_infos: [Array], fee: [Object] },
+    signatures: [
+      'J1Ei+KHikPOXjRfuP1b22UYlxdHJM6TpntR8KFmAEmBPRW2CFou8WFO9Nubg/vAR/bC0cKybR7d9+Rkb77rjNQ=='
+    ]
+  },
+  rawLog: '[{"events":[{"type":"instantiate","attributes":[{"key":"contract_address","value":"secret19kk5wcmxp2alr356emljyr8xp90atndxy3r2c9"},{"key":"code_id","value":"10593"}]},{"type":"message","attributes":[{"key":"action","value":"/secret.compute.v1beta1.MsgInstantiateContract"},{"key":"module","value":"compute"},{"key":"sender","value":"secret1am2mk908456twwgehmaua85s6laar4yr3awzzj"},{"key":"contract_address","value":"secret19kk5wcmxp2alr356emljyr8xp90atndxy3r2c9"}]},{"type":"wasm","attributes":[{"key":"contract_address","value":"secret19kk5wcmxp2alr356emljyr8xp90atndxy3r2c9"}]}]}]',
+  jsonLog: [ { events: [Array], msg_index: 0 } ],
+  arrayLog: [
+    {
+      msg: 0,
+      type: 'instantiate',
+      key: 'contract_address',
+      value: 'secret19kk5wcmxp2alr356emljyr8xp90atndxy3r2c9'
+    },
+    { msg: 0, type: 'instantiate', key: 'code_id', value: '10593' },
+    {
+      msg: 0,
+      type: 'message',
+      key: 'action',
+      value: '/secret.compute.v1beta1.MsgInstantiateContract'
+    },
+    { msg: 0, type: 'message', key: 'module', value: 'compute' },
+    {
+      msg: 0,
+      type: 'message',
+      key: 'sender',
+      value: 'secret1am2mk908456twwgehmaua85s6laar4yr3awzzj'
+    },
+    {
+      msg: 0,
+      type: 'message',
+      key: 'contract_address',
+      value: 'secret19kk5wcmxp2alr356emljyr8xp90atndxy3r2c9'
+    },
+    {
+      msg: 0,
+      type: 'wasm',
+      key: 'contract_address',
+      value: 'secret19kk5wcmxp2alr356emljyr8xp90atndxy3r2c9'
+    }
+  ],
+  events: [
+    { type: 'coin_spent', attributes: [Array] },
+    { type: 'coin_received', attributes: [Array] },
+    { type: 'transfer', attributes: [Array] },
+    { type: 'message', attributes: [Array] },
+    { type: 'tx', attributes: [Array] },
+    { type: 'tx', attributes: [Array] },
+    { type: 'tx', attributes: [Array] },
+    { type: 'message', attributes: [Array] },
+    { type: 'instantiate', attributes: [Array] },
+    { type: 'wasm', attributes: [Array] },
+    { type: 'message', attributes: [Array] }
+  ],
+  data: [
+    <Buffer 0a 2d 73 65 63 72 65 74 31 39 6b 6b 35 77 63 6d 78 70 32 61 6c 72 33 35 36 65 6d 6c 6a 79 72 38 78 70 39 30 61 74 6e 64 78 79 33 72 32 63 39>
+  ],
+  gasUsed: 43476,
+  gasWanted: 400000,
+  ibcResponses: []
+}
+SECRET_ADDRESS:  secret19kk5wcmxp2alr356emljyr8xp90atndxy3r2c9

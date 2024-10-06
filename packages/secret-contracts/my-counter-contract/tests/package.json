@@ -1,0 +1,11 @@
+{
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "axios": "^0.26.1",
+    "secretjs": "1.5.1",
+    "typescript": "^5.6.2"
+  },
+  "dependencies": {
+    "assert": "^2.0.0"
+  }
+}
