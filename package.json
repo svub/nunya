@@ -6,7 +6,7 @@
     "packages/*"
   ],
   "engines": {
-    "node": ">=18.18.0"
+    "node": "20"
   },
   "devDependencies": {
     "husky": "~8.0.3",
