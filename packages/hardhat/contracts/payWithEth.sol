@@ -24,12 +24,19 @@ contract NunyaBusiness {
 
     constructor(address _gateway) {
         gateway == _gateway;
+        secretContract.retreivePubkey();
     }
 
     modifier onlyGateway {
-        require (gateway, "No gateway set");
+        require (gateway!=address(0), "No gateway set");
         require (msg.sender==gateway, "Only gateway can call callbacks. Use the user function instead");
         _;
+    }
+
+    function setSecretContractPubkey (bytes32 _key) public onlyGateway {
+        require (secretContractPubkey==bytes32(0), "Key already set");
+        // TODO: Make sure it's our secret contract setting the key, not some interloper
+        secretContractPubkey=_key;        
     }
 
     // Function wrapped in secret network payload encryption
