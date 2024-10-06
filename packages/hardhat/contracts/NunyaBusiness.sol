@@ -45,7 +45,7 @@ contract NunyaBusiness {
         secretContract = SecretContract(_gateway);
         fundGateway(msg.value);
 
-        secretContract.retrievePubkey();
+        // secretContract.retrievePubkey();
         // Lock secretContractPubkey to Owner. After it is set it cannot be reset.
         secretContractPubkey = uint256(uint160(msg.sender));
     }
