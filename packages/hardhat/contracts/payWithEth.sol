@@ -19,21 +19,24 @@ interface SecretContract {
  * @author
  */
 contract NunyaBusiness {
-    enum functionCallType {
+
+    enum FunctionCallType {
         OTHER, NEW_USER, NEW_REF, PAY, WITHDRAW
-    };
+    }
 
     address gateway;
     SecretContract secretContract;
     uint256 secretContractPubkey;
-    mapping (uint256, functionCallType) expectedResult;
+    mapping (uint256 => FunctionCallType) expectedResult;
 
     event receiptEmitted(bytes32);
 
     constructor(address _gateway) {
         gateway = _gateway;
         secretContract = SecretContract(_gateway);
-        secretContract.retreivePubkey();
+        // Lock secretContractPubkey to requestId so that only that request cn set it.
+        // TODO: make it better - if call fails, contract is stuck and needs redploy :P
+        secretContractPubkey = secretContract.retreivePubkey();
     }
 
     modifier onlyGateway {
@@ -42,32 +45,35 @@ contract NunyaBusiness {
         _;
     }
 
-    function setSecretContractPubkey (uint256 _key) public onlyGateway {
-        require (secretContractPubkey==0, "Key already set");
+    function setSecretContractPubkeyCallback (uint256 requestId, uint256 _key) public onlyGateway {
+        // require (secretContractPubkey==0, "Key already set");
+        require (secretContractPubkey==requestId, "Only the contract constructor can trigger this function");
         // TODO: Make sure it's our secret contract setting the key, not some interloper
-        secretContractPubkey=_key;        
+        secretContractPubkey=_key;
     }
 
     // Function wrapped in secret network payload encryption
     function newSecretUser(uint256 _secret) public returns (uint256){
         uint256 requestId = secretContract.newSecretUser(_secret);
-        expectedResult[requestId]==NEW_USER;
+        expectedResult[requestId]==FunctionCallType.NEW_USER;
+        return(requestId);
     }
 
     function newSecretUserCallback(uint256 requestId) public onlyGateway {
-        require (expectedResult[requestId]==NEW_USER);
+        require (expectedResult[requestId]==FunctionCallType.NEW_USER);
         // TODO: emit requestId
     }
 
     // Function wrapped in secret network payload encryption
     function linkPaymentRef(uint256 _secret, string calldata _ref) public returns (uint256){
         uint256 requestId = secretContract.linkPaymentRef(_secret, _ref);
-        expectedResult[requestId]==NEW_REF;
+        expectedResult[requestId]=FunctionCallType.NEW_REF;
+        return(requestId);
     }
 
     function linkPaymentRefCallback(uint256 requestId) public onlyGateway{
-        require (expectedResult[requestId]==NEW_REF);
-        string memory ref = secretContract.linkPaymentRef(_secret, _ref);
+        require (expectedResult[requestId]==FunctionCallType.NEW_REF);
+        // TODO :  emit requestId
     }
     
     // TODO: use ref encrypted with (user pubkey+salt)
@@ -76,7 +82,8 @@ contract NunyaBusiness {
         require (_value >= msg.value, "Naughty!");
         uint256 gasPaid = fundGateway();
         uint256 requestId = secretContract.pay(ref, msg.value-gasPaid);
-        expectedResult[requestId]==PAY;
+        expectedResult[requestId]=FunctionCallType.PAY;
+        return(requestId);
     }
 
     // TODO: use ref encrypted with (user pubkey+salt)
@@ -85,8 +92,10 @@ contract NunyaBusiness {
         require (_value >= msg.value, "Naughty!");
         uint256 gasPaid = fundGateway();
         uint256 requestId = secretContract.payWithReceipt(ref, msg.value-gasPaid, _userPubkey);
-        expectedResult[requestId]==PAY;
+        expectedResult[requestId]==FunctionCallType.PAY;
+        return(requestId);
     }
+
     // useful? 
     // function payEncrypted(string EncryptedRef) payable {
     //     secretContract.pay()
@@ -100,9 +109,10 @@ contract NunyaBusiness {
 
     function payCallback(uint256 requestId, bytes32 _receipt) public payable onlyGateway {
         // TODO : use ecrecover to check receipt is signed by secret contract
-        require (expectedResult[requestId]==PAY);
-        if uint256(_receipt!=0)
+        require (expectedResult[requestId]==FunctionCallType.PAY);
+        if (uint256(_receipt)!=0)
             emit receiptEmitted(_receipt);
+        // TODO :  emit requestId
     }
 
     receive() external payable {
@@ -110,16 +120,16 @@ contract NunyaBusiness {
     }
 
     // Function wrapped in secret network payload encryption
-    function withdraw(string calldata secret, address payable withdrawalAddress) public returns (uint256) {
-        require(amount > 0, "Account not found or empty.");
+    function withdrawTo(string calldata secret, uint256 amount, address withdrawalAddress) public returns (uint256) {
+        require((amount > 0), "Account not found or empty.");
         uint256 requestId = secretContract.withdraw(secret, withdrawalAddress);
         // TODO: error check
-        expectedResult[requestId]==WiTHDRAW;
+        expectedResult[requestId]=FunctionCallType.WITHDRAW;
+        return(requestId);
     }
 
-    function withdrawCallback(uint256 requestId) onlyGateway public {
-        require (expectedResult[requestId]==WiTHDRAW);
-        uint256 amount = secretContract.withdraw(secret, withdrawalAddress);
+    function withdrawToCallback(uint256 requestId, uint256 amount, address payable withdrawalAddress) onlyGateway public {
+        require (expectedResult[requestId]==FunctionCallType.WITHDRAW);
         require(amount > 0, "Account not found or empty.");
         withdrawalAddress.transfer(amount);
     }
