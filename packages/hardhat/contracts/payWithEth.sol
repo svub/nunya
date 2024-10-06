@@ -43,10 +43,11 @@ contract NunyaBusiness {
     constructor(address payable _gateway) payable {
         gateway = _gateway;
         secretContract = SecretContract(_gateway);
-        // Lock secretContractPubkey to requestId so that only that request cn set it.
-        // TODO: make it better - if call fails, contract is stuck and needs redploy :P
         fundGateway(msg.value);
-        secretContractPubkey = secretContract.retrievePubkey();
+
+        secretContract.retrievePubkey();
+        // Lock secretContractPubkey to Owner. After it is set it cannot be reset.
+        secretContractPubkey = uint256(uint160(msg.sender));
     }
 
     modifier onlyGateway {
@@ -57,8 +58,9 @@ contract NunyaBusiness {
 
     function setSecretContractPubkeyCallback (uint256 _requestId, uint256 _key) public onlyGateway {
         // require (secretContractPubkey==0, "Key already set");
-        require (secretContractPubkey==_requestId, "Only the contract constructor can trigger this function");
-        // TODO: Make sure it's our secret contract setting the key, not some interloper
+        // Make sure it's our secret contract setting the key, not some interloper
+        // (will fail one time in 2^96 ;)
+        require (secretContractPubkey  < 2**160, "Only the contract constructor can trigger this function");
         secretContractPubkey=_key;
     }
 
