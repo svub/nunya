@@ -21,7 +21,7 @@ interface SecretContract {
 contract NunyaBusiness {
 
     enum FunctionCallType {
-        OTHER, NEW_USER, NEW_REF, PAY, WITHDRAW
+        OTHER, NEW_USER, NEW_REF, PAY, WITHDRAW, ERROR
     }
 
     struct Receipt {
@@ -35,7 +35,9 @@ contract NunyaBusiness {
     uint256 secretContractPubkey;
     mapping (uint256 => FunctionCallType) expectedResult;
 
-    event receiptEmitted(Receipt);
+    event ReceiptEmitted(Receipt);
+    event RequestSuccess(uint256 requestId);
+    event Error(string message);
 
     constructor(address _gateway) {
         gateway = _gateway;
@@ -67,7 +69,7 @@ contract NunyaBusiness {
 
     function newSecretUserCallback(uint256 requestId) public onlyGateway {
         require (expectedResult[requestId]==FunctionCallType.NEW_USER);
-        // TODO: emit requestId
+        emit RequestSuccess(requestId);
     }
 
     // Function wrapped in secret network payload encryption
@@ -79,7 +81,7 @@ contract NunyaBusiness {
 
     function linkPaymentRefCallback(uint256 requestId) public onlyGateway{
         require (expectedResult[requestId]==FunctionCallType.NEW_REF);
-        // TODO :  emit requestId
+        emit RequestSuccess(requestId);
     }
     
     // TODO: use ref encrypted with (user pubkey+salt)
@@ -117,8 +119,8 @@ contract NunyaBusiness {
         // TODO : use ecrecover to check receipt is signed by secret contract
         require (expectedResult[requestId]==FunctionCallType.PAY);
         if (uint256(_receipt.sig)!=0)
-            emit receiptEmitted(_receipt);
-        // TODO :  emit requestId
+            emit ReceiptEmitted(_receipt);
+        emit RequestSuccess(requestId);
     }
 
     receive() external payable {
@@ -138,5 +140,10 @@ contract NunyaBusiness {
         require (expectedResult[requestId]==FunctionCallType.WITHDRAW);
         require(amount > 0, "Account not found or empty.");
         withdrawalAddress.transfer(amount);
+        emit RequestSuccess(requestId);
+    }
+
+    function secretNetworkError(uint256 requestId, string memory _message) public onlyGateway {
+        emit Error(_message);
     }
 }
