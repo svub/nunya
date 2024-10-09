@@ -73,7 +73,7 @@ const deployedContracts = {
               type: "uint256",
             },
           ],
-          name: "Request_success",
+          name: "RequestSuccess",
           type: "event",
         },
         {

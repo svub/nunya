@@ -24,12 +24,13 @@ const Home: NextPage = () => {
   const [returnAmount, setReturnAmount] = useState("");
   const { writeContractAsync } = useScaffoldWriteContract("NunyaBusiness");
   // const encoder: TextEncoder = new global.TextEncoder();
+  // const decoder: TextDecoder = new global.TextDecoder();
 
   useScaffoldWatchContractEvent({
     contractName: "NunyaBusiness",
     // TODO
     // eventName: "reference-created",
-    eventName: "Request_success",
+    eventName: "RequestSuccess",
     onLogs: logs => {
       logs.forEach(() => {
         // const { referenceBytes } = log.args;

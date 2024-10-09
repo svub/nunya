@@ -45,9 +45,7 @@ contract NunyaBusiness {
         secretContract = SecretContract(_gateway);
         fundGateway(msg.value);
 
-        // TODO:  only uncomment when hardhat has gateway deployed
-        // secretContract.retrievePubkey();
-
+        secretContract.retrievePubkey();
         // Lock secretContractPubkey to Owner. After it is set it cannot be reset.
         secretContractPubkey = uint256(uint160(msg.sender));
     }
@@ -70,7 +68,7 @@ contract NunyaBusiness {
     function newSecretUser(uint256 _secret) public payable returns (uint256){
         fundGateway(msg.value);
         uint256 requestId = secretContract.newSecretUser(_secret);
-        expectedResult[requestId]=FunctionCallType.NEW_USER;
+        expectedResult[requestId]==FunctionCallType.NEW_USER;
         return(requestId);
     }
 
@@ -97,9 +95,9 @@ contract NunyaBusiness {
     }
     
     // TODO: use ref encrypted with (user pubkey+salt)
-    function pay(string calldata _ref, uint256 _amount) public payable returns (uint256) {
+    function pay(string calldata _ref, uint256 _value) public payable returns (uint256) {
         // >= because we need gas for
-        require (_amount >= msg.value, "Naughty!");
+        require (_value >= msg.value, "Naughty!");
         uint256 gasPaid = fundGateway();
         uint256 requestId = secretContract.pay(_ref, msg.value-gasPaid);
         expectedResult[requestId]=FunctionCallType.PAY;
@@ -107,12 +105,12 @@ contract NunyaBusiness {
     }
 
     // TODO: use ref encrypted with (user pubkey+salt)
-    function pay(string calldata _ref, uint256 _amount, uint256 _userPubkey) public payable returns (uint256) {
+    function pay(string calldata _ref, uint256 _value, uint256 _userPubkey) public payable returns (uint256) {
         // >= because we need gas for
-        require (_amount >= msg.value, "Naughty!");
+        require (_value >= msg.value, "Naughty!");
         uint256 gasPaid = fundGateway();
         uint256 requestId = secretContract.payWithReceipt(_ref, msg.value-gasPaid, _userPubkey);
-        expectedResult[requestId]=FunctionCallType.PAY;
+        expectedResult[requestId]==FunctionCallType.PAY;
         return(requestId);
     }
 
