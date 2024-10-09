@@ -45,6 +45,7 @@
   },
   "packageManager": "yarn@4.2.2",
   "dependencies": {
-    "eslint-plugin-react": "^7.37.1"
+    "eslint-plugin-react": "^7.37.1",
+    "qrcode.react": "^4.0.1"
   }
 }
