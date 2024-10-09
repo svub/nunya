@@ -45,7 +45,9 @@ contract NunyaBusiness {
         secretContract = SecretContract(_gateway);
         fundGateway(msg.value);
 
+        // TODO:  only uncomment when hardhat has gateway deployed
         // secretContract.retrievePubkey();
+
         // Lock secretContractPubkey to Owner. After it is set it cannot be reset.
         secretContractPubkey = uint256(uint160(msg.sender));
     }
