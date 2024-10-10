@@ -49,6 +49,9 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   const receipt = await tx.wait();
   console.log(`Mined in block: ${receipt?.blockNumber}`);
 
+  const contractBalance = await provider.getBalance(gateway.address);
+  console.log("gateway.address balance: ", contractBalance);
+
   await deploy("NunyaBusiness", {
     from: deployer,
     // Contract constructor arguments
