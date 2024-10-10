@@ -21,6 +21,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   */
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
+  console.log("network: ", hre.network.name);
 
   const gateway = await deploy("DummyGatewayContract", {
     from: deployer,
