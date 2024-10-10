@@ -100,10 +100,10 @@ contract NunyaBusiness {
 
     // Function wrapped in secret network payload encryption
     // IDEA have the ref being created inside the secret contract, this way we avoid any potential collisions with already existing references.
-    function createPaymentReference(uint256 _secret) public payable returns (uint256){
+    function createPaymentReference(uint256 _secret, string calldata _ref) public payable returns (uint256){
         fundGateway(msg.value);
         // IDEA the requestId could be created here and forwarded to the gateway. This way, the gateway becames very slim, just forwarding calls and callbacks while all logic is handled here.
-        uint256 requestId = secretContract.createPaymentReference(_secret);
+        uint256 requestId = secretContract.createPaymentReference(_secret, _ref);
         expectedResult[requestId] = FunctionCallType.NEW_REF;
         return(requestId);
     }
@@ -140,7 +140,7 @@ contract NunyaBusiness {
 
     function payWithReceiptCallback(uint256 _requestId, uint16 _code , Receipt calldata _receipt) public payable onlyGateway validateRequest(_requestId, FunctionCallType.PAY) {
         // TODO : use ecrecover to check receipt is signed by secret contract
-  if (uint256(_receipt.sig) != 0)
+        if (uint256(_receipt.sig) != 0)
             _code = ERROR_NOT_SIGNED;
         emit PaymentWithReceiptProcessed(_requestId, _code, _receipt);
     }
@@ -152,7 +152,13 @@ contract NunyaBusiness {
     //     secretContract.pay()
     // }
 
-    receive() external payable {}
+    fallback() external payable {
+        console.log("----- fallback:", msg.value);
+    }
+
+    receive() external payable {
+        console.log("----- receive:", msg.value);
+    }
 
     // Function wrapped in secret network payload encryption
     function withdrawTo(string calldata _secret, uint256 _amount, address _withdrawalAddress) public payable returns (uint256) {
@@ -170,7 +176,7 @@ contract NunyaBusiness {
         if (_code == 0 && _amount == 0) {
             _code = ERROR_NO_FUNDS;
         }
-      if(_amount > 0)
+        if(_amount > 0)
             _withdrawalAddress.transfer(_amount);
 
         emit WithdrawalProcessed(_requestId, _code, _amount);

@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-// TODO remove in production
+// TODO in production
 import "hardhat/console.sol";
-import "./ISecretContract.sol";
 
 // Dummy Secret Network EVM Gateway contract (so we can use the contracts on devnet)
 
-contract DummyGatewayContract is ISecretContract {
-    
+contract SecretContract {
     function newSecretUser(uint256 secret) external returns (uint256) {
         return 6;
     }
@@ -21,7 +19,7 @@ contract DummyGatewayContract is ISecretContract {
     function payWithReceipt(string calldata ref, uint256 amount, uint256 userPubkey) external returns (uint256) {
         return 3;
     }
-    function withdraw(string calldata secret, uint256 amount, address withdrawalAddress) external returns (uint256) {
+    function withdraw(string calldata secret, uint256 amount, address withdrawalAddress) external returns (uint256){
         return 2;
     }
 
