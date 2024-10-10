@@ -111,15 +111,19 @@ cd packages/secret-contracts/my-counter-contract
 make build
 ```
 
+* Note: To build on macOS it was necessary to run the following first as specified here https://github.com/rust-bitcoin/rust-secp256k1/issues/283#issuecomment-1590391777:
+
+```
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install llvm
+llvm-config --version
+echo 'export AR=/opt/homebrew/opt/llvm/bin/llvm-ar' >> ~/.zshrc
+echo 'export CC=/opt/homebrew/opt/llvm/bin/clang' >> ~/.zshrc
+source ~/.zshrc
+```
 * FIXME: attempt to fix on macOS hack https://github.com/briansmith/ring/issues/1824
 ```
 cd packages/secret-contracts/nunya-contract
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-brew install llvm
-echo 'export PATH="/opt/homebrew/opt/llvm/bin:$PATH"' >> ~/.zshrc
-export LDFLAGS="-L/opt/homebrew/opt/llvm/lib"
-export CPPFLAGS="-I/opt/homebrew/opt/llvm/include"
-RUSTFLAGS='-C link-arg=-s' cargo build --release --target wasm32-unknown-unknown
 make build
 ```
 

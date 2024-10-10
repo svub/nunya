@@ -5,8 +5,8 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 pub static CONFIG: Item<State> = Item::new(b"config");
+pub static NEW_SECRET_USER_MAP: Keymap<u32, NewSecretUser> = Keymap::new(b"NEW_SECRET_USER_MAP");
 pub static PUBKEY_MAP: Keymap<u32, Vec<Uint256>> = Keymap::new(b"PUBKEY_MAP");
-pub static NEW_SECRET_USER_MAP: Keymap<u32, Vec<NewSecretUser>> = Keymap::new(b"NEW_SECRET_USER_MAP");
 pub static LINK_PAYMENT_REF_MAP: Keymap<u32, Vec<LinkPaymentRef>> = Keymap::new(b"LINK_PAYMENT_REF_MAP");
 pub static PAY_MAP: Keymap<u32, Vec<Pay>> = Keymap::new(b"PAY_MAP");
 pub static PAY_ENCRYPTED_WITH_RECEIPT_MAP: Keymap<u32, Vec<PayEncryptedWithReceipt>> = Keymap::new(b"PAY_ENCRYPTED_WITH_RECEIPT_MAP");

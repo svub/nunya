@@ -82,14 +82,14 @@ contract NunyaBusiness {
     }
 
     // Function wrapped in secret network payload encryption
-    function linkPaymentRef(uint256 _secret, string calldata _ref) public payable returns (uint256){
+    function linkPaymentRef(uint256 _secret, string calldata _ref) public payable returns (uint256) {
         fundGateway(msg.value);
         uint256 requestId = secretContract.linkPaymentRef(_secret, _ref);
         expectedResult[requestId]=FunctionCallType.NEW_REF;
         return(requestId);
     }
 
-    function linkPaymentRefCallback(uint256 _requestId, bool _success) public onlyGateway{
+    function linkPaymentRefCallback(uint256 _requestId, bool _success) public onlyGateway {
         require (expectedResult[_requestId]==FunctionCallType.NEW_REF);
         if (!_success)
             emit SecretNetworkError(_requestId, "Error paying - no user found?");

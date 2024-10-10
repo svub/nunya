@@ -91,10 +91,8 @@ fn create_new_secret_user(
     let input: NewSecretUserStoreMsg = serde_json_wasm::from_str(&input_values)
         .map_err(|err| StdError::generic_err(err.to_string()))?;
 
-    // Parse as u256
-    let secret_user = input
-        .secret_user
-        .map_err(|err| StdError::generic_err(format!("Invalid _secret: {}", err)))?;
+    let secret_user = input.secret_user;
+        // .map_err(|err| StdError::generic_err(format!("Invalid _secret: {}", err)))?;
 
     let new_secret_user = NewSecretUser {
         secret_user: secret_user
@@ -151,11 +149,9 @@ fn create_link_payment_ref(
     let input: LinkPaymentRefStoreMsg = serde_json_wasm::from_str(&input_values)
         .map_err(|err| StdError::generic_err(err.to_string()))?;
 
-    // FIXME
-    // Parse as u256
     let secret_user = input
-        .secret_user
-        .map_err(|err| StdError::generic_err(format!("Invalid _secret: {}", err)))?;
+        .secret_user;
+        // .map_err(|err| StdError::generic_err(format!("Invalid _secret: {}", err)))?;
 
     let payment_ref = input
         .payment_ref
@@ -223,11 +219,10 @@ fn create_pay(
         .parse::<String>()
         .map_err(|err| StdError::generic_err(format!("Invalid _ref: {}", err)))?;
 
-    // Parse as u256
     let amount = input
-        .amount
-        .parse::<Uint128>()
-        .map_err(|err| StdError::generic_err(format!("Invalid _amount: {}", err)))?;
+        .amount;
+        // .parse::<Uint128>()
+        // .map_err(|err| StdError::generic_err(format!("Invalid _amount: {}", err)))?;
 
     let pay = Pay {
         payment_ref: payment_ref,
@@ -290,17 +285,15 @@ fn create_pay_encrypted_with_receipt(
         .parse::<String>()
         .map_err(|err| StdError::generic_err(format!("Invalid _ref: {}", err)))?;
 
-    // Parse as u256
     let amount = input
-        .amount
-        .parse::<Uint128>()
-        .map_err(|err| StdError::generic_err(format!("Invalid _amount: {}", err)))?;
+        .amount;
+        // .parse::<Uint128>()
+        // .map_err(|err| StdError::generic_err(format!("Invalid _amount: {}", err)))?;
 
-    // Parse as u256
     let user_pubkey = input
-        .user_pubkey
-        .parse::<Uint256>()
-        .map_err(|err| StdError::generic_err(format!("Invalid _userPubkey: {}", err)))?;
+        .user_pubkey;
+        // .parse::<Uint256>()
+        // .map_err(|err| StdError::generic_err(format!("Invalid _userPubkey: {}", err)))?;
 
     let pay_encrypted_with_receipt = PayEncryptedWithReceipt {
         payment_ref: payment_ref,
@@ -360,18 +353,17 @@ fn create_withdraw_to(
         .map_err(|err| StdError::generic_err(err.to_string()))?;
 
     let secret_user = input
-        .secret_user
-        .map_err(|err| StdError::generic_err(format!("Invalid _secret: {}", err)))?;
+        .secret_user;
+        // .map_err(|err| StdError::generic_err(format!("Invalid _secret: {}", err)))?;
 
-    // Parse as u256
     let amount = input
-        .amount
-        .parse::<Uint128>()
-        .map_err(|err| StdError::generic_err(format!("Invalid amount: {}", err)))?;
+        .amount;
+        // .parse::<Uint128>()
+        // .map_err(|err| StdError::generic_err(format!("Invalid amount: {}", err)))?;
 
     let withdrawal_address = input
-        .withdrawal_address
-        .map_err(|err| StdError::generic_err(format!("Invalid withdrawalAddress: {}", err)))?;
+        .withdrawal_address;
+        // .map_err(|err| StdError::generic_err(format!("Invalid withdrawalAddress: {}", err)))?;
 
     let withdrawal_to = WithdrawTo {
         secret_user: secret_user,
