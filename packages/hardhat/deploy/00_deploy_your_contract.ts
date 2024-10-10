@@ -35,6 +35,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     autoMine: true,
   });
 
+  // TODO - remove the following since don't think we need to fund the gateway contract this way
   // Configuring the connection to an Ethereum node
   const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545/");
   const owner = await provider.getSigner(deployer);
@@ -48,7 +49,6 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   // Waiting for the transaction to be mined on-chain
   const receipt = await tx.wait();
   console.log(`Mined in block: ${receipt?.blockNumber}`);
-
   const contractBalance = await provider.getBalance(gateway.address);
   console.log("gateway.address balance: ", contractBalance);
 
