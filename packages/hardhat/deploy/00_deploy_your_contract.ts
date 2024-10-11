@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { Contract } from "ethers";
+import { Contract, ethers, parseUnits } from "ethers";
 
 /**
  * Deploys a contract named "YourContract" using the deployer account and
@@ -21,6 +21,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   */
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
+  console.log("network: ", hre.network.name);
 
   const gateway = await deploy("DummyGatewayContract", {
     from: deployer,
@@ -33,6 +34,23 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     // automatically mining the contract deployment transaction. There is no effect on live networks.
     autoMine: true,
   });
+
+  // TODO - remove the following since don't think we need to fund the gateway contract this way
+  // Configuring the connection to an Ethereum node
+  const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545/");
+  const owner = await provider.getSigner(deployer);
+  // Creating and sending the transaction object
+  const tx = await owner.sendTransaction({
+    to: gateway.address, // Gateway contract
+    value: parseUnits("0.001", "ether"),
+  });
+  console.log("Mining transaction...");
+  console.log("tx.hash: ", tx.hash);
+  // Waiting for the transaction to be mined on-chain
+  const receipt = await tx.wait();
+  console.log(`Mined in block: ${receipt?.blockNumber}`);
+  const contractBalance = await provider.getBalance(gateway.address);
+  console.log("gateway.address balance: ", contractBalance);
 
   await deploy("NunyaBusiness", {
     from: deployer,

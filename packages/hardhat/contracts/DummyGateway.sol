@@ -12,7 +12,7 @@ contract DummyGatewayContract is ISecretContract {
     function newSecretUser(uint256 secret) external returns (uint256) {
         return 6;
     }
-    function createPaymentReference(uint256 secret) external returns (uint256) {
+    function createPaymentReference(uint256 secret, string calldata ref) external returns (uint256) {
         return 5;
     }
     function pay(string calldata ref, uint256 amount) external returns (uint256) {
@@ -29,4 +29,11 @@ contract DummyGatewayContract is ISecretContract {
         return 1;
     }
 
+    fallback() external payable {
+        console.log("----- fallback:", msg.value);
+    }
+
+    receive() external payable {
+        console.log("----- receive:", msg.value);
+    }
 }
