@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { Contract, ethers, parseUnits } from "ethers";
+import { Contract, ethers, formatEther, parseUnits } from "ethers";
 
 /**
  * Deploys a contract named "YourContract" using the deployer account and
@@ -50,7 +50,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   const receipt = await tx.wait();
   console.log(`Mined in block: ${receipt?.blockNumber}`);
   const contractBalance = await provider.getBalance(gateway.address);
-  console.log("gateway.address balance: ", contractBalance);
+  console.log("gateway.address balance: ", formatEther(contractBalance));
 
   await deploy("NunyaBusiness", {
     from: deployer,
@@ -58,7 +58,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     // args: [deployer, Gateway.address],
     args: [gateway.address],
     log: true,
-    gasLimit: 3000000,
+    gasLimit: 30000000,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
     // automatically mining the contract deployment transaction. There is no effect on live networks.
     autoMine: true,

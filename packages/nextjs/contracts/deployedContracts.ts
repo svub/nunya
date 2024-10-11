@@ -6,8 +6,160 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
   31337: {
+    DummyGatewayContract: {
+      address: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+      abi: [
+        {
+          stateMutability: "payable",
+          type: "fallback",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "secret",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "ref",
+              type: "string",
+            },
+          ],
+          name: "createPaymentReference",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "secret",
+              type: "uint256",
+            },
+          ],
+          name: "newSecretUser",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "ref",
+              type: "string",
+            },
+            {
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+          ],
+          name: "pay",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "ref",
+              type: "string",
+            },
+            {
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "userPubkey",
+              type: "uint256",
+            },
+          ],
+          name: "payWithReceipt",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "retrievePubkey",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "secret",
+              type: "string",
+            },
+            {
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "withdrawalAddress",
+              type: "address",
+            },
+          ],
+          name: "withdraw",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          stateMutability: "payable",
+          type: "receive",
+        },
+      ],
+      inheritedFunctions: {},
+    },
     NunyaBusiness: {
-      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      address: "0x59b670e9fA9D0A427751Af201D676719a970857b",
       abi: [
         {
           inputs: [
@@ -29,13 +181,75 @@ const deployedContracts = {
               name: "requestId",
               type: "uint256",
             },
+            {
+              indexed: false,
+              internalType: "uint16",
+              name: "_code",
+              type: "uint16",
+            },
           ],
-          name: "HackingAttemptError",
+          name: "AccountCreated",
           type: "event",
         },
         {
           anonymous: false,
           inputs: [
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint16",
+              name: "code",
+              type: "uint16",
+            },
+          ],
+          name: "PaymentProcessed",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint16",
+              name: "code",
+              type: "uint16",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "ref",
+              type: "string",
+            },
+          ],
+          name: "PaymentReferenceCreated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint16",
+              name: "code",
+              type: "uint16",
+            },
             {
               components: [
                 {
@@ -56,24 +270,11 @@ const deployedContracts = {
               ],
               indexed: false,
               internalType: "struct NunyaBusiness.Receipt",
-              name: "",
+              name: "receipt",
               type: "tuple",
             },
           ],
-          name: "ReceiptEmitted",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "requestId",
-              type: "uint256",
-            },
-          ],
-          name: "Request_success",
+          name: "PaymentWithReceiptProcessed",
           type: "event",
         },
         {
@@ -87,31 +288,23 @@ const deployedContracts = {
             },
             {
               indexed: false,
-              internalType: "string",
-              name: "message",
-              type: "string",
+              internalType: "uint16",
+              name: "code",
+              type: "uint16",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
             },
           ],
-          name: "SecretNetworkError",
+          name: "WithdrawalProcessed",
           type: "event",
         },
         {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_requestId",
-              type: "uint256",
-            },
-            {
-              internalType: "string",
-              name: "_message",
-              type: "string",
-            },
-          ],
-          name: "emitSecretNetworkError",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
+          stateMutability: "payable",
+          type: "fallback",
         },
         {
           inputs: [
@@ -126,7 +319,7 @@ const deployedContracts = {
               type: "string",
             },
           ],
-          name: "linkPaymentRef",
+          name: "createPaymentReference",
           outputs: [
             {
               internalType: "uint256",
@@ -145,12 +338,17 @@ const deployedContracts = {
               type: "uint256",
             },
             {
-              internalType: "bool",
-              name: "_success",
-              type: "bool",
+              internalType: "uint16",
+              name: "_code",
+              type: "uint16",
+            },
+            {
+              internalType: "string",
+              name: "_reference",
+              type: "string",
             },
           ],
-          name: "linkPaymentRefCallback",
+          name: "createPaymentReferenceCallback",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -182,43 +380,14 @@ const deployedContracts = {
               type: "uint256",
             },
             {
-              internalType: "bool",
-              name: "_success",
-              type: "bool",
+              internalType: "uint16",
+              name: "_code",
+              type: "uint16",
             },
           ],
           name: "newSecretUserCallback",
           outputs: [],
           stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "_ref",
-              type: "string",
-            },
-            {
-              internalType: "uint256",
-              name: "_value",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "_userPubkey",
-              type: "uint256",
-            },
-          ],
-          name: "pay",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "payable",
           type: "function",
         },
         {
@@ -253,9 +422,56 @@ const deployedContracts = {
               type: "uint256",
             },
             {
-              internalType: "bool",
-              name: "_success",
-              type: "bool",
+              internalType: "uint16",
+              name: "_code",
+              type: "uint16",
+            },
+          ],
+          name: "payCallback",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "_ref",
+              type: "string",
+            },
+            {
+              internalType: "uint256",
+              name: "_value",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_userPubkey",
+              type: "uint256",
+            },
+          ],
+          name: "payWithReceipt",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_requestId",
+              type: "uint256",
+            },
+            {
+              internalType: "uint16",
+              name: "_code",
+              type: "uint16",
             },
             {
               components: [
@@ -280,25 +496,7 @@ const deployedContracts = {
               type: "tuple",
             },
           ],
-          name: "payCallback",
-          outputs: [],
-          stateMutability: "payable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_requestId",
-              type: "uint256",
-            },
-            {
-              internalType: "bool",
-              name: "_success",
-              type: "bool",
-            },
-          ],
-          name: "payCallback",
+          name: "payWithReceiptCallback",
           outputs: [],
           stateMutability: "payable",
           type: "function",
@@ -358,9 +556,9 @@ const deployedContracts = {
               type: "uint256",
             },
             {
-              internalType: "bool",
-              name: "_success",
-              type: "bool",
+              internalType: "uint16",
+              name: "_code",
+              type: "uint16",
             },
             {
               internalType: "uint256",
@@ -374,149 +572,6 @@ const deployedContracts = {
             },
           ],
           name: "withdrawToCallback",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          stateMutability: "payable",
-          type: "receive",
-        },
-      ],
-      inheritedFunctions: {},
-    },
-    YourContract: {
-      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      abi: [
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "_owner",
-              type: "address",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "constructor",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "address",
-              name: "greetingSetter",
-              type: "address",
-            },
-            {
-              indexed: false,
-              internalType: "string",
-              name: "newGreeting",
-              type: "string",
-            },
-            {
-              indexed: false,
-              internalType: "bool",
-              name: "premium",
-              type: "bool",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "value",
-              type: "uint256",
-            },
-          ],
-          name: "GreetingChange",
-          type: "event",
-        },
-        {
-          inputs: [],
-          name: "greeting",
-          outputs: [
-            {
-              internalType: "string",
-              name: "",
-              type: "string",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "owner",
-          outputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "premium",
-          outputs: [
-            {
-              internalType: "bool",
-              name: "",
-              type: "bool",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "_newGreeting",
-              type: "string",
-            },
-          ],
-          name: "setGreeting",
-          outputs: [],
-          stateMutability: "payable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "totalCounter",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          name: "userGreetingCounter",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "withdraw",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",

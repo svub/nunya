@@ -46,7 +46,8 @@ contract NunyaBusiness {
     constructor(address payable _gateway) payable {
         gateway = _gateway;
         secretContract = ISecretContract(_gateway);
-        fundGateway(msg.value);
+        console.log("constructor: msg.value", msg.value);
+        fundGateway();
 
         // TODO: only uncomment when hardhat has gateway deployed
         // TODO can we test if it's deployed and call then automatically? 
@@ -88,7 +89,7 @@ contract NunyaBusiness {
     // TODO needed? or could a new account be created on the fly when creating the first payment ref?
     function newSecretUser(uint256 _secret) public payable returns (uint256){
         // TODO make sure the funding is high enough to pay for fees calling the contract.
-        fundGateway(msg.value);
+        fundGateway(50000); // TODO 50000 is the minimum, need to adjust to a good estimate
         uint256 requestId = secretContract.newSecretUser(_secret);
         expectedResult[requestId] = FunctionCallType.NEW_USER;
         return(requestId);
@@ -101,7 +102,7 @@ contract NunyaBusiness {
     // Function wrapped in secret network payload encryption
     // IDEA have the ref being created inside the secret contract, this way we avoid any potential collisions with already existing references.
     function createPaymentReference(uint256 _secret, string calldata _ref) public payable returns (uint256){
-        fundGateway(msg.value);
+        fundGateway(50000); // TODO 50000 is the minimum, need to adjust to a good estimate
         // IDEA the requestId could be created here and forwarded to the gateway. This way, the gateway becames very slim, just forwarding calls and callbacks while all logic is handled here.
         uint256 requestId = secretContract.createPaymentReference(_secret, _ref);
         expectedResult[requestId] = FunctionCallType.NEW_REF;
@@ -115,8 +116,7 @@ contract NunyaBusiness {
     // TODO: use ref encrypted with (user pubkey+salt)
     function pay(string calldata _ref, uint256 _value) public payable returns (uint256) {
         // >= because we need gas for fees
-        uint256 gasPaid = fundGateway();
-        require (msg.value >= _value + gasPaid , "Naughty! You need to send enough to cover the forward fees.");
+        uint256 gasPaid = fundGateway(50000); // TODO 50000 is the minimum, need to adjust to a good estimate
         uint256 requestId = secretContract.pay(_ref, msg.value - gasPaid);
         expectedResult[requestId] = FunctionCallType.PAY;
         return(requestId);
@@ -129,11 +129,9 @@ contract NunyaBusiness {
 
     // TODO: use ref encrypted with (user pubkey+salt)
     function payWithReceipt(string calldata _ref, uint256 _value, uint256 _userPubkey) public payable returns (uint256) {
-        // >= because we need gas for
-        require (_value >= msg.value, "Naughty!");
-        uint256 gasPaid = fundGateway();
+        uint256 gasPaid = fundGateway(50000); // TODO 50000 is the minimum, need to adjust to a good estimate
         // QUESTION why is the user's pubkey required? How about the secret contact signs with it's pk and the user can validate using the secret contacts pubkey?
-        uint256 requestId = secretContract.payWithReceipt(_ref, msg.value-gasPaid, _userPubkey);
+        uint256 requestId = secretContract.payWithReceipt(_ref, msg.value - gasPaid, _userPubkey);
         expectedResult[requestId] = FunctionCallType.PAY;
         return(requestId);
     }
@@ -164,7 +162,7 @@ contract NunyaBusiness {
     function withdrawTo(string calldata _secret, uint256 _amount, address _withdrawalAddress) public payable returns (uint256) {
         // IDEA _amount == 0 could signal I want all funds available; alternatively, sending max value could also work
         require((_amount > 0), "Need to provide the amount you want to withdraw.");
-        fundGateway(msg.value);
+        fundGateway(50000); // TODO 50000 is the minimum, need to adjust to a good estimate
         // IDEA we could store the withdrawal address in this contract instead of sending it forth and back. 
         uint256 requestId = secretContract.withdraw(_secret, _amount, _withdrawalAddress);
         // TODO: error check
@@ -182,16 +180,43 @@ contract NunyaBusiness {
         emit WithdrawalProcessed(_requestId, _code, _amount);
     }
 
-    function fundGateway(uint256 _gas) internal returns (uint256) {
-        gateway.transfer(_gas);
-        return _gas;
+    // function fundGateway(uint256 _gas) internal returns (uint256) {
+    //     gateway.transfer(_gas);
+    //     return _gas;
+    // }
+
+    function fundGateway() internal {
+        fundGateway(0);
     }
 
-    function fundGateway() internal returns (uint256) {
-        // TODO: calculate gas better than this!
-        uint256 gas=1;
-        gateway.transfer(gas);
-        return gas;
+    function fundGateway(uint256 keepGas) internal returns (uint256) {
+        uint256 txGas = 21000; // seems the default for a normal TX, TODO confirm
+        require(keepGas < 30000000);
+        uint256 totalGasReserved = txGas + keepGas;
+        require (totalGasReserved < msg.value , string(abi.encodePacked("Naughty! You need to send enough to cover the forward fees. Sent: ", uint2str(msg.value), " need to keep: ", uint2str(totalGasReserved))));
+        uint256 value = msg.value - totalGasReserved;
+        gateway.transfer(value);
+        return totalGasReserved;
+    }
+
+    function uint2str(uint256 _i) internal pure returns (string memory) {
+        if (_i == 0) {
+            return "0";
+        }
+        uint256 j = _i;
+        uint256 length;
+        while (j != 0) {
+            length++;
+            j /= 10;
+        }
+        bytes memory bstr = new bytes(length);
+        uint256 k = length;
+        j = _i;
+        while (j != 0) {
+            bstr[--k] = bytes1(uint8(48 + j % 10));
+            j /= 10;
+        }
+        return string(bstr);
     }
 
     // TODO What's the exact use case? Or should instead the secret contract always call the callback with an appropriate error code? 
