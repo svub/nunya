@@ -1,4 +1,4 @@
-use cosmwasm_std::{Addr, Binary};
+use cosmwasm_std::{Addr, Binary, Uint128, Uint256};
 use secret_toolkit::utils::HandleCallback;
 use tnls::msg::{PostExecutionMsg, PrivContractHandleMsg};
 
@@ -20,33 +20,33 @@ pub enum ExecuteMsg {
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct NewSecretUserStoreMsg {
-    pub secret_user: u256,
+    pub secret_user: Addr,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct LinkPaymentRefStoreMsg {
-    pub secret_user: u256,
+    pub secret_user: Addr,
     pub payment_ref: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct PayStoreMsg {
     pub payment_ref: String,
-    pub value: u256,
+    pub amount: Uint128,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct PayEncryptedWithReceiptStoreMsg {
     pub payment_ref: String,
-    pub value: u256,
-    pub user_pubkey: u256,
+    pub amount: Uint128,
+    pub user_pubkey: Uint256,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct WithdrawToStoreMsg {
-    pub secret_user: u256,
-    pub amount: u256,
-    pub withdrawalAddress: String, // u160, // u160(u256(bytes32))
+    pub secret_user: Addr,
+    pub amount: Uint128,
+    pub withdrawal_address: Addr,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
@@ -58,7 +58,7 @@ pub struct ResponseStoreMsg {
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum QueryMsg {
-    RetrievePubkey { key: u256 },
+    RetrievePubkey { key: u32 },
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]

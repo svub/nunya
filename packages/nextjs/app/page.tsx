@@ -24,6 +24,7 @@ const Home: NextPage = () => {
   const [returnAmount, setReturnAmount] = useState("");
   const { writeContractAsync } = useScaffoldWriteContract("NunyaBusiness");
   // const encoder: TextEncoder = new global.TextEncoder();
+  // const decoder: TextDecoder = new global.TextDecoder();
 
   useScaffoldWatchContractEvent({
     contractName: "NunyaBusiness",

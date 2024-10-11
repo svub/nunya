@@ -49,7 +49,6 @@ secret-toolkit-serialization = { version = "0.10.0", features = ["base64"] }
 tnls = { git = "https://github.com/SecretSaturn/TNLS", branch = "main", package = "secret_gateway", default-features = false }
 # cw-storage-plus = { version = "0.14.0", default-features = false }
 
-
 [[bin]]
 name = "schema"
 required-features = ["schema"]

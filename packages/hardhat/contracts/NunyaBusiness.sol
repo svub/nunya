@@ -180,11 +180,6 @@ contract NunyaBusiness {
         emit WithdrawalProcessed(_requestId, _code, _amount);
     }
 
-    // function fundGateway(uint256 _gas) internal returns (uint256) {
-    //     gateway.transfer(_gas);
-    //     return _gas;
-    // }
-
     function fundGateway() internal {
         fundGateway(0);
     }
