@@ -159,7 +159,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     NunyaBusiness: {
-      address: "0x59b670e9fA9D0A427751Af201D676719a970857b",
+      address: "0x4826533B4897376654Bb4d4AD88B7faFD0C98528",
       abi: [
         {
           inputs: [

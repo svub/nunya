@@ -59,6 +59,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     args: [gateway.address],
     log: true,
     gasLimit: 30000000,
+    value: parseUnits("0.0005", "ether").toString(),
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
     // automatically mining the contract deployment transaction. There is no effect on live networks.
     autoMine: true,
