@@ -92,6 +92,7 @@ contract NunyaBusiness {
         fundGateway(50000); // TODO 50000 is the minimum, need to adjust to a good estimate
         uint256 requestId = secretContract.newSecretUser(_secret);
         expectedResult[requestId] = FunctionCallType.NEW_USER;
+        console.log("----- NunyaBusiness.sol newSecretUser requestId: ", requestId);
         return(requestId);
     }
 
@@ -151,11 +152,11 @@ contract NunyaBusiness {
     // }
 
     fallback() external payable {
-        console.log("----- fallback:", msg.value);
+        console.log("----- NunyaBusiness.sol fallback() msg.value:", msg.value);
     }
 
     receive() external payable {
-        console.log("----- receive:", msg.value);
+        console.log("----- NunyaBusiness.sol receive() msg.value:", msg.value);
     }
 
     // Function wrapped in secret network payload encryption
@@ -181,10 +182,12 @@ contract NunyaBusiness {
     }
 
     function fundGateway() internal {
+        console.log("----- NunyaBusiness.sol fundGateway()");
         fundGateway(0);
     }
 
     function fundGateway(uint256 keepGas) internal returns (uint256) {
+        console.log("----- NunyaBusiness.sol fundGateway() keepGas: ", keepGas);
         uint256 txGas = 21000; // seems the default for a normal TX, TODO confirm
         require(keepGas < 30000000);
         uint256 totalGasReserved = txGas + keepGas;
