@@ -47,7 +47,7 @@ contract NunyaBusiness {
         gateway = _gateway;
         secretContract = ISecretContract(_gateway);
         console.log("constructor: msg.value", msg.value);
-        fundGateway();
+        // fundGateway();
 
         // TODO: only uncomment when hardhat has gateway deployed
         // TODO can we test if it's deployed and call then automatically? 

@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { Contract, ethers, formatEther, parseUnits } from "ethers";
+import { Contract, ethers, formatEther, parseEther, parseUnits } from "ethers";
 
 /**
  * Deploys a contract named "YourContract" using the deployer account and
@@ -40,19 +40,19 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545/");
   const owner = await provider.getSigner(deployer);
   // Creating and sending the transaction object
-  const tx = await owner.sendTransaction({
+  let tx = await owner.sendTransaction({
     to: gateway.address, // Gateway contract
     value: parseUnits("0.001", "ether"),
   });
   console.log("Mining transaction...");
   console.log("tx.hash: ", tx.hash);
   // Waiting for the transaction to be mined on-chain
-  const receipt = await tx.wait();
+  let receipt = await tx.wait();
   console.log(`Mined in block: ${receipt?.blockNumber}`);
   const contractBalance = await provider.getBalance(gateway.address);
   console.log("gateway.address balance: ", formatEther(contractBalance));
 
-  await deploy("NunyaBusiness", {
+  const nunyaContract = await deploy("NunyaBusiness", {
     from: deployer,
     // Contract constructor arguments
     // args: [deployer, Gateway.address],
@@ -63,6 +63,27 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     // automatically mining the contract deployment transaction. There is no effect on live networks.
     autoMine: true,
   });
+  console.log("nunyaContract.address: ", nunyaContract.address);
+  // Send funds to the Nunya contract
+  let nunyaContractAddressBalance = await provider.getBalance(nunyaContract.address);
+  console.log("nunyaContractAddressBalance: ", formatEther(nunyaContractAddressBalance));
+  tx = await owner.sendTransaction({
+    to: nunyaContract.address,
+    value: parseUnits("0.001", "ether"),
+  });
+  console.log("Mining transaction...");
+  console.log("tx.hash: ", tx.hash);
+  // Waiting for the transaction to be mined on-chain
+  receipt = await tx.wait();
+  console.log(`Mined in block: ${receipt?.blockNumber}`);
+  nunyaContractAddressBalance = await provider.getBalance(nunyaContract.address);
+  console.log("nunyaContractAddressBalance: ", formatEther(nunyaContractAddressBalance));
+
+  // FIXME: Call the gateway function now that the Nunya contract has been funded
+  // returns error `ProviderError: Error: Transaction reverted: contract call run out of gas and made the transaction revert`
+  const nunyaContractDeployedAt = await hre.ethers.getContractAt("NunyaBusiness", nunyaContract.address);
+  const newSecretUserTx = await nunyaContractDeployedAt.newSecretUser(deployer, { value: parseEther("0.1") });
+  console.log("tx hash:", newSecretUserTx.hash);
 
   // Get the deployed contract to interact with it after deploying.
   const nunya = await hre.ethers.getContract<Contract>("NunyaBusiness", deployer);
