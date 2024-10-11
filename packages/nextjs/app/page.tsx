@@ -27,11 +27,10 @@ const Home: NextPage = () => {
 
   useScaffoldWatchContractEvent({
     contractName: "NunyaBusiness",
-    // TODO
-    // eventName: "reference-created",
-    eventName: "Request_success",
+    eventName: "PaymentReferenceCreated",
     onLogs: logs => {
       logs.forEach(() => {
+        // TODO decode the receipt struct as defined in NunyaBusiness.sol
         // const { referenceBytes } = log.args;
         const reference = "123"; // decoder.decode(referenceBytes as ArrayBuffer);
         console.log("📡 Reference " + reference + " created");

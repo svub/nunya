@@ -65,7 +65,7 @@ const PaymentPage: NextPage<PageProps> = ({ params }: PageProps) => {
     contractName: "NunyaBusiness",
     // TODO
     // eventName: "payment-receipt-received",
-    eventName: "Request_success",
+    eventName: "PaymentWithReceiptProcessed",
     onLogs: logs => {
       logs.forEach(() => {
         // const { receiptBytes } = log.args;
