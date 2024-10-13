@@ -2,7 +2,7 @@
 
 #### State:
 
-There are only two main state elements in the secret contract.
+There are *only two* main state elements in the secret contract.
 
 They use three types for their keys and values: `authOut`, `ref` and `u__`.
 (we may change the name of authOut as it is confusing)
