@@ -41,14 +41,17 @@ const PaymentPage: NextPage<PageProps> = ({ params }: PageProps) => {
       fetchPriceFromUniswap(targetNetwork).then(price => {
         console.log("Convert to ETH", amountParam, price, amountParam / price);
         if (price > 0) setAmount(amountParam / price + "");
-        else console.error("Couldn't fetch ETH price.");
+        else {
+          console.error("Couldn't fetch ETH price.");
+          // TODO assuming a price for development - remove from production
+          setAmount(amountParam / 2412.65183726 + "");
+        }
       });
     } else {
+      console.log("Inital amount", amountParam);
       setAmount(amountParam + "");
     }
-
-    // setCurrency(currencyParam || "ETH");
-  }, []);
+  });
 
   const handlePay = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -65,7 +68,7 @@ const PaymentPage: NextPage<PageProps> = ({ params }: PageProps) => {
     contractName: "NunyaBusiness",
     // TODO
     // eventName: "payment-receipt-received",
-    eventName: "RequestSuccess",
+    eventName: "PaymentWithReceiptProcessed",
     onLogs: logs => {
       logs.forEach(() => {
         // const { receiptBytes } = log.args;
@@ -91,6 +94,8 @@ const PaymentPage: NextPage<PageProps> = ({ params }: PageProps) => {
         <h3 className="text-center text-2xl mt-8">Make a Payment</h3>
         <form onSubmit={handlePay} className="flex flex-col items-center mb-8 mx-5 space-y-4">
           <div className="flex flex-col items-center justify-center space-y-3">
+            <p>Your payment reference:</p>
+            {/* TODO format into a nice form */}
             <input
               className="border bg-base-100 p-3 w-full rounded-md shadow focus:outline-none focus:ring-2 focus:ring-blue-500"
               type="text"
@@ -98,7 +103,9 @@ const PaymentPage: NextPage<PageProps> = ({ params }: PageProps) => {
               placeholder="Your payment reference..."
               onChange={e => setReference(e.target.value)}
             />
+            <p>The amount to be paid:</p>
             <EtherInput value={amount} onChange={amount => setAmount(amount)} />
+            <p>Final amount in ETH {amount}</p>
             <button
               className="btn bg-blue-600 text-white hover:bg-blue-700 transition duration-200 p-3 rounded-md"
               type="submit"
