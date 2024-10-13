@@ -68,6 +68,7 @@ We do not use usernames. We can, as future work, modularly update authOut so tha
 
 ##### approvals, permissions, roles
 There are no approvals, permissions or roles.
+
 The only fucntion that requires any authentication is `withdrawTo`, and the authentication is solely on the basis of the `authOut` provided when calling that function. If the user provides the correct `authOut` to map to a `balance`, then they have full control of the whole of the balance.
 
 
@@ -75,34 +76,51 @@ The only fucntion that requires any authentication is `withdrawTo`, and the auth
 
  ###### new_auth_out (preferred_auth : authOut)
  if preferred_auth exists already as a key in balances, then report error.
+
  if not, then add it as a key with balance 0 and report success.
 
  ###### link_payment_reference (auth : authOut, payment_ref : ref)
  if auth does not exist as a key in balances, then report error.
+
  if not: 
+
     if payment_ref already exists as a key in paymentRefs, then randomly generate an alternative and set payment_ref to that.
+
     add payment_ref as a key in paymentRefs and set its value to auth
 
  ###### accept_payment (payment_ref : ref, amount : u__, encrypt_to : Option(pubkey))
 <<< future work: 
+
 if payment_ref is encrypted with secret contract's own pubkey
+
     decrypt it and set payment_ref to the decrypted version >>>
 
 if payment_ref not exist as a key in paymentRefs, then report error.
+
 if it does:
+
     add amount to balances[ paymentRefs[payment_ref] ]
+
     create a receipt (eg json) { payment_ref, amount }
+
     sign the receipt with the secret contract's privkey
+
     if encrypt_to contains a pubkey:
+
         encrypt the receipt and signature with pubkey and return them
+
     if not,
+
         return the receipt and signature
 
  
  ###### withdraw_to (auth : authOut, amount : u__, withdrawal_address : address)
  if auth does not exist as a key in balances, then report error.
+ 
  if balances[auth] < amount then report error.
+
  if neither error:
+
     return DO_THE_WITHDRAWAL (withdrawal_address, amount)
    
 
