@@ -10,6 +10,7 @@ import "./ISecretContract.sol";
 contract DummyGatewayContract is ISecretContract {
     
     function newSecretUser(string calldata secret) external returns (uint256) {
+        console.log("----- DummyGateway.sol newSecretUser");
         return 6;
     }
     function createPaymentReference(string calldata secret, string calldata ref) external returns (uint256) {
@@ -30,10 +31,10 @@ contract DummyGatewayContract is ISecretContract {
     }
 
     fallback() external payable {
-        console.log("----- fallback:", msg.value);
+        console.log("----- DummyGateway.sol fallback() msg.value:", msg.value);
     }
 
     receive() external payable {
-        console.log("----- receive:", msg.value);
+        console.log("----- DummyGateway.sol receive() msg.value:", msg.value);
     }
 }

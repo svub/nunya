@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { Contract, ethers, formatEther, parseUnits } from "ethers";
+import { Contract, ethers, formatEther, parseEther, parseUnits } from "ethers";
 
 /**
  * Deploys a contract named "YourContract" using the deployer account and
@@ -52,7 +52,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   const contractBalance = await provider.getBalance(gateway.address);
   console.log("gateway.address balance: ", formatEther(contractBalance));
 
-  await deploy("NunyaBusiness", {
+  const nunyaContract = await deploy("NunyaBusiness", {
     from: deployer,
     // Contract constructor arguments
     // args: [deployer, Gateway.address],
@@ -64,6 +64,11 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     // automatically mining the contract deployment transaction. There is no effect on live networks.
     autoMine: true,
   });
+
+  // Call the gateway function now that the Nunya contract has been funded
+  const nunyaContractDeployedAt = await hre.ethers.getContractAt("NunyaBusiness", nunyaContract.address);
+  const newSecretUserTx = await nunyaContractDeployedAt.newSecretUser(deployer, { value: parseEther("0.1") });
+  console.log("tx hash:", newSecretUserTx.hash);
 
   // Get the deployed contract to interact with it after deploying.
   const nunya = await hre.ethers.getContract<Contract>("NunyaBusiness", deployer);
