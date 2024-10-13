@@ -57,12 +57,20 @@ fn try_handle(
     msg: PrivContractHandleMsg,
 ) -> StdResult<Response> {
     // verify signature with stored gateway public key
-    let gateway_key = CONFIG.load(deps.storage)?.gateway_key;
+    let config = CONFIG.load(deps.storage)?;
+
+    // reference: evm-kv-store-demo
+    if info.sender != config.gateway_address {
+        return Err(StdError::generic_err(
+            "Only SecretPath Gateway can call this function",
+        ));
+    }
+
     deps.api
         .secp256k1_verify(
             msg.input_hash.as_slice(),
             msg.signature.as_slice(),
-            gateway_key.as_slice(),
+            config.gateway_key.as_slice(),
         )
         .map_err(|err| StdError::generic_err(err.to_string()))?;
 
