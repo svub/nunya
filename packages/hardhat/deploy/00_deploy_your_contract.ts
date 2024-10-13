@@ -2,6 +2,8 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { Contract, ethers, formatEther, parseEther, parseUnits } from "ethers";
 
+const logging = true;
+
 /**
  * Deploys a contract named "YourContract" using the deployer account and
  * constructor arguments set to the deployer address
@@ -23,10 +25,19 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   const { deploy } = hre.deployments;
   console.log("network: ", hre.network.name);
 
+  if (logging) {
+    console.log({ deployer });
+
+    // console.log("Deploying with account:", deployer.address);
+
+    // const balance = await deployer.getBalance();
+    // console.log("Account balance:", hre.ethers.utils.formatEther(balance), "ETH");
+  }
+
+  //   const Gateway = await deploy("SecretContract", {
+  //     contract: "contracts/DummyGateway.sol:SecretContract",
   const gateway = await deploy("DummyGatewayContract", {
     from: deployer,
-    // Contract constructor arguments
-    // args: [deployer],
     // args: [],
     log: true,
     gasLimit: 3000000,
@@ -55,10 +66,9 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   const nunyaContract = await deploy("NunyaBusiness", {
     from: deployer,
     // Contract constructor arguments
-    // args: [deployer, Gateway.address],
     args: [gateway.address],
     log: true,
-    gasLimit: 30000000,
+    gasLimit: 3000000,
     value: parseUnits("0.0005", "ether").toString(), // to fund the gateway in the constructor
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
     // automatically mining the contract deployment transaction. There is no effect on live networks.

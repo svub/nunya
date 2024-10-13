@@ -399,7 +399,7 @@ const deployedContracts = {
             },
             {
               internalType: "uint256",
-              name: "_value",
+              name: "_amount",
               type: "uint256",
             },
           ],
@@ -441,7 +441,7 @@ const deployedContracts = {
             },
             {
               internalType: "uint256",
-              name: "_value",
+              name: "_amount",
               type: "uint256",
             },
             {
@@ -579,6 +579,145 @@ const deployedContracts = {
         {
           stateMutability: "payable",
           type: "receive",
+        },
+      ],
+      inheritedFunctions: {},
+    },
+    SecretContract: {
+      address: "0xD6c6E4849B7b059986693A7756f1DB518B669911",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "secret",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "ref",
+              type: "string",
+            },
+          ],
+          name: "linkPaymentRef",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "secret",
+              type: "uint256",
+            },
+          ],
+          name: "newSecretUser",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "ref",
+              type: "string",
+            },
+            {
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+          ],
+          name: "pay",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "ref",
+              type: "string",
+            },
+            {
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "userPubkey",
+              type: "uint256",
+            },
+          ],
+          name: "payWithReceipt",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "retrievePubkey",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "secret",
+              type: "string",
+            },
+            {
+              internalType: "address",
+              name: "withdrawalAddress",
+              type: "address",
+            },
+          ],
+          name: "withdraw",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
         },
       ],
       inheritedFunctions: {},

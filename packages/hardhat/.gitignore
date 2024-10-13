@@ -23,6 +23,8 @@ cache-zk
 
 # deployments
 deployments/localhost
+deployments/sepolia
+deployments
 
 # other
 temp
