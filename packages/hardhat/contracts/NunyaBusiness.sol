@@ -34,7 +34,7 @@ contract NunyaBusiness {
     mapping (uint256 => FunctionCallType) expectedResult;
 
     // TODO could an account be created the first time a user creates a ref?
-    event AccountCreated(uint256 requestId, uint16 _code);
+    event AccountCreated(uint256 requestId, uint16 code);
     event PaymentReferenceCreated(uint256 requestId, uint16 code, string ref);
     event PaymentProcessed(uint256 requestId, uint16 code);
     event PaymentWithReceiptProcessed(uint256 requestId, uint16 code, Receipt receipt);
@@ -47,7 +47,7 @@ contract NunyaBusiness {
         gateway = _gateway;
         secretContract = ISecretContract(_gateway);
         console.log("constructor: msg.value", msg.value);
-        fundGateway();
+        fundGateway(0); // send all funds to the gateway
 
         // TODO: only uncomment when hardhat has gateway deployed
         // TODO can we test if it's deployed and call then automatically? 
@@ -87,9 +87,9 @@ contract NunyaBusiness {
 
     // Function wrapped in secret network payload encryption
     // TODO needed? or could a new account be created on the fly when creating the first payment ref?
-    function newSecretUser(uint256 _secret) public payable returns (uint256){
+    function newSecretUser(string calldata _secret) public payable returns (uint256){
         // TODO make sure the funding is high enough to pay for fees calling the contract.
-        fundGateway(50000); // TODO 50000 is the minimum, need to adjust to a good estimate
+        fundGateway(10000000); // TODO find out how much gas is needed to call secretContract.newSecretUser(_secret)
         uint256 requestId = secretContract.newSecretUser(_secret);
         expectedResult[requestId] = FunctionCallType.NEW_USER;
         return(requestId);
@@ -101,7 +101,7 @@ contract NunyaBusiness {
 
     // Function wrapped in secret network payload encryption
     // IDEA have the ref being created inside the secret contract, this way we avoid any potential collisions with already existing references.
-    function createPaymentReference(uint256 _secret, string calldata _ref) public payable returns (uint256){
+    function createPaymentReference(string calldata _secret, string calldata _ref) public payable returns (uint256){
         fundGateway(50000); // TODO 50000 is the minimum, need to adjust to a good estimate
         // IDEA the requestId could be created here and forwarded to the gateway. This way, the gateway becames very slim, just forwarding calls and callbacks while all logic is handled here.
         uint256 requestId = secretContract.createPaymentReference(_secret, _ref);
@@ -117,6 +117,7 @@ contract NunyaBusiness {
     function pay(string calldata _ref, uint256 _value) public payable returns (uint256) {
         // >= because we need gas for fees
         uint256 gasPaid = fundGateway(50000); // TODO 50000 is the minimum, need to adjust to a good estimate
+        require(msg.value >= _value + gasPaid, "Not enough value sent to pay for gas.");
         uint256 requestId = secretContract.pay(_ref, msg.value - gasPaid);
         expectedResult[requestId] = FunctionCallType.PAY;
         return(requestId);
@@ -130,6 +131,7 @@ contract NunyaBusiness {
     // TODO: use ref encrypted with (user pubkey+salt)
     function payWithReceipt(string calldata _ref, uint256 _value, uint256 _userPubkey) public payable returns (uint256) {
         uint256 gasPaid = fundGateway(50000); // TODO 50000 is the minimum, need to adjust to a good estimate
+        require(msg.value >= _value + gasPaid, "Not enough value sent to pay for gas.");
         // QUESTION why is the user's pubkey required? How about the secret contact signs with it's pk and the user can validate using the secret contacts pubkey?
         uint256 requestId = secretContract.payWithReceipt(_ref, msg.value - gasPaid, _userPubkey);
         expectedResult[requestId] = FunctionCallType.PAY;
@@ -180,15 +182,13 @@ contract NunyaBusiness {
         emit WithdrawalProcessed(_requestId, _code, _amount);
     }
 
-    function fundGateway() internal {
-        fundGateway(0);
-    }
-
     function fundGateway(uint256 keepGas) internal returns (uint256) {
         uint256 txGas = 21000; // seems the default for a normal TX, TODO confirm
-        require(keepGas < 30000000);
+        require(keepGas <= 30000000, "Keep more than maximum per block?!");
         uint256 totalGasReserved = txGas + keepGas;
-        require (totalGasReserved < msg.value , string(abi.encodePacked("Naughty! You need to send enough to cover the forward fees. Sent: ", uint2str(msg.value), " need to keep: ", uint2str(totalGasReserved))));
+        console.log("fundGateway", msg.value, totalGasReserved);
+        // require (msg.value >= totalGasReserved , string(abi.encodePacked("You need to send enough to cover the forward fees. Sent: ", uint2str(msg.value), " required for fees: ", uint2str(totalGasReserved))));
+        require (msg.value >= totalGasReserved , "You need to send enough to cover the forward fees.");
         uint256 value = msg.value - totalGasReserved;
         gateway.transfer(value);
         return totalGasReserved;

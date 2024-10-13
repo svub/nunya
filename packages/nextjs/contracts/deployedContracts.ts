@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     DummyGatewayContract: {
-      address: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
       abi: [
         {
           stateMutability: "payable",
@@ -16,9 +16,9 @@ const deployedContracts = {
         {
           inputs: [
             {
-              internalType: "uint256",
+              internalType: "string",
               name: "secret",
-              type: "uint256",
+              type: "string",
             },
             {
               internalType: "string",
@@ -40,9 +40,9 @@ const deployedContracts = {
         {
           inputs: [
             {
-              internalType: "uint256",
+              internalType: "string",
               name: "secret",
-              type: "uint256",
+              type: "string",
             },
           ],
           name: "newSecretUser",
@@ -159,7 +159,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     NunyaBusiness: {
-      address: "0x4826533B4897376654Bb4d4AD88B7faFD0C98528",
+      address: "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
       abi: [
         {
           inputs: [
@@ -184,7 +184,7 @@ const deployedContracts = {
             {
               indexed: false,
               internalType: "uint16",
-              name: "_code",
+              name: "code",
               type: "uint16",
             },
           ],
@@ -309,9 +309,9 @@ const deployedContracts = {
         {
           inputs: [
             {
-              internalType: "uint256",
+              internalType: "string",
               name: "_secret",
-              type: "uint256",
+              type: "string",
             },
             {
               internalType: "string",
@@ -356,9 +356,9 @@ const deployedContracts = {
         {
           inputs: [
             {
-              internalType: "uint256",
+              internalType: "string",
               name: "_secret",
-              type: "uint256",
+              type: "string",
             },
           ],
           name: "newSecretUser",
