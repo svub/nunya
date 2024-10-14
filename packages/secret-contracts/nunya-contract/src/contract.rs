@@ -111,7 +111,7 @@ fn create_new_auth_out(
 
     // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-implementation
     let gateway_account = config.gateway_address.to_string();
-    let suffix = viewing_key_index.as_str();
+    let suffix = viewing_key_index;
     let index_concat = gateway_account.push_str(suffix);
 
     // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-introduction
@@ -204,11 +204,11 @@ fn create_payment_reference(
 
     // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-implementation
     let gateway_account = config.gateway_address.to_string();
-    let suffix = viewing_key_index.as_str();
+    let suffix = viewing_key_index;
     let index_concat = gateway_account.push_str(suffix);
 
     let entropy: bytes = b"entropy";
-    let result = ViewingKey::check(&deps.storage, &index_concat, entropy.as_str());
+    let result = ViewingKey::check(deps.storage, &index_concat, entropy.as_str());
     assert_ne!(result, Err(StdError::generic_err("unauthorized")));
 
     let value_viewing_key = VIEWING_KEY
@@ -233,7 +233,7 @@ fn create_payment_reference(
     let new_balance: Coin = coin(0u128, String::new());
     let new_payment_ref = payment_ref;
     let new_payment_reference_balance = PaymentReferenceBalance {
-        payment_reference: new_payment_ref,
+        payment_reference: new_payment_ref.to_string(),
         balance: new_balance,
     };
 
@@ -254,7 +254,7 @@ fn create_payment_reference(
     let data = ResponseLinkPaymentRefStoreMsg {
         _requestId: task,
         _code: response_status_code,
-        _reference: new_payment_ref.as_str(),
+        _reference: new_payment_ref.to_string(),
     };
 
     let json_string =
@@ -305,11 +305,11 @@ fn create_pay(
 
     // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-implementation
     let gateway_account = config.gateway_address.to_string();
-    let suffix = viewing_key_index.as_str();
+    let suffix = viewing_key_index;
     let index_concat = gateway_account.push_str(suffix);
 
     let entropy: bytes = b"entropy";
-    let result = ViewingKey::check(&deps.storage, &index_concat, entropy.as_str());
+    let result = ViewingKey::check(deps.storage, &index_concat, entropy.as_str());
     assert_ne!(result, Err(StdError::generic_err("unauthorized")));
 
     let viewing_key = VIEWING_KEY
@@ -327,36 +327,36 @@ fn create_pay(
 
     let mut value_payment_reference_to_balances: Vec<PaymentReferenceBalance> = match value_payment_reference_to_balances_map {
         Some(payment_reference_to_balances) => payment_reference_to_balances, // If there are existing
-        None => StdError::generic_err("No payment references found"), // If none are found, early return
+        None => return Err(StdError::generic_err("No payment references found")), // If none are found, early return
     };
 
     // Check if matching `payment_ref` is in the vector since only pay if it exists
-    let index: usize = value_payment_reference_to_balances.iter().position(|&r| r.payment_reference == payment_ref).unwrap();
+    let index: Option<usize> = Some(value_payment_reference_to_balances.iter().position(|&r| r.payment_reference == payment_ref).unwrap());
 
-    let value_payment_reference_to_balances_match = match index {
+    let index_value_payment_reference_to_balances = match index {
         Some(val) => {
-            println!("Found matching payment reference at index: {:#?}", index);
+            println!("Found matching payment reference at index: {:#?}", val);
             val
         },
-        None => StdError::generic_err("No payment references found"),
+        None => return Err(StdError::generic_err("No payment references found")),
     };
 
     // Add pay amount to existing balance associated with the payment reference that was found
-    let new_balance_amount: Uint128 = value_payment_reference_to_balances_match.balance.amount.saturating_add(amount);
+    let new_balance_amount: Uint128 = index_value_payment_reference_to_balances.balance.amount.saturating_add(amount);
     let new_balance: Coin = coin(&new_balance_amount, denomination);
     let new_payment_reference_balance = PaymentReferenceBalance {
-        payment_reference: payment_ref,
+        payment_reference: payment_ref.to_string(),
         balance: new_balance,
     };
 
     // Update the index in the vector with the matching payment reference
-    value_payment_reference_to_balances[index] = new_payment_reference_balance;
+    value_payment_reference_to_balances[index_value_payment_reference_to_balances] = new_payment_reference_balance;
 
     // Save updated back to storage
     VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP
         .insert(deps.storage, &viewing_key, &value_payment_reference_to_balances)?;
 
-    let mut receipt: Option<PaymentReceipt> = None;
+    let mut receipt: PaymentReceipt;
 
     // FIXME: sign receipt using Secret contract's private key, currently just hardcoded.
     // But how to get the Secret contract's public and private key?
@@ -368,26 +368,26 @@ fn create_pay(
 
         // TODO: if user_pubkey has been provided then return encrypted receipt and signature with the user_pubkey
         // TODO: still need to encrypt below with user_pubkey
-        receipt = Some(PaymentReceipt {
-            payment_reference: value_payment_ref,
+        receipt = PaymentReceipt {
+            payment_reference: payment_ref.to_string(),
             // TODO: convert Uint256 to Uint128
             // Note: denomination of `Coin` type for the Receipt, since that is handled by the Solidity contract
             amount: new_balance_amount,
             // TODO: serialise denomination
             denomination: denomination.to_string(),
             sig: signature,
-        });
+        };
     } else {
         // return receipt and signature unencrypted
-        receipt = Some(PaymentReceipt {
-            payment_reference: value_payment_ref,
+        receipt = PaymentReceipt {
+            payment_reference: payment_ref.to_string(),
             // TODO: convert Uint256 to Uint128
             // Note: denomination of `Coin` type for the Receipt, since that is handled by the Solidity contract
             amount: new_balance_amount,
             // TODO: serialise denomination
             denomination: denomination.to_string(),
             sig: signature,
-        });
+        };
     }
 
     let response_status_code: ResponseStatusCode = 0u16;
@@ -450,11 +450,11 @@ fn create_withdraw_to(
 
     // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-implementation
     let gateway_account = config.gateway_address.to_string();
-    let suffix = viewing_key_index.as_str();
+    let suffix = viewing_key_index;
     let index_concat = gateway_account.push_str(suffix);
 
     let entropy: bytes = b"entropy";
-    let result = ViewingKey::check(&deps.storage, &index_concat, entropy.as_str());
+    let result = ViewingKey::check(deps.storage, &index_concat, entropy.as_str());
     assert_ne!(result, Err(StdError::generic_err("unauthorized")));
 
     let value_viewing_key = VIEWING_KEY
@@ -472,7 +472,7 @@ fn create_withdraw_to(
 
     let mut value_payment_reference_to_balances: Vec<PaymentReferenceBalance> = match value_payment_reference_to_balances_map {
         Some(payment_reference_to_balances) => payment_reference_to_balances, // If there are existing
-        None => StdError::generic_err("No payment references found"), // If none are found, early return
+        None => return Err(StdError::generic_err("No payment references found")), // If none are found, early return
     };
 
     // Do not only withdraw associated with a specific payment reference at an index in the storage vector since want to ignore it
@@ -491,14 +491,7 @@ fn create_withdraw_to(
             balance_all_payment_refs += element.balance.amount
         }
     }
-use crate::{
-    msg::{
-        ExecuteMsg, GatewayMsg, InstantiateMsg, ProposalStoreMsg, QueryMsg,
-        ResponseRetrieveProposalMsg, ResponseRetrieveVotesMsg, ResponseStoreProposalMsg,
-        VoteStoreMsg,
-    },
-    state::{Proposal, State, Vote, CONFIG, PROPOSAL_MAP, VOTE_MAP},
-};
+
     assert!(balance_all_payment_refs >= amount, "{:?}", Err(StdError::generic_err("Withdrawal amount must be less than or equal to total balance of all payment references")));
 
     let response_status_code: ResponseStatusCode = 0u16;

@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     state::{
-        ResponseStatusCode,
+        PaymentReceipt, ResponseStatusCode,
     }
 };
 
