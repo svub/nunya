@@ -40,5 +40,5 @@ pub struct PaymentReceipt {
     pub payment_reference: String,
     pub amount: Uint256,
     pub denomination: String,
-    pub sig: bytes32,
+    pub sig: Binary,
 }

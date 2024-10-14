@@ -11,7 +11,7 @@ use crate::{
     },
 };
 use cosmwasm_std::{
-    entry_point, to_binary, coin, Binary, Coin, Deps, DepsMut, Env, HumanAddr, MessageInfo, Response, StdError, StdResult, Uint128, Uint256
+    entry_point, to_binary, coin, Binary, Coin, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult, Uint128, Uint256
 };
 use secret_toolkit::viewing_key::{ViewingKey, ViewingKeyStore};
 use secret_toolkit::utils::{pad_handle_result, pad_query_result, HandleCallback};
@@ -116,8 +116,8 @@ fn create_new_auth_out(
 
     // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-introduction
     // https://github.com/scrtlabs/examples/blob/master/secret-viewing-keys/secret-viewing-keys-contract/src/contract.rs
-    let entropy: bytes = b"entropy";
-    let viewing_key = ViewingKey::create(deps.storage, &info, &env, &gateway_account, entropy.as_str());
+    let entropy: Binary = b"entropy".into();
+    let viewing_key = ViewingKey::create(deps.storage, &info, &env, &gateway_account, entropy.as_ptr());
 
     // Viewing Key
     VIEWING_KEY
@@ -207,8 +207,8 @@ fn create_payment_reference(
     let suffix = viewing_key_index;
     let index_concat = gateway_account.push_str(suffix);
 
-    let entropy: bytes = b"entropy";
-    let result = ViewingKey::check(deps.storage, &index_concat, entropy.as_str());
+    let entropy: Binary = b"entropy".into();
+    let result = ViewingKey::check(deps.storage, &index_concat, entropy.as_ptr());
     assert_ne!(result, Err(StdError::generic_err("unauthorized")));
 
     let value_viewing_key = VIEWING_KEY
@@ -308,8 +308,8 @@ fn create_pay(
     let suffix = viewing_key_index;
     let index_concat = gateway_account.push_str(suffix);
 
-    let entropy: bytes = b"entropy";
-    let result = ViewingKey::check(deps.storage, &index_concat, entropy.as_str());
+    let entropy: Binary = b"entropy".into();
+    let result = ViewingKey::check(deps.storage, &index_concat, entropy.as_ptr());
     assert_ne!(result, Err(StdError::generic_err("unauthorized")));
 
     let viewing_key = VIEWING_KEY
@@ -360,7 +360,7 @@ fn create_pay(
 
     // FIXME: sign receipt using Secret contract's private key, currently just hardcoded.
     // But how to get the Secret contract's public and private key?
-    let signature: bytes32 = "0x".as_bytes();
+    let signature: Binary = "0x".as_bytes().into();
 
     let user_pubkey: Uint256;
     if let Some(ref _user_pubkey) = input.user_pubkey {
@@ -453,8 +453,8 @@ fn create_withdraw_to(
     let suffix = viewing_key_index;
     let index_concat = gateway_account.push_str(suffix);
 
-    let entropy: bytes = b"entropy";
-    let result = ViewingKey::check(deps.storage, &index_concat, entropy.as_str());
+    let entropy: Binary = b"entropy".into();
+    let result = ViewingKey::check(deps.storage, &index_concat, entropy.as_ptr());
     assert_ne!(result, Err(StdError::generic_err("unauthorized")));
 
     let value_viewing_key = VIEWING_KEY
