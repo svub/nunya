@@ -1,51 +1,37 @@
-use cosmwasm_std::{Addr, Binary, Uint128, Uint256};
+use cosmwasm_std::{Addr, Binary, Coin, Uint128, Uint256};
 use secret_toolkit::storage::{Item, Keymap};
+use secret_toolkit::viewing_key::{ViewingKey, ViewingKeyStore};
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 pub static CONFIG: Item<State> = Item::new(b"config");
-pub static NEW_SECRET_USER_MAP: Keymap<u32, NewSecretUser> = Keymap::new(b"NEW_SECRET_USER_MAP");
-pub static PUBKEY_MAP: Keymap<u32, Vec<Uint256>> = Keymap::new(b"PUBKEY_MAP");
-pub static LINK_PAYMENT_REF_MAP: Keymap<u32, Vec<LinkPaymentRef>> = Keymap::new(b"LINK_PAYMENT_REF_MAP");
-pub static PAY_MAP: Keymap<u32, Vec<Pay>> = Keymap::new(b"PAY_MAP");
-pub static PAY_ENCRYPTED_WITH_RECEIPT_MAP: Keymap<u32, Vec<PayEncryptedWithReceipt>> = Keymap::new(b"PAY_ENCRYPTED_WITH_RECEIPT_MAP");
-pub static WITHDRAW_TO_MAP: Keymap<u32, Vec<WithdrawTo>> = Keymap::new(b"WITHDRAW_TO_MAP");
+pub static VIEWING_KEY: Keymap<Index, ViewingKey> = Keymap::new(b"VIEWING_KEY");
+pub static VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP: Keymap<ViewingKey, Vec<PaymentReferenceBalance>> = Keymap::new(b"VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP");
+
+pub Index: u8;
+pub ViewingKey: String;
+pub ContractAddress: [u8; 32];
+pub ResponseStatusCode: u16;
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct State {
     pub gateway_address: Addr,
     pub gateway_hash: String,
     pub gateway_key: Binary,
+    pub secret_contract_pubkey: [u8; 32],
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-pub struct NewSecretUser {
-    pub secret_user: Addr,
+pub struct PaymentReferenceBalance {
+    pub payment_reference: String,
+    pub balance: Coin,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-pub struct LinkPaymentRef {
-    pub secret_user: Addr,
-    pub payment_ref: String,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-pub struct Pay {
-    pub payment_ref: String,
-    pub amount: Uint128,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-pub struct PayEncryptedWithReceipt {
-    pub payment_ref: String,
-    pub amount: Uint128,
-    pub user_pubkey: Uint256,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-pub struct WithdrawTo {
-    pub secret_user: Addr,
-    pub amount: Uint128,
-    pub withdrawal_address: Addr,
+struct PaymentReceipt {
+    pub payment_reference: Uint256,
+    pub amount: Uint256,
+    pub denomination: Uint256,
+    pub sig: bytes32,
 }

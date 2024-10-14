@@ -9,9 +9,9 @@ import "hardhat/console.sol";
 interface SecretContract {
     function newSecretUser(uint256 secret) external returns (uint256);
     function linkPaymentRef(uint256 secret, string calldata ref) external returns (uint256);
-    function pay(string calldata ref, uint256 amount) external returns (uint256);
-    function payWithReceipt(string calldata ref, uint256 amount, uint256 userPubkey) external returns (uint256);
-    function withdraw(string calldata secret, address withdrawalAddress) external returns (uint256);
+    function pay(string calldata ref, uint256 amount, uint256 denomination) external returns (uint256);
+    function payWithReceipt(string calldata ref, uint256 amount, uint256 denomination, uint256 userPubkey) external returns (uint256);
+    function withdrawTo(string calldata secret, uint256 amount, uint256 _denomination, address withdrawalAddress) external returns (uint256);
     function retrievePubkey() external returns (uint256);
 }
 
@@ -27,6 +27,7 @@ contract NunyaBusiness {
     struct Receipt {
         uint256 paymentRef;
         uint256 amount;
+        uint256 denomination;
         bytes32 sig;
     }
 
@@ -97,21 +98,23 @@ contract NunyaBusiness {
     }
     
     // TODO: use ref encrypted with (user pubkey+salt)
-    function pay(string calldata _ref, uint256 _amount) public payable returns (uint256) {
+    // TODO: `string calldata secret` or `uint256 secret`
+    function pay(string calldata _secret, string calldata _ref, uint256 _amount, uint256 _denomination) public payable returns (uint256) {
         // >= because we need gas for
         require (_amount >= msg.value, "Naughty!");
         uint256 gasPaid = fundGateway();
-        uint256 requestId = secretContract.pay(_ref, msg.value-gasPaid);
+        uint256 requestId = secretContract.pay(_secret, _ref, msg.value-gasPaid, _denomination);
         expectedResult[requestId]=FunctionCallType.PAY;
         return(requestId);
     }
 
     // TODO: use ref encrypted with (user pubkey+salt)
-    function pay(string calldata _ref, uint256 _amount, uint256 _userPubkey) public payable returns (uint256) {
+    // TODO: `string calldata secret` or `uint256 secret`
+    function pay(string calldata _secret, string calldata _ref, uint256 _amount, uint256 _denomination, uint256 _userPubkey) public payable returns (uint256) {
         // >= because we need gas for
         require (_amount >= msg.value, "Naughty!");
         uint256 gasPaid = fundGateway();
-        uint256 requestId = secretContract.payWithReceipt(_ref, msg.value-gasPaid, _userPubkey);
+        uint256 requestId = secretContract.payWithReceipt(_secret, _ref, msg.value-gasPaid, _denomination, _userPubkey);
         expectedResult[requestId]=FunctionCallType.PAY;
         return(requestId);
     }
@@ -155,20 +158,22 @@ contract NunyaBusiness {
     }
 
     // Function wrapped in secret network payload encryption
-    function withdrawTo(string calldata _secret, uint256 _amount, address _withdrawalAddress) public payable returns (uint256) {
+    // TODO: `string calldata secret` or `uint256 secret`
+    function withdrawTo(string calldata _secret, uint256 _amount, uint256 _denomination, address _withdrawalAddress) public payable returns (uint256) {
         require((_amount > 0), "Account not found or empty.");
         fundGateway(msg.value);
-        uint256 requestId = secretContract.withdraw(_secret, _withdrawalAddress);
+        uint256 requestId = secretContract.withdrawTo(_secret, _amount, _denomination, _withdrawalAddress);
         // TODO: error check
         expectedResult[requestId]=FunctionCallType.WITHDRAW;
         return(requestId);
     }
 
-    function withdrawToCallback(uint256 _requestId, bool _success, uint256 _amount, address payable _withdrawalAddress) onlyGateway public {
+    function withdrawToCallback(uint256 _requestId, bool _success, uint256 _amount, uint256 _denomination, address payable _withdrawalAddress) onlyGateway public {
         require (expectedResult[_requestId]==FunctionCallType.WITHDRAW);
         if (!_success)
             emit SecretNetworkError(_requestId, "Error withdrawing - out of funds?");
         require(_amount > 0, "Account not found or empty.");
+        // TODO: only if the `_denomination` is "ETH"?
         _withdrawalAddress.transfer(_amount);
         emit RequestSuccess(_requestId);
     }
