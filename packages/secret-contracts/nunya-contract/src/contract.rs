@@ -7,11 +7,11 @@ use crate::{
     state::{
         PaymentReceipt, PaymentReferenceBalance, ResponseStatusCode,
         State, CONFIG,
-        VIEWING_KEY, VIEWING_KEY_TO_BALANCE_MAP, VIEWING_KEY_TO_PAYMENT_REF_MAP,
+        VIEWING_KEY, VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP,
     },
 };
 use cosmwasm_std::{
-    entry_point, to_binary, coin, Binary, Deps, DepsMut, Env, HumanAddr, MessageInfo, Response, StdError, StdResult, Uint128, Uint256
+    entry_point, to_binary, coin, Binary, Coin, Deps, DepsMut, Env, HumanAddr, MessageInfo, Response, StdError, StdResult, Uint128, Uint256
 };
 use secret_toolkit::viewing_key::{ViewingKey, ViewingKeyStore};
 use secret_toolkit::utils::{pad_handle_result, pad_query_result, HandleCallback};
@@ -61,7 +61,7 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> S
 fn try_handle(
     deps: DepsMut,
     env: Env,
-    _info: MessageInfo,
+    info: MessageInfo,
     msg: PrivContractHandleMsg,
 ) -> StdResult<Response> {
     // verify signature with stored gateway public key
@@ -87,7 +87,7 @@ fn try_handle(
     // determine which function to call based on the included handle
     let handle = msg.handle.as_str();
     match handle {
-        "newSecretUser" => create_new_auth_out(deps, env, msg.input_values, msg.task, msg.input_hash),
+        "newSecretUser" => create_new_auth_out(deps, env, info, msg.input_values, msg.task, msg.input_hash),
         "createPaymentReference" => create_payment_reference(deps, env, msg.input_values, msg.task, msg.input_hash),
         // handle both `pay` and `payWithReceipt` Solidity function calls using the same `create_pay` Secret contract function
         "pay" => create_pay(deps, env, msg.input_values, msg.task, msg.input_hash),
@@ -101,6 +101,7 @@ fn try_handle(
 fn create_new_auth_out(
     deps: DepsMut,
     env: Env,
+    info: MessageInfo,
     input_values: String,
     task: Task,
     input_hash: Binary,
@@ -112,16 +113,17 @@ fn create_new_auth_out(
 
     let viewing_key_index = input.secret_user.as_str(); // convert u8 to String
 
-    assert!(viewing_key_index.chars().count() > 0, Err(StdError::generic_err("Secret must not be an empty string")));
-
-    // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-introduction
-    // https://github.com/scrtlabs/examples/blob/master/secret-viewing-keys/secret-viewing-keys-contract/src/contract.rs
-    let viewing_key = ViewingKey::create(deps.storage, &info, &env, &gateway_account, b"entropy");
+    assert!(viewing_key_index.chars().count() > 0, "{:?}", Err(StdError::generic_err("Secret must not be an empty string")));
 
     // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-implementation
     let gateway_account = config.gateway_address.to_string();
-    let suffix = viewing_key_index.to_string();
+    let suffix = viewing_key_index.as_str();
     let index_concat = gateway_account.push_str(suffix);
+
+    // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-introduction
+    // https://github.com/scrtlabs/examples/blob/master/secret-viewing-keys/secret-viewing-keys-contract/src/contract.rs
+    let entropy: bytes = b"entropy";
+    let viewing_key = ViewingKey::create(deps.storage, &info, &env, &gateway_account, entropy.as_str());
 
     // Viewing Key
     VIEWING_KEY
@@ -204,15 +206,16 @@ fn create_payment_reference(
 
     let viewing_key_index = input.secret_user.as_str(); // convert u8 to String
 
-    assert!(viewing_key_index.chars().count() > 0, Err(StdError::generic_err("Secret must not be an empty string")));
+    assert!(viewing_key_index.chars().count() > 0, "{:?}", Err(StdError::generic_err("Secret must not be an empty string")));
 
     // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-implementation
     let gateway_account = config.gateway_address.to_string();
-    let suffix = viewing_key_index.to_string();
+    let suffix = viewing_key_index.as_str();
     let index_concat = gateway_account.push_str(suffix);
 
-    let result = ViewingKey::check(&deps.storage, &index_concat, b"entropy");
-    assert_neq!(result, Err(StdError::generic_err("unauthorized")));
+    let entropy: bytes = b"entropy";
+    let result = ViewingKey::check(&deps.storage, &index_concat, entropy.as_str());
+    assert_ne!(result, Err(StdError::generic_err("unauthorized")));
 
     let value_viewing_key = VIEWING_KEY
         .get(deps.storage, &index_concat)
@@ -224,10 +227,10 @@ fn create_payment_reference(
 
     let payment_ref = input.payment_ref.as_str(); // convert Uint256 to String
 
-    assert!(payment_ref.chars().count() > 0, Err(StdError::generic_err("Payment reference must not be an empty string")));
+    assert!(payment_ref.chars().count() > 0, "{:?}", Err(StdError::generic_err("Payment reference must not be an empty string")));
 
     // TODO: Check stored correctly but move to tests
-    let value_payment_reference_to_balances = VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP
+    let value_payment_reference_to_balances_map = VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP
         .get(deps.storage, &index_concat)
         .ok_or_else(|| StdError::generic_err("Value for this VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP key not found"))?;
 
@@ -235,7 +238,7 @@ fn create_payment_reference(
 
     let new_balance: Coin = coin(0u128, String::new());
     let new_payment_ref = payment_ref;
-    let new_payment_reference_balance: PaymentReferenceBalance = {
+    let new_payment_reference_balance = PaymentReferenceBalance {
         payment_reference: new_payment_ref,
         balance: new_balance,
     };
@@ -252,13 +255,12 @@ fn create_payment_reference(
     VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP
         .insert(deps.storage, &viewing_key, &value_payment_reference_to_balances)?;
 
-
     let response_status_code: ResponseStatusCode = 0u16;
 
     let data = ResponseLinkPaymentRefStoreMsg {
         _requestId: task,
         _code: response_status_code,
-        _reference: value_payment_ref.as_str(),
+        _reference: new_payment_ref.as_str(),
     };
 
     let json_string =
@@ -302,24 +304,25 @@ fn create_pay(
     let amount: Uint128 = input.amount.into(); // Uint128
     let denomination = input.denomination.as_str();
 
-    assert!(viewing_key_index.chars().count() > 0, Err(StdError::generic_err("Secret must not be an empty string")));
-    assert!(payment_ref.chars().count() > 0, Err(StdError::generic_err("Payment reference must not be an empty string")));
-    assert!(amount >= 0u128, Err(StdError::generic_err("Payment amount must be greater than 0")));
-    assert!(denomination.chars().count() > 0, Err(StdError::generic_err("Payment denomination must not be an empty string")));
+    assert!(viewing_key_index.chars().count() > 0, "{:?}", Err(StdError::generic_err("Secret must not be an empty string")));
+    assert!(payment_ref.chars().count() > 0, "{:?}", Err(StdError::generic_err("Payment reference must not be an empty string")));
+    assert!(amount >= 0u128.into(), "{:?}", Err(StdError::generic_err("Payment amount must be greater than 0")));
+    assert!(denomination.chars().count() > 0, "{:?}", Err(StdError::generic_err("Payment denomination must not be an empty string")));
 
     // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-implementation
     let gateway_account = config.gateway_address.to_string();
-    let suffix = viewing_key_index.to_string();
+    let suffix = viewing_key_index.as_str();
     let index_concat = gateway_account.push_str(suffix);
 
-    let result = ViewingKey::check(&deps.storage, &index_concat, b"entropy");
-    assert_neq!(result, Err(StdError::generic_err("unauthorized")));
+    let entropy: bytes = b"entropy";
+    let result = ViewingKey::check(&deps.storage, &index_concat, entropy.as_str());
+    assert_ne!(result, Err(StdError::generic_err("unauthorized")));
 
-    let value_viewing_key = VIEWING_KEY
+    let viewing_key = VIEWING_KEY
         .get(deps.storage, &index_concat)
         .ok_or_else(|| StdError::generic_err("Value for this VIEWING_KEY key not found"))?;
 
-    if value_viewing_key != index_concat {
+    if viewing_key != index_concat {
         return Err(StdError::generic_err("Viewing Key incorrect or not found"));
     }
 
@@ -346,7 +349,7 @@ fn create_pay(
 
     // Add pay amount to existing balance associated with the payment reference that was found
     let new_balance_amount: Uint128 = value_payment_reference_to_balances_match.balance.amount.saturating_add(amount);
-    let new_balance: Coin = coin(&new_balance_amount, &denomination);
+    let new_balance: Coin = coin(&new_balance_amount, denomination);
     let new_payment_reference_balance = PaymentReferenceBalance {
         payment_reference: payment_ref,
         balance: new_balance,
@@ -367,28 +370,28 @@ fn create_pay(
 
     let user_pubkey: Uint256;
     if let Some(ref _user_pubkey) = input.user_pubkey {
-        user_pubkey = _user_pubkey;
+        user_pubkey = *_user_pubkey;
 
         // TODO: if user_pubkey has been provided then return encrypted receipt and signature with the user_pubkey
         // TODO: still need to encrypt below with user_pubkey
-        receipt = Some({
+        receipt = Some(PaymentReceipt {
             payment_reference: value_payment_ref,
             // TODO: convert Uint256 to Uint128
             // Note: denomination of `Coin` type for the Receipt, since that is handled by the Solidity contract
             amount: new_balance_amount,
             // TODO: serialise denomination
-            denomination: denomination,
+            denomination: denomination.to_string(),
             sig: signature,
         });
     } else {
         // return receipt and signature unencrypted
-        receipt = Some({
+        receipt = Some(PaymentReceipt {
             payment_reference: value_payment_ref,
             // TODO: convert Uint256 to Uint128
             // Note: denomination of `Coin` type for the Receipt, since that is handled by the Solidity contract
             amount: new_balance_amount,
             // TODO: serialise denomination
-            denomination: denomination,
+            denomination: denomination.to_string(),
             sig: signature,
         });
     }
@@ -445,19 +448,20 @@ fn create_withdraw_to(
     let denomination = input.denomination.as_str();
     let withdrawal_address: [u8; 20] = input.withdrawal_address.into(); // or `Addr`
 
-    assert!(viewing_key_index.chars().count() > 0, Err(StdError::generic_err("Secret must not be an empty string")));
+    assert!(viewing_key_index.chars().count() > 0, "{:?}", Err(StdError::generic_err("Secret must not be an empty string")));
     // Do not validate payment reference since want to ignore it
-    assert!(amount >= 0u128, Err(StdError::generic_err("Payment amount must be greater than 0")));
-    assert!(denomination.chars().count() > 0, Err(StdError::generic_err("Payment denomination must not be an empty string")));
+    assert!(amount >= 0u128.into(), "{:?}", Err(StdError::generic_err("Payment amount must be greater than 0")));
+    assert!(denomination.chars().count() > 0, "{:?}", Err(StdError::generic_err("Payment denomination must not be an empty string")));
     // TODO: validate withdrawal address input. check if could be `Addr` type
 
     // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-implementation
     let gateway_account = config.gateway_address.to_string();
-    let suffix = viewing_key_index.to_string();
+    let suffix = viewing_key_index.as_str();
     let index_concat = gateway_account.push_str(suffix);
 
-    let result = ViewingKey::check(&deps.storage, &index_concat, b"entropy");
-    assert_neq!(result, Err(StdError::generic_err("unauthorized")));
+    let entropy: bytes = b"entropy";
+    let result = ViewingKey::check(&deps.storage, &index_concat, entropy.as_str());
+    assert_ne!(result, Err(StdError::generic_err("unauthorized")));
 
     let value_viewing_key = VIEWING_KEY
         .get(deps.storage, &index_concat)
@@ -487,14 +491,21 @@ fn create_withdraw_to(
     // Do not transfer anything on Secret Network
     // Only authorise the withdrawal
 
-    let mut balance_all_payment_refs: Uint128 = 0u128;
+    let mut balance_all_payment_refs: Uint128 = 0u128.into();
     for element in value_payment_reference_to_balances.into_iter() {
         if element.balance.denom == denomination {
             balance_all_payment_refs += element.balance.amount
         }
     }
-
-    assert!(balance_all_payment_refs >= amount, Err(StdError::generic_err("Withdrawal amount must be less than or equal to total balance of all payment references")));
+use crate::{
+    msg::{
+        ExecuteMsg, GatewayMsg, InstantiateMsg, ProposalStoreMsg, QueryMsg,
+        ResponseRetrieveProposalMsg, ResponseRetrieveVotesMsg, ResponseStoreProposalMsg,
+        VoteStoreMsg,
+    },
+    state::{Proposal, State, Vote, CONFIG, PROPOSAL_MAP, VOTE_MAP},
+};
+    assert!(balance_all_payment_refs >= amount, "{:?}", Err(StdError::generic_err("Withdrawal amount must be less than or equal to total balance of all payment references")));
 
     let response_status_code: ResponseStatusCode = 0u16;
 

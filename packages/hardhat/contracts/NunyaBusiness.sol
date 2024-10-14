@@ -121,7 +121,7 @@ contract NunyaBusiness {
 
     // TODO: use ref encrypted with (user pubkey+salt)
     // TODO: `string calldata secret` or `uint256 secret`
-    function pay(string calldata _secret, string calldata _ref, uint256 _value, uint256 _denomination) public payable returns (uint256) {
+    function pay(string calldata _secret, string calldata _ref, uint256 _value, string calldata _denomination) public payable returns (uint256) {
         // >= because we need gas for fees
         uint256 gasPaid = fundGateway(50000); // TODO 50000 is the minimum, need to adjust to a good estimate
         require(msg.value >= _value + gasPaid, "Not enough value sent to pay for gas.");
@@ -140,7 +140,7 @@ contract NunyaBusiness {
 
     // TODO: use ref encrypted with (user pubkey+salt)
     // TODO: `string calldata secret` or `uint256 secret`
-    function payWithReceipt(string calldata _secret, string calldata _ref, uint256 _value, uint256 _denomination, uint256 _userPubkey) public payable returns (uint256) {
+    function payWithReceipt(string calldata _secret, string calldata _ref, uint256 _value, string calldata _denomination, uint256 _userPubkey) public payable returns (uint256) {
         uint256 gasPaid = fundGateway(50000); // TODO 50000 is the minimum, need to adjust to a good estimate
         require(msg.value >= _value + gasPaid, "Not enough value sent to pay for gas.");
         // QUESTION why is the user's pubkey required? How about the secret contact signs with it's pk and the user can validate using the secret contacts pubkey?
@@ -178,7 +178,7 @@ contract NunyaBusiness {
 
     // Function wrapped in secret network payload encryption
     // TODO: `string calldata secret` or `uint256 secret`
-    function withdrawTo(string calldata _secret, uint256 _amount, uint256 _denomination, address _withdrawalAddress) public payable returns (uint256) {
+    function withdrawTo(string calldata _secret, uint256 _amount, string calldata _denomination, address _withdrawalAddress) public payable returns (uint256) {
         // IDEA _amount == 0 could signal I want all funds available; alternatively, sending max value could also work
         require((_amount > 0), "Need to provide the amount you want to withdraw.");
         fundGateway(50000); // TODO 50000 is the minimum, need to adjust to a good estimate
@@ -189,7 +189,7 @@ contract NunyaBusiness {
         return(requestId);
     }
 
-    function withdrawToCallback(uint256 _requestId, uint16 _code, uint256 _amount, uint256 _denomination, address payable _withdrawalAddress) onlyGateway validateRequest(_requestId, FunctionCallType.WITHDRAW) public {
+    function withdrawToCallback(uint256 _requestId, uint16 _code, uint256 _amount, string calldata _denomination, address payable _withdrawalAddress) onlyGateway validateRequest(_requestId, FunctionCallType.WITHDRAW) public {
         // TODO: handle returning more specific errors in Secret contract
         if (_code == 0 && _amount == 0) {
             _code = ERROR_NO_FUNDS;

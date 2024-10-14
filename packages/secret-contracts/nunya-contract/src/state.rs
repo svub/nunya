@@ -9,10 +9,9 @@ pub static CONFIG: Item<State> = Item::new(b"config");
 pub static VIEWING_KEY: Keymap<Index, ViewingKey> = Keymap::new(b"VIEWING_KEY");
 pub static VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP: Keymap<ViewingKey, Vec<PaymentReferenceBalance>> = Keymap::new(b"VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP");
 
-pub Index: u8;
-pub ViewingKey: String;
-pub ContractAddress: [u8; 32];
-pub ResponseStatusCode: u16;
+pub type Index: u8;
+// pub type ContractAddress: [u8; 32];
+pub type ResponseStatusCode: u16;
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct State {
@@ -29,9 +28,9 @@ pub struct PaymentReferenceBalance {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-struct PaymentReceipt {
+pub struct PaymentReceipt {
     pub payment_reference: Uint256,
     pub amount: Uint256,
-    pub denomination: Uint256,
+    pub denomination: String,
     pub sig: bytes32,
 }

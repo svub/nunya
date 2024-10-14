@@ -1,7 +1,7 @@
 use cosmwasm_std::{Addr, Binary, Uint128, Uint256};
 use secret_toolkit::utils::HandleCallback;
 use tnls::msg::{PostExecutionMsg, PrivContractHandleMsg};
-use tnls::state::{Task}
+use tnls::state::{Task};
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -10,7 +10,7 @@ use crate::{
     state::{
         ResponseStatusCode,
     }
-}
+};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct InstantiateMsg {
@@ -44,15 +44,16 @@ pub struct PayStoreMsg {
     pub secret_user: String,
     pub payment_ref: String,
     pub amount: Uint128,
-    pub denomination: Uint256,
+    pub denomination: String,
     pub user_pubkey: Option<Uint256>, // encrypted with receipt
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct WithdrawToStoreMsg {
-    pub secret_user: Addr,
+    pub secret_user: String,
     pub amount: Uint128,
-    pub withdrawal_address: Addr,
+    pub denomination: String,
+    pub withdrawal_address: [u8; 20],
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
@@ -72,7 +73,7 @@ pub struct ResponseLinkPaymentRefStoreMsg {
 pub struct ResponsePayStoreMsg {
     pub _requestId: Task,
     pub _code: ResponseStatusCode,
-    pub _receipt: Receipt,
+    pub _receipt: PaymentReceipt,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
@@ -81,7 +82,7 @@ pub struct ResponseWithdrawToStoreMsg {
     pub _code: ResponseStatusCode,
     pub _amount: Uint128,
     // TODO: should this be of type `Addr`? does it support EVM addresses?
-    pub _withdrawalAddress: Addr,
+    pub _withdrawalAddress: [u8; 20],
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]

@@ -18,17 +18,17 @@ contract DummyGatewayContract is ISecretContract {
         return 5;
     }
     // TODO: `string calldata secret` or `uint256 secret`
-    function pay(string calldata secret, string calldata ref, uint256 amount, uint256 denomination) external returns (uint256) {
+    function pay(string calldata secret, string calldata ref, uint256 amount, string calldata denomination) external returns (uint256) {
         // console.log("------ DummyGateway.pay", secret, ref, amount, denomination);
         return 4;
     }
     // TODO: `string calldata secret` or `uint256 secret`
-    function payWithReceipt(string calldata secret, string calldata ref, uint256 amount, uint256 denomination, uint256 userPubkey) external returns (uint256) {
+    function payWithReceipt(string calldata secret, string calldata ref, uint256 amount, string calldata denomination, uint256 userPubkey) external returns (uint256) {
         // console.log("------ DummyGateway.payWithReceipt", secret, ref, amount, denomination, userPubkey);
         return 3;
     }
     // TODO: `string calldata secret` or `uint256 secret`
-    function withdrawTo(string calldata secret, uint256 amount, uint256 denomination, address withdrawalAddress) external returns (uint256) {
+    function withdrawTo(string calldata secret, uint256 amount, string calldata denomination, address withdrawalAddress) external returns (uint256) {
         // console.log("------ DummyGateway.withdraw", secret, amount, denomination, withdrawalAddress);
         return 2;
     }

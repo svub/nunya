@@ -82,21 +82,7 @@ Run smart contract test with `yarn hardhat:test`
 
 #### Create, Compile and Deploy Contract (Example: Counter)
 
-* Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
-
-```
-mkdir -p packages/secret-contracts && cd packages/secret-contracts
-cargo generate --git https://github.com/scrtlabs/secret-template.git --name my-counter-contract
-```
-
-* Compile. Note: Outputs contract.wasm and contract.wasm.gz file in the root directory of the secret-contracts/my-counter-contract folder
-
-```
-cd packages/secret-contracts/my-counter-contract
-make build
-```
-
-* Note: To build on macOS it was necessary to run the following first as specified here https://github.com/rust-bitcoin/rust-secp256k1/issues/283#issuecomment-1590391777:
+* Note: To build on macOS it was necessary to run the following first as specified here https://github.com/rust-bitcoin/rust-secp256k1/issues/283#issuecomment-1590391777. Other details https://github.com/briansmith/ring/issues/1824
 
 ```
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -105,14 +91,16 @@ llvm-config --version
 echo 'export AR=/opt/homebrew/opt/llvm/bin/llvm-ar' >> ~/.zshrc
 echo 'export CC=/opt/homebrew/opt/llvm/bin/clang' >> ~/.zshrc
 source ~/.zshrc
-```
-* FIXME: attempt to fix on macOS hack https://github.com/briansmith/ring/issues/1824
+``` 
+
+* Compile. Note: Outputs contract.wasm and contract.wasm.gz file in the root directory of the secret-contracts/nunya-contract folder
+
 ```
 cd packages/secret-contracts/nunya-contract
 make build
 ```
 
-* OPTIONAL - optimize contract code
+* OPTIONAL - optimize contract code. Refer to official Secret network docs
 
 * Upload and Instantiate 
 ```
@@ -121,6 +109,8 @@ yarn run secret:start:uploadContract
 ```
 * View logs at ./logs/instantiateOutput.log
 * View on Secret Testnet block explorer at https://testnet.ping.pub/secret/
+
+* Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
 
 ### Specification: Notes on state and functions in the Secret contract
 
