@@ -5,6 +5,7 @@ use secret_toolkit::viewing_key::{ViewingKey, ViewingKeyStore};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
+pub static MY_KEYS: Item<MyKeys> = Item::new(b"my_keys");
 pub static CONFIG: Item<State> = Item::new(b"config");
 pub static VIEWING_KEY: Keymap<Index, ViewingKey> = Keymap::new(b"VIEWING_KEY");
 pub static VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP: Keymap<ViewingKey, Vec<PaymentReferenceBalance>> = Keymap::new(b"VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP");
@@ -18,7 +19,15 @@ pub struct State {
     pub gateway_address: Addr,
     pub gateway_hash: String,
     pub gateway_key: Binary,
-    pub secret_contract_pubkey: [u8; 32],
+}
+
+
+// Secret contract keys
+// Reference: https://github.com/writersblockchain/aes-encrypt/blob/afa384d69aaddd92b50323fe1b9324f1342a5c0e/src/state.rs#L7
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
+pub struct MyKeys {
+    pub public_key: Vec<u8>,
+    pub private_key: Vec<u8>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]

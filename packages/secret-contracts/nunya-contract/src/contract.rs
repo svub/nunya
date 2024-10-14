@@ -6,7 +6,7 @@ use crate::{
     },
     state::{
         PaymentReceipt, PaymentReferenceBalance, ResponseStatusCode,
-        State, CONFIG,
+        MyKeys, State, CONFIG, MY_KEYS,
         VIEWING_KEY, VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP,
     },
 };
@@ -39,12 +39,6 @@ pub fn instantiate(
     };
 
     CONFIG.save(deps.storage, &state)?;
-
-    // let msg = InstantiateMsg {
-    //     gateway_address: gateway.to_string(),
-    //     // TODO:
-    //     secret_contract_pubkey: 1,
-    // };
 
     Ok(Response::default())
 }
@@ -542,19 +536,15 @@ use crate::{
 #[entry_point]
 pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
     let response = match msg {
-        QueryMsg::RetrievePubkey { key } => retrieve_pubkey_query(deps, key),
+        QueryMsg::RetrievePubkey {} => to_binary(&retrieve_pubkey_query(deps)?),
     };
     pad_query_result(response, BLOCK_SIZE)
 }
 
-// TODO: remove `key: u32`
-fn retrieve_pubkey_query(deps: Deps, key: u32) -> StdResult<Binary> {
-    let config = CONFIG.load(deps.storage)?;
-
-    let value: [u8; 32] = config.secret_contract_pubkey;
-
-    to_binary(&ResponseRetrievePubkeyMsg {
-        _key: value,
+fn retrieve_pubkey_query(deps: Deps) -> StdResult<ResponseRetrievePubkeyMsg> {
+    let my_keys = MY_KEYS.load(deps.storage)?;
+    Ok(ResponseRetrievePubkeyMsg {
+        _key: my_keys.public_key,
     })
 }
 
@@ -573,7 +563,6 @@ mod tests {
         // https://docs.rs/cosmwasm-std/latest/cosmwasm_std/testing/fn.message_info.html
         let msg = InstantiateMsg {
             gateway_address: gateway.to_string(),
-            secret_contract_pubkey: 1,
         };
 
         let info = message_info(&gateway, &coins(1000, "earth"));
@@ -584,24 +573,7 @@ mod tests {
 
         // it worked, let's query the state
         let res = query(deps.as_ref(), mock_env(), QueryMsg::RetrievePubkey {}).unwrap();
-        let value: PubkeyResponse = from_binary(&res).unwrap();
-        assert_eq!(1, value.secret_contract_pubkey);
+        let res: ResponseRetrievePubkeyMsg = from_binary(&res).unwrap();
+        assert!(res._key);
     }
-
-    // // reference: SecretNetwork codebase
-    // #[test]
-    // fn querier_callbacks_work() {
-    //     // Secret contract address
-    //     let rich_addr = HumanAddr::from("foobar");
-    //     let rich_balance = coins(10000, "gold");
-    //     let deps = mock_dependencies_with_balances(20, &[(&rich_addr, &rich_balance)]);
-
-    //     // querying with balance gets the balance
-    //     let bal = query_other_balance(&deps, rich_addr).unwrap();
-    //     assert_eq!(bal.amount, rich_balance);
-
-    //     // querying other accounts gets none
-    //     let bal = query_other_balance(&deps, HumanAddr::from("someone else")).unwrap();
-    //     assert_eq!(bal.amount, vec![]);
-    // }
 }

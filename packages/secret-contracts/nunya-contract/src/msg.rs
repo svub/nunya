@@ -17,7 +17,6 @@ pub struct InstantiateMsg {
     pub gateway_address: Addr,
     pub gateway_hash: String,
     pub gateway_key: Binary,
-    pub secret_contract_pubkey: [u8; 32],
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
@@ -88,14 +87,14 @@ pub struct ResponseWithdrawToStoreMsg {
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum QueryMsg {
-    RetrievePubkey { key: u32 },
+    RetrievePubkey {},
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct ResponseRetrievePubkeyMsg {
     // TODO: can only access `_requestId` if function called from `try_handle` and callback, but not from queries
     // pub _requestId: Uint256,
-    pub _key: Uint256,
+    pub _key: Vec<u8>,
 }
 
 // TODO: this may not be necessary as not used
@@ -103,13 +102,6 @@ pub struct ResponseRetrievePubkeyMsg {
 pub struct QueryResponse {
     pub message: String,
 }
-
-// We define a custom struct for each query response
-#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq, JsonSchema)]
-pub struct PubkeyResponse {
-    pub secret_contract_pubkey: [u8; 32],
-}
-
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
