@@ -122,7 +122,7 @@ fn create_new_auth_out(
     // Viewing Key
     VIEWING_KEY
         // TODO - sender is always the gateway contract, or perhaps change this to `info.sender.as_bytes()`
-        .add_suffix(config.gateway_address.to_string())
+        .add_suffix(config.gateway_address.as_bytes())
         .insert(deps.storage, &viewing_key_index, &viewing_key)?;
 
     // Attempt to retrieve existing
@@ -211,11 +211,11 @@ fn create_payment_reference(
     let result = ViewingKey::check(deps.storage, &index_concat, entropy.as_ptr());
     assert_ne!(result, Err(StdError::generic_err("unauthorized")));
 
-    let value_viewing_key = VIEWING_KEY
+    let viewing_key = VIEWING_KEY
         .get(deps.storage, &index_concat)
         .ok_or_else(|| StdError::generic_err("Value for this VIEWING_KEY key not found"))?;
 
-    if value_viewing_key != index_concat {
+    if viewing_key != index_concat {
         return Err(StdError::generic_err("Viewing Key incorrect or not found"));
     }
 

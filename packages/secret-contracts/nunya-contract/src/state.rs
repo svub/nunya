@@ -1,18 +1,20 @@
 use cosmwasm_std::{Addr, Binary, Coin, Uint128, Uint256};
 use secret_toolkit::storage::{Item, Keymap};
-use secret_toolkit::viewing_key::{ViewingKey, ViewingKeyStore};
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 pub static MY_KEYS: Item<MyKeys> = Item::new(b"my_keys");
 pub static CONFIG: Item<State> = Item::new(b"config");
-pub static VIEWING_KEY: Keymap<Index, ViewingKey> = Keymap::new(b"VIEWING_KEY");
-pub static VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP: Keymap<ViewingKey, Vec<PaymentReferenceBalance>> = Keymap::new(b"VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP");
+pub static VIEWING_KEY: Keymap<Index, VK> = Keymap::new(b"VIEWING_KEY");
+pub static VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP: Keymap<VK, Vec<PaymentReferenceBalance>> = Keymap::new(b"VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP");
 
 pub type Index = u8;
 // pub type ContractAddress = [u8; 32];
 pub type ResponseStatusCode = u16;
+
+// reference: https://github.com/scrtlabs/examples/blob/master/secret-viewing-keys/secret-viewing-keys-contract/src/state.rs
+pub type VK = String; // Viewing Key
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct State {
