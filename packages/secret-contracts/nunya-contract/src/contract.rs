@@ -88,12 +88,11 @@ fn try_handle(
     let handle = msg.handle.as_str();
     match handle {
         "newSecretUser" => create_new_auth_out(deps, env, msg.input_values, msg.task, msg.input_hash),
-        "linkPaymentRef" => create_link_payment_ref(deps, env, msg.input_values, msg.task, msg.input_hash),
+        "createPaymentReference" => create_payment_reference(deps, env, msg.input_values, msg.task, msg.input_hash),
         // handle both `pay` and `payWithReceipt` Solidity function calls using the same `create_pay` Secret contract function
         "pay" => create_pay(deps, env, msg.input_values, msg.task, msg.input_hash),
         "payWithReceipt" => create_pay(deps, env, msg.input_values, msg.task, msg.input_hash),
         "withdrawTo" => create_withdraw_to(deps, env, msg.input_values, msg.task, msg.input_hash),
-        // "setSecretContractPubkey" => create_secret_contract_pubkey(deps, env, msg.input_values, msg.task, msg.input_hash),
 
         _ => Err(StdError::generic_err("invalid handle".to_string())),
     }
@@ -191,7 +190,7 @@ fn create_new_auth_out(
         .add_attribute("status", "create_new_auth_out"))
 }
 
-fn create_link_payment_ref(
+fn create_payment_reference(
     deps: DepsMut,
     env: Env,
     input_values: String,
@@ -282,7 +281,7 @@ fn create_link_payment_ref(
 
     Ok(Response::new()
         .add_message(callback_msg)
-        .add_attribute("status", "create_link_payment_ref"))
+        .add_attribute("status", "create_payment_reference"))
 }
 
 fn create_pay(
