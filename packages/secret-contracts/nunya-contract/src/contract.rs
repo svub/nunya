@@ -13,18 +13,20 @@ use crate::{
     // },
 };
 use cosmwasm_std::{
-    entry_point, to_binary, coin, Binary, Coin, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult, Uint128, Uint256
+    entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult,
+    // coin, Coin,
+    // Uint128, Uint256
 };
-use secret_toolkit::viewing_key::{ViewingKey, ViewingKeyStore};
-use secret_toolkit::utils::{pad_handle_result, pad_query_result, HandleCallback};
-use tnls::{
-    msg::{PostExecutionMsg, PrivContractHandleMsg},
-    state::Task,
-};
+// use secret_toolkit::viewing_key::{ViewingKey, ViewingKeyStore};
+// use secret_toolkit::utils::{pad_handle_result, pad_query_result, HandleCallback};
+// use tnls::{
+//     msg::{PostExecutionMsg, PrivContractHandleMsg},
+//     state::Task,
+// };
 
-/// pad handle responses and log attributes to blocks of 256 bytes to prevent leaking info based on
-/// response size
-pub const BLOCK_SIZE: usize = 256;
+// /// pad handle responses and log attributes to blocks of 256 bytes to prevent leaking info based on
+// /// response size
+// pub const BLOCK_SIZE: usize = 256;
 
 #[entry_point]
 pub fn instantiate(
@@ -45,54 +47,54 @@ pub fn instantiate(
     Ok(Response::default())
 }
 
-#[entry_point]
-pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> StdResult<Response> {
-    let response = match msg {
-        ExecuteMsg::Input { message } => try_handle(deps, env, info, message),
-    };
-    pad_handle_result(response, BLOCK_SIZE)
-}
+// #[entry_point]
+// pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> StdResult<Response> {
+//     let response = match msg {
+//         ExecuteMsg::Input { message } => try_handle(deps, env, info, message),
+//     };
+//     pad_handle_result(response, BLOCK_SIZE)
+// }
 
-// acts like a gateway message handle filter
-fn try_handle(
-    deps: DepsMut,
-    env: Env,
-    info: MessageInfo,
-    msg: PrivContractHandleMsg,
-) -> StdResult<Response> {
-    // verify signature with stored gateway public key
-    // let config = CONFIG.load(deps.storage)?;
+// // acts like a gateway message handle filter
+// fn try_handle(
+//     deps: DepsMut,
+//     env: Env,
+//     info: MessageInfo,
+//     msg: PrivContractHandleMsg,
+// ) -> StdResult<Response> {
+//     // verify signature with stored gateway public key
+//     // let config = CONFIG.load(deps.storage)?;
 
-    // // Security
-    // //
-    // // reference: evm-kv-store-demo
-    // if info.sender != config.gateway_address {
-    //     return Err(StdError::generic_err(
-    //         "Only SecretPath Gateway can call this function",
-    //     ));
-    // }
+//     // // Security
+//     // //
+//     // // reference: evm-kv-store-demo
+//     // if info.sender != config.gateway_address {
+//     //     return Err(StdError::generic_err(
+//     //         "Only SecretPath Gateway can call this function",
+//     //     ));
+//     // }
 
-    // deps.api
-    //     .secp256k1_verify(
-    //         msg.input_hash.as_slice(),
-    //         msg.signature.as_slice(),
-    //         config.gateway_key.as_slice(),
-    //     )
-    //     .map_err(|err| StdError::generic_err(err.to_string()))?;
+//     // deps.api
+//     //     .secp256k1_verify(
+//     //         msg.input_hash.as_slice(),
+//     //         msg.signature.as_slice(),
+//     //         config.gateway_key.as_slice(),
+//     //     )
+//     //     .map_err(|err| StdError::generic_err(err.to_string()))?;
 
-    // determine which function to call based on the included handle
-    let handle = msg.handle.as_str();
-    match handle {
-        // "newSecretUser" => create_new_auth_out(deps, env, info, msg.input_values, msg.task, msg.input_hash),
-        // "createPaymentReference" => create_payment_reference(deps, env, msg.input_values, msg.task, msg.input_hash),
-        // // handle both `pay` and `payWithReceipt` Solidity function calls using the same `create_pay` Secret contract function
-        // "pay" => create_pay(deps, env, msg.input_values, msg.task, msg.input_hash),
-        // "payWithReceipt" => create_pay(deps, env, msg.input_values, msg.task, msg.input_hash),
-        // "withdrawTo" => create_withdraw_to(deps, env, msg.input_values, msg.task, msg.input_hash),
+//     // determine which function to call based on the included handle
+//     let handle = msg.handle.as_str();
+//     match handle {
+//         // "newSecretUser" => create_new_auth_out(deps, env, info, msg.input_values, msg.task, msg.input_hash),
+//         // "createPaymentReference" => create_payment_reference(deps, env, msg.input_values, msg.task, msg.input_hash),
+//         // // handle both `pay` and `payWithReceipt` Solidity function calls using the same `create_pay` Secret contract function
+//         // "pay" => create_pay(deps, env, msg.input_values, msg.task, msg.input_hash),
+//         // "payWithReceipt" => create_pay(deps, env, msg.input_values, msg.task, msg.input_hash),
+//         // "withdrawTo" => create_withdraw_to(deps, env, msg.input_values, msg.task, msg.input_hash),
 
-        _ => Err(StdError::generic_err("invalid handle".to_string())),
-    }
-}
+//         _ => Err(StdError::generic_err("invalid handle".to_string())),
+//     }
+// }
 
 // fn create_new_auth_out(
 //     deps: DepsMut,

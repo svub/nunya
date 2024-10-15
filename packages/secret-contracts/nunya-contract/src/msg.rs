@@ -1,7 +1,10 @@
-use cosmwasm_std::{Addr, Binary, Uint128, Uint256};
-use secret_toolkit::utils::HandleCallback;
-use tnls::msg::{PostExecutionMsg, PrivContractHandleMsg};
-use tnls::state::{Task};
+// use cosmwasm_std::{Addr, Binary, Uint128, Uint256};
+// use secret_toolkit::utils::HandleCallback;
+use tnls::msg::{
+    // PostExecutionMsg,
+    PrivContractHandleMsg
+};
+// use tnls::state::{Task};
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -14,15 +17,15 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct InstantiateMsg {
-    pub gateway_address: Addr,
-    pub gateway_hash: String,
-    pub gateway_key: Binary,
+    // pub gateway_address: Addr,
+    // pub gateway_hash: String,
+    // pub gateway_key: Binary,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum ExecuteMsg {
-    Input { message: PrivContractHandleMsg },
+    // Input { message: PrivContractHandleMsg },
 }
 
 // #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
