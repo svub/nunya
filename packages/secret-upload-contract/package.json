@@ -4,6 +4,7 @@
   "main": "index.js",
   "private": true,
   "scripts": {
+    "queryPubkey": "yarn build && node ./dist/queryPubkey.js",
     "build": "./node_modules/.bin/tsc --build",
     "clean": "./node_modules/.bin/tsc --build --clean",
     "start": "yarn build && node ./dist/index.js"
