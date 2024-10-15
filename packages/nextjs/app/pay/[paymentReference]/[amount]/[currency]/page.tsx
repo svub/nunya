@@ -33,6 +33,7 @@ const PaymentPage: NextPage<PageProps> = ({ params }: PageProps) => {
   const { writeContractAsync } = useScaffoldWriteContract("NunyaBusiness");
   const { targetNetwork } = useTargetNetwork();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     setReference(paymentReferenceParam);
 
@@ -65,7 +66,8 @@ const PaymentPage: NextPage<PageProps> = ({ params }: PageProps) => {
       // TODO enable payments w/t receipt
       functionName: "payWithReceipt",
       value,
-      args: [reference, toPay, pubKey],
+      // FIXME The user paying doesn't know the secret
+      args: ["unknown", reference, toPay, "ETH", pubKey],
     });
   };
 

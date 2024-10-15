@@ -7,7 +7,7 @@ import { convertToBigint } from "~~/utils/helpers";
 
 interface WithdrawalRequest {
   amount: string;
-  address: string;
+  address: bigint;
 }
 
 const Withdraw: NextPage = () => {
@@ -26,14 +26,14 @@ const Withdraw: NextPage = () => {
     const requestId = await writeContractAsync({
       functionName: "withdrawTo",
       // FIXME encrypt parameters
-      args: [secret, parseEther(amount), address],
+      args: [secret, parseEther(amount), address, "ETH"],
     });
-    console.log("⚡ Requesting new account", requestId, secret, parseEther(amount), address);
+    console.log("⚡ Withdrawal requested. ", requestId, secret, parseEther(amount), address);
     if (!requestId) {
       return console.error("No request ID returned.");
     }
     // FIXME returned requestId should be bigint but return type of writeContractAsync(...) is `0x{string}`
-    openRequests.set(convertToBigint(requestId), { amount, address });
+    openRequests.set(convertToBigint(requestId), { amount, address: convertToBigint(address) });
   };
 
   useScaffoldWatchContractEvent({
