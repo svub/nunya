@@ -5,12 +5,12 @@ use crate::{
         // NewAuthOutStoreMsg, LinkPaymentRefStoreMsg, PayStoreMsg, WithdrawToStoreMsg,
         // ResponseNewAuthOutStoreMsg, ResponseLinkPaymentRefStoreMsg, ResponsePayStoreMsg, ResponseWithdrawToStoreMsg, ResponseRetrievePubkeyMsg,
     },
-    state::{
-        // PaymentReceipt, PaymentReferenceBalance, ResponseStatusCode,
-        State, CONFIG,
-        // MY_KEYS,
-        // VIEWING_KEY, VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP,
-    },
+    // state::{
+    //     // PaymentReceipt, PaymentReferenceBalance, ResponseStatusCode,
+    //     State, CONFIG,
+    //     // MY_KEYS,
+    //     // VIEWING_KEY, VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP,
+    // },
 };
 use cosmwasm_std::{
     entry_point, to_binary, coin, Binary, Coin, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult, Uint128, Uint256
@@ -33,14 +33,14 @@ pub fn instantiate(
     _info: MessageInfo,
     msg: InstantiateMsg,
 ) -> StdResult<Response> {
-    // Initialise state
-    let state = State {
-        gateway_address: msg.gateway_address,
-        gateway_hash: msg.gateway_hash,
-        gateway_key: msg.gateway_key,
-    };
+    // // Initialise state
+    // let state = State {
+    //     gateway_address: msg.gateway_address,
+    //     gateway_hash: msg.gateway_hash,
+    //     gateway_key: msg.gateway_key,
+    // };
 
-    CONFIG.save(deps.storage, &state)?;
+    // CONFIG.save(deps.storage, &state)?;
 
     Ok(Response::default())
 }
@@ -61,7 +61,7 @@ fn try_handle(
     msg: PrivContractHandleMsg,
 ) -> StdResult<Response> {
     // verify signature with stored gateway public key
-    let config = CONFIG.load(deps.storage)?;
+    // let config = CONFIG.load(deps.storage)?;
 
     // // Security
     // //
@@ -72,13 +72,13 @@ fn try_handle(
     //     ));
     // }
 
-    deps.api
-        .secp256k1_verify(
-            msg.input_hash.as_slice(),
-            msg.signature.as_slice(),
-            config.gateway_key.as_slice(),
-        )
-        .map_err(|err| StdError::generic_err(err.to_string()))?;
+    // deps.api
+    //     .secp256k1_verify(
+    //         msg.input_hash.as_slice(),
+    //         msg.signature.as_slice(),
+    //         config.gateway_key.as_slice(),
+    //     )
+    //     .map_err(|err| StdError::generic_err(err.to_string()))?;
 
     // determine which function to call based on the included handle
     let handle = msg.handle.as_str();
