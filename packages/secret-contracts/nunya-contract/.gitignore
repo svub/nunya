@@ -29,4 +29,6 @@ yarn-error.log*
 contract.wasm
 contract.wasm.gz
 
+/optimized-wasm
+
 /target

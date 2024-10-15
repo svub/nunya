@@ -38,6 +38,7 @@
     "vercel": "yarn workspace @se-2/nextjs vercel",
     "vercel:yolo": "yarn workspace @se-2/nextjs vercel:yolo",
     "verify": "yarn workspace @se-2/hardhat verify",
+    "secret:queryPubkey": "yarn workspace secret-upload-contract queryPubkey",
     "secret:clean:uploadContract": "yarn workspace secret-upload-contract clean",
     "secret:start:uploadContract": "yarn workspace secret-upload-contract start",
     "secret:clean:instantiateContract": "yarn workspace secret-instantiate-contract clean",

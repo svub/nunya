@@ -181,7 +181,7 @@ async function main () {
     const query_tx = await secretjs.query.compute.queryContract({
       contract_address: params?.contractAddress?.toString(),
       code_hash: params?.contractCodeHash?.toString(),
-      query: { retrieve_pubkey_query: { key: 1 } },
+      query: { retrieve_pubkey: {} },
     });
     console.log(query_tx);
   }

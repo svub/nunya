@@ -100,9 +100,9 @@ checksum = "1fd0f2584146f6f2ef48085050886acf353beff7305ebd1ae69500e27c67f64b"
 
 [[package]]
 name = "cc"
-version = "1.0.88"
+version = "1.0.41"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "02f341c093d19155a6e41631ce5971aac4e9a868262212153124c15fa22d1cdc"
+checksum = "8dae9c4b8fedcae85592ba623c4fd08cfdab3e3b72d6df780c6ead964a69bfff"
 
 [[package]]
 name = "cfg-if"
@@ -591,11 +591,19 @@ dependencies = [
 
 [[package]]
 name = "secp256k1"
+version = "0.17.2"
+source = "git+https://github.com/scrtlabs/rust-secp256k1#0782872fb0bed2e9166e91e837b8242bcf761859"
+dependencies = [
+ "secp256k1-sys 0.1.2",
+]
+
+[[package]]
+name = "secp256k1"
 version = "0.26.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4124a35fe33ae14259c490fd70fa199a32b9ce9502f2ee6bc4f81ec06fa65894"
 dependencies = [
- "secp256k1-sys",
+ "secp256k1-sys 0.8.1",
  "serde",
 ]
 
@@ -605,7 +613,15 @@ version = "0.27.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "25996b82292a7a57ed3508f052cfff8640d38d32018784acd714758b43da9c8f"
 dependencies = [
- "secp256k1-sys",
+ "secp256k1-sys 0.8.1",
+]
+
+[[package]]
+name = "secp256k1-sys"
+version = "0.1.2"
+source = "git+https://github.com/scrtlabs/rust-secp256k1#0782872fb0bed2e9166e91e837b8242bcf761859"
+dependencies = [
+ "cc",
 ]
 
 [[package]]
@@ -760,7 +776,9 @@ dependencies = [
  "anybuf",
  "base64 0.22.0",
  "cosmwasm-schema",
+ "hex",
  "schemars",
+ "secp256k1 0.17.2",
  "secret-cosmwasm-std",
  "secret-cosmwasm-storage",
  "secret-toolkit",
