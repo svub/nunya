@@ -74,9 +74,9 @@ const deployedContracts = {
               type: "uint256",
             },
             {
-              internalType: "uint256",
+              internalType: "string",
               name: "denomination",
-              type: "uint256",
+              type: "string",
             },
           ],
           name: "pay",
@@ -108,9 +108,9 @@ const deployedContracts = {
               type: "uint256",
             },
             {
-              internalType: "uint256",
+              internalType: "string",
               name: "denomination",
-              type: "uint256",
+              type: "string",
             },
             {
               internalType: "uint256",
@@ -155,9 +155,9 @@ const deployedContracts = {
               type: "uint256",
             },
             {
-              internalType: "uint256",
+              internalType: "string",
               name: "denomination",
-              type: "uint256",
+              type: "string",
             },
             {
               internalType: "address",
@@ -486,9 +486,9 @@ const deployedContracts = {
               type: "uint256",
             },
             {
-              internalType: "uint256",
+              internalType: "string",
               name: "_denomination",
-              type: "uint256",
+              type: "string",
             },
           ],
           name: "pay",
@@ -538,9 +538,9 @@ const deployedContracts = {
               type: "uint256",
             },
             {
-              internalType: "uint256",
+              internalType: "string",
               name: "_denomination",
-              type: "uint256",
+              type: "string",
             },
             {
               internalType: "uint256",
@@ -635,9 +635,9 @@ const deployedContracts = {
               type: "uint256",
             },
             {
-              internalType: "uint256",
+              internalType: "string",
               name: "_denomination",
-              type: "uint256",
+              type: "string",
             },
             {
               internalType: "address",
@@ -674,9 +674,9 @@ const deployedContracts = {
               type: "uint256",
             },
             {
-              internalType: "uint256",
+              internalType: "string",
               name: "_denomination",
-              type: "uint256",
+              type: "string",
             },
             {
               internalType: "address payable",

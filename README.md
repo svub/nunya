@@ -25,12 +25,6 @@ Nunya ftw! By adding a simple Nunya payment reference—either as a link or a QR
 
 ### The pitch
 
-#### v1
-
-To do payments for business on a blockchain, transparancy has to meet privacy needs. Nunya provides a user interface also for non-technical people to receive payments in crypto without reveiling their personal funds and transaction history. All logic is handled on-chain, there's no central entity. Nunya brings basic banking privacy to public ledger blockains like Ethereum or other EVM compatible chains. Community incentives could be realized through a custom utility token, funds can be raised by automatically charging a payment fee—like Uniswap and the like have done before.
-
-#### v2
-
 In the world of blockchain payments, a critical challenge remains: balancing the inherent transparency of public ledgers with the privacy needs of businesses and individuals. **Nunya** solves this problem by providing a simple, user-friendly interface that allows non-technical users to accept crypto payments without exposing their personal transaction history or wallet balances. 
 
 Built on-chain with no central authority, Nunya leverages the security and decentralization of blockchain while maintaining confidentiality. By integrating with public ledger blockchains like Ethereum and other EVM-compatible chains, Nunya brings a level of privacy typically reserved for traditional banking systems to the world of decentralized finance (DeFi).
