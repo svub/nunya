@@ -1,19 +1,18 @@
 
-Nunya.business
-============
-
-# Table of contents
-
-  * [About](#about)
-  * [Specification](#specification)
-  * [Setup](#setup)
-    * [Setup Frontend & Solidity Contracts](#setup-frontend)
-    * [Setup Secret Contracts](#setup-secret)
-  * [License](#license)
-
-## About <a id="about"></a>
+# Nunya.business
 
 > Receive business payments without revealing to other clients what you've earned.
+
+**Table of contents**
+
+* [About](#about)
+* [Specification](#specification)
+* [Setup](#setup)
+  * [Setup Frontend & Solidity Contracts](#setup-frontend)
+  * [Setup Secret Contracts](#setup-secret)
+* [License](#license)
+
+## About <a id="about"></a>
 
 Wanna get yer salary in crypto, but don't want all your clients to know what you charge the others? Nunya.business can help! Your clients pay to a smart contract and you can decide when you pick up the treasure. All bookkeeping is done in a separate private smart contract on the [Secret.network](https://scrt.network/).
 
