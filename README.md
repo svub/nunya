@@ -292,4 +292,4 @@ The Secret contracts were built based on the example [SecretPath Confidential Vo
 
 ## Disclaimer <a id="disclaimer"></a>
 
-See the [DISCLAIMER](./DISCLAIMER) file for details.
+See the [DISCLAIMER](./DISCLAIMER.md) file for details.
