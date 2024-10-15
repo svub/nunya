@@ -48,7 +48,6 @@ secret-toolkit-serialization = { version = "0.10.0", features = ["base64"] }
 # thiserror = { version = "1.0.31" }
 tnls = { git = "https://github.com/SecretSaturn/TNLS", branch = "main", package = "secret_gateway", default-features = false }
 # cw-storage-plus = { version = "0.14.0", default-features = false }
-
 anybuf = {version = "0.5.0"}
 
 [[bin]]

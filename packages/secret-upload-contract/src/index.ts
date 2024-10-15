@@ -16,7 +16,7 @@ console.log('wallet: ', wallet);
 
 const rootPath = path.resolve(__dirname, '../../../'); // relative to ./dist
 console.log('rootPath', rootPath)
-const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/nunya-contract/contract.wasm`);
+const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/nunya-contract/contract.wasm.gz`);
 
 // Secret Testnet
 // reference: https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-testnet-pulsar-3-contracts
@@ -71,15 +71,20 @@ async function main () {
   };
 
   type CODE_PARAMS = {
-    codeId: String | undefined,
-    contractCodeHash: String | undefined,
+    codeId: String,
+    contractCodeHash: String,
+  };
+
+  type CONTRACT_PARAMS = {
+    contractAddress: String,
+    contractCodeHash: String,
   };
 
   let upload_contract = async () => {
     console.log("Starting deployment...");
 
-    let codeId: String | undefined;
-    let contractCodeHash: String | undefined;
+    let codeId: String;
+    let contractCodeHash: String;
     let tx: any;
     try {
       tx = await secretjs.tx.compute.storeCode(
@@ -107,8 +112,12 @@ async function main () {
 
     contractCodeHash = (
       await secretjs.query.compute.codeHashByCodeId({ code_id: codeId.toString() })
-    ).code_hash;
+    ).code_hash || "";
     console.log(`CODE_HASH: ${contractCodeHash}`);
+  
+    if (contractCodeHash == "") {
+      throw Error("Unable to obtain contractCodeHash");
+    }
 
     return {
       codeId,
@@ -118,7 +127,11 @@ async function main () {
 
   let instantiate_contract = async (params: CODE_PARAMS) => {
     console.log('params: ', params)
-    let contractAddress;
+    if (typeof params.codeId == undefined || typeof params.contractCodeHash == undefined) {
+      throw Error("Unable to instantiate without codeId and contractCodeHash");
+    }
+
+    let contractAddress: String;
 
     if (!params.codeId || !params.contractCodeHash) {
       throw new Error("codeId or contractCodeHash is not set.");
@@ -138,7 +151,7 @@ async function main () {
         sender: wallet.address,
         code_hash: params.contractCodeHash.toString(),
         init_msg: initMsg,
-        label: "Encrypt " + Math.ceil(Math.random() * 10000),
+        label: "SnakePath Encrypt " + Math.ceil(Math.random() * 10000),
       },
       {
         gasLimit: 400_000,
@@ -146,20 +159,40 @@ async function main () {
     );
     console.log('tx: ', tx)
 
-    //Find the contract_address in the logs
+    // Find the contract_address in the logs
     contractAddress = tx?.arrayLog?.find(
       (log) => log?.type === "message" && log?.key === "contract_address"
-    )?.value;
+    )?.value || "";
 
     console.log("SECRET_ADDRESS: ", contractAddress);
 
-    return contractAddress;
+    if (contractAddress == "") {
+      throw Error("Unable to find the contract_address");
+    }
+
+    let contractParams = {
+      contractAddress,
+      contractCodeHash: params.contractCodeHash,
+    };
+    return contractParams;
   };
+
+  let query_pubkey = async (params: CONTRACT_PARAMS) => {
+    const query_tx = await secretjs.query.compute.queryContract({
+      contract_address: params?.contractAddress?.toString(),
+      code_hash: params?.contractCodeHash?.toString(),
+      query: { retrieve_pubkey_query: { key: 1 } },
+    });
+    console.log(query_tx);
+  }
   
   // Chain the execution using promises
   await upload_contract()
     .then(async (res) => {
-      await instantiate_contract(res);
+      await instantiate_contract(res)
+        .then(async (contractParams) => {
+          await query_pubkey(contractParams);
+        })
     })
     .catch((error) => {
       console.error("Error:", error);
