@@ -229,3 +229,5 @@ if neither error:
 ```
 return the secret contract's own pubkey
 ```
+
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](./LICENCE) file for details.
