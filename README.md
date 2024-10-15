@@ -11,6 +11,7 @@
   * [Setup Frontend & Solidity Contracts](#setup-frontend)
   * [Setup Secret Contracts](#setup-secret)
 * [License](#license)
+* [Disclaimer](#disclaimer)
 
 ## About <a id="about"></a>
 
@@ -283,8 +284,12 @@ yarn run secret:queryPubkey
 
 ## License <a id="license"></a>
 
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](./LICENCE) file for details.
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](./LICENSE) file for details.
 
-It was built based on Scaffold ETH 2 that has MIT license that must be respected.
+It was built based on Scaffold ETH 2 that has MIT license that must be respected - see the [LICENSE-SE-2](./LICENSE-SE-2).
 
 The Secret contracts were built based on the example [SecretPath Confidential Voting Tutorial](https://github.com/SecretFoundation/Secretpath-tutorials/tree/master/secretpath-voting). 
+
+## Disclaimer <a id="disclaimer"></a>
+
+See the [DISCLAIMER](./DISCLAIMER) file for details.
