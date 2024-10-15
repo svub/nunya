@@ -146,3 +146,6 @@ if it does:
  return the secret contract's own pubkey
 ```
 
+# Licence
+
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](./LICENCE) file for details.
