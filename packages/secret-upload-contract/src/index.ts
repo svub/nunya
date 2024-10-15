@@ -9,9 +9,10 @@ const walletOptions = {
   coinType: 529,
   bech32Prefix: 'secret',
 }
-console.log('process.env.WALLET_MNEMONIC_TESTNET', process.env.WALLET_MNEMONIC_TESTNET)
-// const wallet = new Wallet(process.env.WALLET_MNEMONIC_LOCAL, walletOptions);
-const wallet = new Wallet(process.env.WALLET_MNEMONIC_TESTNET, walletOptions);
+
+const wallet = new Wallet(process.env.WALLET_MNEMONIC_LOCAL, walletOptions);
+// console.log('process.env.WALLET_MNEMONIC_TESTNET', process.env.WALLET_MNEMONIC_TESTNET)
+// const wallet = new Wallet(process.env.WALLET_MNEMONIC_TESTNET, walletOptions);
 console.log('wallet: ', wallet);
 
 const rootPath = path.resolve(__dirname, '../../../'); // relative to ./dist
@@ -33,10 +34,10 @@ const gatewayPublicKeyBytes = Buffer.from(
 
 async function main () {
   const secretjs = new SecretNetworkClient({
-    // chainId: "secretdev-1",
-    // url: process.env.ENDPOINT_LOCAL || "",
-    chainId: "pulsar-3",
-    url: process.env.ENDPOINT_TESTNET || "",
+    chainId: "secretdev-1",
+    url: process.env.ENDPOINT_LOCAL || "",
+    // chainId: "pulsar-3",
+    // url: process.env.ENDPOINT_TESTNET || "",
     wallet: wallet,
     walletAddress: wallet.address,
   });
@@ -83,6 +84,7 @@ async function main () {
     } catch (e) {
       console.log('error: ', e);
     }
+    console.log('tx: ', JSON.stringify(tx, null, 2));
 
     codeId = String(
       tx?.arrayLog?.find((log: any) => log?.type === "message" && log?.key === "code_id")?.value
