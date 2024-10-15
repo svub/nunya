@@ -69,8 +69,8 @@ const config: HardhatUserConfig = {
     sepolia: {
       chainId: 11155111,
       url: `${providerRpcUrl || "https://eth-sepolia.g.alchemy.com/v2/"}${providerApiKey}`,
-      accounts: { mnemonic: MNEMONIC },
-      // accounts: [deployerPrivateKey],
+      // accounts: { mnemonic: MNEMONIC },
+      accounts: [deployerPrivateKey],
     },
     arbitrum: {
       url: `https://arb-mainnet.g.alchemy.com/v2/${providerApiKey}`,
