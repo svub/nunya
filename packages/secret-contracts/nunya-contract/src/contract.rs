@@ -122,7 +122,7 @@ fn create_new_auth_out(
 
     // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-introduction
     // https://github.com/scrtlabs/examples/blob/master/secret-viewing-keys/secret-viewing-keys-contract/src/contract.rs
-    let entropy: &[u8] = b"entropy";
+    let entropy: &[u8] = viewing_key_index.as_bytes();
     let viewing_key = ViewingKey::create(deps.storage, &info, &env, gateway_account.as_str(), entropy);
 
     // Viewing Key
@@ -219,8 +219,7 @@ fn create_payment_reference(
     let suffix: &str = viewing_key_index;
     index_concat.push_str(suffix);
 
-    let binding = "entropy".to_string();
-    let entropy: &str = binding.as_str();
+    let entropy: &str = viewing_key_index.clone();
     let result = ViewingKey::check(deps.storage, &index_concat, entropy);
     assert_ne!(result, Err(StdError::generic_err("unauthorized")));
 
@@ -335,8 +334,7 @@ fn create_pay(
     let suffix: &str = viewing_key_index;
     index_concat.push_str(suffix);
 
-    let binding = "entropy".to_string();
-    let entropy: &str = binding.as_str();
+    let entropy: &str = viewing_key_index.clone();
     let result = ViewingKey::check(deps.storage, &index_concat, entropy);
     assert_ne!(result, Err(StdError::generic_err("unauthorized")));
 
@@ -493,8 +491,7 @@ fn create_withdraw_to(
     let suffix: &str = viewing_key_index;
     index_concat.push_str(suffix);
 
-    let binding = "entropy".to_string();
-    let entropy: &str = binding.as_str();
+    let entropy: &str = viewing_key_index.clone();
     let result = ViewingKey::check(deps.storage, &index_concat, entropy);
     assert_ne!(result, Err(StdError::generic_err("unauthorized")));
 
