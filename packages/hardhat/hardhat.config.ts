@@ -10,8 +10,10 @@ import "@nomicfoundation/hardhat-verify";
 import "hardhat-deploy";
 import "hardhat-deploy-ethers";
 
+// https://dashboard.alchemyapi.io
+const FALLBACK_ALCHEMY_API_KEY = "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
 const providerRpcUrl = process.env.PROVIDER_RPC;
-const providerApiKey = process.env.GETBLOCK_API_KEY;
+const providerApiKey = process.env.GETBLOCK_API_KEY || process.env.ALCHEMY_API_KEY || FALLBACK_ALCHEMY_API_KEY;
 
 // If not set, it uses ours Alchemy's default API key, which doesn't work (gives ProviderError: The team owning this app is inactive. Please contact support at https://dashboard.alchemyapi.io/support)
 // You can get your own at https://dashboard.alchemyapi.io.
@@ -67,8 +69,8 @@ const config: HardhatUserConfig = {
     sepolia: {
       chainId: 11155111,
       url: `${providerRpcUrl || "https://eth-sepolia.g.alchemy.com/v2/"}${providerApiKey}`,
-      accounts: { mnemonic: MNEMONIC },
-      // accounts: [deployerPrivateKey],
+      // accounts: { mnemonic: MNEMONIC },
+      accounts: [deployerPrivateKey],
     },
     arbitrum: {
       url: `https://arb-mainnet.g.alchemy.com/v2/${providerApiKey}`,
