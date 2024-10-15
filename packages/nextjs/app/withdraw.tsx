@@ -7,7 +7,7 @@ import { convertToBigint } from "~~/utils/convert";
 
 interface WithdrawalRequest {
   amount: string;
-  address: string;
+  address: bigint;
 }
 
 const Withdraw: NextPage = () => {
@@ -28,13 +28,13 @@ const Withdraw: NextPage = () => {
     const requestId = await writeContractAsync({
       functionName: "withdrawTo",
       // TODO args: [encoder.encode(secret) ...
-      args: [secret, parseEther(amount), address],
+      args: [secret, parseEther(amount), convertToBigint(address), "ETH"],
     });
     console.log("⚡ Requesting new account", requestId, secret, parseEther(amount), address);
     if (!requestId) {
       return console.error("No request ID returned.");
     }
-    openRequests.set(convertToBigint(requestId), { amount, address });
+    openRequests.set(convertToBigint(requestId), { amount, address: convertToBigint(address) });
   };
 
   useScaffoldWatchContractEvent({

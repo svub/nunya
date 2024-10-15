@@ -33,6 +33,7 @@ const PaymentPage: NextPage<PageProps> = ({ params }: PageProps) => {
   const { targetNetwork } = useTargetNetwork();
   // const encoder: TextEncoder = new global.TextEncoder();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     setReference(paymentReferenceParam);
 
