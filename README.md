@@ -1,3 +1,18 @@
+# Nunya.bussiness
+> Receive business payments without revealing to other clients what you've earned.
+
+Wanna get yer salary in crypto, but don't want all your clients to know what you charge the others? Nunya.business can help! Your clients pay to a smart contract and you can decide when you pick up the treasure. All book-keeping is done in a separate private smart contract on the [Secret.network](https://scrt.network/).
+
+# The use case
+
+For people new to public ledgers, it can be a rude awakening to realize that sharing an address means anyone can track all of their transactions—both incoming and outgoing, past and future! Imagine if every person you gave your bank account number to could access your entire transaction history... Unsettling, right? 
+
+Nunya ftw! By adding a simple Nunya payment reference—either as a link or a QR code—to your invoice, you can enable clients to pay directly from their Web3 wallets without exposing any sensitive details. Later on, you can in parts or all at once redeem their payments to an address of your choosing. Encryption ensures that all bookkeeping data is kept protected in a secret contract on [Secret.network](https://scrt.network/). Like with a bank and a bank account. But decentralized and better. 😎
+
+# The pitch
+
+To do payments for business on a blockchain, transparancy has to meet privacy needs. Nunya provides a user interface also for non-technical people to receive payments in crypto without reveiling their personal funds and transaction history. All logic is handled on-chain, there's no central entity. Nunya brings basic banking privacy to public ledger blockains like Ethereum or other EVM compatible chains. Community incentives could be realized through a custom utility token, funds can be raised by automatically charging a payment fee—like Uniswap and the like have shown before.
+
 ### Notes on state and functions in the secret contract
 
 #### State:
