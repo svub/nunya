@@ -42,8 +42,8 @@ contract NunyaBusiness {
 
     constructor(address payable _gateway) payable {
         gateway = _gateway;
-        // secretContract = SecretContract(_gateway);
-        // fundGateway(msg.value);
+        secretContract = SecretContract(_gateway);
+        fundGateway(msg.value);
 
         // TODO:  only uncomment when hardhat has gateway deployed
         // secretContract.retrievePubkey();

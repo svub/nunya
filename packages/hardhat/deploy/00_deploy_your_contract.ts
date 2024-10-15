@@ -4,6 +4,12 @@ import { Contract } from "ethers";
 
 const logging = true;
 
+// on deployment this amount will fund the gateway contract with a donation.
+// It's unnecessary so leave it at 0
+const value = 0;
+// const value = 1337;
+// const value = ethers.utils.parseEther("0.0000001337");
+
 /**
  * Deploys a contract named "YourContract" using the deployer account and
  * constructor arguments set to the deployer address
@@ -38,6 +44,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     from: deployer,
     // Contract constructor arguments
     args: [],
+    value,
     log: true,
     gasLimit: 3000000,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by

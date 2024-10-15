@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   11155111: {
     NunyaBusiness: {
-      address: "0x7A1825E3D00Cdf8F12Df7c52b62DEE64B0dBE108",
+      address: "0xa727d2A0725AcCC5791b05B190865e6E90b6362a",
       abi: [
         {
           inputs: [
