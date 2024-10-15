@@ -1,128 +1,52 @@
-## Secret Network
 
-### Frontend and Solidity Contracts 
+Nunya.business
+============
 
-#### Requirements
+# Table of contents
 
-Before you begin, you need to install the following tools:
+  * [About](#about)
+  * [Specification](#specification)
+  * [Setup](#setup)
+    * [Setup Frontend & Solidity Contracts](#setup-frontend)
+    * [Setup Secret Contracts](#setup-secret)
+  * [License](#license)
 
-- [Node (>= v18.18)](https://nodejs.org/en/download/)
-- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
-- [Git](https://git-scm.com/downloads)
+## About <a id="about"></a>
 
-### Quickstart
+> Receive business payments without revealing to other clients what you've earned.
 
-To get started, follow the steps below:
+Wanna get yer salary in crypto, but don't want all your clients to know what you charge the others? Nunya.business can help! Your clients pay to a smart contract and you can decide when you pick up the treasure. All bookkeeping is done in a separate private smart contract on the [Secret.network](https://scrt.network/).
 
-1. Install dependencies:
+### The use case
 
-```
-cd my-dapp-example
-yarn install
-```
+For people new to public ledgers, it can be a rude awakening to realize that sharing an address means anyone can track all of their transactions—both incoming and outgoing, past and future! Imagine if every person you gave your bank account number to could access your entire transaction history... Unsettling, right? 
 
-2. Run a local network in the first terminal:
+Nunya ftw! By adding a simple Nunya payment reference—either as a link or a QR code—to your invoice, you can enable clients to pay directly from their Web3 wallets without exposing any sensitive details. Later on, you can in parts or all at once redeem their payments to an address of your choosing. Encryption ensures that all bookkeeping data is kept protected in a secret contract on [Secret.network](https://scrt.network/). Like with a bank and a bank account. But decentralized and better. 😎
 
-Note: Use `accounts: [deployerPrivateKey]` or `accounts: { mnemonic: MNEMONIC }` in ./packages/hardhat/hardhat.config.ts
+### The pitch
 
-```
-yarn chain
-```
+In the world of blockchain payments, a critical challenge remains: balancing the inherent transparency of public ledgers with the privacy needs of businesses and individuals. **Nunya** solves this problem by providing a simple, user-friendly interface that allows non-technical users to accept crypto payments without exposing their personal transaction history or wallet balances. 
 
-This command starts a local Ethereum network using Hardhat. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/hardhat/hardhat.config.ts`.
+Built on-chain with no central authority, Nunya leverages the security and decentralization of blockchain while maintaining confidentiality. By integrating with public ledger blockchains like Ethereum and other EVM-compatible chains, Nunya brings a level of privacy typically reserved for traditional banking systems to the world of decentralized finance (DeFi).
 
-3. On a second terminal, deploy the test contract to desired network (e.g. `yarn deploy --network localhost` or `yarn deploy --network sepolia`)
+Furthermore, Nunya offers a pathway to incentivize community engagement through a customizable utility token, and the platform can generate sustainable revenue by incorporating automated transaction fees—similar to the mechanisms employed by DeFi protocols like Uniswap. 
 
-```
-yarn deploy
-```
+In short, Nunya bridges the gap between transparency and privacy, providing businesses with a secure, scalable, and professional way to manage crypto payments while preserving the privacy of all parties involved.
 
-> Note: The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
+## Specification <a id="specification"></a>
 
-4. On a third terminal, start the Nunya NextJS app:
-
-```
-yarn start
-```
-
-Visit app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
-
-Run smart contract test with `yarn hardhat:test`
-
-- Edit smart contracts such as `NunyaBusiness.sol` in `packages/hardhat/contracts`
-- Edit frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
-- Edit deployment scripts in `packages/hardhat/deploy`
-
-### Setup Secret contract
-
-* Reference https://docs.scrt.network/secret-network-documentation/development/readme-1
-
-* Install Git and Make - https://docs.scrt.network/secret-network-documentation/development/readme-1/setting-up-your-environment#install-requirements
-
-* Install Rust
-  ```
-  rustup update
-  rustup default stable
-  rustup target add wasm32-unknown-unknown
-  source "$HOME/.cargo/env"
-  ```
-* Install Cargo Generate
-  ```
-  cargo install cargo-generate --features vendored-openssl
-  ```
-
-* Install dependencies
-  ```
-  nvm use
-  npm install --global lerna
-  yarn set version 4.2.2
-  corepack enable
-  corepack prepare yarn@v4.2.2 --activate
-  ```
-
-#### Create, Compile and Deploy Contract (Example: Counter)
-
-* Note: To build on macOS it was necessary to run the following first as specified here https://github.com/rust-bitcoin/rust-secp256k1/issues/283#issuecomment-1590391777. Other details https://github.com/briansmith/ring/issues/1824
-
-```
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-brew install llvm
-llvm-config --version
-echo 'export AR=/opt/homebrew/opt/llvm/bin/llvm-ar' >> ~/.zshrc
-echo 'export CC=/opt/homebrew/opt/llvm/bin/clang' >> ~/.zshrc
-source ~/.zshrc
-``` 
-
-* Compile. Note: Outputs contract.wasm and contract.wasm.gz file in the root directory of the secret-contracts/nunya-contract folder
-
-```
-cd packages/secret-contracts/nunya-contract
-make build
-```
-
-* OPTIONAL - optimize contract code. Refer to official Secret network docs
-
-* Upload and Instantiate 
-```
-yarn run secret:clean:uploadContract
-yarn run secret:start:uploadContract
-```
-* View logs at ./logs/instantiateOutput.log
-* View on Secret Testnet block explorer at https://testnet.ping.pub/secret/
-
-* Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
-
-### Specification: Notes on state and functions in the Secret contract
+State and functions in the Secret contract.
 
 #### State:
 
-There are *only two* main state elements in the secret contract.
+There are *only two* main state elements in the Secret contract.
 
-They use three types for their keys and values: `authOut`, `ref` and `u__`.
-(we may change the name of authOut as it is confusing)
+They use three types for their keys and values: `secretUser`, `ref` and `u__`.
+
+Note that previously `secretUser` was called `authOut`, and in the Solidity contract it is named `secret`.
 
 ##### `balances`
- A mapping from each user's `authOut` to their balance (`u___`)
+ A mapping from each user's `secret` to their balance (`u___`)
 
 ##### `paymentRefs`
  A mapping from every payment ref that every user has created, to the `authOut` of the user that created it.
@@ -140,7 +64,6 @@ They use three types for their keys and values: `authOut`, `ref` and `u__`.
 
 ###### the balances type
  is not even its own type, will just be an unsigned integer. `u32` is overkill, but it is also standard for balances so we may as well use it.
-
 
 #### secondary state elements
   
@@ -230,4 +153,127 @@ if neither error:
 return the secret contract's own pubkey
 ```
 
+## Setup <a id="setup"></a>
+
+### Setup Frontend and Solidity Contracts <a id="setup-frontend"></a> 
+
+#### Requirements
+
+Before you begin, you need to install the following tools:
+
+- [Node (>= v18.18)](https://nodejs.org/en/download/)
+- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
+- [Git](https://git-scm.com/downloads)
+
+#### Quickstart
+
+To get started, follow the steps below:
+
+1. Install dependencies:
+
+```
+cd my-dapp-example
+yarn install
+```
+
+2. Run a local network in the first terminal:
+
+Note: Use `accounts: [deployerPrivateKey]` or `accounts: { mnemonic: MNEMONIC }` in ./packages/hardhat/hardhat.config.ts
+
+```
+yarn chain
+```
+
+This command starts a local Ethereum network using Hardhat. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/hardhat/hardhat.config.ts`.
+
+3. On a second terminal, deploy the test contract to desired network (e.g. `yarn deploy --network localhost` or `yarn deploy --network sepolia`)
+
+```
+yarn deploy
+```
+
+> Note: The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
+
+4. On a third terminal, start the Nunya NextJS app:
+
+```
+yarn start
+```
+
+Visit app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
+
+Run smart contract test with `yarn hardhat:test`
+
+- Edit smart contracts such as `NunyaBusiness.sol` in `packages/hardhat/contracts`
+- Edit frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
+- Edit deployment scripts in `packages/hardhat/deploy`
+
+### Setup Secret Contract <a id="setup-secret"></a> 
+
+* Reference https://docs.scrt.network/secret-network-documentation/development/readme-1
+
+* Install Git and Make - https://docs.scrt.network/secret-network-documentation/development/readme-1/setting-up-your-environment#install-requirements
+
+* Install Rust
+  ```
+  rustup update
+  rustup default stable
+  rustup target add wasm32-unknown-unknown
+  source "$HOME/.cargo/env"
+  ```
+* Install Cargo Generate
+  ```
+  cargo install cargo-generate --features vendored-openssl
+  ```
+
+* Install dependencies
+  ```
+  nvm use
+  npm install --global lerna
+  yarn set version 4.2.2
+  corepack enable
+  corepack prepare yarn@v4.2.2 --activate
+  ```
+
+#### Create, Compile and Deploy Contract
+
+* Note: To build on macOS it was necessary to run the following first as specified here https://github.com/rust-bitcoin/rust-secp256k1/issues/283#issuecomment-1590391777. Other details https://github.com/briansmith/ring/issues/1824
+
+```
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install llvm
+llvm-config --version
+echo 'export AR=/opt/homebrew/opt/llvm/bin/llvm-ar' >> ~/.zshrc
+echo 'export CC=/opt/homebrew/opt/llvm/bin/clang' >> ~/.zshrc
+source ~/.zshrc
+``` 
+
+* Compile. Note: Outputs contract.wasm and contract.wasm.gz file in the root directory of the secret-contracts/nunya-contract folder
+
+```
+cd packages/secret-contracts/nunya-contract
+make build
+```
+
+* OPTIONAL - optimize contract code. Refer to official Secret network docs
+
+* Upload and Instantiate 
+
+> IMPORTANT: Currently unable to deploy due to this TNLS error https://github.com/svub/nunya/issues/8
+
+```
+yarn run secret:clean:uploadContract
+yarn run secret:start:uploadContract
+```
+* View logs at ./logs/instantiateOutput.log
+* View on Secret Testnet block explorer at https://testnet.ping.pub/secret/
+
+* Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
+
+## License <a id="license"></a>
+
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](./LICENCE) file for details.
+
+It was built based on Scaffold ETH 2 that has MIT license that must be respected.
+
+The Secret contracts were built based on the example [SecretPath Confidential Voting Tutorial](https://github.com/SecretFoundation/Secretpath-tutorials/tree/master/secretpath-voting). 
