@@ -17,14 +17,17 @@ contract NunyaBusiness {
     }
 
     // payment receipt
+    uint16 constant SUCCESS = 0;
     uint16 constant ERROR_NOT_SIGNED = 1;
     // withdrawal
     uint16 constant ERROR_NO_FUNDS = 2;
     uint16 constant ERROR_NOT_ENOUGH_FUNDS = 3;
+    uint16 constant ERROR_UNKNOWN = 4;
 
     struct Receipt {
         uint256 paymentRef;
         uint256 amount;
+        uint256 denomination;
         bytes32 sig;
     }
 
@@ -39,9 +42,7 @@ contract NunyaBusiness {
     event PaymentProcessed(uint256 requestId, uint16 code);
     event PaymentWithReceiptProcessed(uint256 requestId, uint16 code, Receipt receipt);
     event WithdrawalProcessed(uint256 requestId, uint16 code, uint256 amount);
-    
-    // see at the bottom
-    // event SecretNetworkError(uint256 requestId, uint16 code, string message);
+    event SecretNetworkError(uint256 requestId, uint16 code, string message);
 
     constructor(address payable _gateway) payable {
         gateway = _gateway;
@@ -111,38 +112,52 @@ contract NunyaBusiness {
     }
 
     function createPaymentReferenceCallback(uint256 _requestId, uint16 _code, string calldata _reference) public onlyGateway validateRequest(_requestId, FunctionCallType.NEW_REF) {
+        if (_code != 0) {
+            emitSecretNetworkError(_requestId, ERROR_UNKNOWN, "Error with paymentReference - unknown");
+        }
+        
         emit PaymentReferenceCreated(_requestId, _code, _reference);
     }
-    
+
     // TODO: use ref encrypted with (user pubkey+salt)
-    function pay(string calldata _ref, uint256 _value) public payable returns (uint256) {
+    // TODO: `string calldata secret` or `uint256 secret`
+    function pay(string calldata _secret, string calldata _ref, uint256 _value, string calldata _denomination) public payable returns (uint256) {
         // >= because we need gas for fees
         uint256 gasPaid = fundGateway(50000); // TODO 50000 is the minimum, need to adjust to a good estimate
         require(msg.value >= _value + gasPaid, "Not enough value sent to pay for gas.");
-        uint256 requestId = secretContract.pay(_ref, msg.value - gasPaid);
+        uint256 requestId = secretContract.pay(_secret, _ref, msg.value - gasPaid, _denomination);
         expectedResult[requestId] = FunctionCallType.PAY;
         return(requestId);
     }
 
     function payCallback(uint256 _requestId, uint16 _code) public payable onlyGateway validateRequest(_requestId, FunctionCallType.PAY) {
+        if (_code != 0) {
+            emitSecretNetworkError(_requestId, ERROR_UNKNOWN, "Error with pay - unknown");
+        }
         emit PaymentProcessed(_requestId, _code);
     }
 
 
     // TODO: use ref encrypted with (user pubkey+salt)
-    function payWithReceipt(string calldata _ref, uint256 _value, uint256 _userPubkey) public payable returns (uint256) {
+    // TODO: `string calldata secret` or `uint256 secret`
+    function payWithReceipt(string calldata _secret, string calldata _ref, uint256 _value, string calldata _denomination, uint256 _userPubkey) public payable returns (uint256) {
         uint256 gasPaid = fundGateway(50000); // TODO 50000 is the minimum, need to adjust to a good estimate
         require(msg.value >= _value + gasPaid, "Not enough value sent to pay for gas.");
         // QUESTION why is the user's pubkey required? How about the secret contact signs with it's pk and the user can validate using the secret contacts pubkey?
-        uint256 requestId = secretContract.payWithReceipt(_ref, msg.value - gasPaid, _userPubkey);
+        uint256 requestId = secretContract.payWithReceipt(_secret, _ref, msg.value - gasPaid, _denomination, _userPubkey);
         expectedResult[requestId] = FunctionCallType.PAY;
         return(requestId);
     }
 
     function payWithReceiptCallback(uint256 _requestId, uint16 _code , Receipt calldata _receipt) public payable onlyGateway validateRequest(_requestId, FunctionCallType.PAY) {
         // TODO : use ecrecover to check receipt is signed by secret contract
-        if (uint256(_receipt.sig) != 0)
+        if (uint256(_receipt.sig) != 0) {
             _code = ERROR_NOT_SIGNED;
+            emitSecretNetworkError(_requestId, ERROR_NOT_SIGNED, "Error with payWithReceipt - not signed");
+        }
+        if (_code != 0) {
+            emitSecretNetworkError(_requestId, ERROR_UNKNOWN, "Error with payWithReceipt - unknown");
+        }
         emit PaymentWithReceiptProcessed(_requestId, _code, _receipt);
     }
 
@@ -162,25 +177,35 @@ contract NunyaBusiness {
     }
 
     // Function wrapped in secret network payload encryption
-    function withdrawTo(string calldata _secret, uint256 _amount, address _withdrawalAddress) public payable returns (uint256) {
+    // TODO: `string calldata secret` or `uint256 secret`
+    function withdrawTo(string calldata _secret, uint256 _amount, string calldata _denomination, address _withdrawalAddress) public payable returns (uint256) {
         // IDEA _amount == 0 could signal I want all funds available; alternatively, sending max value could also work
         require((_amount > 0), "Need to provide the amount you want to withdraw.");
         fundGateway(50000); // TODO 50000 is the minimum, need to adjust to a good estimate
         // IDEA we could store the withdrawal address in this contract instead of sending it forth and back. 
-        uint256 requestId = secretContract.withdraw(_secret, _amount, _withdrawalAddress);
+        uint256 requestId = secretContract.withdrawTo(_secret, _amount, _denomination, _withdrawalAddress);
         // TODO: error check
         expectedResult[requestId] = FunctionCallType.WITHDRAW;
         return(requestId);
     }
 
-    function withdrawToCallback(uint256 _requestId, uint16 _code, uint256 _amount, address payable _withdrawalAddress) onlyGateway validateRequest(_requestId, FunctionCallType.WITHDRAW) public {
+    function withdrawToCallback(uint256 _requestId, uint16 _code, uint256 _amount, string calldata _denomination, address payable _withdrawalAddress) onlyGateway validateRequest(_requestId, FunctionCallType.WITHDRAW) public {
+        // TODO: handle returning more specific errors in Secret contract
         if (_code == 0 && _amount == 0) {
             _code = ERROR_NO_FUNDS;
+            emitSecretNetworkError(_requestId, ERROR_NO_FUNDS, "Error with withdraw - no funds");
+        } 
+        if (_code != 0) {
+            emitSecretNetworkError(_requestId, ERROR_UNKNOWN, "Error with withdraw - unknown");
         }
-        if(_amount > 0)
+        if (_code == 0 && _amount > 0) {
+            // TODO: only if the `_denomination` is "ETH"?
             _withdrawalAddress.transfer(_amount);
 
-        emit WithdrawalProcessed(_requestId, _code, _amount);
+            emit WithdrawalProcessed(_requestId, _code, _amount);
+        } else {
+            emitSecretNetworkError(_requestId, ERROR_UNKNOWN, "Error with withdraw - transfer");
+        }
     }
 
     function fundGateway(uint256 keepGas) internal returns (uint256) {
@@ -216,8 +241,7 @@ contract NunyaBusiness {
         return string(bstr);
     }
 
-    // TODO What's the exact use case? Or should instead the secret contract always call the callback with an appropriate error code? 
-    // function emitSecretNetworkError(uint256 _requestId, uint16 _code, string memory _message) public onlyGateway {
-    //     emit SecretNetworkError(_requestId, _code, _message);
-    // }
+    function emitSecretNetworkError(uint256 _requestId, uint16 _code, string memory _message) public onlyGateway {
+        emit SecretNetworkError(_requestId, _code, _message);
+    }
 }

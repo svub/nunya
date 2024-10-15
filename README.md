@@ -1,4 +1,118 @@
-### Notes on state and functions in the secret contract
+## Secret Network
+
+### Frontend and Solidity Contracts 
+
+#### Requirements
+
+Before you begin, you need to install the following tools:
+
+- [Node (>= v18.18)](https://nodejs.org/en/download/)
+- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
+- [Git](https://git-scm.com/downloads)
+
+### Quickstart
+
+To get started, follow the steps below:
+
+1. Install dependencies:
+
+```
+cd my-dapp-example
+yarn install
+```
+
+2. Run a local network in the first terminal:
+
+Note: Use `accounts: [deployerPrivateKey]` or `accounts: { mnemonic: MNEMONIC }` in ./packages/hardhat/hardhat.config.ts
+
+```
+yarn chain
+```
+
+This command starts a local Ethereum network using Hardhat. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/hardhat/hardhat.config.ts`.
+
+3. On a second terminal, deploy the test contract to desired network (e.g. `yarn deploy --network localhost` or `yarn deploy --network sepolia`)
+
+```
+yarn deploy
+```
+
+> Note: The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
+
+4. On a third terminal, start the Nunya NextJS app:
+
+```
+yarn start
+```
+
+Visit app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
+
+Run smart contract test with `yarn hardhat:test`
+
+- Edit smart contracts such as `NunyaBusiness.sol` in `packages/hardhat/contracts`
+- Edit frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
+- Edit deployment scripts in `packages/hardhat/deploy`
+
+### Setup Secret contract
+
+* Reference https://docs.scrt.network/secret-network-documentation/development/readme-1
+
+* Install Git and Make - https://docs.scrt.network/secret-network-documentation/development/readme-1/setting-up-your-environment#install-requirements
+
+* Install Rust
+  ```
+  rustup update
+  rustup default stable
+  rustup target add wasm32-unknown-unknown
+  source "$HOME/.cargo/env"
+  ```
+* Install Cargo Generate
+  ```
+  cargo install cargo-generate --features vendored-openssl
+  ```
+
+* Install dependencies
+  ```
+  nvm use
+  npm install --global lerna
+  yarn set version 4.2.2
+  corepack enable
+  corepack prepare yarn@v4.2.2 --activate
+  ```
+
+#### Create, Compile and Deploy Contract (Example: Counter)
+
+* Note: To build on macOS it was necessary to run the following first as specified here https://github.com/rust-bitcoin/rust-secp256k1/issues/283#issuecomment-1590391777. Other details https://github.com/briansmith/ring/issues/1824
+
+```
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install llvm
+llvm-config --version
+echo 'export AR=/opt/homebrew/opt/llvm/bin/llvm-ar' >> ~/.zshrc
+echo 'export CC=/opt/homebrew/opt/llvm/bin/clang' >> ~/.zshrc
+source ~/.zshrc
+``` 
+
+* Compile. Note: Outputs contract.wasm and contract.wasm.gz file in the root directory of the secret-contracts/nunya-contract folder
+
+```
+cd packages/secret-contracts/nunya-contract
+make build
+```
+
+* OPTIONAL - optimize contract code. Refer to official Secret network docs
+
+* Upload and Instantiate 
+```
+yarn run secret:clean:uploadContract
+yarn run secret:start:uploadContract
+```
+* View logs at ./logs/instantiateOutput.log
+* View on Secret Testnet block explorer at https://testnet.ping.pub/secret/
+
+* Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
+
+### Specification: Notes on state and functions in the Secret contract
 
 #### State:
 
@@ -56,8 +170,6 @@ secp1k256 - allows a sender of funds who wants a receipt to (optionally) receive
  such as `handle`, which specifies which function is being called.
  I have not looked into these in detail
 
-
-
 #### What about..
 
 ##### storing the withdrawal address.
@@ -71,23 +183,22 @@ There are no approvals, permissions or roles.
 
 The only fucntion that requires any authentication is `withdrawTo`, and the authentication is solely on the basis of the `authOut` provided when calling that function. If the user provides the correct `authOut` to map to a `balance`, then they have full control of the whole of the balance.
 
-
 #### functions:
 
- ###### new_auth_out (preferred_auth : authOut)
- ```
- if preferred_auth exists already as a key in balances, then report error.
- if not, then add it as a key with balance 0 and report success.
+###### new_auth_out (preferred_auth : authOut)
+```
+if preferred_auth exists already as a key in balances, then report error.
+if not, then add it as a key with balance 0 and report success.
 ```
 
- ###### link_payment_reference (auth : authOut, payment_ref : ref)
+###### link_payment_reference (auth : authOut, payment_ref : ref)
 ```
- if auth does not exist as a key in balances, then report error.
- if not: 
+if auth does not exist as a key in balances, then report error.
+if not: 
     if payment_ref already exists as a key in paymentRefs, then randomly generate an alternative and set payment_ref to that.
     add payment_ref as a key in paymentRefs and set its value to auth
 ```
- ###### accept_payment (payment_ref : ref, amount : u__, encrypt_to : Option(pubkey))
+###### accept_payment (payment_ref : ref, amount : u__, encrypt_to : Option(pubkey))
 ```
 <<< future work: 
 if payment_ref is encrypted with secret contract's own pubkey
@@ -106,16 +217,15 @@ if it does:
         return the receipt and signature
 ```
  
- ###### withdraw_to (auth : authOut, amount : u__, withdrawal_address : address)
+###### withdraw_to (auth : authOut, amount : u__, withdrawal_address : address)
 ```
- if auth does not exist as a key in balances, then report error.
- if balances[auth] < amount then report error.
- if neither error:
+if auth does not exist as a key in balances, then report error.
+if balances[auth] < amount then report error.
+if neither error:
     return DO_THE_WITHDRAWAL (withdrawal_address, amount)   
 ```
 
- ###### retrieve_pubkey ()
- ```
- return the secret contract's own pubkey
+###### retrieve_pubkey ()
 ```
-
+return the secret contract's own pubkey
+```
