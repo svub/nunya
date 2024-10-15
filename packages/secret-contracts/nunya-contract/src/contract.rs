@@ -11,7 +11,7 @@ use crate::{
     },
 };
 use cosmwasm_std::{
-    entry_point, to_binary, coin, Binary, Coin, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult, Uint128, Uint256
+    entry_point, to_binary, to_vec, coin, Binary, Coin, ContractResult, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult, SystemResult, Uint128, Uint256
 };
 use secret_toolkit::viewing_key::{ViewingKey, ViewingKeyStore};
 use secret_toolkit::utils::{pad_handle_result, pad_query_result, HandleCallback};
@@ -19,6 +19,8 @@ use tnls::{
     msg::{PostExecutionMsg, PrivContractHandleMsg},
     state::Task,
 };
+
+use anybuf::Anybuf;
 
 /// pad handle responses and log attributes to blocks of 256 bytes to prevent leaking info based on
 /// response size
@@ -166,6 +168,9 @@ fn create_new_auth_out(
 
     let result = base64::encode(json_string);
 
+    // Get the contract's code hash using the gateway address
+    let gateway_code_hash = get_contract_code_hash(deps, config.gateway_address.to_string())?;
+
     let callback_msg = GatewayMsg::Output {
         // Sepolia network gateway contract Solidity source code
         //   https://github.com/SecretSaturn/SecretPath/blob/main/TNLS-Gateways/public-gateway/src/Gateway.sol
@@ -180,7 +185,7 @@ fn create_new_auth_out(
         },
     }
     .to_cosmos_msg(
-        config.gateway_hash,
+        gateway_code_hash,
         config.gateway_address.to_string(),
         None,
     )?;
@@ -272,6 +277,9 @@ fn create_payment_reference(
 
     let result = base64::encode(json_string);
 
+    // Get the contract's code hash using the gateway address
+    let gateway_code_hash = get_contract_code_hash(deps, config.gateway_address.to_string())?;
+
     let callback_msg = GatewayMsg::Output {
         outputs: PostExecutionMsg {
             result,
@@ -280,7 +288,7 @@ fn create_payment_reference(
         },
     }
     .to_cosmos_msg(
-        config.gateway_hash,
+        gateway_code_hash,
         config.gateway_address.to_string(),
         None,
     )?;
@@ -425,6 +433,9 @@ fn create_pay(
 
     let result = base64::encode(json_string);
 
+    // Get the contract's code hash using the gateway address
+    let gateway_code_hash = get_contract_code_hash(deps, config.gateway_address.to_string())?;
+
     let callback_msg = GatewayMsg::Output {
         outputs: PostExecutionMsg {
             result,
@@ -433,7 +444,7 @@ fn create_pay(
         },
     }
     .to_cosmos_msg(
-        config.gateway_hash,
+        gateway_code_hash,
         config.gateway_address.to_string(),
         None,
     )?;
@@ -540,6 +551,9 @@ fn create_withdraw_to(
 
     let result = base64::encode(json_string);
 
+    // Get the contract's code hash using the gateway address
+    let gateway_code_hash = get_contract_code_hash(deps, config.gateway_address.to_string())?;
+
     let callback_msg = GatewayMsg::Output {
         outputs: PostExecutionMsg {
             result,
@@ -548,7 +562,7 @@ fn create_withdraw_to(
         },
     }
     .to_cosmos_msg(
-        config.gateway_hash,
+        gateway_code_hash,
         config.gateway_address.to_string(),
         None,
     )?;
@@ -556,6 +570,36 @@ fn create_withdraw_to(
     Ok(Response::new()
         .add_message(callback_msg)
         .add_attribute("status", "DO_THE_WITHDRAWAL"))
+}
+
+// reference: https://github.com/writersblockchain/secretpath-voting/commit/b0b5d8ac7b7d691c7d7ebf0bc52e5aedb8da7e86#diff-a982e501ba4bd05192a8c497bd5093517ea5606f9e341b9b7d09b233068da829R232
+fn get_contract_code_hash(deps: DepsMut, contract_address: String) -> StdResult<String> {
+    let code_hash_query: cosmwasm_std::QueryRequest<cosmwasm_std::Empty> =
+        cosmwasm_std::QueryRequest::Stargate {
+            path: "/secret.compute.v1beta1.Query/CodeHashByContractAddress".into(),
+            data: Binary(Anybuf::new().append_string(1, contract_address).into_vec()),
+        };
+    let raw = to_vec(&code_hash_query).map_err(|serialize_err| {
+        StdError::generic_err(format!("Serializing QueryRequest: {}", serialize_err))
+    })?;
+    let code_hash = match deps.querier.raw_query(&raw) {
+        SystemResult::Err(system_err) => Err(StdError::generic_err(format!(
+            "Querier system error: {}",
+            system_err
+        ))),
+        SystemResult::Ok(ContractResult::Err(contract_err)) => Err(StdError::generic_err(format!(
+            "Querier contract error: {}",
+            contract_err
+        ))),
+        SystemResult::Ok(ContractResult::Ok(value)) => Ok(value),
+    }?;
+    // Remove the "\n@" if it exists at the start of the code_hash
+    let mut code_hash_str = String::from_utf8(code_hash.to_vec())
+        .map_err(|err| StdError::generic_err(format!("Invalid UTF-8 sequence: {}", err)))?;
+    if code_hash_str.starts_with("\n@") {
+        code_hash_str = code_hash_str.trim_start_matches("\n@").to_string();
+    }
+    Ok(code_hash_str)
 }
 
 #[entry_point]
