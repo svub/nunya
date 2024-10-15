@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useGlobalState } from "../services/store/store";
+import { useGlobalState } from "../../services/store/store";
 import type { NextPage } from "next";
 import { formatEther, parseEther } from "viem";
 import { useScaffoldWatchContractEvent, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
-import { convertToBigint } from "~~/utils/convert";
+import { convertToBigint } from "~~/utils/helpers";
 
 interface WithdrawalRequest {
   amount: string;
@@ -15,8 +15,6 @@ const Withdraw: NextPage = () => {
   const [address, setReturnAddress] = useState("");
   const [confirmation, setConfirmation] = useState<WithdrawalRequest | undefined>();
   const { writeContractAsync } = useScaffoldWriteContract("NunyaBusiness");
-  // const encoder: TextEncoder = new global.TextEncoder();
-  // const decoder: TextDecoder = new global.TextDecoder();
 
   const { secret, setSecret } = useGlobalState();
   const openRequests = new Map<bigint, WithdrawalRequest>();
@@ -27,13 +25,14 @@ const Withdraw: NextPage = () => {
     // const encryptedSecret: ArrayBuffer = await encrypt(encoder.encode(secret));
     const requestId = await writeContractAsync({
       functionName: "withdrawTo",
-      // TODO args: [encoder.encode(secret) ...
-      args: [secret, parseEther(amount), convertToBigint(address), "ETH"],
+      // FIXME encrypt parameters
+      args: [secret, parseEther(amount), address, "ETH"],
     });
-    console.log("⚡ Requesting new account", requestId, secret, parseEther(amount), address);
+    console.log("⚡ Withdrawal requested. ", requestId, secret, parseEther(amount), address);
     if (!requestId) {
       return console.error("No request ID returned.");
     }
+    // FIXME returned requestId should be bigint but return type of writeContractAsync(...) is `0x{string}`
     openRequests.set(convertToBigint(requestId), { amount, address: convertToBigint(address) });
   };
 
@@ -50,7 +49,6 @@ const Withdraw: NextPage = () => {
           // TODO UI feedback
           return console.error("No request ID returned", log);
         }
-        // FIXME args.requestId is bigint, but the return type of writeContractAsync(...) is `0x{string}`
         const request = openRequests.get(log.args.requestId);
         if (!request) {
           // TODO UI feedback

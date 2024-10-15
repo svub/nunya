@@ -3,7 +3,7 @@
 import React, { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLongRightIcon, Bars3Icon, BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
 
@@ -94,7 +94,8 @@ export const Header = () => {
         </div>
         <Link href="/" passHref className="hidden lg:flex items-center gap-2 ml-4 mr-6 shrink-0">
           <div className="flex relative w-10 h-10">
-            <ArrowLongRightIcon className="h-8 w-8 fill-secondary" />
+            {/* <ArrowLongRightIcon className="h-8 w-8 fill-secondary" /> */}
+            <img src="/favicon.png" alt="Nunya logo" className="h-8 w-8 fill-secondary" />
           </div>
           <div className="flex flex-col">
             <span className="font-bold leading-tight">Nunya.business</span>
