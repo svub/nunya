@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import type { NextPage } from "next";
+import { parseEther } from "viem";
 import { EtherInput } from "~~/components/scaffold-eth";
-import { useScaffoldWatchContractEvent, useTargetNetwork } from "~~/hooks/scaffold-eth";
+import { useScaffoldWatchContractEvent, useScaffoldWriteContract, useTargetNetwork } from "~~/hooks/scaffold-eth";
+import { MAX_GAS_PER_CALL } from "~~/utils/helpers";
 import { fetchPriceFromUniswap } from "~~/utils/scaffold-eth";
 
 declare global {
@@ -27,17 +29,16 @@ const PaymentPage: NextPage<PageProps> = ({ params }: PageProps) => {
 
   const [reference, setReference] = useState("");
   const [amount, setAmount] = useState("");
-  // const [currency, setCurrency] = useState("ETH");
   const [receipt, setReceipt] = useState(""); // TODO define struct of receipt
-  // const { writeContractAsync } = useScaffoldWriteContract("NunyaBusiness");
+  const { writeContractAsync } = useScaffoldWriteContract("NunyaBusiness");
   const { targetNetwork } = useTargetNetwork();
-  // const encoder: TextEncoder = new global.TextEncoder();
 
   useEffect(() => {
     setReference(paymentReferenceParam);
 
     if (currencyParam === "USD") {
-      // convert amount to ETH
+      // converting requested amount from USD to ETH //////////////////////////
+
       fetchPriceFromUniswap(targetNetwork).then(price => {
         console.log("Convert to ETH", amountParam, price, amountParam / price);
         if (price > 0) setAmount(amountParam / price + "");
@@ -56,25 +57,26 @@ const PaymentPage: NextPage<PageProps> = ({ params }: PageProps) => {
   const handlePay = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    // TODO
-    // await writeContractAsync({
-    //   functionName: "pay",
-    //   value: parseEther(amount),
-    //   args: [encoder.encode(reference)],
-    // });
+    // TODO estimate proper fees
+    const toPay = parseEther(amount);
+    const value = toPay + MAX_GAS_PER_CALL;
+    const pubKey = 0n;
+    await writeContractAsync({
+      // TODO enable payments w/t receipt
+      functionName: "payWithReceipt",
+      value,
+      args: [reference, toPay, pubKey],
+    });
   };
 
   useScaffoldWatchContractEvent({
     contractName: "NunyaBusiness",
-    // TODO
-    // eventName: "payment-receipt-received",
     eventName: "PaymentWithReceiptProcessed",
     onLogs: logs => {
       logs.forEach(() => {
-        // const { receiptBytes } = log.args;
         // TODO extract the huamn readable part, show the bytes somehow (v2: show as QR code or write as file for book keeping)
-        const receipt = "123"; // decoder.decode(receiptBytes as ArrayBuffer);
-        console.log("📡 Payment Receipt " + receipt + " created");
+        const receipt = "123"; // decoder.decode(log.args.receipt as ArrayBuffer);
+        console.log("📡 Payment Receipt received.", receipt);
         setReceipt(receipt);
       });
     },
@@ -93,7 +95,7 @@ const PaymentPage: NextPage<PageProps> = ({ params }: PageProps) => {
 
         <h3 className="text-center text-2xl mt-8">Make a Payment</h3>
         <form onSubmit={handlePay} className="flex flex-col items-center mb-8 mx-5 space-y-4">
-          <div className="flex flex-col items-center justify-center space-y-3">
+          <section className="flex flex-col items-center justify-center space-y-3">
             <p>Your payment reference:</p>
             {/* TODO format into a nice form */}
             <input
@@ -112,15 +114,15 @@ const PaymentPage: NextPage<PageProps> = ({ params }: PageProps) => {
             >
               Pay Bill Now
             </button>
-          </div>
-          {receipt ? (
-            <>
-              <p className="text-center">Receipt: {receipt}</p>
-            </>
-          ) : (
-            <></>
-          )}
+          </section>
         </form>
+        {receipt ? (
+          <section>
+            <p className="text-center">Receipt: {receipt}</p>
+          </section>
+        ) : (
+          <></>
+        )}
       </div>
     </>
   );

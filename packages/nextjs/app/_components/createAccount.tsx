@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useGlobalState } from "../services/store/store";
+import { useGlobalState } from "../../services/store/store";
 import type { NextPage } from "next";
 import { useScaffoldWatchContractEvent, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
-import { convertToBigint } from "~~/utils/convert";
+import { convertToBigint } from "~~/utils/helpers";
 
 interface AccountCreationRequest {
   secret: string;
@@ -11,11 +11,11 @@ interface AccountCreationRequest {
 const CreateAccount: NextPage = () => {
   const [confirmation, setConfirmation] = useState<AccountCreationRequest | undefined>();
   const { writeContractAsync } = useScaffoldWriteContract("NunyaBusiness");
-  // const encoder: TextEncoder = new global.TextEncoder();
-  // const decoder: TextDecoder = new global.TextDecoder();
 
   const { secret, setSecret } = useGlobalState();
   const openRequests = new Map<bigint, AccountCreationRequest>();
+
+  // create new nunya account for the given secret ////////////////////////////
 
   const handleCreateAccount = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -28,7 +28,7 @@ const CreateAccount: NextPage = () => {
     const requestId = await writeContractAsync({
       functionName: "newSecretUser",
       value: 30000000n,
-      // TODO args: [encoder.encode(secret) ...
+      // FIXME encrypt parameters before sending
       args: [secret],
     });
     console.log("⚡ Requesting new account", requestId, secret);
@@ -39,6 +39,8 @@ const CreateAccount: NextPage = () => {
     // FIXME requestId should be bigint but the return type is `0x{string}`
     openRequests.set(convertToBigint(requestId), { secret });
   };
+
+  // wait for the event confirming the account creation ///////////////////////
 
   useScaffoldWatchContractEvent({
     contractName: "NunyaBusiness",
@@ -53,7 +55,6 @@ const CreateAccount: NextPage = () => {
           // TODO UI feedback
           return console.error("No request ID returned", log);
         }
-        // FIXME args.requestId is bigint, but the return type of writeContractAsync(...) is `0x{string}`
         const request = openRequests.get(log.args.requestId);
         if (!request) {
           // TODO UI feedback
@@ -69,7 +70,7 @@ const CreateAccount: NextPage = () => {
     <>
       <h2 className="text-center text-2xl mt-8">Create Account</h2>
       <form onSubmit={handleCreateAccount} className="flex flex-col items-center mb-8 mx-5 space-y-4">
-        <div className="flex flex-col space-y-3">
+        <section className="flex flex-col space-y-3">
           <input
             className="border bg-base-100 p-3 w-full rounded-md shadow focus:outline-none focus:ring-2 focus:ring-blue-500"
             type="text"
@@ -83,13 +84,13 @@ const CreateAccount: NextPage = () => {
           >
             Create Account
           </button>
-        </div>
+        </section>
       </form>
       {confirmation ? (
-        <>
+        <section>
           <h3>Account creation confirmed</h3>
           <p>Secret: {confirmation.secret}.</p>
-        </>
+        </section>
       ) : (
         <></>
       )}

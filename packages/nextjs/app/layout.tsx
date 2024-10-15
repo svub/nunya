@@ -4,9 +4,10 @@ import { ThemeProvider } from "~~/components/ThemeProvider";
 import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
+// Has side effect of setting HTML header metadata like thumbnail.jpg
 export const metadata = getMetadata({
-  title: "Scaffold-ETH 2 App",
-  description: "Built with 🏗 Scaffold-ETH 2",
+  title: "Nunya.business",
+  description: "Receive business payments without revealing to other what you've earned.",
 });
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
