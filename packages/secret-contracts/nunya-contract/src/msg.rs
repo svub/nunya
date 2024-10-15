@@ -57,31 +57,31 @@ pub struct WithdrawToStoreMsg {
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct ResponseNewAuthOutStoreMsg {
-    pub _requestId: Task,
+    pub _request_id: Task,
     pub _code: ResponseStatusCode,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct ResponseLinkPaymentRefStoreMsg {
-    pub _requestId: Task,
+    pub _request_id: Task,
     pub _code: ResponseStatusCode,
     pub _reference: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct ResponsePayStoreMsg {
-    pub _requestId: Task,
+    pub _request_id: Task,
     pub _code: ResponseStatusCode,
     pub _receipt: PaymentReceipt,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct ResponseWithdrawToStoreMsg {
-    pub _requestId: Task,
+    pub _request_id: Task,
     pub _code: ResponseStatusCode,
     pub _amount: Uint128,
     // TODO: should this be of type `Addr`? does it support EVM addresses?
-    pub _withdrawalAddress: [u8; 20],
+    pub _withdrawal_address: [u8; 20],
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]

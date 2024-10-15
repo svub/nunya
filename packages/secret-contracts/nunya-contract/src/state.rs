@@ -1,4 +1,4 @@
-use cosmwasm_std::{Addr, Binary, Coin, Uint128, Uint256};
+use cosmwasm_std::{Addr, Binary, Coin, Uint256};
 use secret_toolkit::storage::{Item, Keymap};
 
 use schemars::JsonSchema;
@@ -9,7 +9,7 @@ pub static CONFIG: Item<State> = Item::new(b"config");
 pub static VIEWING_KEY: Keymap<Index, VK> = Keymap::new(b"VIEWING_KEY");
 pub static VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP: Keymap<VK, Vec<PaymentReferenceBalance>> = Keymap::new(b"VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP");
 
-pub type Index = u8;
+pub type Index = String;
 // pub type ContractAddress = [u8; 32];
 pub type ResponseStatusCode = u16;
 
