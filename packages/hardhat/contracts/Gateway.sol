@@ -5,6 +5,7 @@ pragma solidity ^0.8.26;
 // TODO remove in production
 import "hardhat/console.sol";
 
+// We need JSON parsing to introspect on the `pay` function
 import "./JsmnSolLib.sol";
 
 /*//////////////////////////////////////////////////////////////
@@ -792,7 +793,7 @@ contract Gateway is Initializable, OwnableUpgradeable {
 
     /// @notice Creates a new task with provided execution info
     /// @param _payloadHash Hash of the payload
-    /// @param _userAddress Address of the user
+    /// @param _userAddress Address of the user .. WARNING - does not perform same purpose in this modified version 
     /// @param _routingInfo Routing information
     /// @param _info Execution information
 
@@ -825,7 +826,8 @@ contract Gateway is Initializable, OwnableUpgradeable {
         emit logNewTask(
             _taskId,
             getChainId(chain_id_1, chain_id_2, chain_id_3, chain_id_length),
-            _userAddress,
+            // Note: previously _userAddress but customized for Nunya
+            msg.sender,
             _routingInfo,
             _payloadHash,
             _info
