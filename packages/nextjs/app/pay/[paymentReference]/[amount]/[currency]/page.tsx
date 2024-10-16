@@ -96,7 +96,7 @@ const PaymentPage: NextPage<PageProps> = ({ params }: PageProps) => {
         </div>
 
         <h3 className="text-center text-2xl mt-8">Make a Payment</h3>
-        <form onSubmit={handlePay} className="flex flex-col items-center mb-8 mx-5 space-y-4">
+        <form onSubmit={(e) => {e.preventDefault();}} className="flex flex-col items-center mb-8 mx-5 space-y-4">
           <section className="flex flex-col items-center justify-center space-y-3">
             <p>Your payment reference:</p>
             {/* TODO format into a nice form */}
@@ -112,7 +112,7 @@ const PaymentPage: NextPage<PageProps> = ({ params }: PageProps) => {
             <p>Final amount in ETH {amount}</p>
             <button
               className="btn bg-blue-600 text-white hover:bg-blue-700 transition duration-200 p-3 rounded-md"
-              type="submit"
+              onClick={handlePay}
             >
               Pay Bill Now
             </button>
