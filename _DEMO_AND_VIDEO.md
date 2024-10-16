@@ -13,4 +13,4 @@ TODO - Create a demo or video showcasing your project's functionality. Videos ar
 * Videos:
 
   * Video of Nunya.business compile, upload, and instantiate a Private Secret Contract to Secret Network Testnet
-[YouTube Link](https://youtu.be/pCtQjqqD6gs)
+[YouTube Link](./assets/demo.mp4)
