@@ -76,7 +76,8 @@ contract NunyaBusiness {
 
     // testing function - DO NOT KEEP IN PROD!
     function unsafeGetSecretContractPubkey () public {
-        const requestId = secretContract.retrievePubkey();
+        secretContract = ISecretContract(_gateway);
+        uint256 requestId = secretContract.retrievePubkey();
         console.log("requested secret contract pubkey - requestId=", requestId);
     }
 
