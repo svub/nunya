@@ -3,7 +3,7 @@ import { useGlobalState } from "../../services/store/store";
 import type { NextPage } from "next";
 import { formatEther, parseEther } from "viem";
 import { useScaffoldWatchContractEvent, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
-import { convertToBigint } from "~~/utils/helpers";
+import { convertToBigint, MAX_GAS_PER_CALL } from "~~/utils/helpers";
 
 interface WithdrawalRequest {
   amount: string;
@@ -26,7 +26,8 @@ const Withdraw: NextPage = () => {
     const requestId = await writeContractAsync({
       functionName: "withdrawTo",
       // FIXME encrypt parameters
-      args: [secret, parseEther(amount), address, "ETH"],
+      value: MAX_GAS_PER_CALL,
+      args: [secret, parseEther(amount), "ETH", address],
     });
     console.log("⚡ Withdrawal requested. ", requestId, secret, parseEther(amount), address);
     if (!requestId) {
@@ -81,7 +82,6 @@ const Withdraw: NextPage = () => {
           />
           <input
             className="border  bg-base-100 p-3 w-full rounded-md shadow focus:outline-none focus:ring-2 focus:ring-blue-500"
-            type="text"
             value={amount}
             placeholder="Amount to withdraw..."
             onChange={e => setAmount(e.target.value)}
