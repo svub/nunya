@@ -254,7 +254,14 @@ Gateway balance:  0.300499999969916
 
 > Warning: Do not rename 01_deploy_your_contract.ts to 00_deploy_your_contract.ts or it will only compile but will not deploy
 
-5. On a third terminal, start the Nunya NextJS app:
+5. View the contract in block explorer
+
+Example previous deployment: 
+  NunyaBusiness: https://sepolia.etherscan.io/address/0xB10C8F0E2279fAa112abFF17063326bf3Fe8Dd50#code
+
+  DummyGatewayContract: https://sepolia.etherscan.io/address/0x77257FE5ef16d11CFA91D8fDaA79Fc9e47541BE7
+
+6. On a third terminal, start the Nunya NextJS app:
 
 ```
 yarn start

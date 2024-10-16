@@ -82,7 +82,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
 
   // Call the gateway function now that the Nunya contract has been funded
   const nunyaContractDeployedAt = await hre.ethers.getContractAt("NunyaBusiness", nunyaContract.address);
-  const newSecretUserTx = await nunyaContractDeployedAt.newSecretUser(deployer, { value: parseEther("0.1") });
+  const newSecretUserTx = await nunyaContractDeployedAt.newSecretUser(deployer, { value: parseEther("0.0001") });
   console.log("tx hash:", newSecretUserTx.hash);
 
   // Get the deployed contract to interact with it after deploying.
