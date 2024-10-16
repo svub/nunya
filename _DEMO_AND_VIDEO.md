@@ -23,3 +23,5 @@ TODO - Create a demo or video showcasing your project's functionality. Videos ar
 [YouTube Link](https://youtu.be/WeBABOnPvgQ)
     * Note: It does not continue to deploy NunyaBusiness contract, likely since we added `secretContract = ISecretContract(gateway);` that still uses the DummyGatewayContract interface file instead of one for the Gateway contract.
     * Note: The Gateway was deployed with tx: 0x83aeaac54e1d2b467c2452bbdaca8d1c9c775549ddfee749b18d4f02a42b435f to address 0xe3a363ea613f601Dd05E0c02DBb1dfa4D7ABA99A
+
+  * Video of Nunya.business frontend integration [video](./assets/demo.mp4)
