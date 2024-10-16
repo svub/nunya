@@ -5,6 +5,7 @@ pragma solidity ^0.8.26;
 // TODO remove in production
 import "hardhat/console.sol";
 
+// TODO: remove since do not need this in the file it is an interface of
 import "./IGateway.sol";
 
 // We need JSON parsing to introspect on the `pay` function
