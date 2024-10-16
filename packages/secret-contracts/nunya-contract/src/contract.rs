@@ -115,7 +115,7 @@ fn retrieve_pubkey(
     //     .map_err(|err| StdError::generic_err(err.to_string()))?;
 
     // Create Secret Contract Keys if they don't already exist in storage
-    let existing_my_keys = MY_KEYS.load(deps.storage, &my_keys)?;
+    let existing_my_keys = MY_KEYS.load(deps.storage)?;
     if existing_my_keys.public_key.len() == 0 {
         let rng = env.block.random.unwrap().0;
         let secp = Secp256k1::new();
