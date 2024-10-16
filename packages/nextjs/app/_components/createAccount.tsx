@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useGlobalState } from "../../services/store/store";
 import type { NextPage } from "next";
 import { useScaffoldWatchContractEvent, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
-import { convertToBigint } from "~~/utils/helpers";
+import { convertToBigint, MAX_GAS_PER_CALL } from "~~/utils/helpers";
 
 interface AccountCreationRequest {
   secret: string;
@@ -27,7 +27,7 @@ const CreateAccount: NextPage = () => {
     // const encryptedSecret: ArrayBuffer = await encrypt(encoder.encode(secret));
     const requestId = await writeContractAsync({
       functionName: "newSecretUser",
-      value: 30000000n,
+      value: MAX_GAS_PER_CALL,
       // FIXME encrypt parameters before sending
       args: [secret],
     });

@@ -3,12 +3,12 @@ import { PaymentReference, useGlobalState } from "../../services/store/store";
 import type { NextPage } from "next";
 import QRCode from "qrcode.react";
 import { useScaffoldWatchContractEvent, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
-import { MAX_GAS_PER_BLOCK, convertToBigint } from "~~/utils/helpers";
+import { MAX_GAS_PER_CALL, convertToBigint } from "~~/utils/helpers";
 import { SupportedCurrencies, createPaymentLink } from "~~/utils/link";
 
 const CreatePaymentReference: NextPage = () => {
   const [desiredReference, setDesiredReference] = useState("");
-  const [amount, setAmount] = useState<number>(0);
+  const [amount, setAmount] = useState<number>(0.0);
   const [currency, setCurrency] = useState<SupportedCurrencies>("ETH");
   const { writeContractAsync } = useScaffoldWriteContract("NunyaBusiness");
 
@@ -22,7 +22,7 @@ const CreatePaymentReference: NextPage = () => {
     const requestId = await writeContractAsync({
       functionName: "createPaymentReference",
       // FIXME: estimate the amount of gas required for forward fees
-      value: MAX_GAS_PER_BLOCK,
+      value: MAX_GAS_PER_CALL,
       // FIXME args: [encoder.encode(secret) ...
       args: [secret, desiredReference],
     });
@@ -81,16 +81,20 @@ const CreatePaymentReference: NextPage = () => {
           />
           <input
             className="border bg-base-100 p-3 w-full rounded-md shadow focus:outline-none focus:ring-2 focus:ring-blue-500"
-            type="text"
+            type="number"
+            step="any"
             value={amount}
             placeholder="How much do you charge?"
-            onChange={e => setAmount(parseFloat(e.target.value))}
+            onChange={e => {
+              const v = parseFloat(e.target.value);
+              if (!isNaN(v)) setAmount(v);
+            }}
           />
           <input
             className="border bg-base-100 p-3 w-full rounded-md shadow focus:outline-none focus:ring-2 focus:ring-blue-500"
             type="text"
             value={desiredReference}
-            placeholder="Desired payment reference (optional)"
+            placeholder="Desired reference (optional, will fail if it already exists)"
             onChange={e => setDesiredReference(e.target.value)}
           />
           <div className="flex flex-row space-x-3">
