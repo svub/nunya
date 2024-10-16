@@ -159,6 +159,11 @@ source ~/.zshrc
 
 * Run Docker (e.g. Docker Desktop on macOS)
 
+* Remove any old Docker containers
+```
+docker rmi sco
+```
+
 * [Compile](https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy#compile-the-code). Note: Outputs contract.wasm and contract.wasm.gz file in the root directory of the secret-contracts/nunya-contract folder. Using `make build-mainnet-reproducible` will remove contract.wasm so only the optimised contract.wasm.gz remains. Warning: If you only run `make build-mainnet` then you will get this error https://github.com/svub/nunya/issues/8 when deploying.
 
 ```
