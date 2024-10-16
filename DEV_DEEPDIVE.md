@@ -68,3 +68,5 @@ It should not be a usecase requirement that the receipt is encrypted if the user
  ##### checkBalance function pair
 Future work! We did not see how useful from either testing or UX perspectives `checkBalance` would be, so we will certainly be implementing this once we are ast the hackathon deadline!
  
+
+#### `Gateway.sol`

@@ -7,6 +7,8 @@ import "hardhat/console.sol";
 // import "@openzeppelin/contracts/access/Ownable.sol";
 import "./ISecretContract.sol";
 
+import "./JsmnSolLib.sol";
+
 /**
  * @author
  */
@@ -129,10 +131,15 @@ contract NunyaBusiness {
 
     // TODO: use ref encrypted with (user pubkey+salt)
     // TODO: `string calldata secret` or `uint256 secret`
-    function pay(string calldata _secret, string calldata _ref, uint256 _value, string calldata _denomination) public payable returns (uint256) {
+    function pay(string calldata _valueJson, string calldata _ref, uint256 _value, string calldata _denomination) public payable returns (uint256) {
         // >= because we need gas for fees
         uint256 gasPaid = fundGateway(50000); // TODO 50000 is the minimum, need to adjust to a good estimate
         require(msg.value >= _value + gasPaid, "Not enough value sent to pay for gas.");
+
+        // fix pseudocode!
+        // Token claimedPayment = parse(_valueJson);
+        // require (msg.value === claimedPayment, "incorrect payment value - ensure _valueJson is in the format {amount: paymentAmount, ... } and that msg.value == paymentAmount exactly.");
+
         uint256 requestId = secretContract.pay(_secret, _ref, msg.value - gasPaid, _denomination);
         expectedResult[requestId] = FunctionCallType.PAY;
         return(requestId);

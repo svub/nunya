@@ -792,7 +792,7 @@ contract Gateway is Initializable, OwnableUpgradeable {
 
     /// @notice Creates a new task with provided execution info
     /// @param _payloadHash Hash of the payload
-    /// @param _userAddress Address of the user
+    /// @param _userAddress Address of the user .. WARNING - does not perform same purpose in this modified version 
     /// @param _routingInfo Routing information
     /// @param _info Execution information
 
@@ -825,7 +825,7 @@ contract Gateway is Initializable, OwnableUpgradeable {
         emit logNewTask(
             _taskId,
             getChainId(chain_id_1, chain_id_2, chain_id_3, chain_id_length),
-            _userAddress,
+            msg.sender,
             _routingInfo,
             _payloadHash,
             _info
