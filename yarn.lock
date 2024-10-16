@@ -199,6 +199,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@blake.regalia/belt@npm:^0.37.0":
+  version: 0.37.0
+  resolution: "@blake.regalia/belt@npm:0.37.0"
+  checksum: 10/6d73e044f4e4980c7ff38868249da87a38c754e0bf18e522c638d22c7081934b23c8ca5fdafee910e7db30de19af91029d45159570e4d42d4ad3e73f67e19631
+  languageName: node
+  linkType: hard
+
+"@blake.regalia/belt@npm:^0.38.3":
+  version: 0.38.3
+  resolution: "@blake.regalia/belt@npm:0.38.3"
+  checksum: 10/abff786176027ca89ef612c0d5ee730c6100e276219407e4bce9db14e18abe58416a84ec17003012c2f2ad02288931bf9cbc119000b1cb7da0701d91c560651d
+  languageName: node
+  linkType: hard
+
 "@coinbase/wallet-sdk@npm:4.0.4":
   version: 4.0.4
   resolution: "@coinbase/wallet-sdk@npm:4.0.4"
@@ -2218,8 +2232,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@se-2/nextjs@workspace:packages/nextjs"
   dependencies:
+    "@blake.regalia/belt": "npm:^0.38.3"
     "@heroicons/react": "npm:~2.1.5"
     "@rainbow-me/rainbowkit": "npm:2.1.6"
+    "@solar-republic/neutrino": "npm:^1.5.5"
     "@tanstack/react-query": "npm:~5.28.6"
     "@trivago/prettier-plugin-sort-imports": "npm:~4.1.1"
     "@types/node": "npm:~18.19.50"
@@ -2236,6 +2252,7 @@ __metadata:
     eslint-config-next: "npm:~14.0.4"
     eslint-config-prettier: "npm:~8.5.0"
     eslint-plugin-prettier: "npm:~4.2.1"
+    ethers: "npm:^6.13.4"
     next: "npm:~14.2.11"
     next-nprogress-bar: "npm:~2.3.13"
     next-themes: "npm:~0.3.0"
@@ -2351,6 +2368,50 @@ __metadata:
   version: 3.1.2
   resolution: "@socket.io/component-emitter@npm:3.1.2"
   checksum: 10/89888f00699eb34e3070624eb7b8161fa29f064aeb1389a48f02195d55dd7c52a504e52160016859f6d6dffddd54324623cdd47fd34b3d46f9ed96c18c456edc
+  languageName: node
+  linkType: hard
+
+"@solar-republic/cosmos-grpc@npm:^0.17.1":
+  version: 0.17.1
+  resolution: "@solar-republic/cosmos-grpc@npm:0.17.1"
+  dependencies:
+    "@solar-republic/crypto": "npm:^0.2.14"
+    google-protobuf: "npm:^3.21.2"
+    protobufjs: "npm:7.2.6"
+  bin:
+    protoc-gen-secret: build/protoc/run.js
+  checksum: 10/9929e2bb3ea253f2766fed5dc696b09c8f7b1dfeb722937446cec4c8866387c03caca84bbafc4bd665b1af4fb00b41d94d0dfd1fefda8ddd1131fcbaf091d1f2
+  languageName: node
+  linkType: hard
+
+"@solar-republic/crypto@npm:^0.2.14":
+  version: 0.2.14
+  resolution: "@solar-republic/crypto@npm:0.2.14"
+  dependencies:
+    "@blake.regalia/belt": "npm:^0.37.0"
+    "@solar-republic/wasm-secp256k1": "npm:^0.2.8"
+    hash-wasm: "npm:^4.11.0"
+  checksum: 10/7a25656979ea6e0c7ed828377af58bb95c7854531e429db3fc253504873c221044b178972930309209592e303611586a1930873fe48801aab2452a0d5fdf2d58
+  languageName: node
+  linkType: hard
+
+"@solar-republic/neutrino@npm:^1.5.5":
+  version: 1.5.5
+  resolution: "@solar-republic/neutrino@npm:1.5.5"
+  dependencies:
+    "@blake.regalia/belt": "npm:^0.37.0"
+    "@solar-republic/cosmos-grpc": "npm:^0.17.1"
+    "@solar-republic/crypto": "npm:^0.2.14"
+  checksum: 10/b95c01dcb2a1af7f1cb61a53040b0751e0abfe2fabddb35aee7577d0086754b2fb84ff6e9cf65608a472e6cc0661237deb91a280de5d758e1402d0efa6af267a
+  languageName: node
+  linkType: hard
+
+"@solar-republic/wasm-secp256k1@npm:^0.2.8":
+  version: 0.2.8
+  resolution: "@solar-republic/wasm-secp256k1@npm:0.2.8"
+  dependencies:
+    "@blake.regalia/belt": "npm:^0.37.0"
+  checksum: 10/c3c88ebab0f86e39bbaaa536e9aedd10f9d17553ffb405cdfc40d0f487b755cd43dd10700227e6d8e0ff7f185a983c6dc684448e72ec715d459aad0895dd0d7b
   languageName: node
   linkType: hard
 
@@ -7195,7 +7256,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers@npm:~6.13.2":
+"ethers@npm:^6.13.4, ethers@npm:~6.13.2":
   version: 6.13.4
   resolution: "ethers@npm:6.13.4"
   dependencies:
@@ -8067,7 +8128,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"google-protobuf@npm:^3.14.0":
+"google-protobuf@npm:^3.14.0, google-protobuf@npm:^3.21.2":
   version: 3.21.4
   resolution: "google-protobuf@npm:3.21.4"
   checksum: 10/0d87fe8ef221d105cbaa808f4024bd577638524d8e461469e3733f2e4933391ad4da86b7fcbd11e8781bee04eacf2e8ba19aaacd5f9deb336a220485841d980f
@@ -8345,6 +8406,13 @@ __metadata:
     readable-stream: "npm:^3.6.0"
     safe-buffer: "npm:^5.2.0"
   checksum: 10/26b7e97ac3de13cb23fc3145e7e3450b0530274a9562144fc2bf5c1e2983afd0e09ed7cc3b20974ba66039fad316db463da80eb452e7373e780cbee9a0d2f2dc
+  languageName: node
+  linkType: hard
+
+"hash-wasm@npm:^4.11.0":
+  version: 4.11.0
+  resolution: "hash-wasm@npm:4.11.0"
+  checksum: 10/bffd5a5d95d499a963fb8744566fce6a18d06fedca3e3630fba92202b430d9c9a751895c601a6c5b3394038b73b79f90046ddf5465b996b7b139a72bb108f638
   languageName: node
   linkType: hard
 
@@ -11391,6 +11459,26 @@ __metadata:
     "@types/node": "npm:>=13.7.0"
     long: "npm:^5.0.0"
   checksum: 10/6c5aa62b61dff843f585f3acd9cb7a82d566de2dbf167a300b39afee91b04298c4b4aec61354b7c00308b40596f5f3f4b07d6246cfb4ee0abeaea25101033315
+  languageName: node
+  linkType: hard
+
+"protobufjs@npm:7.2.6":
+  version: 7.2.6
+  resolution: "protobufjs@npm:7.2.6"
+  dependencies:
+    "@protobufjs/aspromise": "npm:^1.1.2"
+    "@protobufjs/base64": "npm:^1.1.2"
+    "@protobufjs/codegen": "npm:^2.0.4"
+    "@protobufjs/eventemitter": "npm:^1.1.0"
+    "@protobufjs/fetch": "npm:^1.1.0"
+    "@protobufjs/float": "npm:^1.0.2"
+    "@protobufjs/inquire": "npm:^1.1.0"
+    "@protobufjs/path": "npm:^1.1.2"
+    "@protobufjs/pool": "npm:^1.1.0"
+    "@protobufjs/utf8": "npm:^1.1.0"
+    "@types/node": "npm:>=13.7.0"
+    long: "npm:^5.0.0"
+  checksum: 10/81ab853d28c71998d056d6b34f83c4bc5be40cb0b416585f99ed618aed833d64b2cf89359bad7474d345302f2b5e236c4519165f8483d7ece7fd5b0d9ac13f8b
   languageName: node
   linkType: hard
 

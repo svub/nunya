@@ -14,14 +14,17 @@
     "vercel:yolo": "vercel --build-env NEXT_PUBLIC_IGNORE_BUILD_ERROR=true"
   },
   "dependencies": {
+    "@blake.regalia/belt": "^0.38.3",
     "@heroicons/react": "~2.1.5",
     "@rainbow-me/rainbowkit": "2.1.6",
+    "@solar-republic/neutrino": "^1.5.5",
     "@tanstack/react-query": "~5.28.6",
     "@uniswap/sdk-core": "~4.0.1",
     "@uniswap/v2-sdk": "~3.0.1",
     "blo": "~1.0.1",
     "burner-connector": "~0.0.8",
     "daisyui": "4.12.10",
+    "ethers": "^6.13.4",
     "next": "~14.2.11",
     "next-nprogress-bar": "~2.3.13",
     "next-themes": "~0.3.0",
