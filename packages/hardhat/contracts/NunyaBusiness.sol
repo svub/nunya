@@ -6,7 +6,8 @@ import "hardhat/console.sol";
 // import "@openzeppelin/contracts/";
 // import "@openzeppelin/contracts/access/Ownable.sol";
 // TODO: replace with interface of "./Gateway.sol"
-import "./ISecretContract.sol";
+// import "./ISecretContract.sol";
+import "./IGateway.sol";
 
 import "./JsmnSolLib.sol";
 
@@ -35,7 +36,7 @@ contract NunyaBusiness {
     }
 
     address payable gateway;
-    ISecretContract secretContract;
+    IGateway secretContract;
     uint256 secretContractPubkey;
     mapping (uint256 => FunctionCallType) expectedResult;
 
@@ -49,7 +50,7 @@ contract NunyaBusiness {
 
     constructor(address payable _gateway) payable {
         gateway = _gateway;
-        secretContract = ISecretContract(_gateway);
+        secretContract = IGateway(_gateway);
         console.log("constructor: msg.value", msg.value);
         fundGateway(0); // send all funds to the gateway
 
@@ -79,7 +80,7 @@ contract NunyaBusiness {
 
     // testing function - DO NOT KEEP IN PROD!
     function unsafeGetSecretContractPubkey () public {
-        secretContract = ISecretContract(gateway);
+        secretContract = IGateway(gateway);
         uint256 requestId = secretContract.retrievePubkey();
         console.log("requested secret contract pubkey - requestId=", requestId);
     }
