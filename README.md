@@ -45,7 +45,7 @@ In short, Nunya bridges the gap between transparency and privacy, providing busi
 
 TODO - How did you build this, how do the contracts/functions interact and which design choices did you make
 
-### Demo and Video <a id="demo"></a>
+### Demo and Video <a id="demo-video"></a>
 
 See the [DEMO_AND_VIDEO](./_DEMO_AND_VIDEO.md) file for details.
 
