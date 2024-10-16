@@ -56,7 +56,18 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
 
   //   const Gateway = await deploy("SecretContract", {
   //     contract: "contracts/DummyGateway.sol:SecretContract",
-  const gateway = await deploy("DummyGatewayContract", {
+  // const gateway = await deploy("DummyGatewayContract", {
+  //   from: deployer,
+  //   // args: [],
+  //   log: true,
+  //   gasLimit: 3000000,
+  //   // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
+  //   // automatically mining the contract deployment transaction. There is no effect on live networks.
+  //   autoMine: true,
+  // });
+  // console.log("Successfully deployed DummyGatewayContract to address: ", gateway.address);
+
+  const gateway = await deploy("Gateway", {
     from: deployer,
     // args: [],
     log: true,
@@ -65,7 +76,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     // automatically mining the contract deployment transaction. There is no effect on live networks.
     autoMine: true,
   });
-  console.log("Successfully deployed DummyGatewayContract to address: ", gateway.address);
+  console.log("Successfully deployed Gateway to address: ", gateway.address);
 
   const nunyaContract = await deploy("NunyaBusiness", {
     from: deployer,

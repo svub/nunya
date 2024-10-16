@@ -10,7 +10,7 @@ import "@nomicfoundation/hardhat-verify";
 import "hardhat-deploy";
 import "hardhat-deploy-ethers";
 
-const providerRpcUrlEthereumSepolia = process.env.PROVIDER_RPC;
+const providerRpcUrlEthereumSepolia = process.env.PROVIDER_RPC_ETHEREUM_SEPOLIA;
 // If not set, it uses ours Alchemy's default API key, which doesn't work (gives ProviderError: The team owning this app is inactive. Please contact support at https://dashboard.alchemyapi.io/support)
 // You can get your own at https://dashboard.alchemyapi.io.
 // If not set, it uses the hardhat account 0 private key.
@@ -36,7 +36,7 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: "0.8.17",
+        version: "0.8.26",
         settings: {
           optimizer: {
             enabled: true,

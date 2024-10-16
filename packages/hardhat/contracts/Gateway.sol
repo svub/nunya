@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Version: 0.2.5
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.0;
 
 // TODO remove in production
 import "hardhat/console.sol";

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.26;
 
 // TODO remove in production
 import "hardhat/console.sol";
@@ -76,7 +76,7 @@ contract NunyaBusiness {
 
     // testing function - DO NOT KEEP IN PROD!
     function unsafeGetSecretContractPubkey () public {
-        secretContract = ISecretContract(_gateway);
+        secretContract = ISecretContract(gateway);
         uint256 requestId = secretContract.retrievePubkey();
         console.log("requested secret contract pubkey - requestId=", requestId);
     }

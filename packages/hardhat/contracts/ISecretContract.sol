@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.26;
 
 // IDEA Maybe it should be called GatewayContract? Or GatewayInterface
 interface ISecretContract {
