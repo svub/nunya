@@ -141,7 +141,7 @@ contract NunyaBusiness {
         // Token claimedPayment = parse(_valueJson);
         // require (msg.value === claimedPayment, "incorrect payment value - ensure _valueJson is in the format {amount: paymentAmount, ... } and that msg.value == paymentAmount exactly.");
 
-        uint256 requestId = secretContract.pay(_secret, _ref, msg.value - gasPaid, _denomination);
+        uint256 requestId = secretContract.pay(_valueJson, _ref, msg.value - gasPaid, _denomination);
         expectedResult[requestId] = FunctionCallType.PAY;
         return(requestId);
     }
