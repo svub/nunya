@@ -4,6 +4,7 @@
 
 * [Setup Frontend & Solidity Contracts](#setup-frontend)
 * [Setup Secret Contracts](#setup-secret)
+* [Setup Custom Gateways and Relayers](#setup-gateways-relayers)
 * [Usage Guidelines](#usage)
 
 ### Setup Frontend and Solidity Contracts <a id="setup-frontend"></a> 
@@ -159,6 +160,11 @@ source ~/.zshrc
 
 * Run Docker (e.g. Docker Desktop on macOS)
 
+* Remove any old Docker containers
+```
+docker rmi sco
+```
+
 * [Compile](https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy#compile-the-code). Note: Outputs contract.wasm and contract.wasm.gz file in the root directory of the secret-contracts/nunya-contract folder. Using `make build-mainnet-reproducible` will remove contract.wasm so only the optimised contract.wasm.gz remains. Warning: If you only run `make build-mainnet` then you will get this error https://github.com/svub/nunya/issues/8 when deploying.
 
 ```
@@ -182,6 +188,18 @@ yarn run secret:queryPubkey
 * View on Secret Testnet block explorer at https://testnet.ping.pub/secret/
 
 * Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
+
+### Setup Custom Gateways and Relayers <a id="setup-gateways-relayers"></a> 
+
+See https://github.com/ltfschoen/SecretPath to deploy the following:
+
+* Custom Public Gateway on Ethereum Sepolia
+* Custom Relay Network
+* Custom Private Gateway on Secret Network
+
+The deployed [NunyaBusiness.sol](./packages/hardhat/contracts/NunyaBusiness.sol) contract on Ethereum Sepolia shall interact with the Public Gateway.
+
+The deployed [Nunya Private Contract](./packages/secret-contracts/nunya-contract/src/contract.rs) shall interact with the Private Gateway on Secret Network 
 
 ### Usage Guidelines <a id="usage"></a> 
 
