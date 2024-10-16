@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 import "hardhat/console.sol";
 // import "@openzeppelin/contracts/";
 // import "@openzeppelin/contracts/access/Ownable.sol";
+// TODO: replace with interface of "./Gateway.sol"
 import "./ISecretContract.sol";
 
 import "./JsmnSolLib.sol";
@@ -78,7 +79,7 @@ contract NunyaBusiness {
 
     // testing function - DO NOT KEEP IN PROD!
     function unsafeGetSecretContractPubkey () public {
-        secretContract = ISecretContract(_gateway);
+        secretContract = ISecretContract(gateway);
         uint256 requestId = secretContract.retrievePubkey();
         console.log("requested secret contract pubkey - requestId=", requestId);
     }
@@ -140,7 +141,7 @@ contract NunyaBusiness {
         // Token claimedPayment = parse(_valueJson);
         // require (msg.value === claimedPayment, "incorrect payment value - ensure _valueJson is in the format {amount: paymentAmount, ... } and that msg.value == paymentAmount exactly.");
 
-        uint256 requestId = secretContract.pay(_secret, _ref, msg.value - gasPaid, _denomination);
+        uint256 requestId = secretContract.pay(_valueJson, _ref, msg.value - gasPaid, _denomination);
         expectedResult[requestId] = FunctionCallType.PAY;
         return(requestId);
     }

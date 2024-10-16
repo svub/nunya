@@ -75,7 +75,7 @@ yarn deploy --network sepolia
 
 Note: If it has deployed previously it will output `Nothing to compile. No need to generate any newer typings.`. To make a fresh deployment first run `yarn run hardhat:clean`.
 
-It should output:
+Example of output:
 ```
 Generating typings for: 4 artifacts in dir: typechain-types for target: ethers-v6
 Successfully generated 12 typings!
@@ -103,6 +103,8 @@ Example previous deployment:
   NunyaBusiness: https://sepolia.etherscan.io/address/0xB10C8F0E2279fAa112abFF17063326bf3Fe8Dd50#code
 
   DummyGatewayContract: https://sepolia.etherscan.io/address/0x77257FE5ef16d11CFA91D8fDaA79Fc9e47541BE7
+
+  Gateway: https://sepolia.etherscan.io/address/0xe3a363ea613f601Dd05E0c02DBb1dfa4D7ABA99A
 
 6. On a third terminal, start the Nunya NextJS app:
 
@@ -203,4 +205,6 @@ The deployed [Nunya Private Contract](./packages/secret-contracts/nunya-contract
 
 ### Usage Guidelines <a id="usage"></a> 
 
-TODO - help judges and other developers understand the project.
+Help judges and other developers understand the project.
+
+See the [DEMO_AND_VIDEO](./_DEMO_AND_VIDEO.md) file for details.

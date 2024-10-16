@@ -2,6 +2,12 @@
 // Version: 0.2.5
 pragma solidity ^0.8.26;
 
+// TODO remove in production
+import "hardhat/console.sol";
+
+// We need JSON parsing to introspect on the `pay` function
+import "./JsmnSolLib.sol";
+
 /*//////////////////////////////////////////////////////////////
                 Open Zeppelin Libraries
 //////////////////////////////////////////////////////////////*/
@@ -820,6 +826,7 @@ contract Gateway is Initializable, OwnableUpgradeable {
         emit logNewTask(
             _taskId,
             getChainId(chain_id_1, chain_id_2, chain_id_3, chain_id_length),
+            // Note: previously _userAddress but customized for Nunya
             msg.sender,
             _routingInfo,
             _payloadHash,
