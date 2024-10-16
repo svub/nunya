@@ -5,9 +5,9 @@
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
-  31337: {
+  11155111: {
     DummyGatewayContract: {
-      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      address: "0x77257FE5ef16d11CFA91D8fDaA79Fc9e47541BE7",
       abi: [
         {
           stateMutability: "payable",
@@ -184,7 +184,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     NunyaBusiness: {
-      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      address: "0xB10C8F0E2279fAa112abFF17063326bf3Fe8Dd50",
       abi: [
         {
           inputs: [

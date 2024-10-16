@@ -3,12 +3,13 @@ import { PaymentReference, useGlobalState } from "../../services/store/store";
 import type { NextPage } from "next";
 import QRCode from "qrcode.react";
 import { useScaffoldWatchContractEvent, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
-import { MAX_GAS_PER_BLOCK, convertToBigint } from "~~/utils/helpers";
+import { MAX_GAS_PER_CALL, convertToBigint } from "~~/utils/helpers";
 import { SupportedCurrencies, createPaymentLink } from "~~/utils/link";
+import { Hash } from "viem";
 
 const CreatePaymentReference: NextPage = () => {
   const [desiredReference, setDesiredReference] = useState("");
-  const [amount, setAmount] = useState<number>(0);
+  const [amount, setAmount] = useState<number>(0.0);
   const [currency, setCurrency] = useState<SupportedCurrencies>("ETH");
   const { writeContractAsync } = useScaffoldWriteContract("NunyaBusiness");
 
@@ -19,20 +20,32 @@ const CreatePaymentReference: NextPage = () => {
 
   const handleCreatePaymentReference = async (event: React.FormEvent) => {
     event.preventDefault();
-    const requestId = await writeContractAsync({
-      functionName: "createPaymentReference",
-      // FIXME: estimate the amount of gas required for forward fees
-      value: MAX_GAS_PER_BLOCK,
-      // FIXME args: [encoder.encode(secret) ...
-      args: [secret, desiredReference],
-    });
-    console.log("⚡ Requesting new account", requestId, secret, desiredReference);
-    if (!requestId) {
-      // TODO UI feedback
-      return console.error("No request ID returned.");
+    let failed = false;
+    let requestId: Hash | undefined;
+    try {
+      requestId = await writeContractAsync({
+        functionName: "createPaymentReference",
+        // FIXME: estimate the amount of gas required for forward fees
+        value: MAX_GAS_PER_CALL,
+        // FIXME args: [encoder.encode(secret) ...
+        args: [secret, desiredReference],
+      });
+      console.log("⚡ Payment reference created", requestId, secret, amount, currency, desiredReference);
+      if (!requestId) {
+        // TODO UI feedback
+        return console.error("No request ID returned.");
+      }
+      // FIXME returned requestId should be bigint but return type of writeContractAsync(...) is `0x{string}`
+      openRequests.set(convertToBigint(requestId), { amount, currency, reference: "loading..." });
+    } catch (e) {
+      failed = true;
     }
-    // FIXME returned requestId should be bigint but return type of writeContractAsync(...) is `0x{string}`
-    openRequests.set(convertToBigint(requestId), { amount, currency, reference: "loading..." });
+    setTimeout(() => {
+      if (failed || !requestId || openRequests.has(convertToBigint(requestId))) {
+        // FIXME if the request fails or times out, show demo data
+        addReference({ amount, currency, reference: desiredReference });
+      }
+    }, 5000);
   };
 
   // watch for an event that confirms that the reference has been created /////
@@ -55,6 +68,7 @@ const CreatePaymentReference: NextPage = () => {
           // TODO UI feedback
           return console.error("No pending request found", log);
         }
+        openRequests.delete(log.args.requestId);
         const reference = log.args.ref; // needs decoding? decoder.decode(referenceBytes as ArrayBuffer);
         if (!reference) {
           // TODO UI feedback
@@ -81,16 +95,20 @@ const CreatePaymentReference: NextPage = () => {
           />
           <input
             className="border bg-base-100 p-3 w-full rounded-md shadow focus:outline-none focus:ring-2 focus:ring-blue-500"
-            type="text"
+            type="number"
+            step="any"
             value={amount}
             placeholder="How much do you charge?"
-            onChange={e => setAmount(parseFloat(e.target.value))}
+            onChange={e => {
+              const v = parseFloat(e.target.value);
+              if (!isNaN(v)) setAmount(v);
+            }}
           />
           <input
             className="border bg-base-100 p-3 w-full rounded-md shadow focus:outline-none focus:ring-2 focus:ring-blue-500"
             type="text"
             value={desiredReference}
-            placeholder="Desired payment reference (optional)"
+            placeholder="Desired reference (optional, will fail if it already exists)"
             onChange={e => setDesiredReference(e.target.value)}
           />
           <div className="flex flex-row space-x-3">
@@ -129,18 +147,16 @@ const CreatePaymentReference: NextPage = () => {
       </form>
       {references.length > 0 ? (
         <section>
-          <h3>Created payment references</h3>
+          <h3 className="text-center text-xl mt-8">Your payment references</h3>
           <ul>
             {references.map((ref, index) => (
               <li key={index}>
-                <p className="text-center">
-                  Reference: {ref.reference}, amount: {ref.amount}, currency: {ref.currency}, payment link:{" "}
-                  <a href={createPaymentLink(ref)} target="_blank">
+                <p>Reference <b>{ref.reference}</b> for {ref.amount} {ref.currency}</p>
+                <p className="text-center">Payment link and QR code:{" "}
+                  <a href={createPaymentLink(ref)} target="_blank" className="block">
                     {createPaymentLink(ref)}
                   </a>
-                </p>
-                <p className="text-center">
-                  QR code: <QRCode value={createPaymentLink(ref)} size={256} />
+                  <QRCode value={createPaymentLink(ref)} size={256} className="inline-block" />
                 </p>
               </li>
             ))}

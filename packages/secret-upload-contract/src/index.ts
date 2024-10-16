@@ -9,10 +9,10 @@ const walletOptions = {
   coinType: 529,
   bech32Prefix: 'secret',
 }
-console.log('process.env.WALLET_MNEMONIC_TESTNET', process.env.WALLET_MNEMONIC_TESTNET)
+console.log('process.env.WALLET_MNEMONIC_TESTNET loaded?', process.env.WALLET_MNEMONIC_TESTNET !== "")
 // const wallet = new Wallet(process.env.WALLET_MNEMONIC_LOCAL, walletOptions);
 const wallet = new Wallet(process.env.WALLET_MNEMONIC_TESTNET, walletOptions);
-console.log('wallet: ', wallet);
+console.log('wallet address: ', wallet.address);
 
 const rootPath = path.resolve(__dirname, '../../../'); // relative to ./dist
 console.log('rootPath', rootPath)
@@ -177,21 +177,21 @@ async function main () {
     return contractParams;
   };
 
-  let query_pubkey = async (params: CONTRACT_PARAMS) => {
-    const query_tx = await secretjs.query.compute.queryContract({
-      contract_address: params?.contractAddress?.toString(),
-      code_hash: params?.contractCodeHash?.toString(),
-      query: { retrieve_pubkey_query: { key: 1 } },
-    });
-    console.log(query_tx);
-  }
+  // let query_pubkey = async (params: CONTRACT_PARAMS) => {
+  //   const query_tx = await secretjs.query.compute.queryContract({
+  //     contract_address: params?.contractAddress?.toString(),
+  //     code_hash: params?.contractCodeHash?.toString(),
+  //     query: { retrieve_pubkey: {} },
+  //   });
+  //   console.log(query_tx);
+  // }
   
   // Chain the execution using promises
   await upload_contract()
     .then(async (res) => {
       await instantiate_contract(res)
         .then(async (contractParams) => {
-          await query_pubkey(contractParams);
+          // await query_pubkey(contractParams);
         })
     })
     .catch((error) => {

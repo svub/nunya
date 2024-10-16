@@ -1,15 +1,16 @@
 Starting deployment...
-codeId:  10593
-CODE_HASH: 5ea3b37c0f3b06a621e58327bd7235fd8c323a4a595b095914c5fd2a5511dc93
+tx.rawLog:  [{"events":[{"type":"message","attributes":[{"key":"action","value":"/secret.compute.v1beta1.MsgStoreCode"},{"key":"module","value":"compute"},{"key":"sender","value":"secret1am2mk908456twwgehmaua85s6laar4yr3awzzj"},{"key":"signer","value":"secret1am2mk908456twwgehmaua85s6laar4yr3awzzj"},{"key":"code_id","value":"11036"}]}]}]
+codeId:  11036
+CODE_HASH: 1af180cc6506af23fb3ee2c0f6ece37ab3ad32db82e061b6b30679fb8a3f1323
 params:  {
-  codeId: '10593',
-  contractCodeHash: '5ea3b37c0f3b06a621e58327bd7235fd8c323a4a595b095914c5fd2a5511dc93'
+  codeId: '11036',
+  contractCodeHash: '1af180cc6506af23fb3ee2c0f6ece37ab3ad32db82e061b6b30679fb8a3f1323'
 }
 Instantiating contract...
 tx:  {
-  height: 7098192,
-  timestamp: '',
-  transactionHash: 'C5419257F2ED564093D27F1B73F4EAC4EAABC950EBE590C6B7C9C7B9CC434DEC',
+  height: 7247704,
+  timestamp: '2024-10-15T20:20:28Z',
+  transactionHash: '7575955CBA2BFA353C96E5F58767A07DC35FEEDEBA92BD8847D4391F0F8F0DF6',
   code: 0,
   codespace: '',
   info: '',
@@ -24,19 +25,19 @@ tx:  {
     },
     auth_info: { signer_infos: [Array], fee: [Object] },
     signatures: [
-      'J1Ei+KHikPOXjRfuP1b22UYlxdHJM6TpntR8KFmAEmBPRW2CFou8WFO9Nubg/vAR/bC0cKybR7d9+Rkb77rjNQ=='
+      'BwgEzvF5mUkZALqvFQwb+SxuBGWJwbJQoGCbdvys2FlQ10LtkIc0xJwQTpiSszYCjluE/+nHVX6kzWBiICMpOQ=='
     ]
   },
-  rawLog: '[{"events":[{"type":"instantiate","attributes":[{"key":"contract_address","value":"secret19kk5wcmxp2alr356emljyr8xp90atndxy3r2c9"},{"key":"code_id","value":"10593"}]},{"type":"message","attributes":[{"key":"action","value":"/secret.compute.v1beta1.MsgInstantiateContract"},{"key":"module","value":"compute"},{"key":"sender","value":"secret1am2mk908456twwgehmaua85s6laar4yr3awzzj"},{"key":"contract_address","value":"secret19kk5wcmxp2alr356emljyr8xp90atndxy3r2c9"}]},{"type":"wasm","attributes":[{"key":"contract_address","value":"secret19kk5wcmxp2alr356emljyr8xp90atndxy3r2c9"}]}]}]',
+  rawLog: '[{"events":[{"type":"instantiate","attributes":[{"key":"contract_address","value":"secret1uwqdjnzrttepn86p2sjmnugfph7tz97hmcwjs3"},{"key":"code_id","value":"11036"}]},{"type":"message","attributes":[{"key":"action","value":"/secret.compute.v1beta1.MsgInstantiateContract"},{"key":"module","value":"compute"},{"key":"sender","value":"secret1am2mk908456twwgehmaua85s6laar4yr3awzzj"},{"key":"contract_address","value":"secret1uwqdjnzrttepn86p2sjmnugfph7tz97hmcwjs3"}]},{"type":"wasm","attributes":[{"key":"contract_address","value":"secret1uwqdjnzrttepn86p2sjmnugfph7tz97hmcwjs3"}]}]}]',
   jsonLog: [ { events: [Array], msg_index: 0 } ],
   arrayLog: [
     {
       msg: 0,
       type: 'instantiate',
       key: 'contract_address',
-      value: 'secret19kk5wcmxp2alr356emljyr8xp90atndxy3r2c9'
+      value: 'secret1uwqdjnzrttepn86p2sjmnugfph7tz97hmcwjs3'
     },
-    { msg: 0, type: 'instantiate', key: 'code_id', value: '10593' },
+    { msg: 0, type: 'instantiate', key: 'code_id', value: '11036' },
     {
       msg: 0,
       type: 'message',
@@ -54,13 +55,13 @@ tx:  {
       msg: 0,
       type: 'message',
       key: 'contract_address',
-      value: 'secret19kk5wcmxp2alr356emljyr8xp90atndxy3r2c9'
+      value: 'secret1uwqdjnzrttepn86p2sjmnugfph7tz97hmcwjs3'
     },
     {
       msg: 0,
       type: 'wasm',
       key: 'contract_address',
-      value: 'secret19kk5wcmxp2alr356emljyr8xp90atndxy3r2c9'
+      value: 'secret1uwqdjnzrttepn86p2sjmnugfph7tz97hmcwjs3'
     }
   ],
   events: [
@@ -77,10 +78,10 @@ tx:  {
     { type: 'message', attributes: [Array] }
   ],
   data: [
-    <Buffer 0a 2d 73 65 63 72 65 74 31 39 6b 6b 35 77 63 6d 78 70 32 61 6c 72 33 35 36 65 6d 6c 6a 79 72 38 78 70 39 30 61 74 6e 64 78 79 33 72 32 63 39>
+    <Buffer 0a 2d 73 65 63 72 65 74 31 75 77 71 64 6a 6e 7a 72 74 74 65 70 6e 38 36 70 32 73 6a 6d 6e 75 67 66 70 68 37 74 7a 39 37 68 6d 63 77 6a 73 33>
   ],
-  gasUsed: 43476,
+  gasUsed: 45183,
   gasWanted: 400000,
   ibcResponses: []
 }
-SECRET_ADDRESS:  secret19kk5wcmxp2alr356emljyr8xp90atndxy3r2c9
+SECRET_ADDRESS:  secret1uwqdjnzrttepn86p2sjmnugfph7tz97hmcwjs3

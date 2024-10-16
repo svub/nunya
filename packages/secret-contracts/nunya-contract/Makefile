@@ -34,12 +34,16 @@ _build-mainnet:
 	cargo clean && AR=/opt/homebrew/opt/llvm/bin/llvm-ar CC=/opt/homebrew/opt/llvm/bin/clang RUSTFLAGS='-C link-arg=-s' cargo build --release --target wasm32-unknown-unknown
 
 # like build-mainnet, but slower and more deterministic
-.PHONY: build-mainnet-reproducible
-build-mainnet-reproducible:
+# https://hub.docker.com/r/enigmampc/secret-contract-optimizer/tags
+.PHONY: build-mainnet-reproducible _build-mainnet-reproducible
+build-mainnet-reproducible: _build-mainnet-reproducible
+_build-mainnet-reproducible:
+	cargo clean && AR=/opt/homebrew/opt/llvm/bin/llvm-ar CC=/opt/homebrew/opt/llvm/bin/clang RUSTFLAGS='-C link-arg=-s' && \
+	docker buildx build --label "sco" --tag "sco" -f "../../../docker/secret-contract-optimizer.Dockerfile" . && \
 	docker run --rm -v "$$(pwd)":/contract \
-		--mount type=volume,source="$$(basename "$$(pwd)")_cache",target=/contract/target \
-		--mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
-		ghcr.io/scrtlabs/localsecret:v1.6.0-rc.3
+	--mount type=volume,source="$$(basename "$$(pwd)")_cache",target=/contract/target \
+	--mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
+	sco:latest
 
 .PHONY: compress-wasm
 compress-wasm:
