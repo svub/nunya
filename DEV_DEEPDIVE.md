@@ -61,20 +61,10 @@ It should not be a usecase requirement that the receipt is encrypted if the user
 
  ##### withdrawTo function pair
   
-`withdrawTo`
+`withdrawTo` alows the payee to withdraw any amount up to their balance, to any EVM address. This is authed by the same `uint256` token (which can represent  a password, salted password, (user/pass), fingerprint, yubikey, eyeball, etc.)  which indexes the payment references. Like `createPaymentReference`, we leverage the end-to-end encryption provided by secret path.
 
-`withdrawToCallback` is called by the secret contract through the gateways  and
+`withdrawToCallback` is called by the secret contract through the gateways and, for privacy reasons, we have limited its output to events representing only one of four `SecretNetworkError`s, or success. We recognise this is suboptimal UX, however, so future work is exploring how we can report more meaningful information privately to an authed user.
 
-
-
+ ##### checkBalance function pair
+Future work! We did not see how useful from either testing or UX perspectives `checkBalance` would be, so we will certainly be implementing this once we are ast the hackathon deadline!
  
-
-
-
-
-authOut`, and in the Solidity contract it is named `secret`. They all refer to a fixed length hash of something, that the user receiving payments uses to authenticate.
-
-#### `balances`
- A mapping from each user's `secret` to their balance (`u___`)
-
-#### `paymentRefs`
