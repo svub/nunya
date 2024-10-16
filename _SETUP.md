@@ -205,4 +205,6 @@ The deployed [Nunya Private Contract](./packages/secret-contracts/nunya-contract
 
 ### Usage Guidelines <a id="usage"></a> 
 
-TODO - help judges and other developers understand the project.
+Help judges and other developers understand the project.
+
+See the [DEMO_AND_VIDEO](./_DEMO_AND_VIDEO.md) file for details.
