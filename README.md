@@ -1,19 +1,22 @@
 
-# Nunya.business
+Nunya.business
+==============
 
-> Receive business payments without revealing to other clients what you've earned.
+> Receive business payments without revealing to others what you've earned.
 
 **Table of contents**
 
-* [About](#about)
-  * [User focused summary](#user-focused-summary)
-  * [Investor pitch](#investor-pitch)
-  * [Development Deepdive](#development-deepdive)
-  * [Demo and Video](#demo-video)
-* [Specification](#specification)
-* [Setup and Usage](#setup)
-* [License](#license)
-* [Disclaimer](#disclaimer)
+- [Nunya.business](#nunyabusiness)
+  - [About ](#about-)
+    - [User focused summary ](#user-focused-summary-)
+    - [Investor pitch ](#investor-pitch-)
+      - [What is the problem it solves and the product market fit](#what-is-the-problem-it-solves-and-the-product-market-fit)
+    - [Development Deepdive ](#development-deepdive-)
+    - [Demo and Video ](#demo-and-video-)
+  - [Specification ](#specification-)
+  - [Setup and Usage ](#setup-and-usage-)
+  - [License ](#license-)
+  - [Disclaimer ](#disclaimer-)
 
 > Important: README.md should be **MAX 2 PAGES**
 
@@ -23,21 +26,20 @@ Wanna get yer salary in crypto, but don't want all your clients to know what you
 
 ### User focused summary <a id="user-focused-summary"></a>
 
-#### What it does
+For newcomers to public ledgers, it can be a rude awakening to realize that sharing an address means anyone can track all of their transactions—both incoming and outgoing, past and future! Imagine this for your bank account ... unsettling, right? 
 
-For people new to public ledgers, it can be a rude awakening to realize that sharing an address means anyone can track all of their transactions—both incoming and outgoing, past and future! Imagine if every person you gave your bank account number to could access your entire transaction history... Unsettling, right? 
-
-Nunya ftw! By adding a simple Nunya payment reference—either as a link or a QR code—to your invoice, you can enable clients to pay directly from their Web3 wallets without exposing any sensitive details. Later on, you can in parts or all at once redeem their payments to an address of your choosing. Encryption ensures that all bookkeeping data is kept protected in a secret contract on [Secret.network](https://scrt.network/). Like with a bank and a bank account. But decentralized and better. 😎
+Nunya FTW! By adding a Nunya payment reference—via link or QR code—to your invoice, clients can pay directly from their Web3 wallets without exposing any sensitive details. Later on—in parts or at once—redeem their payments to any address. Encryption ensures that all bookkeeping data is kept protected in a secret contract on [Secret.network](https://scrt.network/). Like a bank account, but decentralized—and better. 😎
 
 ### Investor pitch <a id="investor-pitch"></a>
 
 #### What is the problem it solves and the product market fit
 
-In the world of blockchain payments, a critical challenge remains: balancing the inherent transparency of public ledgers with the privacy needs of businesses and individuals. **Nunya** solves this problem by providing a simple, user-friendly interface that allows non-technical users to accept crypto payments without exposing their personal transaction history or wallet balances. 
 
-Built on-chain with no central authority, Nunya leverages the security and decentralization of blockchain while maintaining confidentiality. By integrating with public ledger blockchains like Ethereum and other EVM-compatible chains, Nunya brings a level of privacy typically reserved for traditional banking systems to the world of decentralized finance (DeFi).
+Nunya addresses a key challenge in blockchain payments: balancing transparency with privacy. It offers a simple, user-friendly platform that lets businesses accept crypto payments without exposing transaction history or wallet balances.
 
-Furthermore, Nunya offers a pathway to incentivize community engagement through a customizable utility token, and the platform can generate sustainable revenue by incorporating automated transaction fees—similar to the mechanisms employed by DeFi protocols like Uniswap. 
+Built on-chain with no central authority, Nunya combines the security and decentralization of blockchain with enhanced confidentiality. By integrating with public blockchains like Ethereum and other EVM chains, it brings the privacy typically found in traditional banking to decentralized finance (DeFi).
+
+In the future, Nunya can incentivize community engagement with a utility token and generate revenue through services  fees, similar to DeFi protocols like Uniswap.
 
 In short, Nunya bridges the gap between transparency and privacy, providing businesses with a secure, scalable, and professional way to manage crypto payments while preserving the privacy of all parties involved.
 
