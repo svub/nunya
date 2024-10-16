@@ -826,6 +826,7 @@ contract Gateway is Initializable, OwnableUpgradeable {
         emit logNewTask(
             _taskId,
             getChainId(chain_id_1, chain_id_2, chain_id_3, chain_id_length),
+            // Note: previously _userAddress but customized for Nunya
             msg.sender,
             _routingInfo,
             _payloadHash,
