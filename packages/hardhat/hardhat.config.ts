@@ -68,7 +68,7 @@ const config: HardhatUserConfig = {
     //   accounts: [deployerPrivateKey],
     // },
     sepolia: {
-      // https://chainlist.org/chain/11155111
+      // Other providers https://chainlist.org/chain/11155111
       chainId: 11155111,
       url: providerRpcUrlEthereumSepolia,
       // accounts: { mnemonic: MNEMONIC },

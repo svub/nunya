@@ -225,13 +225,34 @@ Check configured correctly.
 4. On a second terminal, deploy the test contract to desired network (e.g. `yarn deploy --network localhost` or `yarn deploy --network sepolia`)
 
 ```
-yarn deploy --deploy-scripts ./packages/hardhat/deploy/00_deploy_your_contract.ts --network sepolia
+yarn deploy --network sepolia
 ```
 
 > Note: The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
 
 Note: If it has deployed previously it will output `Nothing to compile. No need to generate any newer typings.`. To make a fresh deployment first run `yarn run hardhat:clean`.
 
+It should output:
+```
+Generating typings for: 4 artifacts in dir: typechain-types for target: ethers-v6
+Successfully generated 12 typings!
+Compiled 4 Solidity files successfully (evm target: london).
+network:  sepolia
+chain id:  11155111
+hre.network.name:  sepolia
+deployer:  0x04f17aeb4b71e8f63f48749119f9957ca4a26268aaa87625e5e8b09aa2c45954
+reusing "DummyGatewayContract" at 0x77257FE5ef16d11CFA91D8fDaA79Fc9e47541BE7
+Successfully deployed DummyGatewayContract to address:  0x77257FE5ef16d11CFA91D8fDaA79Fc9e47541BE7
+reusing "NunyaBusiness" at 0xB10C8F0E2279fAa112abFF17063326bf3Fe8Dd50
+Successfully deployed NunyaBusiness to address:  0xB10C8F0E2279fAa112abFF17063326bf3Fe8Dd50
+tx hash: 0x4c379792cc11a180d831036389d4ec4122de1a8ade85eaffb90a45b43d6ceb03
+👋 Nunya contract: 0xB10C8F0E2279fAa112abFF17063326bf3Fe8Dd50
+NunyaBusiness balance:  0.000000000030084
+Gateway balance:  0.300499999969916
+📝 Updated TypeScript contract definition file on ../nextjs/contracts/deployedContracts.ts
+```
+
+> Warning: Do not rename 01_deploy_your_contract.ts to 00_deploy_your_contract.ts or it will only compile but will not deploy
 
 5. On a third terminal, start the Nunya NextJS app:
 

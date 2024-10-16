@@ -46,7 +46,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   }
 
   if (logging) {
-    console.log({ deployer });
+    console.log("deployer: ", deployer);
 
     // console.log("Deploying with account:", deployer.address);
 
@@ -65,23 +65,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     // automatically mining the contract deployment transaction. There is no effect on live networks.
     autoMine: true,
   });
-
-  // TODO - remove the following since don't think we need to fund the gateway contract this way
-  // Configuring the connection to an Ethereum node
-  const provider = new ethers.JsonRpcProvider(providerRpc);
-  const owner = await provider.getSigner(deployer);
-  // Creating and sending the transaction object
-  const tx = await owner.sendTransaction({
-    to: gateway.address, // Gateway contract
-    value: parseUnits("0.001", "ether"),
-  });
-  console.log("Mining transaction...");
-  console.log("tx.hash: ", tx.hash);
-  // Waiting for the transaction to be mined on-chain
-  const receipt = await tx.wait();
-  console.log(`Mined in block: ${receipt?.blockNumber}`);
-  const contractBalance = await provider.getBalance(gateway.address);
-  console.log("gateway.address balance: ", formatEther(contractBalance));
+  console.log("Successfully deployed DummyGatewayContract to address: ", gateway.address);
 
   const nunyaContract = await deploy("NunyaBusiness", {
     from: deployer,
@@ -94,6 +78,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     // automatically mining the contract deployment transaction. There is no effect on live networks.
     autoMine: true,
   });
+  console.log("Successfully deployed NunyaBusiness to address: ", nunyaContract.address);
 
   // Call the gateway function now that the Nunya contract has been funded
   const nunyaContractDeployedAt = await hre.ethers.getContractAt("NunyaBusiness", nunyaContract.address);
@@ -101,8 +86,14 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   console.log("tx hash:", newSecretUserTx.hash);
 
   // Get the deployed contract to interact with it after deploying.
-  const nunya = await hre.ethers.getContract<Contract>("NunyaBusiness", deployer);
-  console.log("👋 Nunya contract:", nunya, await nunya.getAddress());
+  const nunyaInstance = await hre.ethers.getContract<Contract>("NunyaBusiness");
+  console.log("👋 Nunya contract:", await nunyaInstance.getAddress());
+
+  const nunyaBalance = await hre.ethers.provider.getBalance(nunyaContract.address)
+  console.log("NunyaBusiness balance: ", formatEther(nunyaBalance));
+
+  const gatewayBalance = await hre.ethers.provider.getBalance(gateway.address)
+  console.log("Gateway balance: ", formatEther(gatewayBalance));
 };
 
 export default deployYourContract;
