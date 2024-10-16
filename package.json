@@ -16,6 +16,7 @@
     "account": "yarn workspace @se-2/hardhat account",
     "chain": "yarn workspace @se-2/hardhat chain",
     "compile": "yarn workspace @se-2/hardhat compile",
+    "deploy:clean": "yarn workspace @se-2/hardhat clean",
     "deploy": "yarn workspace @se-2/hardhat deploy",
     "flatten": "yarn workspace @se-2/hardhat flatten",
     "fork": "yarn workspace @se-2/hardhat fork",

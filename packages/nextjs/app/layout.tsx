@@ -7,7 +7,7 @@ import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 // Has side effect of setting HTML header metadata like thumbnail.jpg
 export const metadata = getMetadata({
   title: "Nunya.business",
-  description: "Receive business payments without revealing to other what you've earned.",
+  description: "Receive business payments without revealing to others what you've earned.",
 });
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {

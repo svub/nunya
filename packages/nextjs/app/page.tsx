@@ -12,7 +12,7 @@ const Home: NextPage = () => {
         <h1 className="text-center mb-12">
           <span className="block text-5xl font-bold">Nunya.business</span>
           <span className="block text-3xl mb-4">Receive Business Payments</span>
-          <p className="block bg-base-100 my-2 p-2 font-medium text-base">
+          <p className="block bg-base-100 my-2 p-2 font-medium text-base italic">
             ... without revealing to other what you&apos;ve earned.
           </p>
         </h1>
