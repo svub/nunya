@@ -74,6 +74,13 @@ contract NunyaBusiness {
         _;
     }
 
+    // testing function - DO NOT KEEP IN PROD!
+    function unsafeGetSecretContractPubkey () public {
+        secretContract = ISecretContract(_gateway);
+        uint256 requestId = secretContract.retrievePubkey();
+        console.log("requested secret contract pubkey - requestId=", requestId);
+    }
+
     function setSecretContractPubkeyCallback (uint256 _requestId, uint256 _key) public onlyGateway validateRequest(_requestId, FunctionCallType.GET_KEY) {
         // require (secretContractPubkey==0, "Key already set");
         // Make sure it's our secret contract setting the key, not some interloper
