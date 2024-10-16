@@ -5,9 +5,6 @@ import config from "../hardhat.config";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-
-const privateKey = process.env.DEPLOYER_PRIVATE_KEY;
-
 const logging = true;
 
 // on deployment this amount will fund the gateway contract with a donation.
@@ -35,6 +32,8 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   */
   console.log("network: ", hre.network.name);
   const { deploy } = hre.deployments;
+  const chainId = hre.network.config.chainId
+  console.log("chain id: ", chainId);
 
   let providerRpc;
   let { deployer } = await hre.getNamedAccounts();

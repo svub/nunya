@@ -194,6 +194,7 @@ Note that Alchemy does not support Ethereum Sepolia, so use [Geoblocks](https://
 ```bash
 cp ./packages/hardhat/.env.example ./packages/hardhat/.env
 ```
+Verify the contents of ./packages/hardhat/hardhat.config.ts
 
 * Nextjs
 
@@ -201,6 +202,7 @@ Use the same Alchemy API key. Obtain a WalletConnect project ID at https://cloud
 ```bash
 cp ./packages/nextjs/.env.example ./packages/nextjs/.env
 ```
+Verify the contents of ./packages/nextjs/scaffold.config.ts
 
 3. Setup network
 
@@ -223,10 +225,13 @@ Check configured correctly.
 4. On a second terminal, deploy the test contract to desired network (e.g. `yarn deploy --network localhost` or `yarn deploy --network sepolia`)
 
 ```
-yarn deploy --network sepolia
+yarn deploy --deploy-scripts ./packages/hardhat/deploy/00_deploy_your_contract.ts --network sepolia
 ```
 
 > Note: The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
+
+Note: If it has deployed previously it will output `Nothing to compile. No need to generate any newer typings.`. To make a fresh deployment first run `yarn run hardhat:clean`.
+
 
 5. On a third terminal, start the Nunya NextJS app:
 
