@@ -1,9 +1,10 @@
-# Setup
+# Setup and Usage
 
 **Table of contents**
 
 * [Setup Frontend & Solidity Contracts](#setup-frontend)
 * [Setup Secret Contracts](#setup-secret)
+* [Usage Guidelines](#usage)
 
 ### Setup Frontend and Solidity Contracts <a id="setup-frontend"></a> 
 
@@ -181,3 +182,7 @@ yarn run secret:queryPubkey
 * View on Secret Testnet block explorer at https://testnet.ping.pub/secret/
 
 * Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
+
+### Usage Guidelines <a id="usage"></a> 
+
+TODO - help judges and other developers understand the project.

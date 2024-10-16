@@ -9,8 +9,9 @@
   * [User focused summary](#user-focused-summary)
   * [Investor pitch](#investor-pitch)
   * [Development Deepdive](#development-deepdive)
+  * [Demo and Video](#demo-video)
 * [Specification](#specification)
-* [Setup](#setup)
+* [Setup and Usage](#setup)
 * [License](#license)
 * [Disclaimer](#disclaimer)
 
@@ -32,11 +33,15 @@ TODO - What is the problem it solves and where is the product market fit?
 
 TODO - How did you build this, how do the contracts/functions interact and which design choices did you make
 
+### Demo and Video <a id="demo"></a>
+
+See the [DEMO_AND_VIDEO](./_DEMO_AND_VIDEO.md) file for details.
+
 ## Specification <a id="specification"></a>
 
 See the [SPECIFICATION](./_SPECIFICATION.md) file for details.
 
-## Setup <a id="setup"></a>
+## Setup and Usage <a id="setup"></a>
 
 See the [SETUP](./_SETUP.md) file for details.
 
