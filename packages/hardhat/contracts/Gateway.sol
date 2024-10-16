@@ -5,6 +5,7 @@ pragma solidity ^0.8.26;
 // TODO remove in production
 import "hardhat/console.sol";
 
+// We need JSON parsing to introspect on the `pay` function
 import "./JsmnSolLib.sol";
 
 /*//////////////////////////////////////////////////////////////

@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 import "hardhat/console.sol";
 // import "@openzeppelin/contracts/";
 // import "@openzeppelin/contracts/access/Ownable.sol";
+// TODO: replace with interface of "./Gateway.sol"
 import "./ISecretContract.sol";
 
 /**
@@ -76,7 +77,7 @@ contract NunyaBusiness {
 
     // testing function - DO NOT KEEP IN PROD!
     function unsafeGetSecretContractPubkey () public {
-        secretContract = ISecretContract(_gateway);
+        secretContract = ISecretContract(gateway);
         uint256 requestId = secretContract.retrievePubkey();
         console.log("requested secret contract pubkey - requestId=", requestId);
     }

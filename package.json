@@ -18,7 +18,7 @@
     "compile": "yarn workspace @se-2/hardhat compile",
     "deploy": "yarn workspace @se-2/hardhat deploy",
     "deploy:clean": "yarn workspace @se-2/hardhat clean",
-    "deploy:sepolia": "yarn workspace @se-2/hardhat deploy --network sepolia",
+    "deploy:sepolia": "yarn workspace @se-2/hardhat deploy-sepolia",
     "flatten": "yarn workspace @se-2/hardhat flatten",
     "fork": "yarn workspace @se-2/hardhat fork",
     "format": "yarn next:format && yarn hardhat:format",
