@@ -11,6 +11,7 @@
   * [Setup Frontend & Solidity Contracts](#setup-frontend)
   * [Setup Secret Contracts](#setup-secret)
 * [License](#license)
+* [Disclaimer](#disclaimer)
 
 ## About <a id="about"></a>
 
@@ -183,7 +184,31 @@ To get started, follow the steps below:
 yarn install
 ```
 
-2. Run a local network in the first terminal:
+2. Configure environment variables
+
+* Hardhat
+
+Copy the example and add the relevant keys from https://etherscan.io/ and https://account.getblock.io and https://dashboard.alchemy.com/apps.
+
+Note that Alchemy does not support Ethereum Sepolia, so use [Geoblocks](https://getblock.io/) instead to get an API key for Ethereum Sepolia JSON-RPC.
+```bash
+cp ./packages/hardhat/.env.example ./packages/hardhat/.env
+```
+Verify the contents of ./packages/hardhat/hardhat.config.ts
+
+* Nextjs
+
+Use the same Alchemy API key. Obtain a WalletConnect project ID at https://cloud.walletconnect.com
+```bash
+cp ./packages/nextjs/.env.example ./packages/nextjs/.env
+```
+Verify the contents of ./packages/nextjs/scaffold.config.ts
+
+3. Setup network
+
+* Local Network
+
+If you want to run a local network in the first terminal:
 
 Note: Use `accounts: [deployerPrivateKey]` or `accounts: { mnemonic: MNEMONIC }` in ./packages/hardhat/hardhat.config.ts
 
@@ -193,15 +218,50 @@ yarn chain
 
 This command starts a local Ethereum network using Hardhat. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/hardhat/hardhat.config.ts`.
 
-3. On a second terminal, deploy the test contract to desired network (e.g. `yarn deploy --network localhost` or `yarn deploy --network sepolia`)
+* Testnet
+
+Check configured correctly.
+
+4. On a second terminal, deploy the test contract to desired network (e.g. `yarn deploy --network localhost` or `yarn deploy --network sepolia`)
 
 ```
-yarn deploy
+yarn deploy --network sepolia
 ```
 
 > Note: The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
 
-4. On a third terminal, start the Nunya NextJS app:
+Note: If it has deployed previously it will output `Nothing to compile. No need to generate any newer typings.`. To make a fresh deployment first run `yarn run hardhat:clean`.
+
+It should output:
+```
+Generating typings for: 4 artifacts in dir: typechain-types for target: ethers-v6
+Successfully generated 12 typings!
+Compiled 4 Solidity files successfully (evm target: london).
+network:  sepolia
+chain id:  11155111
+hre.network.name:  sepolia
+deployer:  0x04f17aeb4b71e8f63f48749119f9957ca4a26268aaa87625e5e8b09aa2c45954
+reusing "DummyGatewayContract" at 0x77257FE5ef16d11CFA91D8fDaA79Fc9e47541BE7
+Successfully deployed DummyGatewayContract to address:  0x77257FE5ef16d11CFA91D8fDaA79Fc9e47541BE7
+reusing "NunyaBusiness" at 0xB10C8F0E2279fAa112abFF17063326bf3Fe8Dd50
+Successfully deployed NunyaBusiness to address:  0xB10C8F0E2279fAa112abFF17063326bf3Fe8Dd50
+tx hash: 0x4c379792cc11a180d831036389d4ec4122de1a8ade85eaffb90a45b43d6ceb03
+👋 Nunya contract: 0xB10C8F0E2279fAa112abFF17063326bf3Fe8Dd50
+NunyaBusiness balance:  0.000000000030084
+Gateway balance:  0.300499999969916
+📝 Updated TypeScript contract definition file on ../nextjs/contracts/deployedContracts.ts
+```
+
+> Warning: Do not rename 01_deploy_your_contract.ts to 00_deploy_your_contract.ts or it will only compile but will not deploy
+
+5. View the contract in block explorer
+
+Example previous deployment: 
+  NunyaBusiness: https://sepolia.etherscan.io/address/0xB10C8F0E2279fAa112abFF17063326bf3Fe8Dd50#code
+
+  DummyGatewayContract: https://sepolia.etherscan.io/address/0x77257FE5ef16d11CFA91D8fDaA79Fc9e47541BE7
+
+6. On a third terminal, start the Nunya NextJS app:
 
 ```
 yarn start
@@ -255,14 +315,14 @@ echo 'export CC=/opt/homebrew/opt/llvm/bin/clang' >> ~/.zshrc
 source ~/.zshrc
 ``` 
 
-* Compile. Note: Outputs contract.wasm and contract.wasm.gz file in the root directory of the secret-contracts/nunya-contract folder
+* Run Docker (e.g. Docker Desktop on macOS)
+
+* [Compile](https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy#compile-the-code). Note: Outputs contract.wasm and contract.wasm.gz file in the root directory of the secret-contracts/nunya-contract folder. Using `make build-mainnet-reproducible` will remove contract.wasm so only the optimised contract.wasm.gz remains. Warning: If you only run `make build-mainnet` then you will get this error https://github.com/svub/nunya/issues/8 when deploying.
 
 ```
 cd packages/secret-contracts/nunya-contract
-make build
+make build-mainnet-reproducible
 ```
-
-* OPTIONAL - optimize contract code. Refer to official Secret network docs
 
 * Upload and Instantiate 
 
@@ -272,6 +332,10 @@ make build
 yarn run secret:clean:uploadContract
 yarn run secret:start:uploadContract
 ```
+* Query Pubkey
+```
+yarn run secret:queryPubkey
+```
 * View logs at ./logs/instantiateOutput.log
 * View on Secret Testnet block explorer at https://testnet.ping.pub/secret/
 
@@ -279,8 +343,12 @@ yarn run secret:start:uploadContract
 
 ## License <a id="license"></a>
 
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](./LICENCE) file for details.
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](./LICENSE) file for details.
 
-It was built based on Scaffold ETH 2 that has MIT license that must be respected.
+It was built based on Scaffold ETH 2 that has MIT license that must be respected - see the [LICENSE-SE-2](./LICENSE-SE-2).
 
 The Secret contracts were built based on the example [SecretPath Confidential Voting Tutorial](https://github.com/SecretFoundation/Secretpath-tutorials/tree/master/secretpath-voting). 
+
+## Disclaimer <a id="disclaimer"></a>
+
+See the [DISCLAIMER](./DISCLAIMER.md) file for details.

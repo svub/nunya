@@ -53,6 +53,7 @@ contract NunyaBusiness {
         // TODO: only uncomment when hardhat has gateway deployed
         // TODO can we test if it's deployed and call then automatically? 
         // IDEA use requestId to make sure nobody else is calling the callback, see below.
+        // Note: It may be necessary to call using snake case.
         // const requestId = secretContract.retrievePubkey();
         // expectedResult[requestId] = FunctionCallType.GET_KEY;
 

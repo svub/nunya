@@ -4,8 +4,9 @@
   "scripts": {
     "account": "hardhat run scripts/listAccount.ts",
     "chain": "hardhat node --network hardhat --no-deploy",
+    "clean": "hardhat clean",
     "compile": "hardhat compile",
-    "deploy": "hardhat deploy",
+    "deploy": "yarn clean && hardhat deploy",
     "flatten": "hardhat flatten",
     "fork": "MAINNET_FORKING_ENABLED=true hardhat node --network hardhat --no-deploy",
     "format": "prettier --write ./*.ts ./deploy/**/*.ts ./scripts/**/*.ts ./test/**/*.ts",

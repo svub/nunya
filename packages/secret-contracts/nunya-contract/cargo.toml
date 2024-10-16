@@ -50,6 +50,11 @@ tnls = { git = "https://github.com/SecretSaturn/TNLS", branch = "main", package 
 # cw-storage-plus = { version = "0.14.0", default-features = false }
 anybuf = {version = "0.5.0"}
 
+# crypto
+hex = "0.4.3"
+# secp256k1 = { version = "0.17.2", default-features = false }
+secp256k1 = { git = "https://github.com/scrtlabs/rust-secp256k1" }
+
 [[bin]]
 name = "schema"
 required-features = ["schema"]

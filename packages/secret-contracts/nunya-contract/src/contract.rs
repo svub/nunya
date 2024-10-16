@@ -6,7 +6,7 @@ use crate::{
     },
     state::{
         PaymentReceipt, PaymentReferenceBalance, ResponseStatusCode,
-        State, CONFIG, MY_KEYS,
+        MyKeys, State, CONFIG, MY_KEYS,
         VIEWING_KEY, VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP,
     },
 };
@@ -19,6 +19,7 @@ use tnls::{
     msg::{PostExecutionMsg, PrivContractHandleMsg},
     state::Task,
 };
+use secp256k1::{PublicKey, Secp256k1, SecretKey};
 
 use anybuf::Anybuf;
 
@@ -26,10 +27,37 @@ use anybuf::Anybuf;
 /// response size
 pub const BLOCK_SIZE: usize = 256;
 
+// Create Secret Contract Keys
+// TODO: use ContractError instead of StdError
+// pub fn try_create_keys(deps: DepsMut, env: Env) -> Result<Response, ContractError> {
+pub fn try_create_keys(deps: DepsMut, env: Env) -> StdResult<Response> {
+    let rng = env.block.random.unwrap().0;
+    let secp = Secp256k1::new();
+
+    // Private Key
+    let private_key = SecretKey::from_slice(&rng).unwrap();
+    let private_key_string = private_key.to_string();
+    let private_key_bytes = hex::decode(private_key_string).unwrap();
+
+    // Public Key
+    let public_key = PublicKey::from_secret_key(&secp, &private_key);
+    let public_key_bytes = public_key.serialize().to_vec();
+    // let public_key_string = public_key.to_string();
+
+    let my_keys = MyKeys {
+        private_key: private_key_bytes,
+        public_key: public_key_bytes,
+    };
+
+    MY_KEYS.save(deps.storage, &my_keys)?;
+
+    Ok(Response::default())
+}
+
 #[entry_point]
 pub fn instantiate(
     deps: DepsMut,
-    _env: Env,
+    env: Env,
     _info: MessageInfo,
     msg: InstantiateMsg,
 ) -> StdResult<Response> {
@@ -41,6 +69,8 @@ pub fn instantiate(
     };
 
     CONFIG.save(deps.storage, &state)?;
+
+    try_create_keys(deps, env)?;
 
     Ok(Response::default())
 }
@@ -62,6 +92,10 @@ fn try_handle(
 ) -> StdResult<Response> {
     // verify signature with stored gateway public key
     let config = CONFIG.load(deps.storage)?;
+
+    // SecretPath source code
+    // public network user address
+    let user_address = msg.user_address;
 
     // Security
     //
@@ -309,6 +343,7 @@ fn create_pay(
     let input: PayStoreMsg = serde_json_wasm::from_str(&input_values)
         .map_err(|err| StdError::generic_err(err.to_string()))?;
 
+    // TODO: validate the input.secret_user input
     let viewing_key_index = input.secret_user.as_str(); // convert u8 to String
     let payment_ref = input.payment_ref.as_str(); // convert Uint256 to String
     // TODO: handle error if issue with amount or denomination received
