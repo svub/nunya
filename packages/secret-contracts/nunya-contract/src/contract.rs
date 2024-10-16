@@ -2,7 +2,7 @@ use crate::{
     msg::{
         ExecuteMsg, GatewayMsg, InstantiateMsg, QueryMsg,
         NewAuthOutStoreMsg, LinkPaymentRefStoreMsg, PayStoreMsg, WithdrawToStoreMsg,
-        ResponseNewAuthOutStoreMsg, ResponseLinkPaymentRefStoreMsg, ResponsePayStoreMsg, ResponseWithdrawToStoreMsg, ResponseRetrievePubkeyMsg,
+        ResponseRetrievePubkeyStoreMsg, ResponseNewAuthOutStoreMsg, ResponseLinkPaymentRefStoreMsg, ResponsePayStoreMsg, ResponseWithdrawToStoreMsg, ResponseRetrievePubkeyMsg,
     },
     state::{
         PaymentReceipt, PaymentReferenceBalance, ResponseStatusCode,
@@ -27,33 +27,6 @@ use anybuf::Anybuf;
 /// response size
 pub const BLOCK_SIZE: usize = 256;
 
-// Create Secret Contract Keys
-// TODO: use ContractError instead of StdError
-// pub fn try_create_keys(deps: DepsMut, env: Env) -> Result<Response, ContractError> {
-pub fn try_create_keys(deps: DepsMut, env: Env) -> StdResult<Response> {
-    let rng = env.block.random.unwrap().0;
-    let secp = Secp256k1::new();
-
-    // Private Key
-    let private_key = SecretKey::from_slice(&rng).unwrap();
-    let private_key_string = private_key.to_string();
-    let private_key_bytes = hex::decode(private_key_string).unwrap();
-
-    // Public Key
-    let public_key = PublicKey::from_secret_key(&secp, &private_key);
-    let public_key_bytes = public_key.serialize().to_vec();
-    // let public_key_string = public_key.to_string();
-
-    let my_keys = MyKeys {
-        private_key: private_key_bytes,
-        public_key: public_key_bytes,
-    };
-
-    MY_KEYS.save(deps.storage, &my_keys)?;
-
-    Ok(Response::default())
-}
-
 #[entry_point]
 pub fn instantiate(
     deps: DepsMut,
@@ -69,8 +42,6 @@ pub fn instantiate(
     };
 
     CONFIG.save(deps.storage, &state)?;
-
-    try_create_keys(deps, env)?;
 
     Ok(Response::default())
 }
@@ -117,6 +88,7 @@ fn try_handle(
     // determine which function to call based on the included handle
     let handle = msg.handle.as_str();
     match handle {
+        "retrievePubkey" => retrieve_pubkey(deps, env, info, msg.input_values, msg.task, msg.input_hash),
         "newSecretUser" => create_new_auth_out(deps, env, info, msg.input_values, msg.task, msg.input_hash),
         "createPaymentReference" => create_payment_reference(deps, env, msg.input_values, msg.task, msg.input_hash),
         // handle both `pay` and `payWithReceipt` Solidity function calls using the same `create_pay` Secret contract function
@@ -126,6 +98,80 @@ fn try_handle(
 
         _ => Err(StdError::generic_err("invalid handle".to_string())),
     }
+}
+
+fn retrieve_pubkey(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    input_values: String,
+    task: Task,
+    input_hash: Binary,
+) -> StdResult<Response> {
+    let config = CONFIG.load(deps.storage)?;
+
+    // No input values expected, just retrieving
+    // let input: RetrievePubkeyStoreMsg = serde_json_wasm::from_str(&input_values)
+    //     .map_err(|err| StdError::generic_err(err.to_string()))?;
+
+    // Create Secret Contract Keys if they don't already exist in storage
+    let existing_my_keys = MY_KEYS.load(deps.storage, &my_keys)?;
+    if existing_my_keys.public_key.len() == 0 {
+        let rng = env.block.random.unwrap().0;
+        let secp = Secp256k1::new();
+
+        // Private Key
+        let private_key = SecretKey::from_slice(&rng).unwrap();
+        let private_key_string = private_key.to_string();
+        let private_key_bytes = hex::decode(private_key_string).unwrap();
+
+        // Public Key
+        let public_key = PublicKey::from_secret_key(&secp, &private_key);
+        let public_key_bytes = public_key.serialize().to_vec();
+        // let public_key_string = public_key.to_string();
+
+        let my_keys = MyKeys {
+            private_key: private_key_bytes,
+            public_key: public_key_bytes,
+        };
+
+        MY_KEYS.save(deps.storage, &my_keys)?;
+    }
+
+    let my_keys = MY_KEYS.load(deps.storage)?;
+
+    let response_status_code: ResponseStatusCode = 0u16;
+
+    let data = ResponseRetrievePubkeyStoreMsg {
+        _request_id: task.clone(),
+        _key: my_keys.public_key,
+        _code: response_status_code,
+    };
+
+    let json_string =
+        serde_json_wasm::to_string(&data).map_err(|err| StdError::generic_err(err.to_string()))?;
+
+    let result = base64::encode(json_string);
+
+    // Get the contract's code hash using the gateway address
+    let gateway_code_hash = get_contract_code_hash(deps, config.gateway_address.to_string())?;
+
+    let callback_msg = GatewayMsg::Output {
+        outputs: PostExecutionMsg {
+            result,
+            task,
+            input_hash,
+        },
+    }
+    .to_cosmos_msg(
+        gateway_code_hash,
+        config.gateway_address.to_string(),
+        None,
+    )?;
+
+    Ok(Response::new()
+        .add_message(callback_msg)
+        .add_attribute("status", "retrieve_pubkey"))
 }
 
 fn create_new_auth_out(
