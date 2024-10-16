@@ -1,6 +1,12 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { Contract, ethers, formatEther, parseEther, parseUnits } from "ethers";
+import config from "../hardhat.config";
+import * as dotenv from "dotenv";
+dotenv.config();
+
+
+const privateKey = process.env.DEPLOYER_PRIVATE_KEY;
 
 const logging = true;
 
@@ -27,9 +33,18 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     with a random private key in the .env file (then used on hardhat.config.ts)
     You can run the `yarn account` command to check your balance in every network.
   */
-  const { deployer } = await hre.getNamedAccounts();
-  const { deploy } = hre.deployments;
   console.log("network: ", hre.network.name);
+  const { deploy } = hre.deployments;
+
+  let providerRpc;
+  let { deployer } = await hre.getNamedAccounts();
+  if (hre.network.name = "sepolia") {
+    console.log("hre.network.name: ", hre.network.name);
+    deployer = process.env.DEPLOYER_PRIVATE_KEY || "",  // config.networks?.sepolia?.accounts[0];
+    providerRpc = String(config.networks?.sepolia);
+  } else {
+    providerRpc = "http://127.0.0.1:8545/"
+  }
 
   if (logging) {
     console.log({ deployer });
@@ -54,7 +69,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
 
   // TODO - remove the following since don't think we need to fund the gateway contract this way
   // Configuring the connection to an Ethereum node
-  const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545/");
+  const provider = new ethers.JsonRpcProvider(providerRpc);
   const owner = await provider.getSigner(deployer);
   // Creating and sending the transaction object
   const tx = await owner.sendTransaction({

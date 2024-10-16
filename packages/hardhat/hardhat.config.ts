@@ -12,7 +12,7 @@ import "hardhat-deploy-ethers";
 
 // https://dashboard.alchemyapi.io
 const FALLBACK_ALCHEMY_API_KEY = "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
-const providerRpcUrl = process.env.PROVIDER_RPC;
+const providerRpcUrl = process.env.PROVIDER_RPC_ETHEREUM_SEPOLIA;
 const providerApiKey = process.env.GETBLOCK_API_KEY || process.env.ALCHEMY_API_KEY || FALLBACK_ALCHEMY_API_KEY;
 
 // If not set, it uses ours Alchemy's default API key, which doesn't work (gives ProviderError: The team owning this app is inactive. Please contact support at https://dashboard.alchemyapi.io/support)
@@ -72,70 +72,70 @@ const config: HardhatUserConfig = {
       // accounts: { mnemonic: MNEMONIC },
       accounts: [deployerPrivateKey],
     },
-    arbitrum: {
-      url: `https://arb-mainnet.g.alchemy.com/v2/${providerApiKey}`,
-      accounts: [deployerPrivateKey],
-    },
-    arbitrumSepolia: {
-      url: `https://arb-sepolia.g.alchemy.com/v2/${providerApiKey}`,
-      accounts: [deployerPrivateKey],
-    },
-    optimism: {
-      url: `https://opt-mainnet.g.alchemy.com/v2/${providerApiKey}`,
-      accounts: [deployerPrivateKey],
-    },
-    optimismSepolia: {
-      url: `https://opt-sepolia.g.alchemy.com/v2/${providerApiKey}`,
-      accounts: [deployerPrivateKey],
-    },
-    polygon: {
-      url: `https://polygon-mainnet.g.alchemy.com/v2/${providerApiKey}`,
-      accounts: [deployerPrivateKey],
-    },
-    polygonMumbai: {
-      url: `https://polygon-mumbai.g.alchemy.com/v2/${providerApiKey}`,
-      accounts: [deployerPrivateKey],
-    },
-    polygonZkEvm: {
-      url: `https://polygonzkevm-mainnet.g.alchemy.com/v2/${providerApiKey}`,
-      accounts: [deployerPrivateKey],
-    },
-    polygonZkEvmTestnet: {
-      url: `https://polygonzkevm-testnet.g.alchemy.com/v2/${providerApiKey}`,
-      accounts: [deployerPrivateKey],
-    },
-    gnosis: {
-      url: "https://rpc.gnosischain.com",
-      accounts: [deployerPrivateKey],
-    },
-    chiado: {
-      url: "https://rpc.chiadochain.net",
-      accounts: [deployerPrivateKey],
-    },
-    base: {
-      url: "https://mainnet.base.org",
-      accounts: [deployerPrivateKey],
-    },
-    baseSepolia: {
-      url: "https://sepolia.base.org",
-      accounts: [deployerPrivateKey],
-    },
-    scrollSepolia: {
-      url: "https://sepolia-rpc.scroll.io",
-      accounts: [deployerPrivateKey],
-    },
-    scroll: {
-      url: "https://rpc.scroll.io",
-      accounts: [deployerPrivateKey],
-    },
-    pgn: {
-      url: "https://rpc.publicgoods.network",
-      accounts: [deployerPrivateKey],
-    },
-    pgnTestnet: {
-      url: "https://sepolia.publicgoods.network",
-      accounts: [deployerPrivateKey],
-    },
+    // arbitrum: {
+    //   url: `https://arb-mainnet.g.alchemy.com/v2/${providerApiKey}`,
+    //   accounts: [deployerPrivateKey],
+    // },
+    // arbitrumSepolia: {
+    //   url: `https://arb-sepolia.g.alchemy.com/v2/${providerApiKey}`,
+    //   accounts: [deployerPrivateKey],
+    // },
+    // optimism: {
+    //   url: `https://opt-mainnet.g.alchemy.com/v2/${providerApiKey}`,
+    //   accounts: [deployerPrivateKey],
+    // },
+    // optimismSepolia: {
+    //   url: `https://opt-sepolia.g.alchemy.com/v2/${providerApiKey}`,
+    //   accounts: [deployerPrivateKey],
+    // },
+    // polygon: {
+    //   url: `https://polygon-mainnet.g.alchemy.com/v2/${providerApiKey}`,
+    //   accounts: [deployerPrivateKey],
+    // },
+    // polygonMumbai: {
+    //   url: `https://polygon-mumbai.g.alchemy.com/v2/${providerApiKey}`,
+    //   accounts: [deployerPrivateKey],
+    // },
+    // polygonZkEvm: {
+    //   url: `https://polygonzkevm-mainnet.g.alchemy.com/v2/${providerApiKey}`,
+    //   accounts: [deployerPrivateKey],
+    // },
+    // polygonZkEvmTestnet: {
+    //   url: `https://polygonzkevm-testnet.g.alchemy.com/v2/${providerApiKey}`,
+    //   accounts: [deployerPrivateKey],
+    // },
+    // gnosis: {
+    //   url: "https://rpc.gnosischain.com",
+    //   accounts: [deployerPrivateKey],
+    // },
+    // chiado: {
+    //   url: "https://rpc.chiadochain.net",
+    //   accounts: [deployerPrivateKey],
+    // },
+    // base: {
+    //   url: "https://mainnet.base.org",
+    //   accounts: [deployerPrivateKey],
+    // },
+    // baseSepolia: {
+    //   url: "https://sepolia.base.org",
+    //   accounts: [deployerPrivateKey],
+    // },
+    // scrollSepolia: {
+    //   url: "https://sepolia-rpc.scroll.io",
+    //   accounts: [deployerPrivateKey],
+    // },
+    // scroll: {
+    //   url: "https://rpc.scroll.io",
+    //   accounts: [deployerPrivateKey],
+    // },
+    // pgn: {
+    //   url: "https://rpc.publicgoods.network",
+    //   accounts: [deployerPrivateKey],
+    // },
+    // pgnTestnet: {
+    //   url: "https://sepolia.publicgoods.network",
+    //   accounts: [deployerPrivateKey],
+    // },
   },
   // configuration for harhdat-verify plugin
   etherscan: {

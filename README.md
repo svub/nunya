@@ -184,7 +184,29 @@ To get started, follow the steps below:
 yarn install
 ```
 
-2. Run a local network in the first terminal:
+2. Configure environment variables
+
+* Hardhat
+
+Copy the example and add the relevant keys from https://etherscan.io/ and https://account.getblock.io and https://dashboard.alchemy.com/apps.
+
+Note that Alchemy does not support Ethereum Sepolia, so use [Geoblocks](https://getblock.io/) instead to get an API key for Ethereum Sepolia JSON-RPC.
+```bash
+cp ./packages/hardhat/.env.example ./packages/hardhat/.env
+```
+
+* Nextjs
+
+Use the same Alchemy API key. Obtain a WalletConnect project ID at https://cloud.walletconnect.com
+```bash
+cp ./packages/nextjs/.env.example ./packages/nextjs/.env
+```
+
+3. Setup network
+
+* Local Network
+
+If you want to run a local network in the first terminal:
 
 Note: Use `accounts: [deployerPrivateKey]` or `accounts: { mnemonic: MNEMONIC }` in ./packages/hardhat/hardhat.config.ts
 
@@ -194,15 +216,19 @@ yarn chain
 
 This command starts a local Ethereum network using Hardhat. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/hardhat/hardhat.config.ts`.
 
-3. On a second terminal, deploy the test contract to desired network (e.g. `yarn deploy --network localhost` or `yarn deploy --network sepolia`)
+* Testnet
+
+Check configured correctly.
+
+4. On a second terminal, deploy the test contract to desired network (e.g. `yarn deploy --network localhost` or `yarn deploy --network sepolia`)
 
 ```
-yarn deploy
+yarn deploy --network sepolia
 ```
 
 > Note: The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
 
-4. On a third terminal, start the Nunya NextJS app:
+5. On a third terminal, start the Nunya NextJS app:
 
 ```
 yarn start
