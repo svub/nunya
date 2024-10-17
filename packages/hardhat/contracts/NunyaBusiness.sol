@@ -98,7 +98,7 @@ contract NunyaBusiness {
     // TODO needed? or could a new account be created on the fly when creating the first payment ref?
     function newSecretUser(string calldata _secret) public payable returns (uint256){
         // TODO make sure the funding is high enough to pay for fees calling the contract.
-        fundGateway(10000000); // TODO find out how much gas is needed to call secretContract.newSecretUser(_secret)
+        fundGateway(100000); // TODO find out how much gas is needed to call secretContract.newSecretUser(_secret)
         uint256 requestId = secretContract.newSecretUser(_secret);
         expectedResult[requestId] = FunctionCallType.NEW_USER;
         console.log("----- NunyaBusiness.sol newSecretUser requestId: ", requestId);
