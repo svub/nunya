@@ -64,6 +64,7 @@ pub struct ResponseRetrievePubkeyStoreMsg {
     pub _request_id: Task,
     pub _key: Vec<u8>,
     pub _code: ResponseStatusCode,
+    pub _user_address: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]

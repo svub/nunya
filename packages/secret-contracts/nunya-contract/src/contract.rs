@@ -146,6 +146,8 @@ fn retrieve_pubkey(
         _request_id: task.clone(),
         _key: my_keys.public_key,
         _code: response_status_code,
+        // Example only
+        _user_address: input.user_address,
     };
 
     let json_string =
