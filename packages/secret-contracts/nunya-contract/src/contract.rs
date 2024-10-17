@@ -589,7 +589,7 @@ fn create_withdraw_to(
         .get(deps.storage, &index_concat)
         .ok_or_else(|| StdError::generic_err("Value for this VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP key not found"))?);
 
-    let value_payment_reference_to_balances: Vec<PaymentReferenceBalance> = match value_payment_reference_to_balances_map {
+    let mut value_payment_reference_to_balances: Vec<PaymentReferenceBalance> = match value_payment_reference_to_balances_map {
         Some(payment_reference_to_balances) => payment_reference_to_balances, // If there are existing
         None => return Err(StdError::generic_err("No payment references found")), // If none are found, early return
     };
@@ -605,9 +605,9 @@ fn create_withdraw_to(
     // Only authorise the withdrawal
 
     let mut balance_all_payment_refs: Uint128 = 0u128.into();
-    for element in value_payment_reference_to_balances.into_iter() {
+    for (index, element) in value_payment_reference_to_balances.clone().iter().enumerate() {
         if element.balance.denom == denomination {
-            balance_all_payment_refs.checked_add(element.balance.amount).ok_or(StdError::generic_err(err.to_string()))?;
+            balance_all_payment_refs.checked_add(element.balance.amount)?;
         }
     }
 
@@ -619,23 +619,22 @@ fn create_withdraw_to(
     // VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP
 
     let mut remaining_amount = amount.clone();
-    let mut new_balance_all_payment_refs: Uint128 = 0u128.into();
 
-    for element in value_payment_reference_to_balances.into_iter() {
+    for (index, element) in value_payment_reference_to_balances.clone().iter().enumerate() {
         let existing_element_balance = element.balance.amount.clone();
         if remaining_amount >= existing_element_balance {
             // remove payment ref balance to later update in storage
-            value_payment_reference_to_balances[element].balance.amount = 0u128;
+            value_payment_reference_to_balances[index].balance.amount = 0u128.into();
 
             // subtract from remaining_amount
             // TODO: use `Error::<T>::Overflow`
-            remaining_amount = remaining_amount.checked_sub(&existing_element_balance.clone()).ok_or(StdError::generic_err(err.to_string()))?;
+            remaining_amount = remaining_amount.checked_sub(existing_element_balance.clone())?;
         } else {
             // new payment ref balance
-            value_payment_reference_to_balances[element].balance.amount = existing_element_balance
-                .checked_sub(&remaining_amount.clone()).ok_or(StdError::generic_err(err.to_string()))?;
+            value_payment_reference_to_balances[index].balance.amount = existing_element_balance
+                .checked_sub(remaining_amount.clone())?;
 
-            remaining_amount = 0u128;
+            remaining_amount = 0u128.into();
         }
     }
 

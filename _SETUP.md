@@ -209,6 +209,8 @@ cd packages/secret-contracts/nunya-contract
 rustup update
 rustup default nightly
 
+make build
+
 make test
 
 cargo test
