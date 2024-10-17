@@ -36,7 +36,7 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: "0.8.17",
+        version: "0.8.26",
         settings: {
           optimizer: {
             enabled: true,
@@ -73,6 +73,7 @@ const config: HardhatUserConfig = {
       url: providerRpcUrlEthereumSepolia,
       // accounts: { mnemonic: MNEMONIC },
       accounts: [deployerPrivateKey],
+      timeout: 100_000_000,
     },
     // arbitrum: {
     //   url: `https://arb-mainnet.g.alchemy.com/v2/${providerApiKey}`,

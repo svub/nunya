@@ -25,6 +25,10 @@ pub enum ExecuteMsg {
     Input { message: PrivContractHandleMsg },
 }
 
+// No input required so not need to implement
+// #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+// pub struct RetrievePubkeyStoreMsg {}
+
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct NewAuthOutStoreMsg {
     // TODO - is this key the variable of the parameter provided from Solidity contract to its new_secret_user function?
@@ -53,6 +57,13 @@ pub struct WithdrawToStoreMsg {
     pub amount: Uint128,
     pub denomination: String,
     pub withdrawal_address: [u8; 20],
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+pub struct ResponseRetrievePubkeyStoreMsg {
+    pub _request_id: Task,
+    pub _key: Vec<u8>,
+    pub _code: ResponseStatusCode,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]

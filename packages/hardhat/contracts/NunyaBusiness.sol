@@ -5,7 +5,11 @@ pragma solidity ^0.8.0;
 import "hardhat/console.sol";
 // import "@openzeppelin/contracts/";
 // import "@openzeppelin/contracts/access/Ownable.sol";
-import "./ISecretContract.sol";
+// TODO: replace with interface of "./Gateway.sol"
+// import "./ISecretContract.sol";
+import "./IGateway.sol";
+
+import "./JsmnSolLib.sol";
 
 /**
  * @author
@@ -32,7 +36,7 @@ contract NunyaBusiness {
     }
 
     address payable gateway;
-    ISecretContract secretContract;
+    IGateway secretContract;
     uint256 secretContractPubkey;
     mapping (uint256 => FunctionCallType) expectedResult;
 
@@ -46,7 +50,7 @@ contract NunyaBusiness {
 
     constructor(address payable _gateway) payable {
         gateway = _gateway;
-        secretContract = ISecretContract(_gateway);
+        secretContract = IGateway(_gateway);
         console.log("constructor: msg.value", msg.value);
         fundGateway(0); // send all funds to the gateway
 
@@ -76,7 +80,7 @@ contract NunyaBusiness {
 
     // testing function - DO NOT KEEP IN PROD!
     function unsafeGetSecretContractPubkey () public {
-        secretContract = ISecretContract(_gateway);
+        secretContract = IGateway(gateway);
         uint256 requestId = secretContract.retrievePubkey();
         console.log("requested secret contract pubkey - requestId=", requestId);
     }
@@ -129,11 +133,16 @@ contract NunyaBusiness {
 
     // TODO: use ref encrypted with (user pubkey+salt)
     // TODO: `string calldata secret` or `uint256 secret`
-    function pay(string calldata _secret, string calldata _ref, uint256 _value, string calldata _denomination) public payable returns (uint256) {
+    function pay(string calldata _valueJson, string calldata _ref, uint256 _value, string calldata _denomination) public payable returns (uint256) {
         // >= because we need gas for fees
         uint256 gasPaid = fundGateway(50000); // TODO 50000 is the minimum, need to adjust to a good estimate
         require(msg.value >= _value + gasPaid, "Not enough value sent to pay for gas.");
-        uint256 requestId = secretContract.pay(_secret, _ref, msg.value - gasPaid, _denomination);
+
+        // fix pseudocode!
+        // Token claimedPayment = parse(_valueJson);
+        // require (msg.value === claimedPayment, "incorrect payment value - ensure _valueJson is in the format {amount: paymentAmount, ... } and that msg.value == paymentAmount exactly.");
+
+        uint256 requestId = secretContract.pay(_valueJson, _ref, msg.value - gasPaid, _denomination);
         expectedResult[requestId] = FunctionCallType.PAY;
         return(requestId);
     }

@@ -75,23 +75,30 @@ yarn deploy --network sepolia
 
 Note: If it has deployed previously it will output `Nothing to compile. No need to generate any newer typings.`. To make a fresh deployment first run `yarn run hardhat:clean`.
 
-It should output:
+Example of output:
 ```
-Generating typings for: 4 artifacts in dir: typechain-types for target: ethers-v6
-Successfully generated 12 typings!
-Compiled 4 Solidity files successfully (evm target: london).
+Generating typings for: 8 artifacts in dir: typechain-types for target: ethers-v6
+Successfully generated 20 typings!
+Compiled 7 Solidity files successfully (evm target: paris).
+transaction 0x53593beece8061f774f9a9b6efa4584e88ed91eef22eb4ea5613b9631daed888 still pending... It used a gas pricing config of maxPriorityFeePerGas: 1500000000 maxFeePerGas: 14500077156 ,
+              current gas price is 5987481929 wei
+              new baseFee is 6102384838
+
+✔ Choose what to do with the pending transaction: · continue waiting
+waiting for transaction...
 network:  sepolia
 chain id:  11155111
 hre.network.name:  sepolia
-deployer:  0x04f17aeb4b71e8f63f48749119f9957ca4a26268aaa87625e5e8b09aa2c45954
-reusing "DummyGatewayContract" at 0x77257FE5ef16d11CFA91D8fDaA79Fc9e47541BE7
-Successfully deployed DummyGatewayContract to address:  0x77257FE5ef16d11CFA91D8fDaA79Fc9e47541BE7
-reusing "NunyaBusiness" at 0xB10C8F0E2279fAa112abFF17063326bf3Fe8Dd50
-Successfully deployed NunyaBusiness to address:  0xB10C8F0E2279fAa112abFF17063326bf3Fe8Dd50
-tx hash: 0x4c379792cc11a180d831036389d4ec4122de1a8ade85eaffb90a45b43d6ceb03
-👋 Nunya contract: 0xB10C8F0E2279fAa112abFF17063326bf3Fe8Dd50
-NunyaBusiness balance:  0.000000000030084
-Gateway balance:  0.300499999969916
+deployerAddress:  0x83De04f1aad8ABF1883166B14A29c084b7B8AB59
+Deployer account balance: 7.01981295761257996 ETH
+deploying "Gateway" (tx: 0xb45283f3d585794164052a82e7bd2930aeade41090584a25464e6551bf1e37b5)...: deployed at 0x5Be91fd4b49489bb3aEc8bE2F5Fa1d83FD8C5A1b with 2559228 gas
+Successfully deployed Gateway to address:  0x5Be91fd4b49489bb3aEc8bE2F5Fa1d83FD8C5A1b
+deploying "NunyaBusiness" (tx: 0x9b69c6a4ace42a0ce36e4d1ef6ce99d3f2cc0271eed966c8c7e35438bb0fee33)...: deployed at 0x41E52332e76988AFBc38280583a7A02492177C65 with 1672042 gas
+Successfully deployed NunyaBusiness to address:  0x41E52332e76988AFBc38280583a7A02492177C65
+tx hash: 0x848763e137d97ea53000f360fa27db943f47a13e4e03982320d72dec33478e36
+👋 Nunya contract: 0x41E52332e76988AFBc38280583a7A02492177C65
+NunyaBusiness balance:  0.000000000000021
+Gateway balance:  0.000499999999979
 📝 Updated TypeScript contract definition file on ../nextjs/contracts/deployedContracts.ts
 ```
 
@@ -100,9 +107,11 @@ Gateway balance:  0.300499999969916
 5. View the contract in block explorer
 
 Example previous deployment: 
-  NunyaBusiness: https://sepolia.etherscan.io/address/0xB10C8F0E2279fAa112abFF17063326bf3Fe8Dd50#code
+  NunyaBusiness: https://sepolia.etherscan.io/address/0x41E52332e76988AFBc38280583a7A02492177C65#code
 
   DummyGatewayContract: https://sepolia.etherscan.io/address/0x77257FE5ef16d11CFA91D8fDaA79Fc9e47541BE7
+
+  Gateway: https://sepolia.etherscan.io/address/0x5Be91fd4b49489bb3aEc8bE2F5Fa1d83FD8C5A1b
 
 6. On a third terminal, start the Nunya NextJS app:
 
@@ -203,4 +212,6 @@ The deployed [Nunya Private Contract](./packages/secret-contracts/nunya-contract
 
 ### Usage Guidelines <a id="usage"></a> 
 
-TODO - help judges and other developers understand the project.
+Help judges and other developers understand the project.
+
+See the [DEMO_AND_VIDEO](./_DEMO_AND_VIDEO.md) file for details.

@@ -36,36 +36,39 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   console.log("chain id: ", chainId);
 
   let providerRpc;
-  let { deployer } = await hre.getNamedAccounts();
+  let deployer;
+  let deployerAddress;
+  const fallbackAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+
   if (hre.network.name = "sepolia") {
     console.log("hre.network.name: ", hre.network.name);
     deployer = process.env.DEPLOYER_PRIVATE_KEY || "",  // config.networks?.sepolia?.accounts[0];
+    deployerAddress = process.env.DEPLOYER_ADDRESS || fallbackAddress;
     providerRpc = String(config.networks?.sepolia);
   } else {
+    const accounts = await hre.getNamedAccounts();
+    deployer = accounts.deployer;
+    deployerAddress = process.env.DEPLOYER_ADDRESS || fallbackAddress;
     providerRpc = "http://127.0.0.1:8545/"
   }
 
   if (logging) {
-    console.log("deployer: ", deployer);
+    console.log("deployerAddress: ", deployerAddress);
 
-    // console.log("Deploying with account:", deployer.address);
-
-    // const balance = await deployer.getBalance();
-    // console.log("Account balance:", hre.ethers.utils.formatEther(balance), "ETH");
+    const balance = await hre.ethers.provider.getBalance(deployerAddress);
+    console.log("Deployer account balance:", hre.ethers.formatEther(balance), "ETH");
   }
 
-  //   const Gateway = await deploy("SecretContract", {
-  //     contract: "contracts/DummyGateway.sol:SecretContract",
-  const gateway = await deploy("DummyGatewayContract", {
+  const gateway = await deploy("Gateway", {
     from: deployer,
-    // args: [],
+    args: [deployerAddress],
     log: true,
     gasLimit: 3000000,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
     // automatically mining the contract deployment transaction. There is no effect on live networks.
     autoMine: true,
   });
-  console.log("Successfully deployed DummyGatewayContract to address: ", gateway.address);
+  console.log("Successfully deployed Gateway to address: ", gateway.address);
 
   const nunyaContract = await deploy("NunyaBusiness", {
     from: deployer,

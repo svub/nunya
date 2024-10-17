@@ -45,7 +45,9 @@ In short, Nunya bridges the gap between transparency and privacy, providing busi
 
 ### Development Deepdive <a id="development-deepdive"></a>
 
-TODO - How did you build this, how do the contracts/functions interact and which design choices did you make
+How we built Nunya, design choices, contract/ function interactions, blockers
+
+See the [DEV_DEEPDIVE](./DEV_DEEPDIVE.md) file for details.
 
 ### Demo and Video <a id="demo-video"></a>
 
