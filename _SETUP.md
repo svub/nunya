@@ -193,6 +193,10 @@ yarn run secret:start:uploadContract
 ```
 yarn run secret:queryPubkey
 ```
+* Transaction `secretContract.retrievePubkey`
+```
+yarn run secret:submit
+```
 * View logs at ./logs/instantiateOutput.log
 * View on Secret Testnet block explorer at https://testnet.ping.pub/secret/
 
