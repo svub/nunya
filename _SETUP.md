@@ -198,6 +198,20 @@ yarn run secret:queryPubkey
 
 * Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
 
+#### Run Unit Tests
+
+```
+cd packages/secret-contracts/nunya-contract
+make test
+
+cargo test
+# quicker tests
+cargo test --lib
+
+# explicit tests
+cargo test --features=backtraces
+```
+
 ### Setup Custom Gateways and Relayers <a id="setup-gateways-relayers"></a> 
 
 See https://github.com/ltfschoen/SecretPath to deploy the following:
