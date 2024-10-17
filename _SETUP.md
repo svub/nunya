@@ -200,17 +200,25 @@ yarn run secret:queryPubkey
 
 #### Run Unit Tests
 
+> Important: Only works in Rust Nightly (not Stable)
+
+Run the following.
 ```
 cd packages/secret-contracts/nunya-contract
+
+rustup update
+rustup default nightly
+
 make test
 
 cargo test
+
 # quicker tests
 cargo test --lib
 
-# explicit tests
-cargo test --features=backtraces
 ```
+
+TODO: Find out why `cargo test --features=backtraces` does not work even though we have that dependency in cargo.toml
 
 ### Setup Custom Gateways and Relayers <a id="setup-gateways-relayers"></a> 
 
