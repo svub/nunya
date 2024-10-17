@@ -666,6 +666,14 @@ contract Gateway is Ownable {
         emit TaskCompleted(_taskId, callbackSuccessful);
     }
 
+    /*//////////////////////////////////////////////////////////////
+                     New Functions for Upgradeability
+    //////////////////////////////////////////////////////////////*/
+
+    function upgradeHandler() public {
+
+    }
+
     function newSecretUser(string calldata secret) public pure returns (uint256) {
         // console.log("------ DummyGateway.newSecretUser", secret);
         return 6;
