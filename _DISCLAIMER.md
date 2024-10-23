@@ -1,5 +1,15 @@
 # Disclaimer
 
+**Table of contents**
+
+* [Intro](#intro)
+* [Regulatory Landscape](#regulatory-landscape)
+* [Liabilities and Risks](#liabilities-and-risks)
+* [Mitigation Strategies](#mitigation-strategies)
+* [Regulatory Examples](#regulatory-examples)
+* [Illustrative Cases](#illustrative-cases)
+* [Conclusion](#conclusion)
+
 Nunya.business implementation code is for testing purposes only using local or testnet tokens that have no monetary value. It is not to be used in production for facilitating the execution of making and receiving privacy-enhanced transactions.
 
 This guide is not intended to provide legal advice and should not be used as a substitute for seeking professional legal counsel. It is intended to provide a general overview of the regulatory landscape, potential liabilities, risks, and mitigation strategies associated with the execution of making and receiving privacy-enhanced transactions that interact with relayers using Nunya.business.
@@ -12,7 +22,7 @@ No reader should act or refrain from acting based on the information in this gui
 
 We strongly recommend that all potential users of this Nunya.business implementation that wish to try to execute privacy-enhanced transactions with it and interact with relayers to consult with a qualified legal professional who is familiar with the blockchain and cryptocurrency industry in their jurisdiction. This will ensure you receive advice tailored to your specific circumstances and stay in compliance with all relevant laws and regulations.
 
-### Regulatory Landscape
+### Regulatory Landscape <a id="regulatory-landscape"></a>
 
 Executing privacy-enhanced transactions and interacting with relayers can bring with it an obligation to comply with several laws and regulations. This section aims to provide an overview of the regulatory landscape pertinent to privacy-enhanced transactions and relayer activities, though it is essential to consult with legal professionals for advice tailored to individual circumstances.
 
@@ -42,7 +52,7 @@ Given the rapidly evolving nature of the blockchain and cryptocurrency industry,
 
 Understanding the regulatory landscape is critical for any entity operating in the blockchain and cryptocurrency space. Failure to comply with applicable laws and regulations can lead to substantial penalties and reputational damage. As such, potential users of privacy-enhancing transactions and relayers should seek legal advice to ensure their operations align with all relevant legal requirements.
 
-### Liabilities and Risks
+### Liabilities and Risks <a id="liabilities-and-risks"></a>
 
 Operating a relayer in the Secret Network and making privacy-enhancing transactions involves potential liabilities and risks. This section will provide an overview of these risks, though it is not exhaustive, and operators are urged to seek professional advice to understand all potential liabilities and risks.
 
@@ -70,7 +80,7 @@ Relayers and users making privacy-enhancing transactions might also face financi
 
 Non-compliance with regulations, involvement in illicit activities, or failure to provide reliable service could harm a relayer's reputation and those wishing to make and receive privacy-enhanced transactions. In a competitive market, reputation is critical to attracting and retaining users. Consequently, operators should ensure they operate ethically and reliably to maintain a strong reputation.
 
-### Mitigation Strategies
+### Mitigation Strategies <a id="mitigation-strategies"></a>
 
 To manage the potential liabilities and risks involved in operating a relayer and making and receiving privacy-enhanced transactions, it's essential to develop and implement effective mitigation strategies. Here are some suggested strategies, but please note that they should be customized to your specific circumstances and legal jurisdiction:
 
@@ -104,7 +114,7 @@ Consider obtaining insurance coverage to protect against potential losses from l
 
 Developing effective mitigation strategies is a key part of managing the liabilities and risks of operating a relayer and making and receiving privacy-enhanced transactions. Regularly reviewing and updating these strategies is also important, as the operational and regulatory environment can change rapidly. As always, seek professional advice when developing these strategies to ensure they are comprehensive and comply with all relevant laws and regulations.
 
-### Regulatory Examples
+### Regulatory Examples <a id="regulatory-examples"></a>
 
 While the regulations governing the blockchain and cryptocurrency sector vary significantly across different jurisdictions, here are some examples that can illustrate the diversity in the regulatory landscape:
 
@@ -132,7 +142,7 @@ Switzerland has a supportive regulatory environment for blockchain and digital a
 
 These examples underscore the diversity in the regulatory environment for blockchain and digital assets worldwide. Regulations can change quickly and vary significantly by jurisdiction, emphasizing the importance for potential relayers  and those making and receiving privacy-enhanced transactions to seek professional legal advice specific to their situation and jurisdiction.
 
-### Illustrative Cases
+### Illustrative Cases <a id="illustrative-cases"></a>
 
 To help understand the potential liabilities and risks involved in operating a relayer and those making and receiving privacy-enhanced transactions using Secret Network and Nunya.business, let's consider some hypothetical scenarios:
 
@@ -162,7 +172,7 @@ In this case, the operator could face significant penalties under data protectio
 
 These hypothetical cases provide examples of how the failure to properly manage the regulatory landscape, comply with legal obligations, implement technological safeguards, and respect user privacy can lead to significant liabilities and risks. As always, it's crucial to seek professional advice to ensure all potential issues are adequately addressed.
 
-### Conclusion
+### Conclusion <a id="conclusion"></a>
 
 Operating a relayer and making and receiving privacy-enhanced transactions in the Secret Network and using Nunya.business presents a unique opportunity in the rapidly evolving blockchain and cryptocurrency industry. While the potential rewards can be significant, it's important to understand and manage the associated liabilities and risks.
 

@@ -1,22 +1,23 @@
 
-Nunya.business
+Nunya.business <a id="top"></a>
 ==============
 
 > Receive business payments without revealing to others what you've earned.
 
 **Table of contents**
 
-- [Nunya.business](#nunyabusiness)
-  - [About ](#about-)
-    - [User focused summary ](#user-focused-summary-)
-    - [Investor pitch ](#investor-pitch-)
+- [Nunya.business](#top)
+  - [About ](#about)
+    - [User focused summary ](#user-focused-summary)
+    - [Investor pitch ](#investor-pitch)
       - [What is the problem it solves and the product market fit](#what-is-the-problem-it-solves-and-the-product-market-fit)
-    - [Development Deepdive ](#development-deepdive-)
-    - [Demo and Video ](#demo-and-video-)
-  - [Specification ](#specification-)
-  - [Setup and Usage ](#setup-and-usage-)
-  - [License ](#license-)
-  - [Disclaimer ](#disclaimer-)
+    - [Development Deepdive ](#development-deepdive)
+    - [Demo and Video ](#demo-video)
+  - [Specification ](#specification)
+  - [Setup and Usage ](#setup)
+  - [License ](#license)
+  - [Compliance and Security](#compliance-and-security)
+  - [Disclaimer ](#disclaimer)
 
 > Important: README.md should be **MAX 2 PAGES**
 
@@ -69,6 +70,10 @@ It was built based on Scaffold ETH 2 that has MIT license that must be respected
 
 The Secret contracts were built based on the example [SecretPath Confidential Voting Tutorial](https://github.com/SecretFoundation/Secretpath-tutorials/tree/master/secretpath-voting). 
 
+## Compliance and Security <a id="compliance-and-security"></a>
+
+See the [COMPLIANCE_AND_SECURITY](./_COMPLIANCE_AND_SECURITY.md) file for details of managing compliance and security. 
+
 ## Disclaimer <a id="disclaimer"></a>
 
-See the [DISCLAIMER](./_DISCLAIMER.md) file for details.
+See the [DISCLAIMER](./_DISCLAIMER.md) file for details of managing liabilities and compliance. 
