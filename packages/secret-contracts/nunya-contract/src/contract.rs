@@ -589,7 +589,7 @@ fn create_withdraw_to(
         .get(deps.storage, &index_concat)
         .ok_or_else(|| StdError::generic_err("Value for this VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP key not found"))?);
 
-    let value_payment_reference_to_balances: Vec<PaymentReferenceBalance> = match value_payment_reference_to_balances_map {
+    let mut value_payment_reference_to_balances: Vec<PaymentReferenceBalance> = match value_payment_reference_to_balances_map {
         Some(payment_reference_to_balances) => payment_reference_to_balances, // If there are existing
         None => return Err(StdError::generic_err("No payment references found")), // If none are found, early return
     };
@@ -605,14 +605,37 @@ fn create_withdraw_to(
     // Only authorise the withdrawal
 
     let mut balance_all_payment_refs: Uint128 = 0u128.into();
-    for element in value_payment_reference_to_balances.into_iter() {
+    for (index, element) in value_payment_reference_to_balances.clone().iter().enumerate() {
         if element.balance.denom == denomination {
-            balance_all_payment_refs += element.balance.amount
+            balance_all_payment_refs.checked_add(element.balance.amount)?;
         }
     }
 
     if amount > balance_all_payment_refs {
         return Err(StdError::generic_err("Withdrawal amount must be less than or equal to total balance of all payment references"));
+    }
+
+    // Subtract the withdrawal amount sequentially from the balance associated with each payment reference stored in
+    // VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP
+
+    let mut remaining_amount = amount.clone();
+
+    for (index, element) in value_payment_reference_to_balances.clone().iter().enumerate() {
+        let existing_element_balance = element.balance.amount.clone();
+        if remaining_amount >= existing_element_balance {
+            // remove payment ref balance to later update in storage
+            value_payment_reference_to_balances[index].balance.amount = 0u128.into();
+
+            // subtract from remaining_amount
+            // TODO: use `Error::<T>::Overflow`
+            remaining_amount = remaining_amount.checked_sub(existing_element_balance.clone())?;
+        } else {
+            // new payment ref balance
+            value_payment_reference_to_balances[index].balance.amount = existing_element_balance
+                .checked_sub(remaining_amount.clone())?;
+
+            remaining_amount = 0u128.into();
+        }
     }
 
     let response_status_code: ResponseStatusCode = 0u16;
@@ -647,7 +670,7 @@ fn create_withdraw_to(
 
     Ok(Response::new()
         .add_message(callback_msg)
-        .add_attribute("status", "DO_THE_WITHDRAWAL"))
+        .add_attribute("status", "create_withdraw_to"))
 }
 
 // reference: https://github.com/writersblockchain/secretpath-voting/commit/b0b5d8ac7b7d691c7d7ebf0bc52e5aedb8da7e86#diff-a982e501ba4bd05192a8c497bd5093517ea5606f9e341b9b7d09b233068da829R232
@@ -698,29 +721,174 @@ fn retrieve_pubkey_query(deps: Deps) -> StdResult<ResponseRetrievePubkeyMsg> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use cosmwasm_std::testing::{message_info, mock_dependencies, mock_dependencies_with_balances, mock_env};
+    use cosmwasm_std::testing::{mock_info, mock_dependencies, mock_dependencies_with_balances, mock_env};
     use cosmwasm_std::coins;
-    use cosmwasm_std::{from_binary, StdError};
+    use cosmwasm_std::{from_binary, StdError, Addr, CanonicalAddr, Api};
+    use secret_toolkit::{
+        crypto::{sha_256}
+    };
+    use crate::state::{State,
+        CONFIG, MY_KEYS,
+    };
 
     #[test]
     fn proper_initialization() {
         let mut deps = mock_dependencies();
-        // Create some Addr instances for testing
-        let gateway = deps.api.addr_make("gateway");
         // https://docs.rs/cosmwasm-std/latest/cosmwasm_std/testing/fn.message_info.html
+        // Create some Addr instances for testing
+        let gateway_addr = Addr::unchecked("fake address".to_string());
         let msg = InstantiateMsg {
-            gateway_address: gateway.to_string(),
+            gateway_address: gateway_addr.clone(),
+            gateway_hash: "fake code hash".to_string(),
+            gateway_key: Binary(b"fake key".to_vec()),
         };
 
-        let info = message_info(&gateway, &coins(1000, "earth"));
+        let info = mock_info(String::from(gateway_addr).as_str(), &coins(1000, "earth"));
         // we can just call .unwrap() to assert this was a success
         let res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
 
         assert_eq!(0, res.messages.len());
 
+        // Add Secret contract keys to storage
+        let my_keys = MyKeys {
+            private_key: "0x1".as_bytes().to_vec(),
+            public_key: "0x2".as_bytes().to_vec(),
+        };
+        let _ = MY_KEYS.save(&mut deps.storage, &my_keys);
+
         // it worked, let's query the state
         let res = query(deps.as_ref(), mock_env(), QueryMsg::RetrievePubkey {}).unwrap();
+
         let res: ResponseRetrievePubkeyMsg = from_binary(&res).unwrap();
-        assert!(res._key);
+        println!("res._key: {:?}", String::from_utf8(res._key.clone()));
+        assert_eq!(res._key, "0x2".as_bytes());
+    }
+
+    #[test]
+    fn only_allows_secret_path_gateway_to_call_retrieve_pubkey_functions() {
+        let mut deps = mock_dependencies();
+        let env = mock_env();
+        // Make info.sender not the gateway address to see if it fails
+        let info = mock_info("sender", &[]);
+        // let gateway_addr = Addr::unchecked("fake address".to_string());
+        // let info = mock_info(String::from(gateway_addr).as_str(), &coins(1000, "earth"));
+        let init_msg = InstantiateMsg {
+            gateway_address: Addr::unchecked("fake address".to_string()),
+            gateway_hash: "fake code hash".to_string(),
+            gateway_key: Binary(b"fake key".to_vec()),
+        };
+        instantiate(deps.as_mut(), env.clone(), info.clone(), init_msg).unwrap();
+
+        // retrieve_pubkey
+        let message = PrivContractHandleMsg {
+            input_values: "{}".to_string(),
+            handle: "retrieve_pubkey".to_string(),
+            user_address: Addr::unchecked("0x1".to_string()),
+            task: Task { network: "secret".to_string(), task_id: "1".to_string() },
+            // SHA256 hash of `input_values`.
+            input_hash: to_binary(&"{}".to_string()).unwrap(), // sha_256("".as_bytes()).into()
+            // Signature of `input_hash`, signed by the private gateway.
+            signature: to_binary(&"".to_string()).unwrap(), // sha_256("".as_bytes()).into()
+        };
+
+        let handle_msg = ExecuteMsg::Input { message };
+        let handle_response =
+            execute(deps.as_mut(), env.clone(), info.clone(), handle_msg);
+        // let handle_response =
+        //     execute(deps.as_mut(), env.clone(), info.clone(), handle_msg).unwrap();
+        // let result = &handle_response.attributes[0].value;
+        // assert_eq!(result, "retrieve_pubkey");
+        assert_eq!(handle_response.unwrap_err(), StdError::generic_err("Only SecretPath Gateway can call this function"));
+    }
+
+    #[test]
+    fn withdraw_reduces_withdrawal_amount_from_payment_ref_storage_balances() {
+        let mut deps = mock_dependencies();
+        let env = mock_env();
+        // let info = mock_info("sender", &[]);
+        let gateway_addr = Addr::unchecked("fake address".to_string());
+        let info = mock_info(String::from(gateway_addr).as_str(), &coins(1000, "earth"));
+        let init_msg = InstantiateMsg {
+            gateway_address: Addr::unchecked("fake address".to_string()),
+            gateway_hash: "fake code hash".to_string(),
+            gateway_key: Binary(b"fake key".to_vec()),
+        };
+        instantiate(deps.as_mut(), env.clone(), info.clone(), init_msg).unwrap();
+
+        // retrieve_pubkey
+        let message = PrivContractHandleMsg {
+            input_values: "{}".to_string(),
+            handle: "retrieve_pubkey".to_string(),
+            user_address: Addr::unchecked("0x1".to_string()),
+            task: Task { network: "secret".to_string(), task_id: "1".to_string() },
+            input_hash: to_binary(&"".to_string()).unwrap(),
+            signature: to_binary(&"".to_string()).unwrap(),
+        };
+        let handle_msg = ExecuteMsg::Input { message };
+        let handle_response =
+            execute(deps.as_mut(), env.clone(), info.clone(), handle_msg).unwrap();
+        let result = &handle_response.attributes[0].value;
+        assert_eq!(result, "retrieve_pubkey");
+
+        // create_new_auth_out
+        let message = PrivContractHandleMsg {
+            input_values: "{\"secret_user\":\"abc\"}".to_string(),
+            handle: "create_new_auth_out".to_string(),
+            user_address: Addr::unchecked("0x1".to_string()),
+            task: Task { network: "secret".to_string(), task_id: "2".to_string() },
+            input_hash: to_binary(&"".to_string()).unwrap(),
+            signature: to_binary(&"".to_string()).unwrap(),
+        };
+        let handle_msg = ExecuteMsg::Input { message };
+        let handle_response =
+            execute(deps.as_mut(), env.clone(), info.clone(), handle_msg).unwrap();
+        let result = &handle_response.attributes[0].value;
+        assert_eq!(result, "create_new_auth_out");
+        // TODO: verify it returns _request_id and _code values
+
+        // create_payment_reference
+        let message = PrivContractHandleMsg {
+            input_values: "{\"secret_user\":\"abc\",\"payment_ref\":\"def\"}".to_string(),
+            handle: "create_payment_reference".to_string(),
+            user_address: Addr::unchecked("0x1".to_string()),
+            task: Task { network: "secret".to_string(), task_id: "3".to_string() },
+            input_hash: to_binary(&"".to_string()).unwrap(),
+            signature: to_binary(&"".to_string()).unwrap(),
+        };
+        let handle_msg = ExecuteMsg::Input { message };
+        let handle_response =
+            execute(deps.as_mut(), env.clone(), info.clone(), handle_msg).unwrap();
+        let result = &handle_response.attributes[0].value;
+        assert_eq!(result, "create_payment_reference");
+
+        // create_pay
+        let message = PrivContractHandleMsg {
+            input_values: "{\"secret_user\":\"abc\",\"payment_ref\":\"def\",\"amount\":100,\"denomination\":\"ETH\",\"user_pubkey\":\"0x3\"}".to_string(),
+            handle: "create_pay".to_string(),
+            user_address: Addr::unchecked("0x1".to_string()),
+            task: Task { network: "secret".to_string(), task_id: "4".to_string() },
+            input_hash: to_binary(&"".to_string()).unwrap(),
+            signature: to_binary(&"".to_string()).unwrap(),
+        };
+        let handle_msg = ExecuteMsg::Input { message };
+        let handle_response =
+            execute(deps.as_mut(), env.clone(), info.clone(), handle_msg).unwrap();
+        let result = &handle_response.attributes[0].value;
+        assert_eq!(result, "create_pay");
+
+        // create_withdraw_to
+        let message = PrivContractHandleMsg {
+            input_values: "{\"secret_user\":\"abc\",\"amount\":100,\"denomination\":\"ETH\",\"withdrawal_address\":\"0x2\"}".to_string(),
+            handle: "create_withdraw_to".to_string(),
+            user_address: Addr::unchecked("0x1".to_string()),
+            task: Task { network: "secret".to_string(), task_id: "5".to_string() },
+            input_hash: to_binary(&"".to_string()).unwrap(),
+            signature: to_binary(&"".to_string()).unwrap(),
+        };
+        let handle_msg = ExecuteMsg::Input { message };
+        let handle_response =
+            execute(deps.as_mut(), env.clone(), info.clone(), handle_msg).unwrap();
+        let result = &handle_response.attributes[0].value;
+        assert_eq!(result, "create_withdraw_to");
     }
 }
