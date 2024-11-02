@@ -15,7 +15,7 @@ import { hexlify } from "ethers/lib/utils";
 const SECRET_ADDRESS = "secret1uwqdjnzrttepn86p2sjmnugfph7tz97hmcwjs3"
 const CODE_HASH = "1af180cc6506af23fb3ee2c0f6ece37ab3ad32db82e061b6b30679fb8a3f1323"
 
-// relates to unsafeGetSecretContractPubkey
+// relates to unsafeRequestSecretContractPubkey
 async function main() {
   // Ethereum Sepolia
   // IGNORE
@@ -74,98 +74,98 @@ async function main() {
   const chainId = (await provider.getNetwork()).chainId.toString();
   console.log("chainId: ", chainId);
 
-  const publicClientAddress = await getPublicClientAddress(chainId);
+  // const publicClientAddress = await getPublicClientAddress(chainId);
 
-  const callbackAddress = publicClientAddress.toLowerCase();
-  console.log("callback address: ", callbackAddress);
+  // const callbackAddress = publicClientAddress.toLowerCase();
+  // console.log("callback address: ", callbackAddress);
 
-  // Payload construction
-  const payload = constructPayload(
-    data,
-    routing_contract,
-    routing_code_hash,
-    myAddress,
-    userPublicKeyBytes,
-    callbackAddress,
-    callbackSelector,
-    callbackGasLimit
-  );
+  // // Payload construction
+  // const payload = constructPayload(
+  //   data,
+  //   routing_contract,
+  //   routing_code_hash,
+  //   myAddress,
+  //   userPublicKeyBytes,
+  //   callbackAddress,
+  //   callbackSelector,
+  //   callbackGasLimit
+  // );
 
-  const {
-    ciphertext,
-    payloadHash,
-    payloadSignature,
-    _info,
-  } = await encryptPayload(
-    payload,
-    sharedKey,
-    provider,
-    myAddress,
-    userPublicKeyBytes,
-    routing_code_hash,
-    handle,
-    callbackGasLimit,
-    iface,
-    callbackSelector
-  );
+  // const {
+  //   ciphertext,
+  //   payloadHash,
+  //   payloadSignature,
+  //   _info,
+  // } = await encryptPayload(
+  //   payload,
+  //   sharedKey,
+  //   provider,
+  //   myAddress,
+  //   userPublicKeyBytes,
+  //   routing_code_hash,
+  //   handle,
+  //   callbackGasLimit,
+  //   iface,
+  //   callbackSelector
+  // );
 
-  const functionData = iface.encodeFunctionData("send", [
-    payloadHash,
-    myAddress,
-    routing_contract,
-    _info,
-  ]);
+  // const functionData = iface.encodeFunctionData("send", [
+  //   payloadHash,
+  //   myAddress,
+  //   routing_contract,
+  //   _info,
+  // ]);
 
-  const feeData = await provider.getFeeData();
-  const maxFeePerGas = feeData.maxFeePerGas;
-  const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas;
-  const gasFee =
-    maxFeePerGas && maxPriorityFeePerGas
-      ? maxFeePerGas.add(maxPriorityFeePerGas)
-      : await provider.getGasPrice();
+  // const feeData = await provider.getFeeData();
+  // const maxFeePerGas = feeData.maxFeePerGas;
+  // const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas;
+  // const gasFee =
+  //   maxFeePerGas && maxPriorityFeePerGas
+  //     ? maxFeePerGas.add(maxPriorityFeePerGas)
+  //     : await provider.getGasPrice();
 
-  let amountOfGas;
-  let my_gas = 150000;
+  // let amountOfGas;
+  // let my_gas = 150000;
 
-  if (chainId === "4202") {
-    amountOfGas = gasFee.mul(callbackGasLimit).mul(100000).div(2);
-  } else if (chainId === "128123") {
-    amountOfGas = gasFee.mul(callbackGasLimit).mul(1000).div(2);
-    my_gas = 15000000;
-  } else if (chainId === "1287") {
-    amountOfGas = gasFee.mul(callbackGasLimit).mul(1000).div(2);
-    my_gas = 15000000;
-  } else if (chainId === "300") {
-    amountOfGas = gasFee.mul(callbackGasLimit).mul(100000).div(2);
-    my_gas = 15000000;
-  } else if (chainId === "5003") {
-    amountOfGas = gasFee.mul(callbackGasLimit).mul(1000000).div(2);
-    my_gas = 1500000000;
-  } else if (chainId === "80002") {
-    amountOfGas = gasFee.mul(callbackGasLimit).mul(100).div(2);
-    my_gas = 200000;
-  } else if (chainId === "1995") {
-    amountOfGas = gasFee.mul(callbackGasLimit).mul(100).div(2);
-    my_gas = 200000;
-  } else if (chainId === "713715") {
-    amountOfGas = gasFee.mul(callbackGasLimit).mul(100).div(2);
-    my_gas = 200000;
-  } else {
-    amountOfGas = gasFee.mul(callbackGasLimit).mul(3).div(2);
-  }
+  // if (chainId === "4202") {
+  //   amountOfGas = gasFee.mul(callbackGasLimit).mul(100000).div(2);
+  // } else if (chainId === "128123") {
+  //   amountOfGas = gasFee.mul(callbackGasLimit).mul(1000).div(2);
+  //   my_gas = 15000000;
+  // } else if (chainId === "1287") {
+  //   amountOfGas = gasFee.mul(callbackGasLimit).mul(1000).div(2);
+  //   my_gas = 15000000;
+  // } else if (chainId === "300") {
+  //   amountOfGas = gasFee.mul(callbackGasLimit).mul(100000).div(2);
+  //   my_gas = 15000000;
+  // } else if (chainId === "5003") {
+  //   amountOfGas = gasFee.mul(callbackGasLimit).mul(1000000).div(2);
+  //   my_gas = 1500000000;
+  // } else if (chainId === "80002") {
+  //   amountOfGas = gasFee.mul(callbackGasLimit).mul(100).div(2);
+  //   my_gas = 200000;
+  // } else if (chainId === "1995") {
+  //   amountOfGas = gasFee.mul(callbackGasLimit).mul(100).div(2);
+  //   my_gas = 200000;
+  // } else if (chainId === "713715") {
+  //   amountOfGas = gasFee.mul(callbackGasLimit).mul(100).div(2);
+  //   my_gas = 200000;
+  // } else {
+  //   amountOfGas = gasFee.mul(callbackGasLimit).mul(3).div(2);
+  // }
 
-  const tx_params = {
-    gas: hexlify(my_gas),
-    to: publicClientAddress,
-    from: myAddress,
-    value: hexlify(amountOfGas),
-    data: functionData,
-  };
+  // const tx_params = {
+  //   gas: hexlify(my_gas),
+  //   to: publicClientAddress,
+  //   from: myAddress,
+  //   value: hexlify(amountOfGas),
+  //   data: functionData,
+  // };
 
-  const txHash = await provider.send("eth_sendTransaction", [tx_params]);
-  const publicKey = await queryPubkey();
-  console.log("Public key of Private secret contract:", publicKey);
-  console.log(`Transaction Hash: ${txHash}`);
+  // const txHash = await provider.send("eth_sendTransaction", [tx_params]);
+  // const publicKey = await queryPubkey();
+  // console.log("Public key of Private secret contract:", publicKey);
+  // console.log(`Transaction Hash: ${txHash}`);
 }
 
 main().catch((error) => {

@@ -12316,9 +12316,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"secret-upload-contract@workspace:packages/secret-upload-contract":
+"secret-contracts-scripts@workspace:packages/secret-contracts-scripts":
   version: 0.0.0-use.local
-  resolution: "secret-upload-contract@workspace:packages/secret-upload-contract"
+  resolution: "secret-contracts-scripts@workspace:packages/secret-contracts-scripts"
   dependencies:
     "@blake.regalia/belt": "npm:^0.35.1"
     "@solar-republic/cosmos-grpc": "npm:^0.15.3"

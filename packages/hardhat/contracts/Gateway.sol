@@ -11,21 +11,11 @@ import "./IGateway.sol";
 // We need JSON parsing to introspect on the `pay` function
 import "./JsmnSolLib.sol";
 
-// https://github.com/ltfschoen/benzcoin/blob/master/contracts/Owned.sol
-contract Ownable {
-    address internal owner;
+import "./Utils.sol";
 
-    modifier onlyOwner {
-      require(msg.sender == owner);
-      _;
-    }
+import "./Ownable.sol";
 
-    constructor() { 
-      owner = msg.sender;
-    }
-}
-
-contract Gateway is Ownable {
+contract Gateway is Ownable, Utils {
     /*//////////////////////////////////////////////////////////////
                               Constants
     //////////////////////////////////////////////////////////////*/
@@ -39,18 +29,17 @@ contract Gateway is Ownable {
     bytes32 immutable chain_id_1; bytes32 immutable chain_id_2; 
     bytes32 immutable chain_id_3; uint256 immutable chain_id_length; 
 
+    // CONFIGURE
+
     //string constant public task_destination_network = "secret-4";
     //address constant public secret_gateway_signer_address = 0x88e43F4016f8282Ea6235aC069D02BA1cE5417aB;
     string constant public task_destination_network = "pulsar-3";
-    address immutable public secret_gateway_signer_address = 0x2821E794B01ABF0cE2DA0ca171A1fAc68FaDCa06;
-
-    //Secret VRF additions
-    //string constant public VRF_routing_info = "secret10jyexwp4zrv50eysn3l7n4n2spf0u380lcq5nz";
-    string constant public VRF_routing_info = "secret1cknezaxnzfys2w8lyyrr7fed9wxejvgq7alhqx";
-
-    string constant public VRF_routing_code_hash = "0b9395a7550b49d2b8ed73497fd2ebaf896c48950c4186e491ded6d22e58b8c3";
-    bytes constant VRF_info = abi.encodePacked('}","routing_info":"',VRF_routing_info,'","routing_code_hash":"',VRF_routing_code_hash,'","user_address":"0x0000","user_key":"AAA=","callback_address":"');
-
+    uint256 immutable public secret_gateway_signer_pubkey;
+    // TODO: change this to be the same as the DEPLOYER_ADDRESS in the .env file
+    address immutable public secret_gateway_signer_address = 0x83De04f1aad8ABF1883166B14A29c084b7B8AB59;
+    // TODO: Add deployed custom Secret contract address to be same as `SECRET_ADDRESS` and codehash `CODE_HASH` used in scripts
+    string constant public routing_info = "secret1uwqdjnzrttepn86p2sjmnugfph7tz97hmcwjs3";
+    string constant public routing_code_hash = "1af180cc6506af23fb3ee2c0f6ece37ab3ad32db82e061b6b30679fb8a3f1323";
 
     /*//////////////////////////////////////////////////////////////
                               Structs
@@ -88,6 +77,7 @@ contract Gateway is Ownable {
     //////////////////////////////////////////////////////////////*/
 
     uint256 public taskId;
+    uint256 public nonce;
 
     /// @dev Task ID => Task
     mapping(uint256 => Task) public tasks;
@@ -181,169 +171,6 @@ contract Gateway is Ownable {
         }
     }
 
-
-    /// @notice Converts a uint256 value into its string representation
-    /// @param x The uint256 value to convert
-    /// @return s The bytes string representation of the uint256 value
-
-    function uint256toBytesString(uint256 x) public pure returns (bytes memory s) {
-        unchecked {
-            if (x < 1e31) { 
-                uint256 c1 = itoa31(x);
-                assembly {
-                    s := mload(0x40) // Set s to point to the free memory pointer
-                    let z := shr(248, c1) // Extract the digit count for c1
-                    mstore(s, z) // Allocate 32 bytes for the string length
-                    mstore(add(s, 32), shl(sub(256, mul(z, 8)), c1)) // Store c2 adjusted by z digits
-                    mstore(0x40, add(s, 64)) // Update the free memory pointer
-                }
-            }   
-            else if (x < 1e62) {
-                uint256 c1 = itoa31(x);
-                uint256 c2 = itoa31(x/1e31);
-                assembly {
-                    s := mload(0x40) // Set s to the free memory pointer
-                    let z := shr(248, c2) // Extract the digit count for c2
-                    mstore(s, add(z, 31)) // Allocate space for z digits of c2 + 31 bytes of c1
-                    mstore(add(s, 32), shl(sub(256, mul(z, 8)), c2)) // Store c2 adjusted by z digits
-                    mstore(add(s, add(32, z)), shl(8,c1)) // Store the last 31 bytes of c1
-                    mstore(0x40, add(s, 96)) // Update the free memory pointer
-                }
-            } else {
-                uint256 c1 = itoa31(x);
-                uint256 c2 = itoa31(x/1e31);
-                uint256 c3 = itoa31(x/1e62);
-                assembly {
-                    s := mload(0x40) // Set s to point to the free memory pointer
-                    let z := shr(248, c3) // Extract the digit count for c3
-                    mstore(s, add(z, 62)) // Allocate 32 bytes for the string length
-                    mstore(add(s, 32), shl(sub(256, mul(z, 8)), c3)) // Store c3 adjusted by z digits
-                    mstore(add(s, add(32, z)), shl(8, c2)) // Store the last 31 bytes of c2 starting at z bytes
-                    mstore(add(s, add(63, z)), shl(8, c1)) // Store the last 31 bytes of c3 starting at z + 31 bytes
-                    mstore(0x40, add(s, 128)) // Update the free memory pointer to point beyond the allocated space
-                }
-            }
-        }
-    }
-    /// @notice Helper function for UInt256 Conversion
-    /// @param x The uint256 value to convert
-    /// @return y The string representation of the uint256 value as a
-
-    function itoa31 (uint256 x) public pure returns (uint256 y) {
-        unchecked {
-                //Core principle: last byte contains the mantissa of the number
-                //first 31 bytes contain the converted number. 
-                //Start with 0x30 byte offset, then add the number on it. 
-                //0x30 + the number = the byte in hex that represents that number
-                y = 0x0030303030303030303030303030303030303030303030303030303030303030
-                    // Convert the number into ASCII digits and place them in the correct position
-                    + (x % 10)
-                    + ((x / 1e1 % 10) << 8);
-
-                // Use checkpoints to reduce unnecessary divisions and modulo operations
-                if (x < 1e3) {
-                    if (x >= 1e2) return y += ((x * 0x290) & (0xf << 16)) | (3 << 248); // Three digits
-                    if (x >= 1e1) return y += 2 << 248; // Two digits
-                    return y += 1 << 248; // One digit
-                }
-
-                y +=  ((x / 1e2 % 10) << 16)
-                    + ((x / 1e3 % 10) << 24)
-                    + ((x / 1e4 % 10) << 32);
-
-                if (x < 1e6) {
-                    if (x >= 1e5) return y += ((x * 0xa7c5ad) & (0xf << 40)) | (6 << 248); // Six digits
-                    if (x >= 1e4) return y += 5 << 248; // Five digits
-                    return y += 4 << 248; // Four digits
-                }
-
-                y +=  ((x / 1e5 % 10) << 40)
-                    + ((x / 1e6 % 10) << 48)
-                    + ((x / 1e7 % 10) << 56);
-
-                if (x < 1e9) {
-                    if (x >= 1e8) return y += ((x * 0x2af31dc462) & (0xf << 64)) | (9 << 248); // Nine digits
-                    if (x >= 1e7) return y += 8 << 248; // Eight digits
-                    return y += 7 << 248; // Seven digits
-                }
-
-                y +=  ((x / 1e8 % 10) << 64)
-                    + ((x / 1e9 % 10) << 72)
-                    + ((x / 1e10 % 10) << 80);
-
-                if (x < 1e12) {
-                    if (x >= 1e11) return y += ((x * 0xafebff0bcb24b) & (0xf << 88)) | (12 << 248); // Twelve digits
-                    if (x >= 1e10) return y += 11 << 248; // Eleven digits
-                    return y += 10 << 248; // Ten digits
-                }
-
-                y +=  ((x / 1e11 % 10) << 88)
-                    + ((x / 1e12 % 10) << 96)
-                    + ((x / 1e13 % 10) << 104);
-
-                if (x < 1e15) {
-                    if (x >= 1e14) return y += ((x * 0x2d09370d42573603e) & (0xf << 112)) | (15 << 248); // Fifteen digits
-                    if (x >= 1e13) return y += 14 << 248; // Fourteen digits
-                    return y += 13 << 248; // Thirteen digits
-                }
-
-                y +=  ((x / 1e14 % 10) << 112)
-                    + ((x / 1e15 % 10) << 120)
-                    + ((x / 1e16 % 10) << 128);
-
-                if (x < 1e18) {
-                    if (x >= 1e17) return y += ((x * 0xb877aa3236a4b44909bf) & (0xf << 136)) | (18 << 248); // Eighteen digits
-                    if (x >= 1e16) return y += 17 << 248; // Seventeen digits
-                    return y += 16 << 248; // Sixteen digits
-                }
-
-                y +=  ((x / 1e17 % 10) << 136)
-                    + ((x / 1e18 % 10) << 144)
-                    + ((x / 1e19 % 10) << 152);
-
-                if (x < 1e21) {
-                    if (x >= 1e20) return y += ((x * 0x2f394219248446baa23d2ec8) & (0xf << 160)) | (21 << 248); // Twenty-one digits
-                    if (x >= 1e19) return y += 20 << 248; // Twenty digits
-                    return y += 19 << 248; // Nineteen digits
-                }
-
-                y +=  ((x / 1e20 % 10) << 160)
-                    + ((x / 1e21 % 10) << 168)
-                    + ((x / 1e22 % 10) << 176);
-
-                if (x < 1e24) {
-                    if (x >= 1e23) return y += ((x * 0xc16d9a0095928a2775b7053c0f2) & (0xf << 184)) | (24 << 248); // Twenty-four digits
-                    if (x >= 1e22) return y += 23 << 248; // Twenty-three digits
-                    return y += 22 << 248; // Twenty-two digits
-                }
-
-                y +=  ((x / 1e23 % 10) << 184)
-                    + ((x / 1e24 % 10) << 192)
-                    + ((x / 1e25 % 10) << 200);
-
-                if (x < 1e27) {
-                    if (x >= 1e26) return y += ((x * 0x318481895d962776a54d92bf80caa07) & (0xf << 208)) | (27 << 248); // Twenty-seven digits
-                    if (x >= 1e25) return y += 26 << 248; // Twenty-six digits
-                    return y += 25 << 248; // Twenty-five digits
-                }
-
-                y +=  ((x / 1e26 % 10) << 208)
-                    + ((x / 1e27 % 10) << 216)
-                    + ((x / 1e28 % 10) << 224);
-
-                if (x < 1e30) {
-                    if (x >= 1e29) return y += ((x * 0xcad2f7f5359a3b3e096ee45813a0433060) & (0xf << 232)) | (30 << 248); // Thirty digits
-                    if (x >= 1e28) return y += 29 << 248; // Twenty-nine digits
-                    else return y += 28 << 248; // Twenty-eight digits
-                }
-
-                y +=  ((x / 1e29 % 10) << 232)
-                    + ((x / 1e30 % 10) << 240); 
-
-                return y += 31 << 248; // Thirty-one digits
-            }
-    }
-
     function getChainId(bytes32 chain_id_1_tmp, bytes32 chain_id_2_tmp, bytes32 chain_id_3_tmp, uint256 chain_id_length_tmp) public pure returns (string memory result) {
         assembly {
             result := mload(0x40)
@@ -391,6 +218,17 @@ contract Gateway is Ownable {
         }
     }
 
+    /// @notice Converts a uint256 into bytes
+    // https://ethereum.stackexchange.com/a/78487/9680
+
+    function toBytes(uint256 a) public pure returns (bytes32) {
+        uint i;
+        for (i = 0; i < 33; i++) {
+            if (a / 256**i == 0) break;
+        }
+        return bytes32(a) << (32-i)*8;
+    }
+
     /*//////////////////////////////////////////////////////////////
                               Events
     //////////////////////////////////////////////////////////////*/
@@ -411,22 +249,18 @@ contract Gateway is Ownable {
     /// @notice Emitted when the VRF callback was fulfilled
     event FulfilledRandomWords(uint256 indexed requestId);
 
-    // /*//////////////////////////////////////////////////////////////
-    //                          Initializer
-    // //////////////////////////////////////////////////////////////*/
+    constructor(uint256 _senderPubkey, address secretGatewaySignerAddr) {
+        require (_senderPubkey == address(0x0), "Invalid public key provided cannot be 0x0");
+        require ( checkPubKey(bytes uint256toBytesString(_senderPubkey), msg.sender), "Message sender public key does not match the provided public key");
 
-    // /// @notice Replaces the constructor for upgradeable contracts
-
-    // function initialize() public initializer {
-    //     __Ownable_init(msg.sender);
-    //     taskId = 1;
-    // }
-
-    constructor(address secretGatewaySignerAddr) {
-        // _disableInitializers();
-
+        // Initializer
+        // Set owner to be the deployed NunyaBusiness.sol contract
         owner = msg.sender;
+        // Store public key of the creator of the Gateway.sol contract.
+        secret_gateway_signer_pubkey = _senderPubkey;
+
         taskId = 1;
+        nonce = 0;
 
         // Used as an override for testing. 
         // If not specified otherwise for testing, this just defaults to the signing address defined at the top.
@@ -467,6 +301,14 @@ contract Gateway is Ownable {
         taskId = _newTaskId;
     }
 
+    /// @notice Increase the nonce if needed
+    /// @param _newNonce the new nonce
+
+    function increaseNonce(uint256 _newNonce) external onlyOwner {
+        require (_newNonce > nonce, "New nonce must be higher than the old nonce");
+        nonce = _newNonce;
+    }
+
     /// @notice Payout the paid balance to the owner
 
     function payoutBalance() external onlyOwner {
@@ -490,19 +332,20 @@ contract Gateway is Ownable {
 
     /// @notice Creates a new task with provided execution info
     /// @param _payloadHash Hash of the payload
-    /// @param _userAddress Address of the user .. WARNING - does not perform same purpose in this modified version 
+    /// @param _userAddress Address of the user .. WARNING - does not perform same purpose in this modified version
+    // where the NunyaBusiness.sol contract address is being sent instead 
     /// @param _routingInfo Routing information
     /// @param _info Execution information
 
-    function send(        
+    function send(
         bytes32 _payloadHash,
-        address _userAddress,
+        address _nunyaBusinessContractAddress,
         string calldata _routingInfo,
         ExecutionInfo calldata _info) 
-        external payable returns (uint256 _taskId) {
+        external payable onlyOwner returns (uint256 _taskId) {
 
         _taskId = taskId;
-        
+
         uint256 estimatedPrice = estimateRequestPrice(_info.callback_gas_limit);
 
         // Refund any excess gas paid beyond the estimated price
@@ -523,8 +366,8 @@ contract Gateway is Ownable {
         emit logNewTask(
             _taskId,
             getChainId(chain_id_1, chain_id_2, chain_id_3, chain_id_length),
-            // Note: previously _userAddress but customized for Nunya
-            msg.sender,
+            // Note: previously _userAddress but customized for Nunya to be NunyaBusiness.sol
+            owner,
             _routingInfo,
             _payloadHash,
             _info
@@ -532,77 +375,6 @@ contract Gateway is Ownable {
 
         //Increase the taskId to be used in the next gateway call. 
 	    taskId = _taskId + 1;
-    }
-
-    /// @notice Requests random words for VRF
-    /// @param _numWords The number of random words requested
-    /// @param _callbackGasLimit The gas limit for the callback
-    /// @return requestId The request ID for the random words
-
-    function requestRandomness(
-        uint32 _numWords,
-        uint32 _callbackGasLimit
-    ) external payable returns (uint256 requestId) {
-
-        requestId = taskId;
-
-        //Set limit on how many random words can be requested
-        require(_numWords <= 2000, "Too Many random words Requested");
-
-        uint256 estimatedPrice = estimateRequestPrice(_callbackGasLimit);
-
-        // Refund any excess gas paid beyond the estimated price
-        if (msg.value > estimatedPrice) {
-            payable(tx.origin).transfer(msg.value - estimatedPrice);
-        } else {
-            // If not enough gas was paid, revert the transaction
-            require(msg.value >= estimatedPrice, "Paid Callback Fee Too Low");
-        }
-
-        //construct the payload that is sent into the Secret Gateway
-        bytes memory payload = bytes.concat(
-            '{"data":"{\\"numWords\\":',
-            uint256toBytesString(_numWords),
-            VRF_info,
-            encodeAddressToBase64(msg.sender), //callback_address
-            '","callback_selector":"OLpGFA==","callback_gas_limit":', // 0x38ba4614 hex value already converted into base64, callback_selector of the fullfillRandomWords function
-            uint256toBytesString(_callbackGasLimit),
-            '}' 
-        );
-
-        //generate the payload hash using the ethereum hash format for messages
-        bytes32 payloadHash = ethSignedPayloadHash(payload);
-
-        bytes memory emptyBytes = hex"0000";
-
-        // ExecutionInfo struct
-        ExecutionInfo memory executionInfo = ExecutionInfo({
-            user_key: emptyBytes, // equals AAA= in base64
-            user_pubkey: emptyBytes, // Fill with 0 bytes
-            routing_code_hash: VRF_routing_code_hash, //RNG Contract codehash on Secret 
-            task_destination_network: task_destination_network,
-            handle: "request_random",
-            nonce: bytes12(0),
-            callback_gas_limit: _callbackGasLimit,
-            payload: payload,
-            payload_signature: emptyBytes // empty signature, fill with 0 bytes
-        });
-
-        // persisting the task
-        tasks[requestId] = Task(bytes31(payloadHash), false);
-
-        //emit the task to be picked up by the relayer
-        emit logNewTask(
-            requestId,
-            getChainId(chain_id_1, chain_id_2, chain_id_3, chain_id_length),
-            tx.origin,
-            VRF_routing_info, //RNG Contract address on Secret 
-            payloadHash,
-            executionInfo
-        );
-
-        //Output the current task_id / request_id to the user and increase the taskId to be used in the next gateway call. 
-        taskId = requestId + 1;
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -619,7 +391,7 @@ contract Gateway is Ownable {
         Task memory task = tasks[_taskId];
 
         // Check if the task is already completed
-        require(!task.completed,"Task Already Completed");
+        require(!task.completed, "Task Already Completed");
 
         // Check if the payload hashes match
         require(bytes31(_info.payload_hash) == task.payload_hash_reduced, "Invalid Payload Hash");
@@ -652,8 +424,10 @@ contract Gateway is Ownable {
 
         // Continue with the function execution
 
-        // Additional conversion for Secret VRF into uint256[] if callback_selector matches the fullfillRandomWords selector.
-        bool callbackSuccessful; 
+        // Additional conversion if callback_selector matches
+        bool callbackSuccessful;
+
+        // case where callback_selector is the fulfillRandomWords function
         if (_info.callback_selector == 0x38ba4614) {
             (callbackSuccessful, ) = address(_info.callback_address).call(
                 prepareRandomnessBytesToCallbackData(0x38ba4614, _taskId, _info.result));
@@ -670,6 +444,173 @@ contract Gateway is Ownable {
                      New Functions for Upgradeability
     //////////////////////////////////////////////////////////////*/
     function upgradeHandler() public {
+    }
+
+    /// @notice Request value from the deployed secret contract
+    /// @param _callbackSelector callback function to call in Secret contract as argument
+    /// @param _callbackGasLimit The gas limit for the callback
+    /// @return requestId The request ID for the random words
+
+    function requestValue(uint256 _callbackSelector, uint32 _callbackGasLimit) external payable onlyOwner returns (uint256 requestId) {
+        // console.log("------ Gateway.requestValue");
+
+        requestId = taskId;
+
+        // TODO: optionally add guard to verify value of _callbackSelector if necessary
+
+        uint256 estimatedPrice = estimateRequestPrice(_callbackGasLimit);
+
+        // Refund any excess gas paid beyond the estimated price
+        if (msg.value > estimatedPrice) {
+            payable(tx.origin).transfer(msg.value - estimatedPrice);
+        } else {
+            // If not enough gas was paid, revert the transaction
+            require(msg.value >= estimatedPrice, "Paid Callback Fee Too Low");
+        }
+
+        // Note: Since contracts only have an address, but not public keys, where the
+        // addresses are derived from the address of the user (or other contract) that
+        // created them, which are in turn are derived from the public key of a normal
+        // user's keypair. So we will use the public key of the `owner` that created the
+        // Gateway contract.
+        //
+        // TODO: We will use the base64 value for both the value of the `user_key` and
+        // the `user_pubkey`, but they should be different and `user_key` suggested to
+        // be base64 (e.g. `AAA=`)
+        bytes payload_info = abi.encodePacked(
+            '}","routing_info":"',routing_info,
+            '","routing_code_hash":"',routing_code_hash,
+            '","user_address":"',address(owner),
+            '","user_key":"',encodeAddressToBase64(address(owner)),
+            '","callback_address":"',address(owner),
+            '"'
+        );
+
+        //construct the payload that is sent into the Secret Gateway
+        bytes memory payload = bytes.concat(
+            '{"data":"{\\"callbackSelector\\":',
+            uint256toBytesString(_callbackSelector),
+            payload_info,
+            encodeAddressToBase64(address(owner)), //callback_address
+            // callback selector should be a hex value already converted into base64 to be used
+            // as callback_selector of the request_value function in the Secret contract 
+            '","callback_selector":"',_callbackSelector,
+            '","callback_gas_limit":',uint256toBytesString(_callbackGasLimit),
+            '}' 
+        );
+
+        uint256 _newNonce = nonce + 1;
+        increaseNonce(_newNonce);
+
+        //generate the payload hash using the ethereum hash format for messages
+        bytes32 payloadHash = ethSignedPayloadHash(payload);
+
+        bytes memory emptyBytes = hex"0000";
+
+        // ExecutionInfo struct
+        ExecutionInfo memory executionInfo = ExecutionInfo({
+            // TODO - make `user_key` a unique key different from `user_pubkey`
+            user_key: encodeAddressToBase64(address(owner)), // equals AAA= in base64
+            user_pubkey: uint256toBytesString(secret_gateway_signer_pubkey), // Fill with 0 bytes
+            routing_code_hash: routing_code_hash, // custom contract codehash on Secret 
+            task_destination_network: task_destination_network,
+            handle: "request_value",
+            nonce: bytes12(toBytes(_newNonce)),
+            callback_gas_limit: _callbackGasLimit,
+            payload: payload,
+            // TODO: add a payload signature
+            // Signature of hash of encrypted input values
+            payload_signature: payloadHash // empty signature, fill with 0 bytes
+        });
+
+        // persisting the task
+        tasks[requestId] = Task(bytes31(payloadHash), false);
+
+        //emit the task to be picked up by the relayer
+        emit logNewTask(
+            requestId,
+            getChainId(chain_id_1, chain_id_2, chain_id_3, chain_id_length),
+            tx.origin,
+            routing_info, // custom contract address on Secret 
+            payloadHash,
+            executionInfo
+        );
+
+        //Output the current task_id / request_id to the user and increase the taskId to be used in the next gateway call. 
+        taskId = requestId + 1;
+    }
+
+    /// @notice Retrieves public key of the deployed secret contract
+    /// @param _callbackSelector callback function to call in Secret contract as argument
+    /// @param _callbackGasLimit The gas limit for the callback
+    /// @return requestId The request ID for the random words
+
+    function retrievePubkey(uint256 _callbackSelector, uint32 _callbackGasLimit) external payable returns (uint256 requestId) {
+        // console.log("------ Gateway.retrievePubkey");
+
+        requestId = taskId;
+
+        // TODO: optionally add guard to verify value of _callbackSelector if necessary
+
+        uint256 estimatedPrice = estimateRequestPrice(_callbackGasLimit);
+
+        // Refund any excess gas paid beyond the estimated price
+        if (msg.value > estimatedPrice) {
+            payable(tx.origin).transfer(msg.value - estimatedPrice);
+        } else {
+            // If not enough gas was paid, revert the transaction
+            require(msg.value >= estimatedPrice, "Paid Callback Fee Too Low");
+        }
+
+        // TODO - modify below to be similar to request_value with custom `payload_info`
+
+        //construct the payload that is sent into the Secret Gateway
+        bytes memory payload = bytes.concat(
+            '{"data":"{\\"callbackSelector\\":',
+            uint256toBytesString(_callbackSelector),
+            payload_info,
+            encodeAddressToBase64(msg.sender), //callback_address
+            '","callback_selector":"OLpGFA==","callback_gas_limit":', // 0x38ba4614 hex value already converted into base64, callback_selector of the fulfillRandomWords function
+            uint256toBytesString(_callbackGasLimit),
+            '}' 
+        );
+
+        uint256 _newNonce = nonce + 1;
+        increaseNonce(_newNonce);
+
+        //generate the payload hash using the ethereum hash format for messages
+        bytes32 payloadHash = ethSignedPayloadHash(payload);
+
+        bytes memory emptyBytes = hex"0000";
+
+        // ExecutionInfo struct
+        ExecutionInfo memory executionInfo = ExecutionInfo({
+            user_key: emptyBytes, // equals AAA= in base64
+            user_pubkey: emptyBytes, // Fill with 0 bytes
+            routing_code_hash: routing_code_hash, // custom contract codehash on Secret 
+            task_destination_network: task_destination_network,
+            handle: "retrieve_pubkey",
+            nonce: bytes12(toBytes(_newNonce)),
+            callback_gas_limit: _callbackGasLimit,
+            payload: payload,
+            payload_signature: emptyBytes // empty signature, fill with 0 bytes
+        });
+
+        // persisting the task
+        tasks[requestId] = Task(bytes31(payloadHash), false);
+
+        //emit the task to be picked up by the relayer
+        emit logNewTask(
+            requestId,
+            getChainId(chain_id_1, chain_id_2, chain_id_3, chain_id_length),
+            tx.origin,
+            routing_info, // custom contract address on Secret 
+            payloadHash,
+            executionInfo
+        );
+
+        //Output the current task_id / request_id to the user and increase the taskId to be used in the next gateway call. 
+        taskId = requestId + 1;
     }
 
     function newSecretUser(string calldata secret) public pure returns (uint256) {
@@ -694,11 +635,6 @@ contract Gateway is Ownable {
     function withdrawTo(string calldata secret, uint256 amount, string calldata denomination, address withdrawalAddress) public pure returns (uint256) {
         // console.log("------ DummyGateway.withdraw", secret, amount, denomination, withdrawalAddress);
         return 2;
-    }
-
-    function retrievePubkey() public pure returns (uint256){
-        // console.log("------ DummyGateway.retrievePubkey");
-        return 1;
     }
 
     fallback() external payable {

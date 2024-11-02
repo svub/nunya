@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 // IDEA Maybe it should be called GatewayContract? Or GatewayInterface
-interface ISecretContract {
+interface IDummyGateway {
     function newSecretUser(string calldata secret) external returns (uint256);
     function createPaymentReference(string calldata secret, string calldata ref) external returns (uint256);
     function pay(string calldata secret, string calldata ref, uint256 amount, string calldata denomination) external returns (uint256);

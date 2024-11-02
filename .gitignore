@@ -31,7 +31,7 @@ logs/
 .nx/cache
 tsconfig.tsbuildinfo
 .env
-packages/secret-upload-contract/.env
+packages/secret-contracts-scripts/.env
 packages/secret-instantiate-contract/.env
 
 ## ignore different deployments while we are in dev (comment this once contracts stable)

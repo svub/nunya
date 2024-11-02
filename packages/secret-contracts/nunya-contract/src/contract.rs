@@ -2,7 +2,7 @@ use crate::{
     msg::{
         ExecuteMsg, GatewayMsg, InstantiateMsg, QueryMsg,
         NewAuthOutStoreMsg, LinkPaymentRefStoreMsg, PayStoreMsg, WithdrawToStoreMsg,
-        ResponseRetrievePubkeyStoreMsg, ResponseNewAuthOutStoreMsg, ResponseLinkPaymentRefStoreMsg, ResponsePayStoreMsg, ResponseWithdrawToStoreMsg, ResponseRetrievePubkeyMsg,
+        ResponseRequestValueMsg, ResponseRetrievePubkeyStoreMsg, ResponseNewAuthOutStoreMsg, ResponseLinkPaymentRefStoreMsg, ResponsePayStoreMsg, ResponseWithdrawToStoreMsg, ResponseRetrievePubkeyMsg,
     },
     state::{
         PaymentReceipt, PaymentReferenceBalance, ResponseStatusCode,
@@ -10,6 +10,7 @@ use crate::{
         VIEWING_KEY, VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP,
     },
 };
+use base64::{engine::general_purpose, Engine};
 use cosmwasm_std::{
     entry_point, to_binary, to_vec, coin, Binary, Coin, ContractResult, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult, SystemResult, Uint128, Uint256
 };
@@ -39,6 +40,7 @@ pub fn instantiate(
         gateway_address: msg.gateway_address,
         gateway_hash: msg.gateway_hash,
         gateway_key: msg.gateway_key,
+        nunya_business_contract_address: msg.nunya_business_contract_address,
     };
 
     CONFIG.save(deps.storage, &state)?;
@@ -64,16 +66,22 @@ fn try_handle(
     // verify signature with stored gateway public key
     let config = CONFIG.load(deps.storage)?;
 
-    // SecretPath source code
-    // public network user address
-    let user_address = msg.user_address;
-
     // Security
     //
     // reference: evm-kv-store-demo
     if info.sender != config.gateway_address {
         return Err(StdError::generic_err(
             "Only SecretPath Gateway can call this function",
+        ));
+    }
+
+    let nunya_account: String = String::from_utf8(config.nunya_business_contract_address).unwrap();
+
+    // SecretPath source code
+    // public network user address
+    if msg.user_address != nunya_account {
+        return Err(StdError::generic_err(
+            "Only NunyaBusiness contract can call this function via SecretPath Gateway",
         ));
     }
 
@@ -88,6 +96,9 @@ fn try_handle(
     // determine which function to call based on the included handle
     let handle = msg.handle.as_str();
     match handle {
+        // TODO: change all below to snake_case if required for Gateway contract to be able to call.
+        // but first test that `request_value` works.
+        "request_value" => request_value(deps, env, info, msg.input_values, msg.task, msg.input_hash),
         "retrievePubkey" => retrieve_pubkey(deps, env, info, msg.input_values, msg.task, msg.input_hash),
         "newSecretUser" => create_new_auth_out(deps, env, info, msg.input_values, msg.task, msg.input_hash),
         "createPaymentReference" => create_payment_reference(deps, env, msg.input_values, msg.task, msg.input_hash),
@@ -98,6 +109,58 @@ fn try_handle(
 
         _ => Err(StdError::generic_err("invalid handle".to_string())),
     }
+}
+
+// Only for testing that it works e2e
+fn request_value(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    input_values: String,
+    task: Task,
+    input_hash: Binary,
+) -> StdResult<Response> {
+    let config = CONFIG.load(deps.storage)?;
+
+    let response_status_code: ResponseStatusCode = 0u16;
+
+    let value = "NUNYA".to_string();
+
+    // TODO - println!("callback stuff: {:#?}", val);
+
+    let nunya_account: String = String::from_utf8(config.nunya_business_contract_address).unwrap();
+
+    let data = ResponseRequestValueMsg {
+        _request_id: task.clone(),
+        _key: value.into_bytes(),
+        _code: response_status_code,
+        _nunya_business_contract_address: nunya_account,
+    };
+
+    let json_string =
+        serde_json_wasm::to_string(&data).map_err(|err| StdError::generic_err(err.to_string()))?;
+
+    let result = general_purpose::STANDARD.encode(json_string);
+
+    // Get the contract's code hash using the gateway address
+    let gateway_code_hash = get_contract_code_hash(deps, config.gateway_address.to_string())?;
+
+    let callback_msg = GatewayMsg::Output {
+        outputs: PostExecutionMsg {
+            result,
+            task,
+            input_hash,
+        },
+    }
+    .to_cosmos_msg(
+        gateway_code_hash,
+        config.gateway_address.to_string(),
+        None,
+    )?;
+
+    Ok(Response::new()
+        .add_message(callback_msg)
+        .add_attribute("status", "request_value"))
 }
 
 fn retrieve_pubkey(
@@ -142,18 +205,19 @@ fn retrieve_pubkey(
 
     let response_status_code: ResponseStatusCode = 0u16;
 
+    let nunya_account: String = String::from_utf8(config.nunya_business_contract_address).unwrap();
+
     let data = ResponseRetrievePubkeyStoreMsg {
         _request_id: task.clone(),
         _key: my_keys.public_key,
         _code: response_status_code,
-        // Example only
-        _user_address: input.user_address,
+        _nunya_business_contract_address: nunya_account,
     };
 
     let json_string =
         serde_json_wasm::to_string(&data).map_err(|err| StdError::generic_err(err.to_string()))?;
 
-    let result = base64::encode(json_string);
+    let result = general_purpose::STANDARD.encode(json_string);
 
     // Get the contract's code hash using the gateway address
     let gateway_code_hash = get_contract_code_hash(deps, config.gateway_address.to_string())?;
@@ -198,14 +262,16 @@ fn create_new_auth_out(
     // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-implementation
     let gateway_account = config.gateway_address.to_owned();
     let mut index_concat: String = gateway_account.to_string();
+    let nunya_account: String = String::from_utf8(config.nunya_business_contract_address).unwrap();
     let suffix: &str = viewing_key_index;
     // mutate in place https://stackoverflow.com/a/30154791/3208553
+    index_concat.push_str(nunya_account.as_str());
     index_concat.push_str(suffix);
 
     // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-introduction
     // https://github.com/scrtlabs/examples/blob/master/secret-viewing-keys/secret-viewing-keys-contract/src/contract.rs
     let entropy: &[u8] = viewing_key_index.as_bytes();
-    let viewing_key = ViewingKey::create(deps.storage, &info, &env, gateway_account.as_str(), entropy);
+    let viewing_key = ViewingKey::create(deps.storage, &info, &env, index_concat.as_str(), entropy);
 
     // Viewing Key
     VIEWING_KEY
@@ -248,7 +314,7 @@ fn create_new_auth_out(
     let json_string =
         serde_json_wasm::to_string(&data).map_err(|err| StdError::generic_err(err.to_string()))?;
 
-    let result = base64::encode(json_string);
+    let result = general_purpose::STANDARD.encode(json_string);
 
     // Get the contract's code hash using the gateway address
     let gateway_code_hash = get_contract_code_hash(deps, config.gateway_address.to_string())?;
@@ -298,7 +364,9 @@ fn create_payment_reference(
     // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-implementation
     let gateway_account = config.gateway_address.to_owned();
     let mut index_concat: String = gateway_account.to_string();
+    let nunya_account: String = String::from_utf8(config.nunya_business_contract_address).unwrap();
     let suffix: &str = viewing_key_index;
+    index_concat.push_str(nunya_account.as_str());
     index_concat.push_str(suffix);
 
     let entropy: &str = viewing_key_index.clone();
@@ -356,7 +424,7 @@ fn create_payment_reference(
     let json_string =
         serde_json_wasm::to_string(&data).map_err(|err| StdError::generic_err(err.to_string()))?;
 
-    let result = base64::encode(json_string);
+    let result = general_purpose::STANDARD.encode(json_string);
 
     // Get the contract's code hash using the gateway address
     let gateway_code_hash = get_contract_code_hash(deps, config.gateway_address.to_string())?;
@@ -414,7 +482,9 @@ fn create_pay(
     // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-implementation
     let gateway_account = config.gateway_address.to_owned();
     let mut index_concat: String = gateway_account.to_string();
+    let nunya_account: String = String::from_utf8(config.nunya_business_contract_address).unwrap();
     let suffix: &str = viewing_key_index;
+    index_concat.push_str(nunya_account.as_str());
     index_concat.push_str(suffix);
 
     let entropy: &str = viewing_key_index.clone();
@@ -512,7 +582,7 @@ fn create_pay(
     let json_string =
         serde_json_wasm::to_string(&data).map_err(|err| StdError::generic_err(err.to_string()))?;
 
-    let result = base64::encode(json_string);
+    let result = general_purpose::STANDARD.encode(json_string);
 
     // Get the contract's code hash using the gateway address
     let gateway_code_hash = get_contract_code_hash(deps, config.gateway_address.to_string())?;
@@ -571,7 +641,9 @@ fn create_withdraw_to(
     // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-implementation
     let gateway_account = config.gateway_address.to_owned();
     let mut index_concat: String = gateway_account.to_string();
+    let nunya_account: String = String::from_utf8(config.nunya_business_contract_address).unwrap();
     let suffix: &str = viewing_key_index;
+    index_concat.push_str(nunya_account.as_str());
     index_concat.push_str(suffix);
 
     let entropy: &str = viewing_key_index.clone();
@@ -629,7 +701,7 @@ fn create_withdraw_to(
     let json_string =
         serde_json_wasm::to_string(&data).map_err(|err| StdError::generic_err(err.to_string()))?;
 
-    let result = base64::encode(json_string);
+    let result = general_purpose::STANDARD.encode(json_string);
 
     // Get the contract's code hash using the gateway address
     let gateway_code_hash = get_contract_code_hash(deps, config.gateway_address.to_string())?;

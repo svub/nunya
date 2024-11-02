@@ -21,6 +21,7 @@ pub struct State {
     pub gateway_address: Addr,
     pub gateway_hash: String,
     pub gateway_key: Binary,
+    pub nunya_business_contract_address: Vec<u8>,
 }
 
 // Secret contract keys

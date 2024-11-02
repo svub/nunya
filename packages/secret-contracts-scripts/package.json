@@ -1,5 +1,5 @@
 {
-  "name": "secret-upload-contract",
+  "name": "secret-contracts-scripts",
   "version": "0.0.1",
   "main": "index.js",
   "private": true,

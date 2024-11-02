@@ -6,15 +6,20 @@ import "hardhat/console.sol";
 // import "@openzeppelin/contracts/";
 // import "@openzeppelin/contracts/access/Ownable.sol";
 // TODO: replace with interface of "./Gateway.sol"
-// import "./ISecretContract.sol";
+// import "./IDummyGateway.sol";
 import "./IGateway.sol";
 
 import "./JsmnSolLib.sol";
 
+import "./Utils.sol";
+
+import "./Ownable.sol";
+
 /**
+ * @notice Gateway Receiver
  * @author
  */
-contract NunyaBusiness {
+contract NunyaBusiness is Ownable, Utils {
 
     enum FunctionCallType {
         OTHER, GET_KEY, NEW_USER, NEW_REF, PAY, WITHDRAW, ERROR
@@ -35,12 +40,24 @@ contract NunyaBusiness {
         bytes32 sig;
     }
 
-    address payable gateway;
+    /// @notice CustomGateway stores address to the Gateway contract to call the Secret contract
+    address payable CustomGateway;
+
     IGateway secretContract;
+
+    uint256 senderPubkey;
     uint256 secretContractPubkey;
+
     mapping (uint256 => FunctionCallType) expectedResult;
 
     // TODO could an account be created the first time a user creates a ref?
+
+    /// @notice Event that is emitted when a call was made (optional)
+    /// @param requestId requestId of the request. Contract can track a call that way
+    event RequestedValue(uint256 requestId);
+    event FulfilledValue(uint256 requestId, uint256 value, uint16 code, address _nunya_business_contract_address);
+    event RetrievePubkey(uint256 requestId);
+    event FulfilledPubkey(uint256 requestId, uint256 pubkey, uint16 code, address _nunya_business_contract_address);
     event AccountCreated(uint256 requestId, uint16 code);
     event PaymentReferenceCreated(uint256 requestId, uint16 code, string ref);
     event PaymentProcessed(uint256 requestId, uint16 code);
@@ -48,9 +65,14 @@ contract NunyaBusiness {
     event WithdrawalProcessed(uint256 requestId, uint16 code, uint256 amount);
     event SecretNetworkError(uint256 requestId, uint16 code, string message);
 
-    constructor(address payable _gateway) payable {
-        gateway = _gateway;
-        secretContract = IGateway(_gateway);
+    constructor(uint256 _senderPubkey, address payable _CustomGateway) payable {
+        require (_senderPubkey == address(0x0), "Invalid public key provided cannot be 0x0");
+        require ( checkPubKey(bytes uint256toBytesString(_senderPubkey), msg.sender), "Message sender public key does not match the provided public key");
+
+        owner = msg.sender;
+        senderPubkey = _senderPubkey;
+
+        setGatewayAddress(_CustomGateway);
         console.log("constructor: msg.value", msg.value);
         fundGateway(0); // send all funds to the gateway
 
@@ -67,9 +89,14 @@ contract NunyaBusiness {
     }
 
     modifier onlyGateway {
-        require (gateway != address(0), "No gateway set");
-        require (msg.sender == gateway, "Only gateway can call callbacks. Use the user function instead");
+        require (address(CustomGateway) != address(0), "No gateway set");
+        // Checks if the callback was called by the CustomGateway and not by any other address
+        require (msg.sender == address(CustomGateway), "Only gateway can call callbacks. Use the user function instead");
         _;
+    }
+
+    modifier onlyNunyaBusinessContractMessageSender {
+        // TODO - not for debugging, only production
     }
 
     modifier validateRequest(uint256 _id, FunctionCallType _type) {
@@ -78,32 +105,94 @@ contract NunyaBusiness {
         _;
     }
 
-    // testing function - DO NOT KEEP IN PROD!
-    function unsafeGetSecretContractPubkey () public {
-        secretContract = IGateway(gateway);
-        uint256 requestId = secretContract.retrievePubkey();
-        console.log("requested secret contract pubkey - requestId=", requestId);
+    /// @notice Sets the address to the Gateway contract 
+    /// @param _CustomGateway address of the gateway
+    function setGatewayAddress(address _CustomGateway) private onlyOwner {
+        CustomGateway = _CustomGateway;
     }
 
-    function setSecretContractPubkeyCallback (uint256 _requestId, uint256 _key) public onlyGateway validateRequest(_requestId, FunctionCallType.GET_KEY) {
+    /// @notice Demo function on how to implement a call
+    // e.g. callbackGaslimit of 300000
+    // testing function - DO NOT KEEP IN PROD!
+    function unsafeRequestValue (uint256 _callbackSelector, uint32 _callbackGasLimit) public payable onlyOwner {
+        // Get the CustomGateway contract interface 
+        IGateway customGateway = IGateway(CustomGateway);
+
+        // Call the CustomGateway for a specific request
+        // Returns requestId of the request. A contract can track the call that way.
+        uint256 requestId = customGateway.requestValue{value: msg.value}(senderPubkey, _callbackSelector, _callbackGasLimit);
+        console.log("requested secret contract value - requestId=", requestId);
+
+        // Emit the event
+        emit RequestedValue(requestId);
+    }
+
+    /// @notice Callback by the CustomGateway with the requested value
+    /// @param requestId requestId of the request that was initally called
+    /// @param value Value in uint256
+    function fulfilledValueCallback(uint256 _requestId, uint256 calldata _value, uint16 _code, address _nunya_business_contract_address) external onlyGateway {
+        console.log("fulfilledValueCallback - requestId", _requestId);
+        console.log("fulfilledValueCallback - value", _value);
+        console.log("fulfilledValueCallback - code", _code);
+        console.log("fulfilledValueCallback - nunya_business_contract_address", _nunya_business_contract_address);
+
+        emit FulfilledValue(_requestId, _value, _code, _nunya_business_contract_address);
+
+        // TODO - move to start of callback function after debugging
+        console.log("fulfilledValueCallback - address(this)", address(this));
+        require(address(this) == _nunya_business_contract_address);
+    }
+
+    /// @notice Demo function on how to implement a call
+    // e.g. callbackGaslimit of 300000
+    // testing function - DO NOT KEEP IN PROD!
+    function unsafeRequestSecretContractPubkey (uint32 _callbackSelector, uint32 _callbackGasLimit) public payable {
+        // Get the CustomGateway contract interface 
+        IGateway customGateway = IGateway(CustomGateway);
+
+        uint256 requestId = customGateway.retrievePubkey{value: msg.value}(senderPubkey, _callbackSelector, _callbackGasLimit);
+        console.log("requested secret contract pubkey - requestId=", requestId);
+
+        // Emit the event
+        emit RetrievePubkey(requestId);
+    }
+
+    /// @notice Callback by the CustomGateway with the requested value
+    /// @param requestId requestId of the request that was initally called
+    /// @param _key Public key of the custom Secret contract deployed on the Secret network
+    function fulfilledSecretContractPubkeyCallback (uint256 _requestId, uint256 _key, uint16 _code, address _nunya_business_contract_address) public onlyGateway validateRequest(_requestId, FunctionCallType.GET_KEY) {
         // require (secretContractPubkey==0, "Key already set");
         // Make sure it's our secret contract setting the key, not some interloper
         // (will fail one time in 2^96 ;)
         // require (secretContractPubkey  < 2**160, "Only the contract constructor can trigger this function");
 
-        // IDEA secretContract.retrievePubkey() could return the requestId as a result, which could be stored in the contructor and then compared here, only when it mateches, the key will be accepted.
+        // IDEA customGateway.retrievePubkey() could return the requestId as a result, which could be stored in the contructor and then compared here, only when it mateches, the key will be accepted.
         // IDEA turned this into a modifier, leaving the code for discussion and then removal
         // require (expectedResult[_requestId] == FunctionCallType.GET_KEY);
         // delete expectedResult[_requestId];
         secretContractPubkey = _key;
+
+        console.log("fulfilledSecretContractPubkeyCallback - requestId", _requestId);
+        console.log("fulfilledSecretContractPubkeyCallback - key", _key);
+        console.log("fulfilledSecretContractPubkeyCallback - code", _code);
+        console.log("fulfilledSecretContractPubkeyCallback - nunya_business_contract_address", _nunya_business_contract_address);
+
+        emit FulfilledPubkey(_requestId, _key, _code, _nunya_business_contract_address);
+
+        // TODO - move to start of callback function after debugging
+        console.log("fulfilledSecretContractPubkeyCallback - address(this)", address(this));
+        require(address(this) == _nunya_business_contract_address);
     }
 
     // Function wrapped in secret network payload encryption
     // TODO needed? or could a new account be created on the fly when creating the first payment ref?
     function newSecretUser(string calldata _secret) public payable returns (uint256){
+        // Get the CustomGateway contract interface 
+        IGateway customGateway = IGateway(CustomGateway);
+
         // TODO make sure the funding is high enough to pay for fees calling the contract.
-        fundGateway(10000000); // TODO find out how much gas is needed to call secretContract.newSecretUser(_secret)
-        uint256 requestId = secretContract.newSecretUser(_secret);
+        fundGateway(10000000); // TODO find out how much gas is needed to call customGateway.newSecretUser(_secret)
+        uint256 requestId = customGateway.newSecretUser(_secret);
         expectedResult[requestId] = FunctionCallType.NEW_USER;
         console.log("----- NunyaBusiness.sol newSecretUser requestId: ", requestId);
         return(requestId);
@@ -116,9 +205,12 @@ contract NunyaBusiness {
     // Function wrapped in secret network payload encryption
     // IDEA have the ref being created inside the secret contract, this way we avoid any potential collisions with already existing references.
     function createPaymentReference(string calldata _secret, string calldata _ref) public payable returns (uint256){
+        // Get the CustomGateway contract interface 
+        IGateway customGateway = IGateway(CustomGateway);
+
         fundGateway(50000); // TODO 50000 is the minimum, need to adjust to a good estimate
         // IDEA the requestId could be created here and forwarded to the gateway. This way, the gateway becames very slim, just forwarding calls and callbacks while all logic is handled here.
-        uint256 requestId = secretContract.createPaymentReference(_secret, _ref);
+        uint256 requestId = customGateway.createPaymentReference(_secret, _ref);
         expectedResult[requestId] = FunctionCallType.NEW_REF;
         return(requestId);
     }
@@ -134,6 +226,9 @@ contract NunyaBusiness {
     // TODO: use ref encrypted with (user pubkey+salt)
     // TODO: `string calldata secret` or `uint256 secret`
     function pay(string calldata _valueJson, string calldata _ref, uint256 _value, string calldata _denomination) public payable returns (uint256) {
+        // Get the CustomGateway contract interface 
+        IGateway customGateway = IGateway(CustomGateway);
+
         // >= because we need gas for fees
         uint256 gasPaid = fundGateway(50000); // TODO 50000 is the minimum, need to adjust to a good estimate
         require(msg.value >= _value + gasPaid, "Not enough value sent to pay for gas.");
@@ -142,7 +237,7 @@ contract NunyaBusiness {
         // Token claimedPayment = parse(_valueJson);
         // require (msg.value === claimedPayment, "incorrect payment value - ensure _valueJson is in the format {amount: paymentAmount, ... } and that msg.value == paymentAmount exactly.");
 
-        uint256 requestId = secretContract.pay(_valueJson, _ref, msg.value - gasPaid, _denomination);
+        uint256 requestId = customGateway.pay(_valueJson, _ref, msg.value - gasPaid, _denomination);
         expectedResult[requestId] = FunctionCallType.PAY;
         return(requestId);
     }
@@ -154,14 +249,16 @@ contract NunyaBusiness {
         emit PaymentProcessed(_requestId, _code);
     }
 
-
     // TODO: use ref encrypted with (user pubkey+salt)
     // TODO: `string calldata secret` or `uint256 secret`
     function payWithReceipt(string calldata _secret, string calldata _ref, uint256 _value, string calldata _denomination, uint256 _userPubkey) public payable returns (uint256) {
+        // Get the CustomGateway contract interface 
+        IGateway customGateway = IGateway(CustomGateway);
+
         uint256 gasPaid = fundGateway(50000); // TODO 50000 is the minimum, need to adjust to a good estimate
         require(msg.value >= _value + gasPaid, "Not enough value sent to pay for gas.");
         // QUESTION why is the user's pubkey required? How about the secret contact signs with it's pk and the user can validate using the secret contacts pubkey?
-        uint256 requestId = secretContract.payWithReceipt(_secret, _ref, msg.value - gasPaid, _denomination, _userPubkey);
+        uint256 requestId = customGateway.payWithReceipt(_secret, _ref, msg.value - gasPaid, _denomination, _userPubkey);
         expectedResult[requestId] = FunctionCallType.PAY;
         return(requestId);
     }
@@ -178,29 +275,26 @@ contract NunyaBusiness {
         emit PaymentWithReceiptProcessed(_requestId, _code, _receipt);
     }
 
-
     // useful? 
     // IDEA I don't see a reason to have this, if the ref is generated as random bytes in the secret contract and doesn't reveil anything.
     // function payEncrypted(string EncryptedRef) payable {
-    //     secretContract.pay()
+    //     // Get the CustomGateway contract interface 
+    //     IGateway customGateway = IGateway(CustomGateway);
+    //
+    //     customGateway.pay();
     // }
-
-    fallback() external payable {
-        console.log("----- NunyaBusiness.sol fallback() msg.value:", msg.value);
-    }
-
-    receive() external payable {
-        console.log("----- NunyaBusiness.sol receive() msg.value:", msg.value);
-    }
 
     // Function wrapped in secret network payload encryption
     // TODO: `string calldata secret` or `uint256 secret`
     function withdrawTo(string calldata _secret, uint256 _amount, string calldata _denomination, address _withdrawalAddress) public payable returns (uint256) {
+        // Get the CustomGateway contract interface 
+        IGateway customGateway = IGateway(CustomGateway);
+
         // IDEA _amount == 0 could signal I want all funds available; alternatively, sending max value could also work
         require((_amount > 0), "Need to provide the amount you want to withdraw.");
         fundGateway(50000); // TODO 50000 is the minimum, need to adjust to a good estimate
         // IDEA we could store the withdrawal address in this contract instead of sending it forth and back. 
-        uint256 requestId = secretContract.withdrawTo(_secret, _amount, _denomination, _withdrawalAddress);
+        uint256 requestId = customGateway.withdrawTo(_secret, _amount, _denomination, _withdrawalAddress);
         // TODO: error check
         expectedResult[requestId] = FunctionCallType.WITHDRAW;
         return(requestId);
@@ -234,8 +328,13 @@ contract NunyaBusiness {
         // require (msg.value >= totalGasReserved , string(abi.encodePacked("You need to send enough to cover the forward fees. Sent: ", uint2str(msg.value), " required for fees: ", uint2str(totalGasReserved))));
         require (msg.value >= totalGasReserved , "You need to send enough to cover the forward fees.");
         uint256 value = msg.value - totalGasReserved;
-        gateway.transfer(value);
+        CustomGateway.transfer(value);
         return totalGasReserved;
+    }
+
+    /// @notice Payout the paid balance to the owner
+    function payoutBalance() external onlyOwner {
+        payable(owner).transfer(address(this).balance);
     }
 
     function uint2str(uint256 _i) internal pure returns (string memory) {
@@ -260,5 +359,13 @@ contract NunyaBusiness {
 
     function emitSecretNetworkError(uint256 _requestId, uint16 _code, string memory _message) public onlyGateway {
         emit SecretNetworkError(_requestId, _code, _message);
+    }
+
+    fallback() external payable {
+        console.log("----- NunyaBusiness.sol fallback() msg.value:", msg.value);
+    }
+
+    receive() external payable {
+        console.log("----- NunyaBusiness.sol receive() msg.value:", msg.value);
     }
 }

@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { Contract, ethers, formatEther, parseEther, parseUnits } from "ethers";
+import { Contract, SigningKey, Wallet, ethers, formatEther, parseEther, parseUnits } from "ethers";
 import config from "../hardhat.config";
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -40,6 +40,15 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   let deployerAddress;
   const fallbackAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 
+  const deployerWallet = new Wallet(deployer);
+  const deployerPublicKey = new SigningKey(deployerWallet.privateKey).compressedPublicKey;
+  const deployerAddressPublicKey = deployerPublicKey || "0x0";
+
+  if (deployerAddressPublicKey == "0x0") {
+    console.error("Invalid public key");
+    return;
+  }
+
   if (hre.network.name = "sepolia") {
     console.log("hre.network.name: ", hre.network.name);
     deployer = process.env.DEPLOYER_PRIVATE_KEY || "",  // config.networks?.sepolia?.accounts[0];
@@ -61,7 +70,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
 
   const gateway = await deploy("Gateway", {
     from: deployer,
-    args: [deployerAddress],
+    args: [deployerAddressPublicKey, deployerAddress],
     log: true,
     gasLimit: 3000000,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
