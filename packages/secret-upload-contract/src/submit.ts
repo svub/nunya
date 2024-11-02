@@ -58,7 +58,7 @@ async function main() {
     await generateKeys();
 
   const callbackSelector = iface.getSighash(
-    iface.getFunction("retrievePubkey")
+    iface.getFunction("upgradeHandler")
   );
 
   console.log("callbackSelector: ", callbackSelector);
