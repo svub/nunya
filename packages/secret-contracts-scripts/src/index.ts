@@ -94,14 +94,14 @@ async function main () {
     };
     // ../../packages/secret-contracts-scripts/node_modules/secretjs/src/secret_network_client.ts
     let txOptions = {
-      broadcastCheckIntervalMs: 24_000, // 6 second block
-      broadcastTimeoutMs: 240_000,
-      broadcastMode: BroadcastMode.Async,
-      gasLimit: 5_000_000,
+      gasLimit: 5_000_000, // default 25_000
       gasPriceInFeeDenom: 1, // default 0.1
       feeDenom: "uscrt",
       feeGranter: wallet.address,
-      waitForCommit: true,
+      waitForCommit: true, // default true
+      broadcastTimeoutMs: 240_000, // default 60_000
+      broadcastCheckIntervalMs: 24_000, // default 6_000 for 6 second block
+      broadcastMode: BroadcastMode.Async,
     };
     try {
       tx = await secretjs.tx.compute.storeCode(txParams, txOptions);
@@ -171,14 +171,14 @@ async function main () {
     };
 
     let txOptions = {
-      broadcastCheckIntervalMs: 24_000, // 6 second block
-      broadcastTimeoutMs: 240_000,
-      broadcastMode: BroadcastMode.Async,
-      gasLimit: 5_000_000,
+      gasLimit: 5_000_000, // default 25_000
       gasPriceInFeeDenom: 1, // default 0.1
       feeDenom: "uscrt",
       feeGranter: wallet.address,
-      waitForCommit: true,
+      waitForCommit: true, // default true
+      broadcastTimeoutMs: 240_000, // default 60_000
+      broadcastCheckIntervalMs: 24_000, // default 6_000 for 6 second block
+      broadcastMode: BroadcastMode.Async,
     };
 
     let tx = await secretjs.tx.compute.instantiateContract(txParams, txOptions);
