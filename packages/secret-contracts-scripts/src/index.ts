@@ -31,6 +31,7 @@ const gatewayHash =
   "ad8ca07ffba1cb26ebf952c29bc4eced8319c171430993e5b5089887f27b3f70";
 const gatewayPublicKey =
   "0x046d0aac3ef10e69055e934ca899f508ba516832dc74aa4ed4d741052ed5a568774d99d3bfed641a7935ae73aac8e34938db747c2f0e8b2aa95c25d069a575cc8b";
+const nunyaBusinessContractAddress = "";
 
 // Secret Mainnet
 // reference: https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-mainnet-secret-4-contracts
@@ -71,6 +72,7 @@ async function main () {
     gateway_address: String,
     gateway_hash: String,
     gateway_key: String,
+    nunya_business_contract_address: any,
     count: Number,
   };
 
@@ -123,7 +125,11 @@ async function main () {
       tx?.arrayLog?.find((log: any) => log?.type === "message" && log?.key === "code_id")?.value
     );
 
-    console.log("tx.rawLog: ", tx?.rawLog);
+    if (tx?.rawLog) {
+      console.log("tx.rawLog: ", tx?.rawLog);
+    } else {
+      console.log("tx: ", tx);
+    }
 
     console.log("codeId: ", codeId);
 
@@ -163,6 +169,7 @@ async function main () {
       gateway_address: gatewayAddress,
       gateway_hash: gatewayHash,
       gateway_key: gatewayPublicKeyBytes,
+      nunya_business_contract_address: nunyaBusinessContractAddress,
       count: 1,
     };
 

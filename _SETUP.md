@@ -85,9 +85,13 @@ docker rmi sco
 > IMPORTANT: Prior to Instantiation step it is necessary to deploy the EVM Gateway
 
 ```
+yarn install
 yarn run secret:clean:uploadContract
 yarn run secret:start:uploadContract
 ```
+
+> IMPORTANT: If deployment of the code with `await secretjs.tx.compute.storeCode` is unsuccessful, then check if Beta version of secretjs is necessary incase the Secret Testnet is being upgraded.
+
 * Query Pubkey
 ```
 yarn run secret:queryPubkey
