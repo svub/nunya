@@ -64,14 +64,25 @@ docker rmi sco
 
 * [Compile](https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy#compile-the-code). Note: Outputs contract.wasm and contract.wasm.gz file in the root directory of the secret-contracts/nunya-contract folder. Using `make build-mainnet-reproducible` will remove contract.wasm so only the optimised contract.wasm.gz remains. Warning: If you only run `make build-mainnet` then you will get this error https://github.com/svub/nunya/issues/8 when deploying.
 
-```
-cd packages/secret-contracts/nunya-contract
-make build-mainnet-reproducible
-```
+  * Nunya Contract
+    ```
+    cd packages/secret-contracts/nunya-contract
+    make build-mainnet-reproducible
+    ```
+
+  OR
+
+  * My Counter Contract (Example only)
+    ```
+    cd packages/secret-contracts/my-counter-contract
+    make build-mainnet-reproducible
+    ```
 
 * Upload and Instantiate 
 
-> IMPORTANT: Currently unable to deploy due to this TNLS error https://github.com/svub/nunya/issues/8
+> IMPORTANT: Prior to Upload step it is necessary to configure the wallet, network, and endpoint to use either Local or Testnet, and to specify what project's compiled smart contract WASM file to use and whether to use the optimized build (e.g. ./nunya-contract/optimized-wasm/secret_evm_storage.wasm.gz or ./nunya-contract/contract.wasm.gz) in the script ./packages/secret-contracts-scripts/src/index.ts
+
+> IMPORTANT: Prior to Instantiation step it is necessary to deploy the EVM Gateway
 
 ```
 yarn run secret:clean:uploadContract

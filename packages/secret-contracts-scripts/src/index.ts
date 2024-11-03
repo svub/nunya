@@ -17,7 +17,9 @@ console.log('wallet address: ', wallet.address);
 const rootPath = path.resolve(__dirname, '../../../'); // relative to ./dist
 console.log('rootPath', rootPath)
 // const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/nunya-contract/contract.wasm.gz`);
-// Optimised
+// // Optimised my-counter-contract
+// const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/my-counter-contract/optimized-wasm/secret_contract_example.wasm.gz`);
+// Optimised nunya-contract
 const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/nunya-contract/optimized-wasm/secret_evm_storage.wasm.gz`);
 
 // Secret Testnet
