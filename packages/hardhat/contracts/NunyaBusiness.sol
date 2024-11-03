@@ -191,7 +191,7 @@ contract NunyaBusiness is Ownable, Utils {
         IGateway customGateway = IGateway(CustomGateway);
 
         // TODO make sure the funding is high enough to pay for fees calling the contract.
-        fundGateway(10000000); // TODO find out how much gas is needed to call customGateway.newSecretUser(_secret)
+        fundGateway(100000); // TODO find out how much gas is needed to call customGateway.newSecretUser(_secret)
         uint256 requestId = customGateway.newSecretUser(_secret);
         expectedResult[requestId] = FunctionCallType.NEW_USER;
         console.log("----- NunyaBusiness.sol newSecretUser requestId: ", requestId);

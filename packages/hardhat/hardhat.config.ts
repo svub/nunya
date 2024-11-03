@@ -10,7 +10,7 @@ import "@nomicfoundation/hardhat-verify";
 import "hardhat-deploy";
 import "hardhat-deploy-ethers";
 
-const providerRpcUrlEthereumSepolia = process.env.PROVIDER_RPC_ETHEREUM_SEPOLIA;
+const providerRpcUrlEthereumSepolia = process.env.PROVIDER_RPC_ETHEREUM_SEPOLIA || process.env.PROVIDER_RPC;
 // If not set, it uses ours Alchemy's default API key, which doesn't work (gives ProviderError: The team owning this app is inactive. Please contact support at https://dashboard.alchemyapi.io/support)
 // You can get your own at https://dashboard.alchemyapi.io.
 // If not set, it uses the hardhat account 0 private key.
@@ -57,12 +57,12 @@ const config: HardhatUserConfig = {
   networks: {
     // View the networks that are pre-configured.
     // If the network you are looking for is not here you can add new network settings
-    // hardhat: {
-    //   forking: {
-    //     url: `https://eth-mainnet.alchemyapi.io/v2/${providerApiKey}`,
-    //     enabled: process.env.MAINNET_FORKING_ENABLED === "true",
-    //   },
-    // },
+    hardhat: {
+      forking: {
+        url: `https://eth-mainnet.alchemyapi.io/v2/${providerApiKeyAlchemy}`,
+        enabled: process.env.MAINNET_FORKING_ENABLED === "true",
+      },
+    },
     // mainnet: {
     //   url: `https://eth-mainnet.alchemyapi.io/v2/${providerApiKey}`,
     //   accounts: [deployerPrivateKey],
