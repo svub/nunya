@@ -16,7 +16,9 @@ console.log('wallet address: ', wallet.address);
 
 const rootPath = path.resolve(__dirname, '../../../'); // relative to ./dist
 console.log('rootPath', rootPath)
-const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/nunya-contract/contract.wasm.gz`);
+// const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/nunya-contract/contract.wasm.gz`);
+// Optimised
+const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/nunya-contract/optimized-wasm/secret_evm_storage.wasm.gz`);
 
 // Secret Testnet
 // reference: https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-testnet-pulsar-3-contracts
