@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
-import { SecretNetworkClient, Wallet } from "secretjs";
+import { BroadcastMode, SecretNetworkClient, Wallet } from "secretjs";
 import * as fs from "fs";
 import path from 'path';
 
@@ -86,29 +86,46 @@ async function main () {
     let codeId: String;
     let contractCodeHash: String;
     let tx: any;
+    let txParams = {
+      sender: wallet.address,
+      wasm_byte_code: contract_wasm,
+      source: "",
+      builder: "",
+    };
+    // ../../packages/secret-contracts-scripts/node_modules/secretjs/src/secret_network_client.ts
+    let txOptions = {
+      broadcastCheckIntervalMs: 24_000, // 6 second block
+      broadcastTimeoutMs: 240_000,
+      broadcastMode: BroadcastMode.Async,
+      gasLimit: 5_000_000,
+      gasPriceInFeeDenom: 1, // default 0.1
+      feeDenom: "uscrt",
+      feeGranter: wallet.address,
+      waitForCommit: true,
+    };
     try {
-      tx = await secretjs.tx.compute.storeCode(
-        {
-          sender: wallet.address,
-          wasm_byte_code: contract_wasm,
-          source: "",
-          builder: "",
-        },
-        {
-          gasLimit: 5_000_000,
-        }
-      );
+      tx = await secretjs.tx.compute.storeCode(txParams, txOptions);
     } catch (e) {
       console.log('error: ', e);
     }
+
+    if (typeof tx == undefined) {
+      throw Error("Unable to obtain codeId");
+    }
+
+    // View tx in block explorer - https://docs.scrt.network/secret-network-documentation/overview-ecosystem-and-technology/ecosystem-overview/explorers-and-tools
 
     codeId = String(
       tx?.arrayLog?.find((log: any) => log?.type === "message" && log?.key === "code_id")?.value
     );
 
-    console.log("tx.rawLog: ", tx.rawLog);
+    console.log("tx.rawLog: ", tx?.rawLog);
 
     console.log("codeId: ", codeId);
+
+    if (codeId == "") {
+      throw Error("Unable to obtain codeId");
+    }
 
     contractCodeHash = (
       await secretjs.query.compute.codeHashByCodeId({ code_id: codeId.toString() })
@@ -145,18 +162,26 @@ async function main () {
       count: 1,
     };
 
-    let tx = await secretjs.tx.compute.instantiateContract(
-      {
-        code_id: params.codeId.toString(),
-        sender: wallet.address,
-        code_hash: params.contractCodeHash.toString(),
-        init_msg: initMsg,
-        label: "SnakePath Encrypt " + Math.ceil(Math.random() * 10000),
-      },
-      {
-        gasLimit: 400_000,
-      }
-    );
+    let txParams = {
+      code_id: params.codeId.toString(),
+      sender: wallet.address,
+      code_hash: params.contractCodeHash.toString(),
+      init_msg: initMsg,
+      label: "SnakePath Encrypt " + Math.ceil(Math.random() * 10000),
+    };
+
+    let txOptions = {
+      broadcastCheckIntervalMs: 24_000, // 6 second block
+      broadcastTimeoutMs: 240_000,
+      broadcastMode: BroadcastMode.Async,
+      gasLimit: 5_000_000,
+      gasPriceInFeeDenom: 1, // default 0.1
+      feeDenom: "uscrt",
+      feeGranter: wallet.address,
+      waitForCommit: true,
+    };
+
+    let tx = await secretjs.tx.compute.instantiateContract(txParams, txOptions);
     console.log('tx: ', tx)
 
     // Find the contract_address in the logs
