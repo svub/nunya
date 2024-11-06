@@ -43,9 +43,9 @@
     "secret:queryPubkey": "yarn workspace secret-contracts-scripts queryPubkey",
     "secret:submit": "yarn workspace secret-contracts-scripts submit",
     "secret:clean:uploadContract": "yarn workspace secret-contracts-scripts clean",
-    "secret:start:uploadContract": "yarn workspace secret-contracts-scripts start",
-    "secret:clean:instantiateContract": "yarn workspace secret-instantiate-contract clean",
-    "secret:start:instantiateContract": "yarn workspace secret-instantiate-contract start"
+    "secret:upload:uploadContract": "yarn workspace secret-contracts-scripts upload",
+    "secret:clean:instantiateContract": "yarn workspace secret-contracts-scripts clean",
+    "secret:instantiate:instantiateContract": "yarn workspace secret-contracts-scripts instantiate"
   },
   "packageManager": "yarn@4.2.2",
   "dependencies": {

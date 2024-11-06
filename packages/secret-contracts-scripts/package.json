@@ -8,7 +8,8 @@
     "submit": "yarn build && node ./dist/submit.js",
     "build": "./node_modules/.bin/tsc --build",
     "clean": "./node_modules/.bin/tsc --build --clean",
-    "start": "yarn build && node ./dist/index.js"
+    "upload": "yarn build && node ./dist/upload.js",
+    "instantiate": "yarn build && node ./dist/instantiate.js"
   },
   "dependencies": {
     "@blake.regalia/belt": "^0.35.1",
