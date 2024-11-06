@@ -1,48 +1,31 @@
-import dotenv from "dotenv";
-dotenv.config();
 import { BroadcastMode, SecretNetworkClient, Wallet } from "secretjs";
 import * as fs from "fs";
 import path from 'path';
+import config from './config/deploy';
 
 const walletOptions = {
   hdAccountIndex: 0,
   coinType: 529,
   bech32Prefix: 'secret',
 }
-console.log('process.env.WALLET_MNEMONIC_TESTNET loaded?', process.env.WALLET_MNEMONIC_TESTNET !== "")
-// const wallet = new Wallet(process.env.WALLET_MNEMONIC_LOCAL, walletOptions);
-const wallet = new Wallet(process.env.WALLET_MNEMONIC_TESTNET, walletOptions);
+
+const { walletMnemonic, isOptimizedContractWasm, wasmContractPath, gatewayAddress, gatewayHash, gatewayPublicKey, nunyaBusinessContractAddress, chainId, endpoint } =
+  config.network == "testnet"
+  ? config.testnet
+  : config.local;
+
+if (walletMnemonic == "") {
+  throw Error("Unable to obtain mnemonic phrase");
+}
+
+const wallet = new Wallet(walletMnemonic, walletOptions);
 console.log('wallet address: ', wallet.address);
 
 const rootPath = path.resolve(__dirname, '../../../'); // relative to ./dist
 console.log('rootPath', rootPath)
-// const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/nunya-contract/contract.wasm.gz`);
-// // Optimised my-counter-contract
-// const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/my-counter-contract/optimized-wasm/secret_contract_example.wasm.gz`);
+// const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/nunya-contract/${wasmContractPath}`);
 // Optimised nunya-contract
-const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/nunya-contract/optimized-wasm/secret_evm_storage.wasm.gz`);
-
-// Secret Testnet
-// reference: https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-testnet-pulsar-3-contracts
-
-// Code ID 3375
-const gatewayAddress = "secret10ex7r7c4y704xyu086lf74ymhrqhypayfk7fkj";
-const gatewayHash =
-  "ad8ca07ffba1cb26ebf952c29bc4eced8319c171430993e5b5089887f27b3f70";
-const gatewayPublicKey =
-  "0x046d0aac3ef10e69055e934ca899f508ba516832dc74aa4ed4d741052ed5a568774d99d3bfed641a7935ae73aac8e34938db747c2f0e8b2aa95c25d069a575cc8b";
-const nunyaBusinessContractAddress = "";
-
-// Secret Mainnet
-// reference: https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-mainnet-secret-4-contracts
-
-// Code ID 1533
-// const gatewayAddress = "secret1qzk574v8lckjmqdg3r3qf3337pk45m7qd8x02a";
-// const gatewayHash =
-//   "012dd8efab9526dec294b6898c812ef6f6ad853e32172788f54ef3c305c1ecc5";
-// // TODO: is it correct that the Gateway public key is the same for both Mainnet and Testnet as shown in the docs here, even though they have a different Gateway address? https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway
-// const gatewayPublicKey =
-//   "0x04a0d632acd0d2f5da02fc385ea30a8deab4d5639d1a821a3a552625ad0f1759d0d2e80ca3adb236d90caf1b12e0ddf3a351c5729b5e00505472dca6fed5c31e2a";
+const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/nunya-contract/${isOptimizedContractWasm ? "optimized-wasm/" : "/"}${wasmContractPath}`);
 
 const gatewayPublicKeyBytes = Buffer.from(
   gatewayPublicKey.substring(2),
@@ -51,10 +34,8 @@ const gatewayPublicKeyBytes = Buffer.from(
 
 async function main () {
   const secretjs = new SecretNetworkClient({
-    // chainId: "secretdev-1",
-    // url: process.env.ENDPOINT_LOCAL || "",
-    chainId: "pulsar-3",
-    url: process.env.ENDPOINT_TESTNET || "",
+    chainId: chainId,
+    url: endpoint || "",
     wallet: wallet,
     walletAddress: wallet.address,
   });
@@ -70,11 +51,6 @@ async function main () {
 
   type CODE_PARAMS = {
     codeId: String,
-    contractCodeHash: String,
-  };
-
-  type CONTRACT_PARAMS = {
-    contractAddress: String,
     contractCodeHash: String,
   };
 
