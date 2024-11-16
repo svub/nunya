@@ -15,6 +15,8 @@ See the [DEMO_AND_VIDEO](./_DEMO_AND_VIDEO.md) file for details.
 
 * **IMPORTANT**: Private secret contract on Secret Network must be deployed before deploying EVM gateway contract since it must be modified to include its address `routing_info` and code hash `routing_code_hash`.
 
+* **NOTE**: The public key of the user that deploys the custom Nunya.Business contract is sent through to the custom EVM Gateway contract so only that user may call that custom EVM Gateway contract, however we actually want to try and use the default EVM Gateway contract that has been deployed by the Secret network team with minimal changes and move the logic to the Secret contract instead. Apart from the creator of the Nunya.Business contract, the only other users that call any Secret network functions are accounts whose public keys are provided by the creator of the Nunya.Business giving those accounts permission to call the withdraw function.
+
 ### Setup Secret Contract <a id="setup-secret"></a> 
 
 * Reference https://docs.scrt.network/secret-network-documentation/development/readme-1

@@ -41,6 +41,7 @@ pub struct PaymentReferenceBalance {
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct PaymentReceipt {
     pub payment_reference: String,
+    // TODO: Why am I using CosmWasm Uint256 instead of Rust uint256, do we really need the extra methods associated with it
     pub amount: Uint256,
     pub denomination: String,
     pub sig: Binary,

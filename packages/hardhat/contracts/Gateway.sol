@@ -36,6 +36,7 @@ contract Gateway is Ownable, Utils {
     string constant public task_destination_network = "pulsar-3";
     uint256 immutable public secret_gateway_signer_pubkey;
     // TODO: change this to be the same as the DEPLOYER_ADDRESS in the .env file
+    // FIXME: Is this actually a derived Ethereum Address from a Public Key of the Gateway contract on the Secret network rather than my EVM address as discussed with Tom 16 Nov 2024??
     address immutable public secret_gateway_signer_address = 0x83De04f1aad8ABF1883166B14A29c084b7B8AB59;
     // TODO: Add deployed custom Secret contract address to be same as `SECRET_ADDRESS` and codehash `CODE_HASH` used in scripts
     string constant public routing_info = "secret1uwqdjnzrttepn86p2sjmnugfph7tz97hmcwjs3";
@@ -249,8 +250,11 @@ contract Gateway is Ownable, Utils {
     /// @notice Emitted when the VRF callback was fulfilled
     event FulfilledRandomWords(uint256 indexed requestId);
 
+    // Constructor
+    // FIXME - consider removing _senderPubkey as discussed with Tom 16 Nov 2024
     constructor(uint256 _senderPubkey, address secretGatewaySignerAddr) {
         require (_senderPubkey == address(0x0), "Invalid public key provided cannot be 0x0");
+        // FIXME - the msg.sender is the Nunya.Contract not a user, but does it have a different public key
         require ( checkPubKey(bytes uint256toBytesString(_senderPubkey), msg.sender), "Message sender public key does not match the provided public key");
 
         // Initializer
@@ -437,6 +441,7 @@ contract Gateway is Ownable, Utils {
             (callbackSuccessful, ) = address(_info.callback_address).call(
                 prepareResultBytesToCallbackData(_info.callback_selector, _taskId, _info.result));
         }
+        // TODO: Add case where callback_selector is the requestValue function
         emit TaskCompleted(_taskId, callbackSuccessful);
     }
 
@@ -449,7 +454,7 @@ contract Gateway is Ownable, Utils {
     /// @notice Request value from the deployed secret contract
     /// @param _callbackSelector callback function to call in Secret contract as argument
     /// @param _callbackGasLimit The gas limit for the callback
-    /// @return requestId The request ID for the random words
+    /// @return requestId The request ID
 
     function requestValue(uint256 _callbackSelector, uint32 _callbackGasLimit) external payable onlyOwner returns (uint256 requestId) {
         // console.log("------ Gateway.requestValue");
@@ -480,9 +485,10 @@ contract Gateway is Ownable, Utils {
         bytes payload_info = abi.encodePacked(
             '}","routing_info":"',routing_info,
             '","routing_code_hash":"',routing_code_hash,
-            '","user_address":"',address(owner),
-            '","user_key":"',encodeAddressToBase64(address(owner)),
-            '","callback_address":"',address(owner),
+            // FIXME: Should be msg.sender not the owner as discussed with Tom since we are forwarding to Secret network
+            '","user_address":"',address(msg.sender),
+            '","user_key":"',encodeAddressToBase64(address(msg.sender)),
+            '","callback_address":"',address(msg.sender),
             '"'
         );
 
@@ -491,7 +497,7 @@ contract Gateway is Ownable, Utils {
             '{"data":"{\\"callbackSelector\\":',
             uint256toBytesString(_callbackSelector),
             payload_info,
-            encodeAddressToBase64(address(owner)), //callback_address
+            encodeAddressToBase64(address(msg.sender)), //callback_address
             // callback selector should be a hex value already converted into base64 to be used
             // as callback_selector of the request_value function in the Secret contract 
             '","callback_selector":"',_callbackSelector,
@@ -510,7 +516,7 @@ contract Gateway is Ownable, Utils {
         // ExecutionInfo struct
         ExecutionInfo memory executionInfo = ExecutionInfo({
             // TODO - make `user_key` a unique key different from `user_pubkey`
-            user_key: encodeAddressToBase64(address(owner)), // equals AAA= in base64
+            user_key: encodeAddressToBase64(address(msg.sender)), // equals AAA= in base64
             user_pubkey: uint256toBytesString(secret_gateway_signer_pubkey), // Fill with 0 bytes
             routing_code_hash: routing_code_hash, // custom contract codehash on Secret 
             task_destination_network: task_destination_network,
