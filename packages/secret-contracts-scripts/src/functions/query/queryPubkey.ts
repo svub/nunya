@@ -1,24 +1,49 @@
-// querySecret.js
 import { SecretNetworkClient } from "secretjs";
+import config from '../../config/deploy';
 
-const SECRET_ADDRESS = "secret1uwqdjnzrttepn86p2sjmnugfph7tz97hmcwjs3"
-const CODE_HASH = "1af180cc6506af23fb3ee2c0f6ece37ab3ad32db82e061b6b30679fb8a3f1323"
-
-export const queryPubkey = async () => {
+export const queryPubkey = async (params: any) => {
   const secretjs = new SecretNetworkClient({
-    url: "https://api.pulsar.scrttestnet.com",
-    chainId: "pulsar-3",
+    url: params.endpoint,
+    chainId: params.chainId,
   });
+  const query_tx = await secretjs.query.compute.queryContract({
+    contract_address: params.contractAddress,
+    code_hash: params.contractCodeHash,
+    query: { retrieve_pubkey: {} },
+  });
+  console.log(query_tx);
+  return query_tx;
+}
 
-  try {
-    const query_tx = await secretjs.query.compute.queryContract({
-      contract_address: SECRET_ADDRESS,
-      code_hash: CODE_HASH,
-      query: { retrieve_pubkey: {} },
+async function main() {
+  const { chainId, codeId, contractCodeHash, endpoint, secretContractAddress } =
+    config.network == "testnet"
+    ? config.testnet
+    : config.local;
+
+  // Replace with deployed Secret contract details
+  const SECRET_ADDRESS = secretContractAddress;
+  const CONTRACT_CODE_HASH = contractCodeHash;
+
+  let params = {
+    endpoint: endpoint,
+    chainId: chainId,
+    contractAddress: SECRET_ADDRESS,
+    contractCodeHash: CONTRACT_CODE_HASH,
+  };
+
+  // Chain the execution using promises
+  await queryPubkey(params)
+    .then(async (res) => {
+      console.log('res: ', res);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
     });
-    return query_tx; // Return the fetched
-  } catch (error) {
-    console.error("Error fetching pubkey:", error);
-    return 1; // Return a default value in case of error
-  }
-};
+
+  process.exit()
+}
+main().catch((error) => {
+  console.error(error);
+  process.exit(-1);
+});

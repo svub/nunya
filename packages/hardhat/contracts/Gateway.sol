@@ -35,15 +35,16 @@ contract Gateway is Ownable, Utils {
     // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-mainnet-secret-4-contracts
     //string constant public task_destination_network = "secret-4";
     // This is the Derived Ethereum Address from the Public Key of the deployed Gateway contract on the Secret Network Mainnet
+    //uint256 immutable public secret_gateway_signer_pubkey = 0x04a0d632acd0d2f5da02fc385ea30a8deab4d5639d1a821a3a552625ad0f1759d0d2e80ca3adb236d90caf1b12e0ddf3a351c5729b5e00505472dca6fed5c31e2a;
     //address constant public secret_gateway_signer_address = 0x88e43F4016f8282Ea6235aC069D02BA1cE5417aB;
 
     // SecretPath testnet (pulsar-3) contracts
     // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-testnet-pulsar-3-contracts
     string constant public task_destination_network = "pulsar-3";
     // This is the Derived Ethereum Address from the Public Key of the deployed Gateway contract on the Secret Network Testnet
-    uint256 immutable public secret_gateway_signer_pubkey;
+    uint256 immutable public secret_gateway_signer_pubkey = 0x046d0aac3ef10e69055e934ca899f508ba516832dc74aa4ed4d741052ed5a568774d99d3bfed641a7935ae73aac8e34938db747c2f0e8b2aa95c25d069a575cc8b;
     address immutable public secret_gateway_signer_address = 0x2821E794B01ABF0cE2DA0ca171A1fAc68FaDCa06;
-    // TODO: Add deployed custom Secret contract address to be same as `SECRET_ADDRESS` and codehash `CODE_HASH` used in scripts
+    // TODO: Add deployed custom Secret contract address to be same as `SECRET_ADDRESS` and codehash `CONTRACT_CODE_HASH` used in scripts
     string constant public routing_info = "secret1uwqdjnzrttepn86p2sjmnugfph7tz97hmcwjs3";
     string constant public routing_code_hash = "1af180cc6506af23fb3ee2c0f6ece37ab3ad32db82e061b6b30679fb8a3f1323";
 
@@ -256,24 +257,13 @@ contract Gateway is Ownable, Utils {
     event FulfilledRandomWords(uint256 indexed requestId);
 
     // Constructor
-    // FIXME - consider removing _senderPubkey as discussed with Tom 16 Nov 2024
-    constructor(uint256 _senderPubkey, address secretGatewaySignerAddr) {
-        require (_senderPubkey == address(0x0), "Invalid public key provided cannot be 0x0");
-        // FIXME - the msg.sender is the Nunya.Contract not a user, but does it have a different public key
-        require ( checkPubKey(bytes uint256toBytesString(_senderPubkey), msg.sender), "Message sender public key does not match the provided public key");
-
+    constructor() {
         // Initializer
         // Set owner to be the deployed NunyaBusiness.sol contract
         owner = msg.sender;
 
         taskId = 1;
         nonce = 0;
-
-        // Used as an override for testing. 
-        // If not specified otherwise for testing, this just defaults to the signing address defined at the top.
-        if (secretGatewaySignerAddr != address(0x0)) {
-            secret_gateway_signer_address = secretGatewaySignerAddr;
-        }
 
         //Burn in the Chain-ID into the byte code into chain_id_1, chain_id_2 and chain_id_3 and chain_id_length. 
         bytes memory chain_id = uint256toBytesString(block.chainid);

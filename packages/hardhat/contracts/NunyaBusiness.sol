@@ -45,7 +45,6 @@ contract NunyaBusiness is Ownable, Utils {
 
     IGateway secretContract;
 
-    uint256 senderPubkey;
     uint256 secretContractPubkey;
 
     mapping (uint256 => FunctionCallType) expectedResult;
@@ -65,12 +64,8 @@ contract NunyaBusiness is Ownable, Utils {
     event WithdrawalProcessed(uint256 requestId, uint16 code, uint256 amount);
     event SecretNetworkError(uint256 requestId, uint16 code, string message);
 
-    constructor(uint256 _senderPubkey, address payable _CustomGateway) payable {
-        require (_senderPubkey == address(0x0), "Invalid public key provided cannot be 0x0");
-        require ( checkPubKey(bytes uint256toBytesString(_senderPubkey), msg.sender), "Message sender public key does not match the provided public key");
-
+    constructor(address payable _CustomGateway) payable {
         owner = msg.sender;
-        senderPubkey = _senderPubkey;
 
         setGatewayAddress(_CustomGateway);
         console.log("constructor: msg.value", msg.value);
@@ -120,7 +115,7 @@ contract NunyaBusiness is Ownable, Utils {
 
         // Call the CustomGateway for a specific request
         // Returns requestId of the request. A contract can track the call that way.
-        uint256 requestId = customGateway.requestValue{value: msg.value}(senderPubkey, _callbackSelector, _callbackGasLimit);
+        uint256 requestId = customGateway.requestValue{value: msg.value}(_callbackSelector, _callbackGasLimit);
         console.log("requested secret contract value - requestId=", requestId);
 
         // Emit the event
@@ -150,7 +145,7 @@ contract NunyaBusiness is Ownable, Utils {
         // Get the CustomGateway contract interface 
         IGateway customGateway = IGateway(CustomGateway);
 
-        uint256 requestId = customGateway.retrievePubkey{value: msg.value}(senderPubkey, _callbackSelector, _callbackGasLimit);
+        uint256 requestId = customGateway.retrievePubkey{value: msg.value}(_callbackSelector, _callbackGasLimit);
         console.log("requested secret contract pubkey - requestId=", requestId);
 
         // Emit the event

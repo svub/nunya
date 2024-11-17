@@ -1,10 +1,11 @@
 import { SecretNetworkClient } from "secretjs";
+import config from './config/deploy';
 
-// Replace with deployed Secret contract details
-const SECRET_ADDRESS = "secret1uwqdjnzrttepn86p2sjmnugfph7tz97hmcwjs3"
-const CODE_HASH = "1af180cc6506af23fb3ee2c0f6ece37ab3ad32db82e061b6b30679fb8a3f1323"
-
-let query_pubkey = async (secretjs, params) => {
+export const queryPubkey = async (params) => {
+  const secretjs = new SecretNetworkClient({
+    url: params.endpoint,
+    chainId: params.chainId,
+  });
   const query_tx = await secretjs.query.compute.queryContract({
     contract_address: params.contractAddress,
     code_hash: params.contractCodeHash,
@@ -15,18 +16,24 @@ let query_pubkey = async (secretjs, params) => {
 }
 
 async function main() {
-  let contractParams = {
+  const { chainId, codeId, contractCodeHash, endpoint, secretContractAddress } =
+    config.network == "testnet"
+    ? config.testnet
+    : config.local;
+
+  // Replace with deployed Secret contract details
+  const SECRET_ADDRESS = secretContractAddress;
+  const CONTRACT_CODE_HASH = contractCodeHash;
+
+  let params = {
+    endpoint: endpoint,
+    chainId: chainId,
     contractAddress: SECRET_ADDRESS,
-    contractCodeHash: CODE_HASH,
+    contractCodeHash: CONTRACT_CODE_HASH,
   };
 
-  const secretjs = new SecretNetworkClient({
-    url: "https://lcd.testnet.secretsaturn.net",
-    chainId: "pulsar-3",
-  });
-
   // Chain the execution using promises
-  await query_pubkey(secretjs, contractParams)
+  await query_pubkey(params)
     .then(async (res) => {
       console.log('res: ', res);
     })

@@ -90,7 +90,13 @@ docker rmi sco
 yarn install
 yarn run secret:clean:uploadContract
 yarn run secret:start:uploadContract
+yarn run secret:clean:instantiateContract
+yarn run secret:start:instantiateContract
 ```
+
+* Add the ABI of the uploaded and instantiated Secret contract to ./nunya/packages/secret-contracts-scripts/src/config/abi.ts
+
+* Add the Contract Code Hash `contractCodeHash` and Secret Contract Address `secretContractAddress` to ./nunya/packages/secret-contracts-scripts/src/config/deploy.ts for the relevant network
 
 > IMPORTANT: If deployment of the code with `await secretjs.tx.compute.storeCode` is unsuccessful, then check if Beta version of secretjs is necessary incase the Secret Testnet is being upgraded.
 
@@ -218,7 +224,9 @@ Gateway balance:  0.000499999999979
 
 > Warning: Do not rename 01_deploy_your_contract.ts to 00_deploy_your_contract.ts or it will only compile but will not deploy
 
-5. View the contract in block explorer
+5. Add the deployed Nunya.business Contract Address to `nunyaBusinessContractAddress` for the relevant network in ./nunya/packages/secret-contracts-scripts/src/config/deploy.ts
+
+6. View the contract in block explorer
 
 Example previous deployment: 
   NunyaBusiness: https://sepolia.etherscan.io/address/0x41E52332e76988AFBc38280583a7A02492177C65#code
@@ -227,7 +235,7 @@ Example previous deployment:
 
   Gateway: https://sepolia.etherscan.io/address/0x5Be91fd4b49489bb3aEc8bE2F5Fa1d83FD8C5A1b
 
-6. On a third terminal, start the Nunya NextJS app:
+7. On a third terminal, start the Nunya NextJS app:
 
 ```
 yarn start

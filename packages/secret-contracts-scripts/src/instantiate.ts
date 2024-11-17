@@ -8,13 +8,21 @@ const walletOptions = {
   bech32Prefix: 'secret',
 }
 
-const { walletMnemonic, codeId, contractCodeHash, gatewayAddress, gatewayHash, gatewayPublicKey, nunyaBusinessContractAddress, chainId, endpoint } =
+const { walletMnemonic, codeId, contractCodeHash, gatewayAddress, gatewayHash, gatewayPublicKey, nunyaBusinessContractAddress, chainId, endpoint, secretContractAddress } =
   config.network == "testnet"
   ? config.testnet
   : config.local;
 
 if (walletMnemonic == "") {
   throw Error("Unable to obtain mnemonic phrase");
+}
+
+if (gatewayAddress == "" || gatewayHash == "" || gatewayPublicKey == "") {
+  throw Error("Unable to obtain Secret Network Gateway information");
+}
+
+if (nunyaBusinessContractAddress == "" ) {
+  throw Error("Unable to obtain Nunya.business EVM contract address");
 }
 
 const wallet = new Wallet(walletMnemonic, walletOptions);

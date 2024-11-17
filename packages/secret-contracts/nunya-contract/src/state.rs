@@ -38,6 +38,7 @@ pub struct PaymentReferenceBalance {
     pub balance: Coin,
 }
 
+// TODO - not implemented yet
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct PaymentReceipt {
     pub payment_reference: String,

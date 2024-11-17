@@ -18,6 +18,14 @@ if (walletMnemonic == "") {
   throw Error("Unable to obtain mnemonic phrase");
 }
 
+if (gatewayAddress == "" || gatewayHash == "" || gatewayPublicKey == "") {
+  throw Error("Unable to obtain Secret Network Gateway information");
+}
+
+if (nunyaBusinessContractAddress == "" ) {
+  throw Error("Unable to obtain Nunya.business EVM contract address");
+}
+
 const wallet = new Wallet(walletMnemonic, walletOptions);
 console.log('wallet address: ', wallet.address);
 
@@ -54,7 +62,7 @@ async function main () {
     contractCodeHash: String,
   };
 
-  let upload_contract = async () => {
+  let uploadContract = async () => {
     console.log("Starting deployment...");
 
     let codeId: String;
@@ -118,7 +126,7 @@ async function main () {
   };
   
   // Chain the execution using promises
-  await upload_contract()
+  await uploadContract()
     .then(async (res: CODE_PARAMS) => {
       console.log(`CODE_ID: ${res.codeId}`);
       console.log(`CODE_HASH: ${res.contractCodeHash}`);

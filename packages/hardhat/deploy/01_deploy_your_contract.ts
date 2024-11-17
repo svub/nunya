@@ -40,14 +40,14 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   let deployerAddress;
   const fallbackAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 
-  const deployerWallet = new Wallet(deployer);
-  const deployerPublicKey = new SigningKey(deployerWallet.privateKey).compressedPublicKey;
-  const deployerAddressPublicKey = deployerPublicKey || "0x0";
+  // const deployerWallet = new Wallet(deployer);
+  // const deployerPublicKey = new SigningKey(deployerWallet.privateKey).compressedPublicKey;
+  // const deployerAddressPublicKey = deployerPublicKey || "0x0";
 
-  if (deployerAddressPublicKey == "0x0") {
-    console.error("Invalid public key");
-    return;
-  }
+  // if (deployerAddressPublicKey == "0x0") {
+  //   console.error("Invalid public key");
+  //   return;
+  // }
 
   if (hre.network.name = "sepolia") {
     console.log("hre.network.name: ", hre.network.name);
@@ -70,7 +70,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
 
   const gateway = await deploy("Gateway", {
     from: deployer,
-    args: [deployerAddressPublicKey, deployerAddress],
+    args: [],
     log: true,
     gasLimit: 3000000,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
