@@ -31,13 +31,18 @@ contract Gateway is Ownable, Utils {
 
     // CONFIGURE
 
+    // SecretPath mainnet (secret-4) contracts
+    // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-mainnet-secret-4-contracts
     //string constant public task_destination_network = "secret-4";
+    // This is the Derived Ethereum Address from the Public Key of the deployed Gateway contract on the Secret Network Mainnet
     //address constant public secret_gateway_signer_address = 0x88e43F4016f8282Ea6235aC069D02BA1cE5417aB;
+
+    // SecretPath testnet (pulsar-3) contracts
+    // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-testnet-pulsar-3-contracts
     string constant public task_destination_network = "pulsar-3";
+    // This is the Derived Ethereum Address from the Public Key of the deployed Gateway contract on the Secret Network Testnet
     uint256 immutable public secret_gateway_signer_pubkey;
-    // TODO: change this to be the same as the DEPLOYER_ADDRESS in the .env file
-    // FIXME: Is this actually a derived Ethereum Address from a Public Key of the Gateway contract on the Secret network rather than my EVM address as discussed with Tom 16 Nov 2024??
-    address immutable public secret_gateway_signer_address = 0x83De04f1aad8ABF1883166B14A29c084b7B8AB59;
+    address immutable public secret_gateway_signer_address = 0x2821E794B01ABF0cE2DA0ca171A1fAc68FaDCa06;
     // TODO: Add deployed custom Secret contract address to be same as `SECRET_ADDRESS` and codehash `CODE_HASH` used in scripts
     string constant public routing_info = "secret1uwqdjnzrttepn86p2sjmnugfph7tz97hmcwjs3";
     string constant public routing_code_hash = "1af180cc6506af23fb3ee2c0f6ece37ab3ad32db82e061b6b30679fb8a3f1323";
@@ -260,8 +265,6 @@ contract Gateway is Ownable, Utils {
         // Initializer
         // Set owner to be the deployed NunyaBusiness.sol contract
         owner = msg.sender;
-        // Store public key of the creator of the Gateway.sol contract.
-        secret_gateway_signer_pubkey = _senderPubkey;
 
         taskId = 1;
         nonce = 0;

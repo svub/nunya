@@ -151,7 +151,7 @@ cp ./packages/hardhat/.env.example ./packages/hardhat/.env
 ```
 Verify the contents of ./packages/hardhat/hardhat.config.ts
 
-Update Gateway.sol to change the value of `secret_gateway_signer_address` to match the `DEPLOYER_ADDRESS` in the .env file
+Update Gateway.sol to change the value of `secret_gateway_signer_address` to be the deployed Gateway address on the Mainnet or Testnet of the Secret Network.
 
 * Nextjs
 
