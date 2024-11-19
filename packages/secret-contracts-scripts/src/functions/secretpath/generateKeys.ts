@@ -7,9 +7,9 @@ import config from '../../config/deploy';
 
 export async function generateKeys() {
   const { gatewayEncryptionKeyForChaChaPoly1305 } =
-  config.network == "testnet"
-  ? config.testnet
-  : config.local;
+  config.secret.network == "testnet"
+  ? config.secret.testnet
+  : config.secret.local;
 
   if (gatewayEncryptionKeyForChaChaPoly1305 == "") {
     throw Error("Unable to obtain Secret Network Gateway information");

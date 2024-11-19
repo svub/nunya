@@ -213,18 +213,27 @@ Successfully deployed Gateway to address:  0x8375b3D0555c818eF2e50823f8F1F4cdD06
 
 > Warning: Do not rename 01_deploy_your_contract.ts to 00_deploy_your_contract.ts or it will only compile but will not deploy
 
-5. Add the deployed Nunya.business Contract Address to `nunyaBusinessContractAddress` for the relevant network in ./nunya/packages/secret-contracts-scripts/src/config/deploy.ts
+5. Add the deployed Nunya.business Contract Address to `nunyaBusinessContractAddress` and Gateway address `gatewayContractAddress` for the relevant network in ./nunya/packages/secret-contracts-scripts/src/config/deploy.ts
 
-6. View the contract in block explorer
+6. Call the Nunya.business Contract `setEVMGatewayAddress` function to set the Gateway EVM address in its state.
+
+* Copy relevant ABI array value from ./packages/hardhat/deployments/sepolia/NunyaBusiness.json into ./packages/secret-contracts-scripts/src/config/evm/nunyaBusinessABI.ts
+
+* Run script:
+```bash
+yarn run secret:setEVMGatewayAddress
+```
+
+Example transaction hash: https://sepolia.etherscan.io/tx/0xd7406fcd37ce9583afec9262996e828860c87230945fe41331a0a6f413ec3086
+
+7. View the contract in block explorer
 
 Example previous deployment: 
-  NunyaBusiness: https://sepolia.etherscan.io/address/0x41E52332e76988AFBc38280583a7A02492177C65#code
+  NunyaBusiness: https://sepolia.etherscan.io/address/0x5c757f18B4f6d74cE99A290CC9884aFea4476af0#code
 
-  DummyGatewayContract: https://sepolia.etherscan.io/address/0x77257FE5ef16d11CFA91D8fDaA79Fc9e47541BE7
+  Gateway: https://sepolia.etherscan.io/address/0x8375b3D0555c818eF2e50823f8F1F4cdD0696c54#code
 
-  Gateway: https://sepolia.etherscan.io/address/0x5Be91fd4b49489bb3aEc8bE2F5Fa1d83FD8C5A1b
-
-7. On a third terminal, start the Nunya NextJS app:
+8. On a third terminal, start the Nunya NextJS app:
 
 ```
 yarn start

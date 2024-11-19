@@ -17,9 +17,9 @@ export const queryPubkey = async (params) => {
 
 async function main() {
   const { chainId, codeId, contractCodeHash, endpoint, secretContractAddress } =
-    config.network == "testnet"
-    ? config.testnet
-    : config.local;
+    config.secret.network == "testnet"
+    ? config.secret.testnet
+    : config.secret.local;
 
   // Replace with deployed Secret contract details
   const SECRET_ADDRESS = secretContractAddress;

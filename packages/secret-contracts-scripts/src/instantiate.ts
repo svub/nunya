@@ -8,10 +8,12 @@ const walletOptions = {
   bech32Prefix: 'secret',
 }
 
-const { walletMnemonic, codeId, contractCodeHash, gatewayAddress, gatewayHash, gatewayPublicKey, nunyaBusinessContractAddress, chainId, endpoint, secretContractAddress } =
-  config.network == "testnet"
-  ? config.testnet
-  : config.local;
+const { nunyaBusinessContractAddress } = config.evm.sepolia;
+
+const { walletMnemonic, codeId, contractCodeHash, gatewayAddress, gatewayHash, gatewayPublicKey, chainId, endpoint, secretContractAddress } =
+  config.secret.network == "testnet"
+  ? config.secret.testnet
+  : config.secret.local;
 
 if (walletMnemonic == "") {
   throw Error("Unable to obtain mnemonic phrase");
