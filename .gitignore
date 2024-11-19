@@ -38,4 +38,3 @@ packages/secret-instantiate-contract/.env
 packages/nextjs/contracts/deployedContracts.ts
 
 ## NB hardhat ignores are in packages/hardhat/.gitignore
-
