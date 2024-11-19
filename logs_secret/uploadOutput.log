@@ -1,11 +1,11 @@
 wallet address:  secret1am2mk908456twwgehmaua85s6laar4yr3awzzj
 rootPath /Users/luke/code/clones/github/svub/nunya
-balance:  { denom: 'uscrt', amount: '194338311' }
+balance:  { denom: 'uscrt', amount: '174338311' }
 Starting deployment...
 tx:  {
-  height: 7777016,
-  timestamp: '2024-11-19T19:21:45Z',
-  transactionHash: 'B1B1C3F500857C33FE52B209EB7A3500ED7BF7F23E6CD1975E41E9A68944FCFA',
+  height: 7777353,
+  timestamp: '2024-11-19T19:53:54Z',
+  transactionHash: '6755FB4A902BF649E3DB68B402F5EB7529A5009E33AFF81C59468E4DB1D60E79',
   code: 0,
   codespace: '',
   info: '',
@@ -20,7 +20,7 @@ tx:  {
     },
     auth_info: { signer_infos: [Array], fee: [Object], tip: null },
     signatures: [
-      'MsUIoljiJA4phkREYIAIF2Pd1gQVSR/MadpB5lcqrvx59BPoQXV/sP17G03xPA7OoP7gVwYRRaragzfH8LTvRw=='
+      'ZHjbe0TdDe9taRKX5K/68G9RuizBhVgIVqGs/X8zD+Fp4sIo9cpvUt/fyVf4k+u3BWKpTgXlhPhsdJexsvzHlA=='
     ]
   },
   rawLog: '',
@@ -45,7 +45,7 @@ tx:  {
       key: 'signer',
       value: 'secret1am2mk908456twwgehmaua85s6laar4yr3awzzj'
     },
-    { msg: 0, type: 'message', key: 'code_id', value: '12209' }
+    { msg: 0, type: 'message', key: 'code_id', value: '12211' }
   ],
   events: [
     { type: 'coin_spent', attributes: [Array] },
@@ -59,10 +59,10 @@ tx:  {
     { type: 'message', attributes: [Array] },
     { type: 'message', attributes: [Array] }
   ],
-  data: [ Uint8Array(3) [ 8, 177, 95 ] ],
-  gasUsed: 2002498,
+  data: [ Uint8Array(3) [ 8, 179, 95 ] ],
+  gasUsed: 762754,
   gasWanted: 5000000,
   ibcResponses: []
 }
-CODE_ID: 12209
-CODE_HASH: 8e2fad364ceeb3c78682b70ef88b3ae8b5de55dd7c1e26f886665ca236b73d9b
+CODE_ID: 12211
+CODE_HASH: 784167aee5332f6af37a37399515def6b221a3e19acd53235c373dcad6e4ef8b

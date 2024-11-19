@@ -33,9 +33,14 @@ console.log('wallet address: ', wallet.address);
 
 const rootPath = path.resolve(__dirname, '../../../'); // relative to ./dist
 console.log('rootPath', rootPath)
-// const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/nunya-contract/${wasmContractPath}`);
-// Optimised nunya-contract
-const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/nunya-contract/${isOptimizedContractWasm ? "optimized-wasm/" : "/"}${wasmContractPath}`);
+
+// // const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/nunya-contract/${wasmContractPath}`);
+// // Optimised nunya-contract
+// const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/nunya-contract/${isOptimizedContractWasm ? "optimized-wasm/" : "/"}${wasmContractPath}`);
+
+// const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/my-counter-contract/secret_contract_example.wasm.gz`);
+// Optimised my-counter-contract
+const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/my-counter-contract/${isOptimizedContractWasm ? "optimized-wasm/" : "/"}secret_contract_example.wasm.gz`);
 
 const gatewayPublicKeyBytes = Buffer.from(
   gatewayPublicKey.substring(2),

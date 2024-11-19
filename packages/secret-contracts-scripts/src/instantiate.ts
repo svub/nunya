@@ -61,10 +61,7 @@ async function main () {
   console.log('balance: ', balance);
 
   type INIT_MSG = {
-    gateway_address: String,
-    gateway_hash: String,
-    gateway_key: Uint8Array,
-    nunya_business_contract_address: String,
+    count: Number,
   };
 
   type CODE_PARAMS = {
@@ -91,10 +88,7 @@ async function main () {
     }
 
     let initMsg: INIT_MSG = {
-      gateway_address: gatewayAddress,
-      gateway_hash: gatewayHash,
-      gateway_key: new Uint8Array(Buffer.from(gatewayPublicKeyString)),
-      nunya_business_contract_address: nunyaBusinessContractAddress,
+      count: 1,
     };
 
     let txParams = {

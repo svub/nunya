@@ -42,8 +42,8 @@ const config = {
       gatewayEncryptionKeyForChaChaPoly1305: "A20KrD7xDmkFXpNMqJn1CLpRaDLcdKpO1NdBBS7VpWh3",
       chainId: "pulsar-3",
       endpoint: process.env.ENDPOINT_TESTNET,
-      codeId: "12209", // only know after upload
-      contractCodeHash: "8e2fad364ceeb3c78682b70ef88b3ae8b5de55dd7c1e26f886665ca236b73d9b", // only know after upload
+      codeId: "12211", // only know after upload
+      contractCodeHash: "784167aee5332f6af37a37399515def6b221a3e19acd53235c373dcad6e4ef8b", // only know after upload
       secretContractAddress: "", // only know after instantiate
     },
     local: {
