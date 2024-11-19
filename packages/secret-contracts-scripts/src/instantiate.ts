@@ -62,8 +62,7 @@ async function main () {
     gateway_address: String,
     gateway_hash: String,
     gateway_key: String,
-    nunya_business_contract_address: any,
-    count: Number,
+    nunya_business_contract_address: Uint8Array,
   };
 
   type CODE_PARAMS = {
@@ -93,8 +92,7 @@ async function main () {
       gateway_address: gatewayAddress,
       gateway_hash: gatewayHash,
       gateway_key: gatewayPublicKeyBytes,
-      nunya_business_contract_address: nunyaBusinessContractAddress,
-      count: 1,
+      nunya_business_contract_address: new Uint8Array(Buffer.from(nunyaBusinessContractAddress)),
     };
 
     let txParams = {
