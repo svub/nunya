@@ -5,7 +5,7 @@
 * [Usage Guidelines](#usage)
 * [Setup Secret Contracts](#setup-secret)
 * [Setup Frontend & Solidity Contracts](#setup-frontend)
-* [Setup Custom Gateways and Relayers](#setup-gateways-relayers)
+* [About Custom Gateways and Relayers](#about-gateways-relayers)
 
 ### Usage Guidelines <a id="usage"></a> 
 
@@ -112,18 +112,6 @@ yarn run secret:submit
 * View on Secret Testnet block explorer at https://testnet.ping.pub/secret/
 
 * Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
-
-### Setup Custom Gateways and Relayers <a id="setup-gateways-relayers"></a> 
-
-See https://github.com/ltfschoen/SecretPath to deploy the following:
-
-* Custom Public Gateway on Ethereum Sepolia
-* Custom Relay Network
-* Custom Private Gateway on Secret Network
-
-The deployed [NunyaBusiness.sol](./packages/hardhat/contracts/NunyaBusiness.sol) contract on Ethereum Sepolia shall interact with the Public Gateway.
-
-The deployed [Nunya Private Contract](./packages/secret-contracts/nunya-contract/src/contract.rs) shall interact with the Private Gateway on Secret Network 
 
 ### Setup Frontend and Solidity Contracts <a id="setup-frontend"></a> 
 
@@ -246,3 +234,15 @@ Run smart contract test with `yarn hardhat:test`
 - Edit smart contracts such as `NunyaBusiness.sol` in `packages/hardhat/contracts`
 - Edit frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
 - Edit deployment scripts in `packages/hardhat/deploy`
+
+### About Custom Gateways and Relayers <a id="about-gateways-relayers"></a> 
+
+See https://github.com/ltfschoen/SecretPath for source code associated with the following:
+
+* Custom Public Gateway on Ethereum Sepolia
+* Custom Relay Network
+* Custom Private Gateway on Secret Network
+
+The deployed [NunyaBusiness.sol](./packages/hardhat/contracts/NunyaBusiness.sol) contract on Ethereum Sepolia shall interact with the Public Gateway.
+
+The deployed [Nunya Secret Private Contract](./packages/secret-contracts/nunya-contract/src/contract.rs) on Secret Network shall interact with the Private Gateway on Secret Network 
