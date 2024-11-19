@@ -53,6 +53,7 @@ contract NunyaBusiness is Ownable, Utils {
 
     /// @notice Event that is emitted when a call was made (optional)
     /// @param requestId requestId of the request. Contract can track a call that way
+    event SetSecretContractInfo(bool isSet)
     event RequestedValue(uint256 requestId);
     event FulfilledValue(uint256 requestId, uint256 value, uint16 code, address _nunya_business_contract_address);
     event RetrievePubkey(uint256 requestId);
@@ -64,12 +65,10 @@ contract NunyaBusiness is Ownable, Utils {
     event WithdrawalProcessed(uint256 requestId, uint16 code, uint256 amount);
     event SecretNetworkError(uint256 requestId, uint16 code, string message);
 
-    constructor(address payable _CustomGateway) payable {
+    constructor() payable {
         owner = msg.sender;
 
-        setGatewayAddress(_CustomGateway);
         console.log("constructor: msg.value", msg.value);
-        fundGateway(0); // send all funds to the gateway
 
         // TODO: only uncomment when hardhat has gateway deployed
         // TODO can we test if it's deployed and call then automatically? 
@@ -81,6 +80,11 @@ contract NunyaBusiness is Ownable, Utils {
         // Lock secretContractPubkey to Owner. After it is set it cannot be reset.
         // QUESTION: the msg.sender is the address of the sender, not the pubkey
         // secretContractPubkey = uint256(uint160(msg.sender));
+    }
+
+    modifier existsGateway {
+        require (address(CustomGateway) != address(0), "No gateway set");
+        _;
     }
 
     modifier onlyGateway {
@@ -102,14 +106,33 @@ contract NunyaBusiness is Ownable, Utils {
 
     /// @notice Sets the address to the Gateway contract 
     /// @param _CustomGateway address of the gateway
-    function setGatewayAddress(address _CustomGateway) private onlyOwner {
+    function setGatewayAddress(address payable _CustomGateway) public payable onlyOwner {
         CustomGateway = _CustomGateway;
+        fundGateway(0); // send all funds to the gateway
+    }
+
+    function setSecretContractInfo(string _routingInfo, string _routingCodeHash) public payable onlyOwner returns (bool) {
+        // Get the CustomGateway contract interface 
+        IGateway customGateway = IGateway(CustomGateway);
+        require(_routingInfo != "", "Invalid Secret contract address");
+        require(_routingCodeHash != "", "Invalid Secret contract code hash");
+
+        routingInfo = _routingInfo;
+        routingCodeHash = _routingCodeHash;
+
+        // Call the CustomGateway for a specific request
+        // Returns response of the request. A contract can track the call that way.
+        bool response = customGateway.setSecretContractInfo{value: msg.value}(_routingInfo, _routingCodeHash);
+        console.log("set secret contract info in gateway contract");
+
+        // Emit the event
+        emit SetSecretContractInfo(response);
     }
 
     /// @notice Demo function on how to implement a call
     // e.g. callbackGaslimit of 300000
     // testing function - DO NOT KEEP IN PROD!
-    function unsafeRequestValue (uint256 _callbackSelector, uint32 _callbackGasLimit) public payable onlyOwner {
+    function unsafeRequestValue (uint256 _callbackSelector, uint32 _callbackGasLimit) public payable existsGateway onlyOwner {
         // Get the CustomGateway contract interface 
         IGateway customGateway = IGateway(CustomGateway);
 
@@ -141,7 +164,7 @@ contract NunyaBusiness is Ownable, Utils {
     /// @notice Demo function on how to implement a call
     // e.g. callbackGaslimit of 300000
     // testing function - DO NOT KEEP IN PROD!
-    function unsafeRequestSecretContractPubkey (uint32 _callbackSelector, uint32 _callbackGasLimit) public payable {
+    function unsafeRequestSecretContractPubkey (uint32 _callbackSelector, uint32 _callbackGasLimit) public payable existsGateway onlyOwner {
         // Get the CustomGateway contract interface 
         IGateway customGateway = IGateway(CustomGateway);
 
@@ -181,7 +204,7 @@ contract NunyaBusiness is Ownable, Utils {
 
     // Function wrapped in secret network payload encryption
     // TODO needed? or could a new account be created on the fly when creating the first payment ref?
-    function newSecretUser(string calldata _secret) public payable returns (uint256){
+    function newSecretUser(string calldata _secret) public payable existsGateway returns (uint256){
         // Get the CustomGateway contract interface 
         IGateway customGateway = IGateway(CustomGateway);
 
@@ -199,7 +222,7 @@ contract NunyaBusiness is Ownable, Utils {
 
     // Function wrapped in secret network payload encryption
     // IDEA have the ref being created inside the secret contract, this way we avoid any potential collisions with already existing references.
-    function createPaymentReference(string calldata _secret, string calldata _ref) public payable returns (uint256){
+    function createPaymentReference(string calldata _secret, string calldata _ref) public payable existsGateway returns (uint256){
         // Get the CustomGateway contract interface 
         IGateway customGateway = IGateway(CustomGateway);
 
@@ -220,7 +243,7 @@ contract NunyaBusiness is Ownable, Utils {
 
     // TODO: use ref encrypted with (user pubkey+salt)
     // TODO: `string calldata secret` or `uint256 secret`
-    function pay(string calldata _valueJson, string calldata _ref, uint256 _value, string calldata _denomination) public payable returns (uint256) {
+    function pay(string calldata _valueJson, string calldata _ref, uint256 _value, string calldata _denomination) public payable existsGateway returns (uint256) {
         // Get the CustomGateway contract interface 
         IGateway customGateway = IGateway(CustomGateway);
 
@@ -246,7 +269,7 @@ contract NunyaBusiness is Ownable, Utils {
 
     // TODO: use ref encrypted with (user pubkey+salt)
     // TODO: `string calldata secret` or `uint256 secret`
-    function payWithReceipt(string calldata _secret, string calldata _ref, uint256 _value, string calldata _denomination, uint256 _userPubkey) public payable returns (uint256) {
+    function payWithReceipt(string calldata _secret, string calldata _ref, uint256 _value, string calldata _denomination, uint256 _userPubkey) public payable existsGateway returns (uint256) {
         // Get the CustomGateway contract interface 
         IGateway customGateway = IGateway(CustomGateway);
 
@@ -281,7 +304,7 @@ contract NunyaBusiness is Ownable, Utils {
 
     // Function wrapped in secret network payload encryption
     // TODO: `string calldata secret` or `uint256 secret`
-    function withdrawTo(string calldata _secret, uint256 _amount, string calldata _denomination, address _withdrawalAddress) public payable returns (uint256) {
+    function withdrawTo(string calldata _secret, uint256 _amount, string calldata _denomination, address _withdrawalAddress) public payable existsGateway returns (uint256) {
         // Get the CustomGateway contract interface 
         IGateway customGateway = IGateway(CustomGateway);
 
@@ -314,7 +337,7 @@ contract NunyaBusiness is Ownable, Utils {
         }
     }
 
-    function fundGateway(uint256 keepGas) internal returns (uint256) {
+    function fundGateway(uint256 keepGas) internal existsGateway returns (uint256) {
         console.log("----- NunyaBusiness.sol fundGateway() keepGas: ", keepGas);
         uint256 txGas = 21000; // seems the default for a normal TX, TODO confirm
         require(keepGas <= 30000000, "Keep more than maximum per block?!");

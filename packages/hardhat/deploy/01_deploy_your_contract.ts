@@ -68,6 +68,19 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     console.log("Deployer account balance:", hre.ethers.formatEther(balance), "ETH");
   }
 
+  const nunyaContract = await deploy("NunyaBusiness", {
+    from: deployer,
+    // Contract constructor arguments
+    args: [],
+    log: true,
+    gasLimit: 3000000,
+    value: parseUnits("0.0005", "ether").toString(), // to fund the gateway in the constructor, use when setGatewayAddress is called
+    // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
+    // automatically mining the contract deployment transaction. There is no effect on live networks.
+    autoMine: true,
+  });
+  console.log("Successfully deployed NunyaBusiness to address: ", nunyaContract.address);
+
   const gateway = await deploy("Gateway", {
     from: deployer,
     args: [],
@@ -78,19 +91,6 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     autoMine: true,
   });
   console.log("Successfully deployed Gateway to address: ", gateway.address);
-
-  const nunyaContract = await deploy("NunyaBusiness", {
-    from: deployer,
-    // Contract constructor arguments
-    args: [gateway.address],
-    log: true,
-    gasLimit: 3000000,
-    value: parseUnits("0.0005", "ether").toString(), // to fund the gateway in the constructor
-    // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
-    // automatically mining the contract deployment transaction. There is no effect on live networks.
-    autoMine: true,
-  });
-  console.log("Successfully deployed NunyaBusiness to address: ", nunyaContract.address);
 
   // Call the gateway function now that the Nunya contract has been funded
   const nunyaContractDeployedAt = await hre.ethers.getContractAt("NunyaBusiness", nunyaContract.address);

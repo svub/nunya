@@ -45,8 +45,8 @@ contract Gateway is Ownable, Utils {
     uint256 immutable public secret_gateway_signer_pubkey = 0x046d0aac3ef10e69055e934ca899f508ba516832dc74aa4ed4d741052ed5a568774d99d3bfed641a7935ae73aac8e34938db747c2f0e8b2aa95c25d069a575cc8b;
     address immutable public secret_gateway_signer_address = 0x2821E794B01ABF0cE2DA0ca171A1fAc68FaDCa06;
     // TODO: Add deployed custom Secret contract address to be same as `SECRET_ADDRESS` and codehash `CONTRACT_CODE_HASH` used in scripts
-    string constant public routing_info = "secret1uwqdjnzrttepn86p2sjmnugfph7tz97hmcwjs3";
-    string constant public routing_code_hash = "1af180cc6506af23fb3ee2c0f6ece37ab3ad32db82e061b6b30679fb8a3f1323";
+    string public routing_info = "";
+    string public routing_code_hash = "";
 
     /*//////////////////////////////////////////////////////////////
                               Structs
@@ -442,6 +442,21 @@ contract Gateway is Ownable, Utils {
                      New Functions for Upgradeability
     //////////////////////////////////////////////////////////////*/
     function upgradeHandler() public {
+    }
+
+    /// @notice Set custom deployed custom Secret contract address to be the same as `SECRET_ADDRESS` and codehash `CONTRACT_CODE_HASH`
+    /// @notice Allows deploying the custom Secret contract address after deploying the Gateway and Nunya contracts
+    /// @param _routingInfo Deployed custom Secret contract address
+    /// @param _routingCodeHash Deployed custom Secret contract code hash
+    /// @return response Boolean representing success or failure
+    function setSecretContractInfo(string _routingInfo, string _routingCodeHash) external payable onlyOwner returns (bool) {
+        require(_routingInfo != "", "Invalid Secret contract address");
+        require(_routingCodeHash != "", "Invalid Secret contract code hash");
+
+        routingInfo = _routingInfo;
+        routingCodeHash = _routingCodeHash;
+
+        return true;
     }
 
     /// @notice Request value from the deployed secret contract

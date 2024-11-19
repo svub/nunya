@@ -44,6 +44,7 @@ interface IGateway {
     ) external payable returns (uint256 _taskId);
     function postExecution(uint256 _taskId, string calldata _sourceNetwork, PostExecutionInfo calldata _info) external;
     function upgradeHandler() external;
+    function setSecretContractInfo(string _routingInfo, string _routingCodeHash) external payable onlyOwner returns (bool) {
     function requestValue(uint256 _callbackSelector, uint32 _callbackGasLimit) external payable returns (uint256 requestId);
     // TODO: should not need to be payable
     function retrievePubkey(uint256 _callbackSelector, uint32 _callbackGasLimit) external payable returns (uint256 requestId);
