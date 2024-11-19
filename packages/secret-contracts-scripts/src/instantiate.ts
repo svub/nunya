@@ -61,8 +61,8 @@ async function main () {
   type INIT_MSG = {
     gateway_address: String,
     gateway_hash: String,
-    gateway_key: String,
-    nunya_business_contract_address: Uint8Array,
+    gateway_key: Uint8Array,
+    nunya_business_contract_address: String,
   };
 
   type CODE_PARAMS = {
@@ -91,8 +91,8 @@ async function main () {
     let initMsg: INIT_MSG = {
       gateway_address: gatewayAddress,
       gateway_hash: gatewayHash,
-      gateway_key: gatewayPublicKeyBytes,
-      nunya_business_contract_address: new Uint8Array(Buffer.from(nunyaBusinessContractAddress)),
+      gateway_key: new Uint8Array(Buffer.from(gatewayPublicKeyBytes)),
+      nunya_business_contract_address: nunyaBusinessContractAddress,
     };
 
     let txParams = {

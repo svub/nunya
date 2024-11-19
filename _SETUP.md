@@ -213,6 +213,8 @@ Use 1.15.0-beta.1.
 Note that 1.15.0-beta.2 may only upload but does not instantiate.
 Note that 1.15.0-beta.0 does not upload at all.
 
+> IMPORTANT: Errors deploying may be because of mismatched types, for example InstantiateMsg here https://github.com/svub/nunya/blob/45e884194e8183229e3d7c61ccba7d789ff996b1/packages/secret-contracts/nunya-contract/src/msg.rs#L16C12-L16C26 must match here https://github.com/svub/nunya/blob/45e884194e8183229e3d7c61ccba7d789ff996b1/packages/secret-contracts-scripts/src/instantiate.ts#L92
+
 > IMPORTANT: Both upload and instantiate must be performed using the same version of secretjs
 
 ```
