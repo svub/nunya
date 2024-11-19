@@ -29,8 +29,7 @@ console.log("providerRpcUrlEthereumSepolia: ", providerRpcUrlEthereumSepolia !==
 console.log("providerApiKeyAlchemy: ", providerApiKeyAlchemy !== "");
 console.log("providerApiKeyGeoblock: ", providerApiKeyGeoblock !== "");
 console.log("etherscanApiKey: ", etherscanApiKey !== "");
-console.log("deployerPrivateKey: ", deployerPrivateKey !== "");
-console.log("MNEMONIC: ", MNEMONIC !== "");
+console.log("deployerPrivateKey or MNEMONIC provided: ", deployerPrivateKey !== "" || MNEMONIC !== "");
 
 const config: HardhatUserConfig = {
   solidity: {

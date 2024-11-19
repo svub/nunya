@@ -5,9 +5,6 @@ pragma solidity ^0.8.26;
 // TODO remove in production
 import "hardhat/console.sol";
 
-// TODO: remove since do not need this in the file it is an interface of
-import "./IGateway.sol";
-
 // We need JSON parsing to introspect on the `pay` function
 import "./JsmnSolLib.sol";
 
@@ -42,7 +39,7 @@ contract Gateway is Ownable, Utils {
     // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-testnet-pulsar-3-contracts
     string constant public task_destination_network = "pulsar-3";
     // This is the Derived Ethereum Address from the Public Key of the deployed Gateway contract on the Secret Network Testnet
-    uint256 immutable public secret_gateway_signer_pubkey = 0x046d0aac3ef10e69055e934ca899f508ba516832dc74aa4ed4d741052ed5a568774d99d3bfed641a7935ae73aac8e34938db747c2f0e8b2aa95c25d069a575cc8b;
+    // uint256 immutable public secret_gateway_signer_pubkey = 0x046d0aac3ef10e69055e934ca899f508ba516832dc74aa4ed4d741052ed5a568774d99d3bfed641a7935ae73aac8e34938db747c2f0e8b2aa95c25d069a575cc8b;
     address immutable public secret_gateway_signer_address = 0x2821E794B01ABF0cE2DA0ca171A1fAc68FaDCa06;
     // TODO: Add deployed custom Secret contract address to be same as `SECRET_ADDRESS` and codehash `CONTRACT_CODE_HASH` used in scripts
     string public routing_info = "";
@@ -227,7 +224,8 @@ contract Gateway is Ownable, Utils {
 
     /// @notice Converts a uint256 into bytes
     // https://ethereum.stackexchange.com/a/78487/9680
-
+    // TODO: Is this a duplicate of `uint256toBytesString` function?
+    // TODO: Consider renaming to more descriptive function name like `uint256ToBytes32` to avoid conflicts
     function toBytes(uint256 a) public pure returns (bytes32) {
         uint i;
         for (i = 0; i < 33; i++) {
@@ -293,7 +291,7 @@ contract Gateway is Ownable, Utils {
     /// @notice Increase the task_id if needed
     /// @param _newTaskId the new task_id
 
-    function increaseTaskId(uint256 _newTaskId) external onlyOwner {
+    function increaseTaskId(uint256 _newTaskId) public onlyOwner {
         require (_newTaskId > taskId, "New task id must be higher than the old task_id");
         taskId = _newTaskId;
     }
@@ -301,7 +299,7 @@ contract Gateway is Ownable, Utils {
     /// @notice Increase the nonce if needed
     /// @param _newNonce the new nonce
 
-    function increaseNonce(uint256 _newNonce) external onlyOwner {
+    function increaseNonce(uint256 _newNonce) public onlyOwner {
         require (_newNonce > nonce, "New nonce must be higher than the old nonce");
         nonce = _newNonce;
     }
@@ -341,6 +339,10 @@ contract Gateway is Ownable, Utils {
         ExecutionInfo calldata _info) 
         external payable onlyOwner returns (uint256 _taskId) {
 
+        require(_nunyaBusinessContractAddress == owner, "sender must be the owner of the deployed Gateway contract");
+
+        address _userAddress = _nunyaBusinessContractAddress;
+
         _taskId = taskId;
 
         uint256 estimatedPrice = estimateRequestPrice(_info.callback_gas_limit);
@@ -356,6 +358,9 @@ contract Gateway is Ownable, Utils {
         // Payload hash verification
         require(ethSignedPayloadHash(_info.payload) == _payloadHash, "Invalid Payload Hash");
         
+        // TODO: Alternative: `tasks[taskId] = Task(sliceLastByte(payloadHash), false);`
+        // Reference: https://github.com/SecretFoundation/Secretpath-tutorials/blob/master/encrypted-payloads/evm-contract/contracts/Gateway.sol#L381C9-L381C65
+        //
         // persisting the task
         tasks[_taskId] = Task(bytes31(_payloadHash), false);
 
@@ -390,6 +395,9 @@ contract Gateway is Ownable, Utils {
         // Check if the task is already completed
         require(!task.completed, "Task Already Completed");
 
+        // TODO: Alternative approach:
+        // Reference: https://github.com/SecretFoundation/Secretpath-tutorials/blob/master/encrypted-payloads/evm-contract/contracts/Gateway.sol#L418
+        //
         // Check if the payload hashes match
         require(bytes31(_info.payload_hash) == task.payload_hash_reduced, "Invalid Payload Hash");
 
@@ -448,13 +456,15 @@ contract Gateway is Ownable, Utils {
     /// @notice Allows deploying the custom Secret contract address after deploying the Gateway and Nunya contracts
     /// @param _routingInfo Deployed custom Secret contract address
     /// @param _routingCodeHash Deployed custom Secret contract code hash
-    /// @return response Boolean representing success or failure
-    function setSecretContractInfo(string _routingInfo, string _routingCodeHash) external payable onlyOwner returns (bool) {
-        require(_routingInfo != "", "Invalid Secret contract address");
-        require(_routingCodeHash != "", "Invalid Secret contract code hash");
+    /// @return isSet Boolean success or failure
+    function setSecretContractInfo(string memory _routingInfo, string memory _routingCodeHash) external payable onlyOwner returns (bool isSet) {
+        // console.log("------ Gateway.setSecretContractInfo");
 
-        routingInfo = _routingInfo;
-        routingCodeHash = _routingCodeHash;
+        require(compStr(_routingInfo, "") == false, "Invalid Secret contract address");
+        require(compStr(_routingCodeHash, "") == false, "Invalid Secret contract code hash");
+
+        routing_info = _routingInfo;
+        routing_code_hash = _routingCodeHash;
 
         return true;
     }
@@ -490,13 +500,13 @@ contract Gateway is Ownable, Utils {
         // TODO: We will use the base64 value for both the value of the `user_key` and
         // the `user_pubkey`, but they should be different and `user_key` suggested to
         // be base64 (e.g. `AAA=`)
-        bytes payload_info = abi.encodePacked(
-            '}","routing_info":"',routing_info,
-            '","routing_code_hash":"',routing_code_hash,
+        bytes memory payload_info = abi.encodePacked(
+            '}","routing_info":"', routing_info,
+            '","routing_code_hash":"', routing_code_hash,
             // FIXME: Should be msg.sender not the owner as discussed with Tom since we are forwarding to Secret network
-            '","user_address":"',address(msg.sender),
-            '","user_key":"',encodeAddressToBase64(address(msg.sender)),
-            '","callback_address":"',address(msg.sender),
+            '","user_address":"', address(msg.sender),
+            '","user_key":"', encodeAddressToBase64(address(msg.sender)),
+            '","callback_address":"', address(msg.sender),
             '"'
         );
 
@@ -508,8 +518,8 @@ contract Gateway is Ownable, Utils {
             encodeAddressToBase64(address(msg.sender)), //callback_address
             // callback selector should be a hex value already converted into base64 to be used
             // as callback_selector of the request_value function in the Secret contract 
-            '","callback_selector":"',_callbackSelector,
-            '","callback_gas_limit":',uint256toBytesString(_callbackGasLimit),
+            '","callback_selector":"', uint256toBytesString(_callbackSelector),
+            '","callback_gas_limit":', uint256toBytesString(_callbackGasLimit),
             '}' 
         );
 
@@ -524,8 +534,10 @@ contract Gateway is Ownable, Utils {
         // ExecutionInfo struct
         ExecutionInfo memory executionInfo = ExecutionInfo({
             // TODO - make `user_key` a unique key different from `user_pubkey`
-            user_key: encodeAddressToBase64(address(msg.sender)), // equals AAA= in base64
-            user_pubkey: uint256toBytesString(secret_gateway_signer_pubkey), // Fill with 0 bytes
+            user_key: bytes32ToBytes(encodeAddressToBase64(address(msg.sender))), // equals AAA= in base64
+            // FIXME: use of `secret_gateway_signer_pubkey` does not compile, what alternative to use?
+            // user_pubkey: uint256toBytesString(secret_gateway_signer_pubkey),
+            user_pubkey: emptyBytes, // Fill with 0 bytes
             routing_code_hash: routing_code_hash, // custom contract codehash on Secret 
             task_destination_network: task_destination_network,
             handle: "request_value",
@@ -534,7 +546,7 @@ contract Gateway is Ownable, Utils {
             payload: payload,
             // TODO: add a payload signature
             // Signature of hash of encrypted input values
-            payload_signature: payloadHash // empty signature, fill with 0 bytes
+            payload_signature: bytes32ToBytes(payloadHash)
         });
 
         // persisting the task
@@ -576,7 +588,24 @@ contract Gateway is Ownable, Utils {
             require(msg.value >= estimatedPrice, "Paid Callback Fee Too Low");
         }
 
-        // TODO - modify below to be similar to request_value with custom `payload_info`
+        // Note: Since contracts only have an address, but not public keys, where the
+        // addresses are derived from the address of the user (or other contract) that
+        // created them, which are in turn are derived from the public key of a normal
+        // user's keypair. So we will use the public key of the `owner` that created the
+        // Gateway contract.
+        //
+        // TODO: We will use the base64 value for both the value of the `user_key` and
+        // the `user_pubkey`, but they should be different and `user_key` suggested to
+        // be base64 (e.g. `AAA=`)
+        bytes memory payload_info = abi.encodePacked(
+            '}","routing_info":"', routing_info,
+            '","routing_code_hash":"', routing_code_hash,
+            // FIXME: Should be msg.sender not the owner as discussed with Tom since we are forwarding to Secret network
+            '","user_address":"', address(msg.sender),
+            '","user_key":"', encodeAddressToBase64(address(msg.sender)),
+            '","callback_address":"', address(msg.sender),
+            '"'
+        );
 
         //construct the payload that is sent into the Secret Gateway
         bytes memory payload = bytes.concat(

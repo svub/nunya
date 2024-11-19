@@ -2,12 +2,26 @@
 pragma solidity ^0.8.26;
 
 contract Utils {
-
-    // @notice Re-derive address from pubkey
-    // https://ethereum.stackexchange.com/a/15190/9680
-    function checkPubKey(bytes _pubkey, address _address) constant returns (bool){
-        return (uint(keccak256(_pubkey)) & 0x00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF) == uint(_address);
+    // @notice Compare two strings using their hashed values
+    // https://kenwagatsuma.com/en/blog/compare-strings-in-solidity/
+    function compStr(string memory x, string memory y) public pure returns (bool) {
+        if (bytes(x).length != bytes(y).length) {
+            return false;
+        } else {
+            return (keccak256(abi.encodePacked(x)) ==
+                keccak256(abi.encodePacked(y)));
+        }
     }
+
+    function bytes32ToBytes(bytes32 data) public pure returns (bytes memory) {
+        return bytes.concat(data);
+    }
+
+    // // @notice Re-derive address from pubkey
+    // // https://ethereum.stackexchange.com/a/15190/9680
+    // function checkPubKey(bytes calldata _pubkey, address _address) public returns (bool) {
+    //     return (uint(keccak256(_pubkey)) & 0x00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF) == uint(_address);
+    // }
 
     /// @notice Converts a uint256 value into its string representation
     /// @param x The uint256 value to convert

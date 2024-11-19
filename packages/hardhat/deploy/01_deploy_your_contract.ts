@@ -85,17 +85,17 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     from: deployer,
     args: [],
     log: true,
-    gasLimit: 3000000,
+    gasLimit: 30000000,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
     // automatically mining the contract deployment transaction. There is no effect on live networks.
     autoMine: true,
   });
   console.log("Successfully deployed Gateway to address: ", gateway.address);
 
-  // Call the gateway function now that the Nunya contract has been funded
+  // Call the set gateway function now that the Nunya contract has been funded
   const nunyaContractDeployedAt = await hre.ethers.getContractAt("NunyaBusiness", nunyaContract.address);
-  const newSecretUserTx = await nunyaContractDeployedAt.newSecretUser(deployer, { value: parseEther("0.0001") });
-  console.log("tx hash:", newSecretUserTx.hash);
+  const setGatewayAddressTx = await nunyaContractDeployedAt.setGatewayAddress(gateway.address, { value: parseEther("0.0001") });
+  console.log("setGatewayAddressTx tx hash:", setGatewayAddressTx.hash);
 
   // Get the deployed contract to interact with it after deploying.
   const nunyaInstance = await hre.ethers.getContract<Contract>("NunyaBusiness");
@@ -106,6 +106,11 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
 
   const gatewayBalance = await hre.ethers.provider.getBalance(gateway.address)
   console.log("Gateway balance: ", formatEther(gatewayBalance));
+
+  // // Call the gateway function now that the Nunya contract has been funded
+  // const nunyaContractDeployedAt = await hre.ethers.getContractAt("NunyaBusiness", nunyaContract.address);
+  // const newSecretUserTx = await nunyaContractDeployedAt.newSecretUser(deployer, { value: parseEther("0.0001") });
+  // console.log("tx hash:", newSecretUserTx.hash);
 };
 
 export default deployYourContract;

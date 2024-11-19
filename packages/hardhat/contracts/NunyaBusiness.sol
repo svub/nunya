@@ -52,8 +52,11 @@ contract NunyaBusiness is Ownable, Utils {
     // TODO could an account be created the first time a user creates a ref?
 
     /// @notice Event that is emitted when a call was made (optional)
+    /// @param isSet response of request
+    event SetSecretContractInfo(bool isSet);
+
+    /// @notice Event that is emitted when a call was made (optional)
     /// @param requestId requestId of the request. Contract can track a call that way
-    event SetSecretContractInfo(bool isSet)
     event RequestedValue(uint256 requestId);
     event FulfilledValue(uint256 requestId, uint256 value, uint16 code, address _nunya_business_contract_address);
     event RetrievePubkey(uint256 requestId);
@@ -96,6 +99,7 @@ contract NunyaBusiness is Ownable, Utils {
 
     modifier onlyNunyaBusinessContractMessageSender {
         // TODO - not for debugging, only production
+        _;
     }
 
     modifier validateRequest(uint256 _id, FunctionCallType _type) {
@@ -111,22 +115,22 @@ contract NunyaBusiness is Ownable, Utils {
         fundGateway(0); // send all funds to the gateway
     }
 
-    function setSecretContractInfo(string _routingInfo, string _routingCodeHash) public payable onlyOwner returns (bool) {
+    function unsafeSetSecretContractInfo(string memory _routingInfo, string memory _routingCodeHash) public payable onlyOwner returns (bool) {
         // Get the CustomGateway contract interface 
         IGateway customGateway = IGateway(CustomGateway);
-        require(_routingInfo != "", "Invalid Secret contract address");
-        require(_routingCodeHash != "", "Invalid Secret contract code hash");
 
-        routingInfo = _routingInfo;
-        routingCodeHash = _routingCodeHash;
+        require(compStr(_routingInfo, "") == false, "Invalid Secret contract address");
+        require(compStr(_routingCodeHash, "") == false, "Invalid Secret contract code hash");
 
         // Call the CustomGateway for a specific request
-        // Returns response of the request. A contract can track the call that way.
-        bool response = customGateway.setSecretContractInfo{value: msg.value}(_routingInfo, _routingCodeHash);
+        // Returns requestId of the request. A contract can track the call that way.
+        bool isSet = customGateway.setSecretContractInfo{value: msg.value}(_routingInfo, _routingCodeHash);
         console.log("set secret contract info in gateway contract");
 
         // Emit the event
-        emit SetSecretContractInfo(response);
+        emit SetSecretContractInfo(isSet);
+
+        return isSet;
     }
 
     /// @notice Demo function on how to implement a call
@@ -146,9 +150,9 @@ contract NunyaBusiness is Ownable, Utils {
     }
 
     /// @notice Callback by the CustomGateway with the requested value
-    /// @param requestId requestId of the request that was initally called
-    /// @param value Value in uint256
-    function fulfilledValueCallback(uint256 _requestId, uint256 calldata _value, uint16 _code, address _nunya_business_contract_address) external onlyGateway {
+    /// @param _requestId requestId of the request that was initally called
+    /// @param _value Value in uint256
+    function fulfilledValueCallback(uint256 _requestId, uint256 _value, uint16 _code, address _nunya_business_contract_address) external onlyGateway {
         console.log("fulfilledValueCallback - requestId", _requestId);
         console.log("fulfilledValueCallback - value", _value);
         console.log("fulfilledValueCallback - code", _code);
@@ -176,7 +180,7 @@ contract NunyaBusiness is Ownable, Utils {
     }
 
     /// @notice Callback by the CustomGateway with the requested value
-    /// @param requestId requestId of the request that was initally called
+    /// @param _requestId requestId of the request that was initally called
     /// @param _key Public key of the custom Secret contract deployed on the Secret network
     function fulfilledSecretContractPubkeyCallback (uint256 _requestId, uint256 _key, uint16 _code, address _nunya_business_contract_address) public onlyGateway validateRequest(_requestId, FunctionCallType.GET_KEY) {
         // require (secretContractPubkey==0, "Key already set");
