@@ -3,8 +3,8 @@
 **Table of contents**
 
 * [Usage Guidelines](#usage)
-* [Setup Secret Contracts](#setup-secret)
 * [Setup Frontend & Solidity Contracts](#setup-frontend)
+* [Setup Secret Contracts](#setup-secret)
 * [About Custom Gateways and Relayers](#about-gateways-relayers)
 
 ### Usage Guidelines <a id="usage"></a> 
@@ -16,102 +16,6 @@ See the [DEMO_AND_VIDEO](./_DEMO_AND_VIDEO.md) file for details.
 * **IMPORTANT**: Private secret contract on Secret Network must be deployed before deploying EVM gateway contract since it must be modified to include its address `routing_info` and code hash `routing_code_hash`.
 
 * **NOTE**: The public key of the user that deploys the custom Nunya.Business contract is sent through to the custom EVM Gateway contract so only that user may call that custom EVM Gateway contract, however we actually want to try and use the default EVM Gateway contract that has been deployed by the Secret network team with minimal changes and move the logic to the Secret contract instead. Apart from the creator of the Nunya.Business contract, the only other users that call any Secret network functions are accounts whose public keys are provided by the creator of the Nunya.Business giving those accounts permission to call the withdraw function.
-
-### Setup Secret Contract <a id="setup-secret"></a> 
-
-* Reference https://docs.scrt.network/secret-network-documentation/development/readme-1
-
-* Install Git and Make - https://docs.scrt.network/secret-network-documentation/development/readme-1/setting-up-your-environment#install-requirements
-
-* Install Rust
-  ```
-  rustup update
-  rustup default stable
-  rustup target add wasm32-unknown-unknown
-  source "$HOME/.cargo/env"
-  ```
-* Install Cargo Generate
-  ```
-  cargo install cargo-generate --features vendored-openssl
-  ```
-
-* Install dependencies
-  ```
-  nvm use
-  npm install --global lerna
-  yarn set version 4.2.2
-  corepack enable
-  corepack prepare yarn@v4.2.2 --activate
-  ```
-
-#### Create, Compile and Deploy Contract
-
-* Note: To build on macOS it was necessary to run the following first as specified here https://github.com/rust-bitcoin/rust-secp256k1/issues/283#issuecomment-1590391777. Other details https://github.com/briansmith/ring/issues/1824
-
-```
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-brew install llvm
-llvm-config --version
-echo 'export AR=/opt/homebrew/opt/llvm/bin/llvm-ar' >> ~/.zshrc
-echo 'export CC=/opt/homebrew/opt/llvm/bin/clang' >> ~/.zshrc
-source ~/.zshrc
-``` 
-
-* Run Docker (e.g. Docker Desktop on macOS)
-
-* Remove any old Docker containers
-```
-docker rmi sco
-```
-
-* [Compile](https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy#compile-the-code). Note: Outputs contract.wasm and contract.wasm.gz file in the root directory of the secret-contracts/nunya-contract folder. Using `make build-mainnet-reproducible` will remove contract.wasm so only the optimised contract.wasm.gz remains. Warning: If you only run `make build-mainnet` then you will get this error https://github.com/svub/nunya/issues/8 when deploying.
-
-  * Nunya Contract
-    ```
-    cd packages/secret-contracts/nunya-contract
-    make build-mainnet-reproducible
-    ```
-
-  OR
-
-  * My Counter Contract (Example only)
-    ```
-    cd packages/secret-contracts/my-counter-contract
-    make build-mainnet-reproducible
-    ```
-
-* Upload and Instantiate 
-
-> IMPORTANT: Prior to Upload step it is necessary to configure the wallet, network, and endpoint to use either Local or Testnet, and to specify what project's compiled smart contract WASM file to use and whether to use the optimized build (e.g. ./nunya-contract/optimized-wasm/secret_evm_storage.wasm.gz or ./nunya-contract/contract.wasm.gz) in the script ./packages/secret-contracts-scripts/src/index.ts
-
-> IMPORTANT: Prior to Instantiation step it is necessary to deploy the EVM Gateway
-
-```
-yarn install
-yarn run secret:clean:uploadContract
-yarn run secret:start:uploadContract
-yarn run secret:clean:instantiateContract
-yarn run secret:start:instantiateContract
-```
-
-* Add the ABI of the uploaded and instantiated Secret contract to ./nunya/packages/secret-contracts-scripts/src/config/abi.ts
-
-* Add the Contract Code Hash `contractCodeHash` and Secret Contract Address `secretContractAddress` to ./nunya/packages/secret-contracts-scripts/src/config/deploy.ts for the relevant network
-
-> IMPORTANT: If deployment of the code with `await secretjs.tx.compute.storeCode` is unsuccessful, then check if Beta version of secretjs is necessary incase the Secret Testnet is being upgraded.
-
-* Query Pubkey
-```
-yarn run secret:queryPubkey
-```
-* Transaction `secretContract.retrievePubkey`
-```
-yarn run secret:submit
-```
-* View logs at ./logs/instantiateOutput.log
-* View on Secret Testnet block explorer at https://testnet.ping.pub/secret/
-
-* Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
 
 ### Setup Frontend and Solidity Contracts <a id="setup-frontend"></a> 
 
@@ -234,6 +138,102 @@ Run smart contract test with `yarn hardhat:test`
 - Edit smart contracts such as `NunyaBusiness.sol` in `packages/hardhat/contracts`
 - Edit frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
 - Edit deployment scripts in `packages/hardhat/deploy`
+
+### Setup Secret Contract <a id="setup-secret"></a> 
+
+* Reference https://docs.scrt.network/secret-network-documentation/development/readme-1
+
+* Install Git and Make - https://docs.scrt.network/secret-network-documentation/development/readme-1/setting-up-your-environment#install-requirements
+
+* Install Rust
+  ```
+  rustup update
+  rustup default stable
+  rustup target add wasm32-unknown-unknown
+  source "$HOME/.cargo/env"
+  ```
+* Install Cargo Generate
+  ```
+  cargo install cargo-generate --features vendored-openssl
+  ```
+
+* Install dependencies
+  ```
+  nvm use
+  npm install --global lerna
+  yarn set version 4.2.2
+  corepack enable
+  corepack prepare yarn@v4.2.2 --activate
+  ```
+
+#### Create, Compile and Deploy Contract
+
+* Note: To build on macOS it was necessary to run the following first as specified here https://github.com/rust-bitcoin/rust-secp256k1/issues/283#issuecomment-1590391777. Other details https://github.com/briansmith/ring/issues/1824
+
+```
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install llvm
+llvm-config --version
+echo 'export AR=/opt/homebrew/opt/llvm/bin/llvm-ar' >> ~/.zshrc
+echo 'export CC=/opt/homebrew/opt/llvm/bin/clang' >> ~/.zshrc
+source ~/.zshrc
+``` 
+
+* Run Docker (e.g. Docker Desktop on macOS)
+
+* Remove any old Docker containers
+```
+docker rmi sco
+```
+
+* [Compile](https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy#compile-the-code). Note: Outputs contract.wasm and contract.wasm.gz file in the root directory of the secret-contracts/nunya-contract folder. Using `make build-mainnet-reproducible` will remove contract.wasm so only the optimised contract.wasm.gz remains. Warning: If you only run `make build-mainnet` then you will get this error https://github.com/svub/nunya/issues/8 when deploying.
+
+  * Nunya Contract
+    ```
+    cd packages/secret-contracts/nunya-contract
+    make build-mainnet-reproducible
+    ```
+
+  OR
+
+  * My Counter Contract (Example only)
+    ```
+    cd packages/secret-contracts/my-counter-contract
+    make build-mainnet-reproducible
+    ```
+
+* Upload and Instantiate 
+
+> IMPORTANT: Prior to Upload step it is necessary to configure the wallet, network, and endpoint to use either Local or Testnet, and to specify what project's compiled smart contract WASM file to use and whether to use the optimized build (e.g. ./nunya-contract/optimized-wasm/secret_evm_storage.wasm.gz or ./nunya-contract/contract.wasm.gz) in the script ./packages/secret-contracts-scripts/src/index.ts
+
+> IMPORTANT: Prior to Instantiation step it is necessary to deploy the EVM Gateway
+
+```
+yarn install
+yarn run secret:clean:uploadContract
+yarn run secret:start:uploadContract
+yarn run secret:clean:instantiateContract
+yarn run secret:start:instantiateContract
+```
+
+* Add the ABI of the uploaded and instantiated Secret contract to ./nunya/packages/secret-contracts-scripts/src/config/abi.ts
+
+* Add the Contract Code Hash `contractCodeHash` and Secret Contract Address `secretContractAddress` to ./nunya/packages/secret-contracts-scripts/src/config/deploy.ts for the relevant network
+
+> IMPORTANT: If deployment of the code with `await secretjs.tx.compute.storeCode` is unsuccessful, then check if Beta version of secretjs is necessary incase the Secret Testnet is being upgraded.
+
+* Query Pubkey
+```
+yarn run secret:queryPubkey
+```
+* Transaction `secretContract.retrievePubkey`
+```
+yarn run secret:submit
+```
+* View logs at ./logs/instantiateOutput.log
+* View on Secret Testnet block explorer at https://testnet.ping.pub/secret/
+
+* Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
 
 ### About Custom Gateways and Relayers <a id="about-gateways-relayers"></a> 
 
