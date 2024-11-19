@@ -41,6 +41,8 @@ const gatewayPublicKeyBytes = Buffer.from(
   "hex"
 ).toString("base64");
 
+const gatewayPublicKeyString = Buffer.from(gatewayPublicKeyBytes, 'base64').toString();
+
 async function main () {
   const secretjs = new SecretNetworkClient({
     chainId: chainId,
@@ -91,7 +93,7 @@ async function main () {
     let initMsg: INIT_MSG = {
       gateway_address: gatewayAddress,
       gateway_hash: gatewayHash,
-      gateway_key: new Uint8Array(Buffer.from(gatewayPublicKeyBytes)),
+      gateway_key: new Uint8Array(Buffer.from(gatewayPublicKeyString)),
       nunya_business_contract_address: nunyaBusinessContractAddress,
     };
 
