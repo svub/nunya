@@ -43,10 +43,9 @@
     "secret:setEVMGatewayAddress": "yarn workspace secret-contracts-scripts setEVMGatewayAddress",
     "secret:queryPubkey": "yarn workspace secret-contracts-scripts queryPubkey",
     "secret:submit": "yarn workspace secret-contracts-scripts submit",
-    "secret:clean:uploadContract": "yarn workspace secret-contracts-scripts clean",
-    "secret:upload:uploadContract": "yarn workspace secret-contracts-scripts upload",
-    "secret:clean:instantiateContract": "yarn workspace secret-contracts-scripts clean",
-    "secret:instantiate:instantiateContract": "yarn workspace secret-contracts-scripts instantiate"
+    "secret:clean": "yarn workspace secret-contracts-scripts clean",
+    "secret:upload": "yarn workspace secret-contracts-scripts upload",
+    "secret:instantiate": "yarn workspace secret-contracts-scripts instantiate"
   },
   "packageManager": "yarn@4.2.2",
   "dependencies": {

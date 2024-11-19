@@ -10,7 +10,7 @@ const walletOptions = {
 
 const { nunyaBusinessContractAddress } = config.evm.sepolia;
 
-const { walletMnemonic, codeId, contractCodeHash, gatewayAddress, gatewayHash, gatewayPublicKey, chainId, endpoint, secretContractAddress } =
+const { walletMnemonic, codeId, contractCodeHash, gatewayAddress, gatewayHash, gatewayPublicKey, chainId, endpoint } =
   config.secret.network == "testnet"
   ? config.secret.testnet
   : config.secret.local;

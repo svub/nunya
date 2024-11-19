@@ -17,7 +17,6 @@ const config = {
   },
   secret: {
     network: "testnet",
-    // codeId 1533
     mainnet: {
       walletMnemonic: process.env.WALLET_MNEMONIC_MAINNET,
       isOptimizedContractWasm: true,
@@ -29,11 +28,10 @@ const config = {
       gatewayEncryptionKeyForChaChaPoly1305: "AqDWMqzQ0vXaAvw4XqMKjeq01WOdGoIaOlUmJa0PF1nQ",
       chainId: "secret-4",
       endpoint: process.env.ENDPOINT_MAINNET,
-      codeId: "1533", // only know after upload
+      codeId: "", // only know after upload
       contractCodeHash: "", // only know after upload
       secretContractAddress: "", // only know after instantiate
     },
-    // codeId 3375
     testnet: {
       walletMnemonic: process.env.WALLET_MNEMONIC_TESTNET,
       isOptimizedContractWasm: true,
@@ -44,8 +42,8 @@ const config = {
       gatewayEncryptionKeyForChaChaPoly1305: "A20KrD7xDmkFXpNMqJn1CLpRaDLcdKpO1NdBBS7VpWh3",
       chainId: "pulsar-3",
       endpoint: process.env.ENDPOINT_TESTNET,
-      codeId: "3375", // only know after upload
-      contractCodeHash: "", // only know after upload
+      codeId: "12206", // only know after upload
+      contractCodeHash: "8e2fad364ceeb3c78682b70ef88b3ae8b5de55dd7c1e26f886665ca236b73d9b", // only know after upload
       secretContractAddress: "", // only know after instantiate
     },
     local: {

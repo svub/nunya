@@ -208,19 +208,33 @@ docker rmi sco
 
 > IMPORTANT: Prior to Instantiation step it is necessary to deploy the EVM Gateway
 
+* Update the secretjs dependency in ./packages/secret-contracts-scripts/package.json to use a version from https://github.com/scrtlabs/secret.js/tags that works (e.g. 1.15.0-beta.1) by asking the Secret Network team.
+Use 1.15.0-beta.1.
+Note that 1.15.0-beta.2 may only upload but does not instantiate.
+Note that 1.15.0-beta.0 does not upload at all.
+
+> IMPORTANT: Both upload and instantiate must be performed using the same version of secretjs
+
 ```
 yarn install
-yarn run secret:clean:uploadContract
-yarn run secret:start:uploadContract
-yarn run secret:clean:instantiateContract
-yarn run secret:start:instantiateContract
+cd ../../../
+yarn run secret:clean
+yarn run secret:upload
 ```
 
-* Add the ABI of the uploaded and instantiated Secret contract to ./nunya/packages/secret-contracts-scripts/src/config/abi.ts
-
-* Add the Contract Code Hash `contractCodeHash` and Secret Contract Address `secretContractAddress` to ./nunya/packages/secret-contracts-scripts/src/config/deploy.ts for the relevant network
+* Add the `CODE_ID` to `codeId` and `CODE_HASH` to `contractCodeHash` respectively to the relevant config.secret.<network> in ./packages/secret-contracts-scripts/src/config/deploy.ts
+* Add the terminal log to ./logs/uploadOutput.log
 
 > IMPORTANT: If deployment of the code with `await secretjs.tx.compute.storeCode` is unsuccessful, then check if Beta version of secretjs is necessary incase the Secret Testnet is being upgraded.
+
+```
+yarn run secret:instantiate
+```
+
+* Add the `SECRET_CONTRACT_ADDRESS` to `secretContractAddress` in the relevant config.secret.<network> in ./nunya/packages/secret-contracts-scripts/src/config/deploy.ts
+* Add the terminal log to ./logs/instantiateOutput.log
+
+* Add the ABI of the uploaded and instantiated Secret contract to ./nunya/packages/secret-contracts-scripts/src/config/abi.ts for use in submit.ts
 
 * Query Pubkey
 ```
