@@ -6,7 +6,7 @@ export const queryPubkey = async (params: any) => {
     url: params.endpoint,
     chainId: params.chainId,
   });
-  const query_tx = await secretjs.query.compute.queryContract({
+  const query_tx: Uint32Array = await secretjs.query.compute.queryContract({
     contract_address: params.contractAddress,
     code_hash: params.contractCodeHash,
     query: { retrieve_pubkey: {} },

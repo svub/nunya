@@ -35,7 +35,7 @@ pub fn instantiate(
     info: MessageInfo,
     msg: InstantiateMsg,
 ) -> StdResult<Response> {
-    // Initialise state
+    // Initialise state with Secret Network Gateway and EVM Nunya.Business custom contract address
     let state = State {
         gateway_address: msg.gateway_address,
         gateway_hash: msg.gateway_hash,
@@ -48,6 +48,27 @@ pub fn instantiate(
         .debug(format!("Contract was initialized by {}", info.sender).as_str());
 
     CONFIG.save(deps.storage, &state)?;
+
+    // Initialise state with Secret Network Contract Keys that are generated
+    let rng = env.block.random.unwrap().0;
+    let secp = Secp256k1::new();
+
+    // Private Key
+    let private_key = SecretKey::from_slice(&rng).unwrap();
+    let private_key_string = private_key.to_string();
+    let private_key_bytes = hex::decode(private_key_string).unwrap();
+
+    // Public Key
+    let public_key = PublicKey::from_secret_key(&secp, &private_key);
+    let public_key_bytes = public_key.serialize().to_vec();
+    // let public_key_string = public_key.to_string();
+
+    let my_keys = MyKeys {
+        private_key: private_key_bytes,
+        public_key: public_key_bytes,
+    };
+
+    MY_KEYS.save(deps.storage, &my_keys)?;
 
     Ok(Response::default())
 }
@@ -101,13 +122,13 @@ fn try_handle(
         // TODO: change all below to snake_case if required for Gateway contract to be able to call.
         // but first test that `request_value` works.
         "request_value" => request_value(deps, env, info, msg.input_values, msg.task, msg.input_hash),
-        // "retrievePubkey" => retrieve_pubkey(deps, env, info, msg.input_values, msg.task, msg.input_hash),
+        "retrievePubkey" => retrieve_pubkey(deps, env, info, msg.input_values, msg.task, msg.input_hash),
         "newSecretUser" => create_new_auth_out(deps, env, info, msg.input_values, msg.task, msg.input_hash),
-        // "createPaymentReference" => create_payment_reference(deps, env, msg.input_values, msg.task, msg.input_hash),
-        // // handle both `pay` and `payWithReceipt` Solidity function calls using the same `create_pay` Secret contract function
-        // "pay" => create_pay(deps, env, msg.input_values, msg.task, msg.input_hash),
-        // "payWithReceipt" => create_pay(deps, env, msg.input_values, msg.task, msg.input_hash),
-        // "withdrawTo" => create_withdraw_to(deps, env, msg.input_values, msg.task, msg.input_hash),
+        "createPaymentReference" => create_payment_reference(deps, env, msg.input_values, msg.task, msg.input_hash),
+        // handle both `pay` and `payWithReceipt` Solidity function calls using the same `create_pay` Secret contract function
+        "pay" => create_pay(deps, env, msg.input_values, msg.task, msg.input_hash),
+        "payWithReceipt" => create_pay(deps, env, msg.input_values, msg.task, msg.input_hash),
+        "withdrawTo" => create_withdraw_to(deps, env, msg.input_values, msg.task, msg.input_hash),
 
         _ => Err(StdError::generic_err("invalid handle".to_string())),
     }
@@ -177,28 +198,9 @@ fn retrieve_pubkey(
     // let input: RetrievePubkeyStoreMsg = serde_json_wasm::from_str(&input_values)
     //     .map_err(|err| StdError::generic_err(err.to_string()))?;
 
-    // Create Secret Contract Keys if they don't already exist in storage
     let existing_my_keys = MY_KEYS.load(deps.storage)?;
     if existing_my_keys.public_key.len() == 0 {
-        let rng = env.block.random.unwrap().0;
-        let secp = Secp256k1::new();
-
-        // Private Key
-        let private_key = SecretKey::from_slice(&rng).unwrap();
-        let private_key_string = private_key.to_string();
-        let private_key_bytes = hex::decode(private_key_string).unwrap();
-
-        // Public Key
-        let public_key = PublicKey::from_secret_key(&secp, &private_key);
-        let public_key_bytes = public_key.serialize().to_vec();
-        // let public_key_string = public_key.to_string();
-
-        let my_keys = MyKeys {
-            private_key: private_key_bytes,
-            public_key: public_key_bytes,
-        };
-
-        MY_KEYS.save(deps.storage, &my_keys)?;
+        return Err(StdError::generic_err("Public key does not exist in Secret storage"));
     }
 
     let my_keys = MY_KEYS.load(deps.storage)?;

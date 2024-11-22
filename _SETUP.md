@@ -238,10 +238,11 @@ yarn run secret:instantiate
 * Add the `SECRET_CONTRACT_ADDRESS` to `secretContractAddress` in the relevant config.secret.<network> in ./nunya/packages/secret-contracts-scripts/src/config/deploy.ts
 * Add the terminal log to ./logs/instantiateOutput.log
 
-* Add the ABI of the uploaded and instantiated Secret contract to ./nunya/packages/secret-contracts-scripts/src/config/abi.ts for use in submit.ts
+* TODO: Add the ABI of the uploaded and instantiated Secret contract to ./nunya/packages/secret-contracts-scripts/src/config/abi.ts for use in submit.ts
 
 * Query Pubkey
 ```
+cd ../../../
 yarn run secret:queryPubkey
 ```
 * Transaction `secretContract.retrievePubkey`

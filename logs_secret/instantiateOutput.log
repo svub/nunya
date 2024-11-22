@@ -1,15 +1,15 @@
 wallet address:  secret1am2mk908456twwgehmaua85s6laar4yr3awzzj
 rootPath /Users/luke/code/clones/github/svub/nunya
-balance:  { denom: 'uscrt', amount: '79338311' }
+balance:  { denom: 'uscrt', amount: '59338311' }
 Instantiating contract...
 params:  {
-  codeId: '12245',
-  contractCodeHash: '154da84fd022f8b886ac2ef686399bb7c0aa4a2b90208685e86b7756e4a26483'
+  codeId: '12247',
+  contractCodeHash: 'b44049cbf187939df9f9857905197ecbc06e99702b3332b12cb6d968f39d88b2'
 }
 tx:  {
-  height: 7816021,
-  timestamp: '2024-11-22T09:22:13Z',
-  transactionHash: 'A08B9050E4147725F4D26B39E7622B670D2F3B8886604678F46513CB33BEB18D',
+  height: 7820078,
+  timestamp: '2024-11-22T15:49:06Z',
+  transactionHash: 'D73E3699BD2918B17D029976424A8E1A3E8805DC4AA8755679FE45C2923711A9',
   code: 0,
   codespace: '',
   info: '',
@@ -24,7 +24,7 @@ tx:  {
     },
     auth_info: { signer_infos: [Array], fee: [Object], tip: null },
     signatures: [
-      'W/Nc1uWQQBNIwNOMvj3aVNgCAF5XmAAIDUwSlh1I8j9LpClOFZh+/5xrxR3ghi4aDx4WKgd1m41QSruWG9jPBg=='
+      'x/p//7QnD21E/6Nzc0ZrlEvjYL+/VKHTi6EjdbyuIyJNrqnojbRZ9VIwTgsKeXa66ZvdykC1DWtEHgxmuhx2jg=='
     ]
   },
   rawLog: '',
@@ -46,21 +46,21 @@ tx:  {
       msg: 0,
       type: 'instantiate',
       key: 'contract_address',
-      value: 'secret1n0q5taawu77w7ulnyynft4dl4pxf9szjvrjmc2'
+      value: 'secret1h09whd3z8s9ms66mavd9rjm8r2rpew2trm0nkp'
     },
-    { msg: 0, type: 'instantiate', key: 'code_id', value: '12245' },
+    { msg: 0, type: 'instantiate', key: 'code_id', value: '12247' },
     {
       msg: 0,
       type: 'wasm',
       key: 'contract_address',
-      value: 'secret1n0q5taawu77w7ulnyynft4dl4pxf9szjvrjmc2'
+      value: 'secret1h09whd3z8s9ms66mavd9rjm8r2rpew2trm0nkp'
     },
     { msg: 0, type: 'message', key: 'module', value: 'compute' },
     {
       msg: 0,
       type: 'message',
       key: 'contract_address',
-      value: 'secret1n0q5taawu77w7ulnyynft4dl4pxf9szjvrjmc2'
+      value: 'secret1h09whd3z8s9ms66mavd9rjm8r2rpew2trm0nkp'
     }
   ],
   events: [
@@ -77,10 +77,10 @@ tx:  {
     { type: 'message', attributes: [Array] }
   ],
   data: [
-    <Buffer 0a 2d 73 65 63 72 65 74 31 6e 30 71 35 74 61 61 77 75 37 37 77 37 75 6c 6e 79 79 6e 66 74 34 64 6c 34 70 78 66 39 73 7a 6a 76 72 6a 6d 63 32>
+    <Buffer 0a 2d 73 65 63 72 65 74 31 68 30 39 77 68 64 33 7a 38 73 39 6d 73 36 36 6d 61 76 64 39 72 6a 6d 38 72 32 72 70 65 77 32 74 72 6d 30 6e 6b 70>
   ],
-  gasUsed: 47569,
+  gasUsed: 313591,
   gasWanted: 5000000,
   ibcResponses: []
 }
-SECRET_ADDRESS:  secret1n0q5taawu77w7ulnyynft4dl4pxf9szjvrjmc2
+SECRET_ADDRESS:  secret1h09whd3z8s9ms66mavd9rjm8r2rpew2trm0nkp

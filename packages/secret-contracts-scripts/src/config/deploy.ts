@@ -42,9 +42,9 @@ const config = {
       gatewayEncryptionKeyForChaChaPoly1305: "A20KrD7xDmkFXpNMqJn1CLpRaDLcdKpO1NdBBS7VpWh3",
       chainId: "pulsar-3",
       endpoint: process.env.ENDPOINT_TESTNET,
-      codeId: "12245", // only know after upload
-      contractCodeHash: "154da84fd022f8b886ac2ef686399bb7c0aa4a2b90208685e86b7756e4a26483", // only know after upload
-      secretContractAddress: "secret1n0q5taawu77w7ulnyynft4dl4pxf9szjvrjmc2", // only know after instantiate
+      codeId: "12247", // only know after upload
+      contractCodeHash: "b44049cbf187939df9f9857905197ecbc06e99702b3332b12cb6d968f39d88b2", // only know after upload
+      secretContractAddress: "secret1h09whd3z8s9ms66mavd9rjm8r2rpew2trm0nkp", // only know after instantiate
     },
     local: {
       walletMnemonic: process.env.WALLET_MNEMONIC_LOCAL,
