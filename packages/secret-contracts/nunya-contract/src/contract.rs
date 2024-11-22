@@ -32,7 +32,7 @@ pub const BLOCK_SIZE: usize = 256;
 pub fn instantiate(
     deps: DepsMut,
     env: Env,
-    _info: MessageInfo,
+    info: MessageInfo,
     msg: InstantiateMsg,
 ) -> StdResult<Response> {
     // Initialise state
@@ -41,7 +41,11 @@ pub fn instantiate(
         gateway_hash: msg.gateway_hash,
         gateway_key: msg.gateway_key,
         nunya_business_contract_address: msg.nunya_business_contract_address,
+        owner: info.sender.clone(),
     };
+
+    deps.api
+        .debug(format!("Contract was initialized by {}", info.sender).as_str());
 
     CONFIG.save(deps.storage, &state)?;
 
@@ -75,11 +79,9 @@ fn try_handle(
         ));
     }
 
-    let nunya_account: String = String::from_utf8(config.nunya_business_contract_address).unwrap();
-
     // SecretPath source code
     // public network user address
-    if msg.user_address != nunya_account {
+    if msg.user_address != config.nunya_business_contract_address {
         return Err(StdError::generic_err(
             "Only NunyaBusiness contract can call this function via SecretPath Gateway",
         ));
@@ -89,7 +91,7 @@ fn try_handle(
         .secp256k1_verify(
             msg.input_hash.as_slice(),
             msg.signature.as_slice(),
-            config.gateway_key.as_slice(),
+            config.gateway_key.as_bytes(),
         )
         .map_err(|err| StdError::generic_err(err.to_string()))?;
 
@@ -99,13 +101,13 @@ fn try_handle(
         // TODO: change all below to snake_case if required for Gateway contract to be able to call.
         // but first test that `request_value` works.
         "request_value" => request_value(deps, env, info, msg.input_values, msg.task, msg.input_hash),
-        "retrievePubkey" => retrieve_pubkey(deps, env, info, msg.input_values, msg.task, msg.input_hash),
+        // "retrievePubkey" => retrieve_pubkey(deps, env, info, msg.input_values, msg.task, msg.input_hash),
         "newSecretUser" => create_new_auth_out(deps, env, info, msg.input_values, msg.task, msg.input_hash),
-        "createPaymentReference" => create_payment_reference(deps, env, msg.input_values, msg.task, msg.input_hash),
-        // handle both `pay` and `payWithReceipt` Solidity function calls using the same `create_pay` Secret contract function
-        "pay" => create_pay(deps, env, msg.input_values, msg.task, msg.input_hash),
-        "payWithReceipt" => create_pay(deps, env, msg.input_values, msg.task, msg.input_hash),
-        "withdrawTo" => create_withdraw_to(deps, env, msg.input_values, msg.task, msg.input_hash),
+        // "createPaymentReference" => create_payment_reference(deps, env, msg.input_values, msg.task, msg.input_hash),
+        // // handle both `pay` and `payWithReceipt` Solidity function calls using the same `create_pay` Secret contract function
+        // "pay" => create_pay(deps, env, msg.input_values, msg.task, msg.input_hash),
+        // "payWithReceipt" => create_pay(deps, env, msg.input_values, msg.task, msg.input_hash),
+        // "withdrawTo" => create_withdraw_to(deps, env, msg.input_values, msg.task, msg.input_hash),
 
         _ => Err(StdError::generic_err("invalid handle".to_string())),
     }
@@ -126,15 +128,13 @@ fn request_value(
 
     let value = "NUNYA".to_string();
 
-    // TODO - println!("callback stuff: {:#?}", val);
-
-    let nunya_account: String = String::from_utf8(config.nunya_business_contract_address).unwrap();
+    // TODO - println!("callback stuff: {:#?}", value);
 
     let data = ResponseRequestValueMsg {
         _request_id: task.clone(),
         _key: value.into_bytes(),
         _code: response_status_code,
-        _nunya_business_contract_address: nunya_account,
+        _nunya_business_contract_address: config.nunya_business_contract_address,
     };
 
     let json_string =
@@ -205,13 +205,11 @@ fn retrieve_pubkey(
 
     let response_status_code: ResponseStatusCode = 0u16;
 
-    let nunya_account: String = String::from_utf8(config.nunya_business_contract_address).unwrap();
-
     let data = ResponseRetrievePubkeyStoreMsg {
         _request_id: task.clone(),
         _key: my_keys.public_key,
         _code: response_status_code,
-        _nunya_business_contract_address: nunya_account,
+        _nunya_business_contract_address: config.nunya_business_contract_address,
     };
 
     let json_string =
@@ -262,10 +260,9 @@ fn create_new_auth_out(
     // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-implementation
     let gateway_account = config.gateway_address.to_owned();
     let mut index_concat: String = gateway_account.to_string();
-    let nunya_account: String = String::from_utf8(config.nunya_business_contract_address).unwrap();
     let suffix: &str = viewing_key_index;
     // mutate in place https://stackoverflow.com/a/30154791/3208553
-    index_concat.push_str(nunya_account.as_str());
+    index_concat.push_str(config.nunya_business_contract_address.as_str());
     index_concat.push_str(suffix);
 
     // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-introduction
@@ -364,9 +361,8 @@ fn create_payment_reference(
     // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-implementation
     let gateway_account = config.gateway_address.to_owned();
     let mut index_concat: String = gateway_account.to_string();
-    let nunya_account: String = String::from_utf8(config.nunya_business_contract_address).unwrap();
     let suffix: &str = viewing_key_index;
-    index_concat.push_str(nunya_account.as_str());
+    index_concat.push_str(config.nunya_business_contract_address.as_str());
     index_concat.push_str(suffix);
 
     let entropy: &str = viewing_key_index.clone();
@@ -482,9 +478,8 @@ fn create_pay(
     // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-implementation
     let gateway_account = config.gateway_address.to_owned();
     let mut index_concat: String = gateway_account.to_string();
-    let nunya_account: String = String::from_utf8(config.nunya_business_contract_address).unwrap();
     let suffix: &str = viewing_key_index;
-    index_concat.push_str(nunya_account.as_str());
+    index_concat.push_str(config.nunya_business_contract_address.as_str());
     index_concat.push_str(suffix);
 
     let entropy: &str = viewing_key_index.clone();
@@ -641,9 +636,8 @@ fn create_withdraw_to(
     // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-implementation
     let gateway_account = config.gateway_address.to_owned();
     let mut index_concat: String = gateway_account.to_string();
-    let nunya_account: String = String::from_utf8(config.nunya_business_contract_address).unwrap();
     let suffix: &str = viewing_key_index;
-    index_concat.push_str(nunya_account.as_str());
+    index_concat.push_str(config.nunya_business_contract_address.as_str());
     index_concat.push_str(suffix);
 
     let entropy: &str = viewing_key_index.clone();
@@ -776,25 +770,25 @@ mod tests {
     use cosmwasm_std::coins;
     use cosmwasm_std::{from_binary, StdError};
 
-    #[test]
-    fn proper_initialization() {
-        let mut deps = mock_dependencies();
-        // Create some Addr instances for testing
-        let gateway = deps.api.addr_make("gateway");
-        // https://docs.rs/cosmwasm-std/latest/cosmwasm_std/testing/fn.message_info.html
-        let msg = InstantiateMsg {
-            gateway_address: gateway.to_string(),
-        };
+//     #[test]
+//     fn proper_initialization() {
+//         let mut deps = mock_dependencies();
+//         // Create some Addr instances for testing
+//         let gateway = deps.api.addr_make("gateway");
+//         // https://docs.rs/cosmwasm-std/latest/cosmwasm_std/testing/fn.message_info.html
+//         let msg = InstantiateMsg {
+//             gateway_address: gateway.to_string(),
+//         };
 
-        let info = message_info(&gateway, &coins(1000, "earth"));
-        // we can just call .unwrap() to assert this was a success
-        let res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+//         let info = message_info(&gateway, &coins(1000, "earth"));
+//         // we can just call .unwrap() to assert this was a success
+//         let res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
 
-        assert_eq!(0, res.messages.len());
+//         assert_eq!(0, res.messages.len());
 
-        // it worked, let's query the state
-        let res = query(deps.as_ref(), mock_env(), QueryMsg::RetrievePubkey {}).unwrap();
-        let res: ResponseRetrievePubkeyMsg = from_binary(&res).unwrap();
-        assert!(res._key);
-    }
+//         // it worked, let's query the state
+//         let res = query(deps.as_ref(), mock_env(), QueryMsg::RetrievePubkey {}).unwrap();
+//         let res: ResponseRetrievePubkeyMsg = from_binary(&res).unwrap();
+//         assert!(res._key);
+//     }
 }

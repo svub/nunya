@@ -1,17 +1,17 @@
 wallet address:  secret1am2mk908456twwgehmaua85s6laar4yr3awzzj
 rootPath /Users/luke/code/clones/github/svub/nunya
-balance:  { denom: 'uscrt', amount: '189338311' }
+balance:  { denom: 'uscrt', amount: '79338311' }
 Instantiating contract...
 params:  {
-  codeId: '12209',
-  contractCodeHash: '8e2fad364ceeb3c78682b70ef88b3ae8b5de55dd7c1e26f886665ca236b73d9b'
+  codeId: '12245',
+  contractCodeHash: '154da84fd022f8b886ac2ef686399bb7c0aa4a2b90208685e86b7756e4a26483'
 }
 tx:  {
-  height: 7777024,
-  timestamp: '2024-11-19T19:22:31Z',
-  transactionHash: 'FEEDAFBB6B980FE01219B2E8B121F1E35BB774F4A7212233C5374FEC4CC752DC',
-  code: 2,
-  codespace: 'compute',
+  height: 7816021,
+  timestamp: '2024-11-22T09:22:13Z',
+  transactionHash: 'A08B9050E4147725F4D26B39E7622B670D2F3B8886604678F46513CB33BEB18D',
+  code: 0,
+  codespace: '',
   info: '',
   tx: {
     '@type': '/cosmos.tx.v1beta1.Tx',
@@ -24,12 +24,45 @@ tx:  {
     },
     auth_info: { signer_infos: [Array], fee: [Object], tip: null },
     signatures: [
-      '6epNpfZwIBV1hyCxdaGYOc71rwSSDILWpYkx3xwBitpB5UAw9s0bySOip/qpKaoyiZdftYDFJ+tODD2qn8JjPg=='
+      'W/Nc1uWQQBNIwNOMvj3aVNgCAF5XmAAIDUwSlh1I8j9LpClOFZh+/5xrxR3ghi4aDx4WKgd1m41QSruWG9jPBg=='
     ]
   },
-  rawLog: 'failed to execute message; message index: 0: Error parsing into type secret_evm_storage::msg::InstantiateMsg: Invalid type: instantiate contract failed',
-  jsonLog: [],
-  arrayLog: [],
+  rawLog: '',
+  jsonLog: [ { msg_index: 0, events: [Array] } ],
+  arrayLog: [
+    {
+      msg: 0,
+      type: 'message',
+      key: 'action',
+      value: '/secret.compute.v1beta1.MsgInstantiateContract'
+    },
+    {
+      msg: 0,
+      type: 'message',
+      key: 'sender',
+      value: 'secret1am2mk908456twwgehmaua85s6laar4yr3awzzj'
+    },
+    {
+      msg: 0,
+      type: 'instantiate',
+      key: 'contract_address',
+      value: 'secret1n0q5taawu77w7ulnyynft4dl4pxf9szjvrjmc2'
+    },
+    { msg: 0, type: 'instantiate', key: 'code_id', value: '12245' },
+    {
+      msg: 0,
+      type: 'wasm',
+      key: 'contract_address',
+      value: 'secret1n0q5taawu77w7ulnyynft4dl4pxf9szjvrjmc2'
+    },
+    { msg: 0, type: 'message', key: 'module', value: 'compute' },
+    {
+      msg: 0,
+      type: 'message',
+      key: 'contract_address',
+      value: 'secret1n0q5taawu77w7ulnyynft4dl4pxf9szjvrjmc2'
+    }
+  ],
   events: [
     { type: 'coin_spent', attributes: [Array] },
     { type: 'coin_received', attributes: [Array] },
@@ -37,15 +70,17 @@ tx:  {
     { type: 'message', attributes: [Array] },
     { type: 'tx', attributes: [Array] },
     { type: 'tx', attributes: [Array] },
-    { type: 'tx', attributes: [Array] }
+    { type: 'tx', attributes: [Array] },
+    { type: 'message', attributes: [Array] },
+    { type: 'instantiate', attributes: [Array] },
+    { type: 'wasm', attributes: [Array] },
+    { type: 'message', attributes: [Array] }
   ],
-  data: [],
-  gasUsed: 44747,
+  data: [
+    <Buffer 0a 2d 73 65 63 72 65 74 31 6e 30 71 35 74 61 61 77 75 37 37 77 37 75 6c 6e 79 79 6e 66 74 34 64 6c 34 70 78 66 39 73 7a 6a 76 72 6a 6d 63 32>
+  ],
+  gasUsed: 47569,
   gasWanted: 5000000,
   ibcResponses: []
 }
-Error: Error: Unable to find the contract_address
-    at /Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/dist/instantiate.js:96:23
-    at Generator.next (<anonymous>)
-    at fulfilled (/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/dist/instantiate.js:5:58)
-    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+SECRET_ADDRESS:  secret1n0q5taawu77w7ulnyynft4dl4pxf9szjvrjmc2

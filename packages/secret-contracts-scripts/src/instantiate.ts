@@ -36,12 +36,7 @@ console.log('rootPath', rootPath)
 let CODE_ID: String = codeId;
 let CONTRACT_CODE_HASH: String = contractCodeHash;
 
-const gatewayPublicKeyBytes = Buffer.from(
-  gatewayPublicKey.substring(2),
-  "hex"
-).toString("base64");
-
-const gatewayPublicKeyString = Buffer.from(gatewayPublicKeyBytes, 'base64').toString();
+const gatewayPublicKeyBytes = Buffer.from(gatewayPublicKey.substring(2), "hex").toString("base64");
 
 async function main () {
   const secretjs = new SecretNetworkClient({
@@ -63,7 +58,7 @@ async function main () {
   type INIT_MSG = {
     gateway_address: String,
     gateway_hash: String,
-    gateway_key: Uint8Array,
+    gateway_key: String,
     nunya_business_contract_address: String,
   };
 
@@ -93,7 +88,7 @@ async function main () {
     let initMsg: INIT_MSG = {
       gateway_address: gatewayAddress,
       gateway_hash: gatewayHash,
-      gateway_key: new Uint8Array(Buffer.from(gatewayPublicKeyString)),
+      gateway_key: gatewayPublicKeyBytes,
       nunya_business_contract_address: nunyaBusinessContractAddress,
     };
 

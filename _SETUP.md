@@ -204,6 +204,8 @@ docker rmi sco
 
 * Upload and Instantiate 
 
+> IMPORTANT: Prior to Upload step it is necessary to recompile changes if any.
+
 > IMPORTANT: Prior to Upload step it is necessary to configure the wallet, network, and endpoint to use either Local or Testnet, and to specify what project's compiled smart contract WASM file to use and whether to use the optimized build (e.g. ./nunya-contract/optimized-wasm/secret_evm_storage.wasm.gz or ./nunya-contract/contract.wasm.gz) in the script ./packages/secret-contracts-scripts/src/index.ts
 
 > IMPORTANT: Prior to Instantiation step it is necessary to deploy the EVM Gateway
