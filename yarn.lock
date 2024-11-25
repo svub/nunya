@@ -199,13 +199,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@blake.regalia/belt@npm:^0.35.1":
-  version: 0.35.6
-  resolution: "@blake.regalia/belt@npm:0.35.6"
-  checksum: 10/c25c6d1fdb4404cb5980307c22e819fb3b4ddfb05d90b79b23121c45330dd00cbcf10f694701655bfa5a226063c2a05f4677ba785a46444a62d22c3b6623717d
-  languageName: node
-  linkType: hard
-
 "@blake.regalia/belt@npm:^0.37.0":
   version: 0.37.0
   resolution: "@blake.regalia/belt@npm:0.37.0"
@@ -213,7 +206,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@blake.regalia/belt@npm:^0.45.1":
+"@blake.regalia/belt@npm:^0.45.1, @blake.regalia/belt@npm:^0.45.2":
   version: 0.45.2
   resolution: "@blake.regalia/belt@npm:0.45.2"
   checksum: 10/1d50eaab5e1578e194f97745bfb0b2c3850b18387c51e34c2e58254bf8b044a2d8a671552e2a96d766692ba1d5a696f48916eee36663552da289bfa6e90b1ce6
@@ -2480,7 +2473,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@solar-republic/neutrino@npm:^1.2.4":
+"@solar-republic/neutrino@npm:^1.6.0":
   version: 1.6.0
   resolution: "@solar-republic/neutrino@npm:1.6.0"
   dependencies:
@@ -12508,9 +12501,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "secret-contracts-scripts@workspace:packages/secret-contracts-scripts"
   dependencies:
-    "@blake.regalia/belt": "npm:^0.35.1"
+    "@blake.regalia/belt": "npm:^0.45.2"
     "@solar-republic/cosmos-grpc": "npm:^0.15.3"
-    "@solar-republic/neutrino": "npm:^1.2.4"
+    "@solar-republic/neutrino": "npm:^1.6.0"
     "@types/node": "npm:^22.7.4"
     dotenv: "npm:^16.4.5"
     ethers: "npm:^5.7.2"

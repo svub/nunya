@@ -14,7 +14,7 @@
     "instantiate": "yarn build && node ./dist/instantiate.js"
   },
   "dependencies": {
-    "@blake.regalia/belt": "^0.35.1",
+    "@blake.regalia/belt": "^0.45.2",
     "@solar-republic/cosmos-grpc": "^0.15.3",
     "@solar-republic/neutrino": "^1.6.0",
     "@types/node": "^22.7.4",

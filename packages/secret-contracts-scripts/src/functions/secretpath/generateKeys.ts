@@ -27,11 +27,15 @@ export async function generateKeys() {
   
   const userPrivateKeyBytes = arrayify(wallet.privateKey);
   const userPublicKey = new SigningKey(wallet.privateKey).compressedPublicKey;
+  console.log('userPublicKey: ', userPublicKey);
   const userPublicKeyBytes = arrayify(userPublicKey);
+  console.log('userPublicKeyBytes: ', userPublicKeyBytes);
   // Secret Network Testnet
   // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-testnet-pulsar-3-contracts
   const gatewayPublicKey = gatewayEncryptionKeyForChaChaPoly1305;
+  console.log('gatewayPublicKey: ', gatewayPublicKey);
   const gatewayPublicKeyBytes = base64_to_bytes(gatewayPublicKey);
+  console.log('gatewayPublicKeyBytes: ', gatewayPublicKeyBytes);
 
   // https://github.com/SolarRepublic/neutrino/blob/main/src/secp256k1.ts#L334
   const sharedKey = await sha256(ecdh(userPrivateKeyBytes, gatewayPublicKeyBytes));
