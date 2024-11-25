@@ -1,0 +1,27 @@
+{
+	"extends": "@blake.regalia/tsconfig/tsconfig.node.json",
+
+	"compilerOptions": {
+		"rootDir": "./src",
+		"baseUrl": ".",
+		"outDir": "dist/nil",
+
+		"declaration": true,
+		"declarationDir": "dist/nil",
+		"noImplicitReturns": false,
+		"moduleResolution": "Bundler",
+		// "moduleResolution": "Bundler"
+	},
+
+	"include": [
+		"src/**/*.d.ts",
+		"src/**/*.ts",
+		"test/**/*.ts",
+		"rollup.config.ts"
+	],
+
+	"ts-node": {
+		"require": ["tsconfig-paths/register"],
+		"experimentalSpecifierResolution": "node"
+	},
+}

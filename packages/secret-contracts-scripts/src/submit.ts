@@ -1,72 +1,72 @@
 // // reference: https://github.com/writersblockchain/secretpath-ballz
-// import * as dotenv from "dotenv";
-// dotenv.config();
-// import { ethers, Wallet } from "ethers";
+import * as dotenv from "dotenv";
+dotenv.config();
+import { ethers, Wallet } from "ethers";
 // import abi from "./config/abi.js";
-// import config from './config/deploy';
-// // import gatewayAbi from "../../hardhat/artifacts/contracts/Gateway.sol/Gateway.json"
-// // import nunyaAbi from "../../hardhat/artifacts/contracts/NunyaBusiness.sol/NunyaBusiness.json"
-// import { generateKeys } from "./functions/secretpath/generateKeys";
+import config from './config/deploy';
+import gatewayAbi from "../../hardhat/artifacts/contracts/Gateway.sol/Gateway.json"
+import nunyaAbi from "../../hardhat/artifacts/contracts/NunyaBusiness.sol/NunyaBusiness.json"
+import { generateKeys } from "./functions/secretpath/generateKeys";
 // import { getPublicClientAddress } from "./functions/secretpath/getPublicClientAddress";
 // import { constructPayload } from "./functions/secretpath/constructPayload";
 // import { encryptPayload } from "./functions/secretpath/encryptPayload";
 // import { queryPubkey } from "./functions/query/queryPubkey";
 // import { hexlify } from "ethers/lib/utils";
 
-// // TODO: use config.evm. too
-// const { contractCodeHash, chainId, endpoint, secretContractAddress } =
-//   config.secret.network == "testnet"
-//   ? config.secret.testnet
-//   : config.secret.local;
+if (config.evm.network != "sepolia") {
+  console.error("Unsupported network");
+}
 
-// const { nunyaBusinessContractAddress } = config.evm.sepolia;
+const { contractCodeHash, secretContractAddress } =
+  config.secret.network == "testnet"
+  ? config.secret.testnet
+  : config.secret.local;
 
-// const SECRET_ADDRESS = secretContractAddress;
-// const CONTRACT_CODE_HASH = contractCodeHash;
+const { chainId, endpoint, nunyaBusinessContractAddress, gatewayContractAddress, privateKey } =
+  config.evm.sepolia;
 
-// // relates to unsafeRequestSecretContractPubkey
-// async function main() {
+const SECRET_ADDRESS = secretContractAddress;
+const CONTRACT_CODE_HASH = contractCodeHash;
+
+// relates to unsafeRequestSecretContractPubkey
+async function unsafeRequestSecretContractPubkey() {
 //   // Ethereum Sepolia
 //   // IGNORE
-//   // const gatewayAddressInstance = "0x5Be91fd4b49489bb3aEc8bE2F5Fa1d83FD8C5A1b";
-//   // const nunyaAddressInstance = "0x41E52332e76988AFBc38280583a7A02492177C65";
-//   // const ifaceGateway = new ethers.utils.Interface(gatewayAbi.abi);
-//   // const ifaceNunya = new ethers.utils.Interface(nunyaAbi.abi);
+  // const gatewayAddressInstance = "0x5Be91fd4b49489bb3aEc8bE2F5Fa1d83FD8C5A1b";
+  // const nunyaAddressInstance = "0x41E52332e76988AFBc38280583a7A02492177C65";
+  const ifaceGateway = new ethers.utils.Interface(gatewayAbi.abi);
+  const ifaceNunya = new ethers.utils.Interface(nunyaAbi.abi);
 
-//   const routing_contract = SECRET_ADDRESS;
-//   const routing_code_hash = CONTRACT_CODE_HASH;
+  const routing_contract = SECRET_ADDRESS;
+  const routing_code_hash = CONTRACT_CODE_HASH;
 
 //   // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/evm/gateway-contract-abi
 //   const iface = new ethers.utils.Interface(abi);
-
-//   const privateKey = process.env.DEPLOYER_PRIVATE_KEY;
   
-//   if (!privateKey) {
-//     console.log("🚫️ You don't have a deployer account. Run `yarn generate` first");
-//     return;
-//   }
+  if (!privateKey) {
+    console.log("🚫️ You don't have a deployer account. Run `yarn generate` first");
+    return;
+  }
 
-//   // Get account from private key.
-//   const wallet = new Wallet(privateKey);
-//   const address = wallet.address;
-//   console.log("Public address:", address, "\n");
-  
-//   let provider;
-//   let myAddress;
-//   // Balance on each network
-//   // TODO: update ethers to be same latest version used by Hardhat in this repo and just use `ethers.JsonRpcProvider`
-//   provider = new ethers.providers.JsonRpcProvider(process.env.PROVIDER_RPC_ETHEREUM_SEPOLIA);
-//   await provider.detectNetwork();
-//   const balance = await provider.getBalance(address);
-//   console.log("balance:", +ethers.utils.formatEther(balance));
-//   console.log("nonce:", +(await provider.getTransactionCount(address)));
+  let provider;
+  provider = new ethers.providers.JsonRpcProvider(endpoint);
+  console.log(provider);
+  await provider.detectNetwork();
+  const signer = new Wallet(privateKey, provider);
+  const address = signer.address;
+  console.log("Public address:", address, "\n");
+  signer.connect(provider);
+  console.log("signer is: ", provider.getSigner());
+  const balance = await provider.getBalance(address);
+  console.log("balance:", +ethers.utils.formatEther(balance));
+  console.log("nonce:", +(await provider.getTransactionCount(address)));
 
-//   myAddress = (await provider.send("eth_requestAccounts", []))[0];
-//   console.log("myAddress: ", myAddress);
+  const blockNumber = await provider.getBlockNumber();
+  console.log("Current block number: ", blockNumber);
 
-//   const { userPrivateKeyBytes, userPublicKeyBytes, sharedKey } =
-//     await generateKeys();
-
+  // const { userPrivateKeyBytes, userPublicKeyBytes, sharedKey } = await generateKeys();
+  const res = await generateKeys();
+  console.log('res: ', res);
 //   // TODO: should this be `upgradeHandler`
 //   const callbackSelector = iface.getSighash(
 //     iface.getFunction("upgradeHandler")
@@ -82,8 +82,8 @@
 //   // TODO: change this depending on function being called
 //   const data = JSON.stringify({ address: myAddress });
 
-//   const chainId = (await provider.getNetwork()).chainId.toString();
-//   console.log("chainId: ", chainId);
+  const chainId2 = (await provider.getNetwork()).chainId.toString();
+  console.log("chainId2: ", chainId2);
 
 //   const publicClientAddress = await getPublicClientAddress(chainId);
 
@@ -185,9 +185,13 @@
 //   const publicKey = await queryPubkey(params);
 //   console.log("Public key of private Secret Network contract:", publicKey);
 //   console.log(`Transaction Hash: ${txHash}`);
-// }
+}
 
-// main().catch((error) => {
-//   console.error(error);
-//   process.exit(-1);
-// });
+async function main() {
+  await unsafeRequestSecretContractPubkey();
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(-1);
+});

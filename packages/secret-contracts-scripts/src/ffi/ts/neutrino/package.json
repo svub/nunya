@@ -1,0 +1,79 @@
+{
+  "name": "@solar-republic/neutrino",
+  "version": "1.6.0",
+  "description": "Ultra light-weight client library for Secret Network",
+  "homepage": "https://starshell.net/",
+  "repository": "github:SolarRepublic/neutrino",
+  "license": "MIT",
+  "author": {
+    "name": "Blake Regalia",
+    "email": "blake.regalia@gmail.com",
+    "url": "https://blake-regalia.com/"
+  },
+  "type": "module",
+  "main": "dist/cjs/main.js",
+  "module": "dist/mjs/main.js",
+  "types": "dist/mjs/main.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/cjs/main.js",
+      "import": "./dist/mjs/main.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/cjs",
+    "dist/mjs"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist/*",
+    "build:mjs": "tsc -p tsconfig.mjs.json && tsc-esm-fix --target='dist/mjs'",
+    "build:cjs": "tsc -p tsconfig.cjs.json && tsc-esm-fix --target='dist/cjs'",
+    "build": "pnpm run build:mjs && pnpm run build:cjs",
+    "preview": "js-beautify dist/main.mjs > dist/main-pretty.mjs",
+    "test": "node --loader ts-node/esm",
+    "test:all": "pnpm run test test/**.ts",
+    "debug": "node --inspect-brk --loader ts-node/esm"
+  },
+  "devDependencies": {
+    "@blake.regalia/eslint-config-elite": "^0.4.4",
+    "@blake.regalia/tsconfig": "^0.2.0",
+    "@cosmjs/amino": "^0.32.4",
+    "@nfps.dev/rollup-plugin-microweb": "^0.3.5",
+    "@noble/secp256k1": "^2.1.0",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-replace": "^5.0.7",
+    "@solar-republic/contractor": "^0.9.0",
+    "@solar-republic/types": "^0.2.12",
+    "@types/chai": "^5.0.1",
+    "@types/node": "^22.8.7",
+    "@types/web": "^0.0.176",
+    "@typescript-eslint/parser": "^7.13.1",
+    "chai": "^5.1.1",
+    "chai-bites": "^0.1.2",
+    "curve25519-js": "^0.0.4",
+    "esformatter": "^0.11.3",
+    "eslint": "^8.57.0",
+    "isomorphic-ws": "^5.0.0",
+    "js-beautify": "^1.15.1",
+    "rollup": "^4.18.0",
+    "rollup-plugin-ignore": "^1.0.10",
+    "ts-node": "^10.9.2",
+    "ts-toolbelt": "^9.6.0",
+    "tsc-esm-fix": "^2.20.27",
+    "tsconfig-paths": "^4.2.0",
+    "tslib": "^2.6.3",
+    "typedoc": "^0.25.13",
+    "typescript": "~5.6.3",
+    "ws": "^8.18.0"
+  },
+  "dependencies": {
+    "@blake.regalia/belt": "^0.45.1",
+    "@solar-republic/cosmos-grpc": "^0.17.1",
+    "@solar-republic/crypto": "^0.2.14"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "packageManager": "pnpm@9.0.6+sha1.648f6014eb363abb36618f2ba59282a9eeb3e879"
+}
