@@ -213,6 +213,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@blake.regalia/belt@npm:^0.45.1":
+  version: 0.45.2
+  resolution: "@blake.regalia/belt@npm:0.45.2"
+  checksum: 10/1d50eaab5e1578e194f97745bfb0b2c3850b18387c51e34c2e58254bf8b044a2d8a671552e2a96d766692ba1d5a696f48916eee36663552da289bfa6e90b1ce6
+  languageName: node
+  linkType: hard
+
 "@coinbase/wallet-sdk@npm:4.0.4":
   version: 4.0.4
   resolution: "@coinbase/wallet-sdk@npm:4.0.4"
@@ -2474,13 +2481,13 @@ __metadata:
   linkType: hard
 
 "@solar-republic/neutrino@npm:^1.2.4":
-  version: 1.5.5
-  resolution: "@solar-republic/neutrino@npm:1.5.5"
+  version: 1.6.0
+  resolution: "@solar-republic/neutrino@npm:1.6.0"
   dependencies:
-    "@blake.regalia/belt": "npm:^0.37.0"
+    "@blake.regalia/belt": "npm:^0.45.1"
     "@solar-republic/cosmos-grpc": "npm:^0.17.1"
     "@solar-republic/crypto": "npm:^0.2.14"
-  checksum: 10/b95c01dcb2a1af7f1cb61a53040b0751e0abfe2fabddb35aee7577d0086754b2fb84ff6e9cf65608a472e6cc0661237deb91a280de5d758e1402d0efa6af267a
+  checksum: 10/77a01732872fb6a57c79307e2cb4accea469be0377751e7c97d867c06e62b6c0ca410ce8e7abe180be164cad4503e8601be12da995b5b85ee497a2bac1d11cc3
   languageName: node
   linkType: hard
 

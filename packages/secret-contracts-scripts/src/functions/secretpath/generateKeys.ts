@@ -1,18 +1,9 @@
 // generateKeys.js
 import { ethers, Wallet } from "ethers";
-import { arrayify, SigningKey } from "ethers/lib/utils";
-
+import { arrayify, SigningKey } from "ethers/lib/utils.js";
 import { ecdh } from "@solar-republic/neutrino";
-
-// `Error [ERR_REQUIRE_ESM]: require() of ES Module` https://github.com/svub/nunya/issues/40
-// https://github.com/nodejs/node/pull/51977
-// https://joyeecheung.github.io/blog/2024/03/18/require-esm-in-node-js/
-// const { ecdh } = require('@solar-republic/neutrino');
-
 import { base64_to_bytes, sha256 } from "@blake.regalia/belt";
-import config from '../../config/deploy';
-
-
+import config from '../../config/deploy.js';
 
 export async function generateKeys() {
   const { gatewayEncryptionKeyForChaChaPoly1305 } =

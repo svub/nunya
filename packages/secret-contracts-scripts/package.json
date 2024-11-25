@@ -2,6 +2,7 @@
   "name": "secret-contracts-scripts",
   "version": "0.0.1",
   "main": "index.js",
+  "type": "module",
   "private": true,
   "scripts": {
     "setEVMGatewayAddress": "yarn build && node ./dist/evm/setEVMGatewayAddress.js",
@@ -15,7 +16,7 @@
   "dependencies": {
     "@blake.regalia/belt": "^0.35.1",
     "@solar-republic/cosmos-grpc": "^0.15.3",
-    "@solar-republic/neutrino": "^1.2.4",
+    "@solar-republic/neutrino": "^1.6.0",
     "@types/node": "^22.7.4",
     "dotenv": "^16.4.5",
     "ethers": "^5.7.2",

@@ -9,10 +9,10 @@
     /* Language and Environment */
     "target": "es2016",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
     /* Modules */
-    "module": "commonjs",                                /* Specify what module code is generated. */
+    "module": "esnext",                                  /* Specify what module code is generated. */
     "rootDir": "./src",                                  /* Specify the root folder within your source files. */
     "outDir": "./dist",                                  /* Specify an output folder for all emitted files. */
-    "noEmit": false,                                      /* Disable emitting files from a compilation. */
+    "noEmit": false,                                     /* Disable emitting files from a compilation. */
 
     /* Interop Constraints */
     "isolatedModules": true,                             /* Ensure that each file can be safely transpiled without relying on other imports. */
