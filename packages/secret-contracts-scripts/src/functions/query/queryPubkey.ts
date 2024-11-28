@@ -1,5 +1,5 @@
 import { SecretNetworkClient } from "secretjs";
-import config from '../../config/deploy';
+import config from '../../config/deploy.js';
 
 export const queryPubkey = async (params: any) => {
   const secretjs = new SecretNetworkClient({
@@ -11,7 +11,7 @@ export const queryPubkey = async (params: any) => {
     code_hash: params.contractCodeHash,
     query: { retrieve_pubkey: {} },
   });
-  console.log(query_tx);
+  // console.log(query_tx);
   return query_tx;
 }
 
@@ -35,7 +35,7 @@ async function main() {
   // Chain the execution using promises
   await queryPubkey(params)
     .then(async (res) => {
-      console.log('res: ', res);
+      console.log('res queryPubkey: ', res);
     })
     .catch((error) => {
       console.error("Error:", error);

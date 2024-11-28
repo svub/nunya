@@ -1,6 +1,6 @@
 // constructPayload.js
 import { bytes_to_base64 } from "@blake.regalia/belt";
-import { arrayify } from "ethers/lib/utils";
+import { arrayify } from "ethers/lib/utils.js";
 
 export function constructPayload(
   data: any,

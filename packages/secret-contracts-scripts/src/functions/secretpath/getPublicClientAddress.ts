@@ -27,7 +27,7 @@ async function fetchChainData() {
 }
 
 // Function to get the public client address based on chainId
-export async function getPublicClientAddress(chainId: any) {
+async function getPublicClientAddress(chainId: any) {
   const chainData = await fetchChainData();
   if (!chainData) return null;
 
@@ -50,3 +50,5 @@ export async function getPublicClientAddress(chainId: any) {
 
   return publicClientAddress;
 }
+
+export default getPublicClientAddress;
