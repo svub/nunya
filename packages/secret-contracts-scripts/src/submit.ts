@@ -255,6 +255,10 @@ async function unsafeRequestSecretContractPubkey() {
     // Note: Sepolia Ethereum has chainId 11155111
     amountOfGas = gasFee.mul(callbackGasLimit).mul(3).div(2);
   }
+  // Note: Only if get error `replacement fee too low` then just increase gasPrice by 10%
+  // to replace the previous nonce in the mempool. If it happens again for the same nonce,
+  // then increase the gasPrice by a further 10% (i.e. 1.1 * 1.1 = 1.21)
+  my_gas = my_gas * 1.21; 
   console.log("amountOfGas: ", amountOfGas);
   console.log("my_gas: ", my_gas);
 
@@ -275,11 +279,15 @@ async function unsafeRequestSecretContractPubkey() {
     gasLimit: 10000000,
     gasPrice: hexlify(my_gas),
     nonce: nextNonce,
+    data: functionData,
     chainId: chainId,
   }
-  
+
   const tx = await managedSigner.sendTransaction(tx_params);
   console.log("tx: ", tx);
+  // wait() has the logic to return receipt once the transaction is mined
+  const receipt = await tx.wait();
+  console.log("receipt: ", receipt);
 
   // TODO: check if tx is mined
 
