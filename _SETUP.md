@@ -161,9 +161,9 @@ Run smart contract test with `yarn hardhat:test`
   ```
   nvm use
   npm install --global lerna
-  yarn set version 4.2.2
+  yarn set version 4.5.3
   corepack enable
-  corepack prepare yarn@v4.2.2 --activate
+  corepack prepare yarn@v4.5.3 --activate
   ```
 
 #### Create, Compile and Deploy Contract
@@ -253,6 +253,11 @@ yarn run secret:submit
 * View on Secret Testnet block explorer at https://testnet.ping.pub/secret/
 
 * Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
+
+* TODO
+```
+yarn run secret:requestValue
+```
 
 ### About Custom Gateways and Relayers <a id="about-gateways-relayers"></a> 
 

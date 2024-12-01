@@ -41,11 +41,11 @@ contract NunyaBusiness is Ownable, Utils {
     }
 
     /// @notice CustomGateway stores address to the Gateway contract to call the Secret contract
-    address payable CustomGateway;
+    address public payable CustomGateway;
 
     IGateway secretContract;
 
-    uint256 secretContractPubkey;
+    uint256 public secretContractPubkey;
 
     mapping (uint256 => FunctionCallType) expectedResult;
 
