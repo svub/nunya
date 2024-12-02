@@ -54,12 +54,7 @@ function uint8ArrayToNumV2(arr: any) {
   return num;
 }
 
-// relates to unsafeRequestSecretContractPubkey
 async function unsafeRequestSecretContractPubkey() {
-//   // Ethereum Sepolia
-//   // IGNORE
-  // const gatewayAddressInstance = "0x5Be91fd4b49489bb3aEc8bE2F5Fa1d83FD8C5A1b";
-  // const nunyaAddressInstance = "0x41E52332e76988AFBc38280583a7A02492177C65";
   const ifaceGateway = new ethers.utils.Interface(gatewayAbi.abi);
   const ifaceNunya = new ethers.utils.Interface(nunyaAbi.abi);
 

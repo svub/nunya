@@ -23,9 +23,6 @@ const SECRET_ADDRESS = secretContractAddress;
 const CONTRACT_CODE_HASH = contractCodeHash;
 
 async function unsafeRequestValue() {
-  // TODO: Use the nunya and gateway address stored in deploy.ts
-  const gatewayAddressInstance = "0x5Be91fd4b49489bb3aEc8bE2F5Fa1d83FD8C5A1b";
-  const nunyaAddressInstance = "0x41E52332e76988AFBc38280583a7A02492177C65";
   const ifaceGateway = new ethers.utils.Interface(gatewayAbi.abi);
   const ifaceNunya = new ethers.utils.Interface(nunyaAbi.abi);
 
@@ -56,11 +53,11 @@ async function unsafeRequestValue() {
   console.log("Current block number: ", blockNumber);
 
   // TODO: Redeploy with `CustomGateway` publically accessible
-  const nunyaContract = new ethers.Contract(nunyaAddressInstance, ifaceNunya, managedSigner);
+  const nunyaContract = new ethers.Contract(nunyaBusinessContractAddress, ifaceNunya, managedSigner);
   // const CustomGateway = await nunyaContract.CustomGateway();
   // console.log("CustomGateway: ", CustomGateway);
 
-  const gatewayContract = new ethers.Contract(gatewayAddressInstance, ifaceGateway, managedSigner);
+  const gatewayContract = new ethers.Contract(gatewayContractAddress, ifaceGateway, managedSigner);
   const taskDestinationNetwork = await gatewayContract.task_destination_network();
   console.log("taskDestinationNetwork: ", taskDestinationNetwork);
 
@@ -69,7 +66,8 @@ async function unsafeRequestValue() {
   console.log("responseSetUnsafeSetSecretContractInfo", txResponseSetUnsafeSetSecretContractInfo);
   // wait() has the logic to return receipt once the transaction is mined
   const receipt = await txResponseSetUnsafeSetSecretContractInfo.wait();
-  console.log("receipt: ", receipt);
+  console.log("Receipt: ", receipt);
+  console.log("Tx Hash: ", receipt.hash);
 }
 
 async function main() {

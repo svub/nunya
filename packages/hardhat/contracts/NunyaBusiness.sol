@@ -41,7 +41,7 @@ contract NunyaBusiness is Ownable, Utils {
     }
 
     /// @notice CustomGateway stores address to the Gateway contract to call the Secret contract
-    address public payable CustomGateway;
+    address payable public CustomGateway;
 
     IGateway secretContract;
 
@@ -111,7 +111,8 @@ contract NunyaBusiness is Ownable, Utils {
     /// @notice Sets the address to the Gateway contract 
     /// @param _CustomGateway address of the gateway
     function setGatewayAddress(address payable _CustomGateway) public payable onlyOwner {
-        CustomGateway = _CustomGateway;
+        // https://docs.soliditylang.org/en/latest/types.html#address
+        CustomGateway = payable(address(_CustomGateway));
         fundGateway(0); // send all funds to the gateway
     }
 
