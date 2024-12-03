@@ -184,10 +184,16 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     Gateway: {
-      address: "0x8375b3D0555c818eF2e50823f8F1F4cdD0696c54",
+      address: "0x1E4B12A9F82b33DA1127B27861EFf5E652de7a6F",
       abi: [
         {
-          inputs: [],
+          inputs: [
+            {
+              internalType: "address",
+              name: "nunyaContractAddress",
+              type: "address",
+            },
+          ],
           stateMutability: "nonpayable",
           type: "constructor",
         },
@@ -1108,7 +1114,7 @@ const deployedContracts = {
       },
     },
     NunyaBusiness: {
-      address: "0x366C18C390B1cfC05ae7E6Af168a878D5B3c3b5C",
+      address: "0xAFFF311821C3F3AF863C7103BB17BDC1Ba04603D",
       abi: [
         {
           inputs: [],

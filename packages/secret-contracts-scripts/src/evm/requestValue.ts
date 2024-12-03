@@ -61,21 +61,27 @@ async function unsafeRequestValue() {
   const taskDestinationNetwork = await gatewayContract.task_destination_network();
   console.log("taskDestinationNetwork: ", taskDestinationNetwork);
 
-  // TODO: override gasLimit and gasPrice otherwise get error code `UNPREDICTABLE_GAS_LIMIT` and reason
-  // `cannot estimate gas; transaction may fail or may require manual gas limit`. 
-  // or is that because there is a problem with the `unsafeSetSecretContractInfo` function
-  const txParams = {
-    value: ethers.utils.parseEther("0.0001"),
-    gasLimit: 10000000,
-    gasPrice: hexlify(200000),
-  }
-  const txResponseSetUnsafeSetSecretContractInfo =
-    await nunyaContract.unsafeSetSecretContractInfo(routing_contract, routing_code_hash, txParams);
-  console.log("responseSetUnsafeSetSecretContractInfo", txResponseSetUnsafeSetSecretContractInfo);
-  // wait() has the logic to return receipt once the transaction is mined
-  const receipt = await txResponseSetUnsafeSetSecretContractInfo.wait();
-  console.log("Receipt: ", receipt);
-  console.log("Tx Hash: ", receipt.hash);
+  // FIXME: The below does not provide a response using this script. It does however work if done via Remix
+  //
+  // Previously in the gateway evm contract onlyOwner was set to be whoever created the contract in its
+  // constructor (e.g. the `DEPLOYER_ADDRESS`) with `owner = msg.sender` but `setSecretContractInfo`
+  // function in the gateway evm contract only allows `onlyOwner` to call it, but the caller is using
+  // `nunyaContract.unsafeSetSecretContractInfo` the NunyaBusiness contract instead of that `DEPLOYER_ADDRESS`
+  // is calling that function in the gateway evm contract, so it was changed to be
+  // `owner = nunyaBusinessAddress`
+
+  // const txParams = {
+  //   value: ethers.utils.parseEther("0.0001"),
+  //   gasLimit: 10000000,
+  //   gasPrice: hexlify(200000),
+  // }
+  // const txResponseSetUnsafeSetSecretContractInfo =
+  //   await nunyaContract.unsafeSetSecretContractInfo(routing_contract, routing_code_hash, txParams);
+  // console.log("responseSetUnsafeSetSecretContractInfo", txResponseSetUnsafeSetSecretContractInfo);
+  // // wait() has the logic to return receipt once the transaction is mined
+  // const receipt = await txResponseSetUnsafeSetSecretContractInfo.wait();
+  // console.log("Receipt: ", receipt);
+  // console.log("Tx Hash: ", receipt.hash);
 }
 
 async function main() {

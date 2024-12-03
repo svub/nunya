@@ -83,7 +83,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
 
   const gateway = await deploy("Gateway", {
     from: deployer,
-    args: [],
+    args: [nunyaContract.address],
     log: true,
     gasLimit: 30000000,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by

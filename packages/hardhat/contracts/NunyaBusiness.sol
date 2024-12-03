@@ -116,6 +116,8 @@ contract NunyaBusiness is Ownable, Utils {
         fundGateway(0); // send all funds to the gateway
     }
 
+    /// @notice Potentially not necessary since we can set these values directly into the gateway contract
+    /// instead of via the NunyaBusiness contract
     function unsafeSetSecretContractInfo(string memory _routingInfo, string memory _routingCodeHash) public payable onlyOwner returns (bool) {
         // Get the CustomGateway contract interface 
         IGateway customGateway = IGateway(CustomGateway);
@@ -137,7 +139,7 @@ contract NunyaBusiness is Ownable, Utils {
     /// @notice Demo function on how to implement a call
     // e.g. callbackGaslimit of 300000
     // testing function - DO NOT KEEP IN PROD!
-    function unsafeRequestValue (uint256 _callbackSelector, uint32 _callbackGasLimit) public payable existsGateway onlyOwner {
+    function unsafeRequestValue(uint256 _callbackSelector, uint32 _callbackGasLimit) public payable existsGateway onlyOwner {
         // Get the CustomGateway contract interface 
         IGateway customGateway = IGateway(CustomGateway);
 

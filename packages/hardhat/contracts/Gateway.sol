@@ -255,10 +255,10 @@ contract Gateway is Ownable, Utils {
     event FulfilledRandomWords(uint256 indexed requestId);
 
     // Constructor
-    constructor() {
+    constructor(address nunyaContractAddress) {
         // Initializer
         // Set owner to be the deployed NunyaBusiness.sol contract
-        owner = msg.sender;
+        owner = nunyaContractAddress;
 
         taskId = 1;
         nonce = 0;
@@ -504,9 +504,10 @@ contract Gateway is Ownable, Utils {
             '}","routing_info":"', routing_info,
             '","routing_code_hash":"', routing_code_hash,
             // FIXME: Should be msg.sender not the owner as discussed with Tom since we are forwarding to Secret network
-            '","user_address":"', address(msg.sender),
-            '","user_key":"', encodeAddressToBase64(address(msg.sender)),
-            '","callback_address":"', address(msg.sender),
+            // but I think it should be owner, which is the NunyaBusiness contract address
+            '","user_address":"', address(owner),
+            '","user_key":"', encodeAddressToBase64(address(owner)),
+            '","callback_address":"', address(owner),
             '"'
         );
 
@@ -515,7 +516,7 @@ contract Gateway is Ownable, Utils {
             '{"data":"{\\"callbackSelector\\":',
             uint256toBytesString(_callbackSelector),
             payload_info,
-            encodeAddressToBase64(address(msg.sender)), //callback_address
+            encodeAddressToBase64(address(owner)), //callback_address
             // callback selector should be a hex value already converted into base64 to be used
             // as callback_selector of the request_value function in the Secret contract 
             '","callback_selector":"', uint256toBytesString(_callbackSelector),
@@ -534,7 +535,7 @@ contract Gateway is Ownable, Utils {
         // ExecutionInfo struct
         ExecutionInfo memory executionInfo = ExecutionInfo({
             // TODO - make `user_key` a unique key different from `user_pubkey`
-            user_key: bytes32ToBytes(encodeAddressToBase64(address(msg.sender))), // equals AAA= in base64
+            user_key: bytes32ToBytes(encodeAddressToBase64(address(owner))), // equals AAA= in base64
             // FIXME: use of `secret_gateway_signer_pubkey` does not compile, what alternative to use?
             // user_pubkey: uint256toBytesString(secret_gateway_signer_pubkey),
             user_pubkey: emptyBytes, // Fill with 0 bytes
@@ -601,9 +602,10 @@ contract Gateway is Ownable, Utils {
             '}","routing_info":"', routing_info,
             '","routing_code_hash":"', routing_code_hash,
             // FIXME: Should be msg.sender not the owner as discussed with Tom since we are forwarding to Secret network
-            '","user_address":"', address(msg.sender),
-            '","user_key":"', encodeAddressToBase64(address(msg.sender)),
-            '","callback_address":"', address(msg.sender),
+            // but I think it should be owner, which is the NunyaBusiness contract address
+            '","user_address":"', address(owner),
+            '","user_key":"', encodeAddressToBase64(address(owner)),
+            '","callback_address":"', address(owner),
             '"'
         );
 
@@ -612,7 +614,7 @@ contract Gateway is Ownable, Utils {
             '{"data":"{\\"callbackSelector\\":',
             uint256toBytesString(_callbackSelector),
             payload_info,
-            encodeAddressToBase64(msg.sender), //callback_address
+            encodeAddressToBase64(owner), //callback_address
             '","callback_selector":"OLpGFA==","callback_gas_limit":', // 0x38ba4614 hex value already converted into base64, callback_selector of the fulfillRandomWords function
             uint256toBytesString(_callbackGasLimit),
             '}' 
