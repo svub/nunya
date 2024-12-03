@@ -127,7 +127,7 @@ const generateTsAbis: DeployFunction = async function () {
 export default generateTsAbis;
 
 // Tags are useful if you have multiple deploy files and only want to run one of them.
-// e.g. yarn deploy --tags generateTsAbis
+// e.g. yarn hardhat:deploy --tags generateTsAbis
 generateTsAbis.tags = ["generateTsAbis"];
 
 generateTsAbis.runAtTheEnd = true;

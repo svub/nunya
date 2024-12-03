@@ -68,7 +68,7 @@ If you want to run a local network in the first terminal:
 Note: Use `accounts: [deployerPrivateKey]` or `accounts: { mnemonic: MNEMONIC }` in ./packages/hardhat/hardhat.config.ts
 
 ```
-yarn chain
+yarn hardhat:chain
 ```
 
 This command starts a local Ethereum network using Hardhat. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/hardhat/hardhat.config.ts`.
@@ -77,15 +77,17 @@ This command starts a local Ethereum network using Hardhat. The network runs on 
 
 Check configured correctly.
 
-4. On a second terminal, deploy the test contract to desired network (e.g. `yarn deploy --network localhost` or `yarn deploy --network sepolia`)
+4. On a second terminal, compile and deploy the test contract to desired network (e.g. `yarn hardhat:deploy --network localhost` or `yarn hardhat:deploy --network sepolia`)
 
 ```
-yarn deploy --network sepolia
+yarn hardhat:clean
+yarn hardhat:compile
+yarn hardhat:deploy --network sepolia
 ```
 
-> Note: The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
+> Note: The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn hardhat:deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
 
-Note: If it has deployed previously it will output `Nothing to compile. No need to generate any newer typings.`. To make a fresh deployment first run `yarn run hardhat:clean`.
+Note: If it has deployed previously it will output `Nothing to compile. No need to generate any newer typings.`. To make a fresh deployment first run `yarn run hardhat:clean` from the project root folder.
 
 Example of output:
 ```
@@ -96,11 +98,15 @@ network:  sepolia
 chain id:  11155111
 hre.network.name:  sepolia
 deployerAddress:  0x83De04f1aad8ABF1883166B14A29c084b7B8AB59
-Deployer account balance: 6.97682918633238383 ETH
-reusing "NunyaBusiness" at 0x5c757f18B4f6d74cE99A290CC9884aFea4476af0
-Successfully deployed NunyaBusiness to address:  0x5c757f18B4f6d74cE99A290CC9884aFea4476af0
-deploying "Gateway" (tx: 0x73861fd89e058de1f71b6451c7b07b99d9fcf802a1826438b4b8ef8488dc76f3)...: deployed at 0x8375b3D0555c818eF2e50823f8F1F4cdD0696c54 with 3316253 gas
+Deployer account balance: 6.938852504603366312 ETH
+reusing "NunyaBusiness" at 0x366C18C390B1cfC05ae7E6Af168a878D5B3c3b5C
+Successfully deployed NunyaBusiness to address:  0x366C18C390B1cfC05ae7E6Af168a878D5B3c3b5C
+reusing "Gateway" at 0x8375b3D0555c818eF2e50823f8F1F4cdD0696c54
 Successfully deployed Gateway to address:  0x8375b3D0555c818eF2e50823f8F1F4cdD0696c54
+setGatewayAddressTx tx hash: 0x67367277ef051620c5229bfbfc0019f836e3a5b22961065d8261e4defd63dd76
+👋 Nunya contract: 0x366C18C390B1cfC05ae7E6Af168a878D5B3c3b5C
+NunyaBusiness balance:  0.000500000000042
+Gateway balance:  0.000359999999916
 ```
 
 > Warning: Do not rename 01_deploy_your_contract.ts to 00_deploy_your_contract.ts or it will only compile but will not deploy
@@ -109,19 +115,17 @@ Successfully deployed Gateway to address:  0x8375b3D0555c818eF2e50823f8F1F4cdD06
 
 6. Call the Nunya.business Contract `setEVMGatewayAddress` function to set the Gateway EVM address in its state.
 
-* Copy relevant ABI array value from ./packages/hardhat/deployments/sepolia/NunyaBusiness.json into ./packages/secret-contracts-scripts/src/config/evm/nunyaBusinessABI.ts
-
 * Run script:
 ```bash
 yarn run secret:setEVMGatewayAddress
 ```
 
-Example transaction hash: https://sepolia.etherscan.io/tx/0xd7406fcd37ce9583afec9262996e828860c87230945fe41331a0a6f413ec3086
+Example transaction hash: https://sepolia.etherscan.io/tx/0xd68415b9dbc6df7f8f7ae4027e2c935082cd5f212bf5e607a24ad3a62a98b898
 
 7. View the contract in block explorer
 
 Example previous deployment: 
-  NunyaBusiness: https://sepolia.etherscan.io/address/0x5c757f18B4f6d74cE99A290CC9884aFea4476af0#code
+  NunyaBusiness: https://sepolia.etherscan.io/address/0x366C18C390B1cfC05ae7E6Af168a878D5B3c3b5C#code
 
   Gateway: https://sepolia.etherscan.io/address/0x8375b3D0555c818eF2e50823f8F1F4cdD0696c54#code
 
@@ -238,8 +242,6 @@ yarn run secret:instantiate
 * Add the `SECRET_CONTRACT_ADDRESS` to `secretContractAddress` in the relevant config.secret.<network> in ./nunya/packages/secret-contracts-scripts/src/config/deploy.ts
 * Add the terminal log to ./logs/instantiateOutput.log
 
-* TODO: Add the ABI of the uploaded and instantiated EVM Gateway contract from ./nunya/packages/hardhat/artifacts/contracts/Gateway.sol/Gateway.json to ./nunya/packages/secret-contracts-scripts/src/config/abi.ts for use in submit.ts
-
 * View logs at ./logs/instantiateOutput.log
 * View on Secret Testnet block explorer at https://testnet.ping.pub/secret/
 
@@ -259,7 +261,7 @@ yarn run secret:requestValue
       * Open Gateway.sol
         * Click compile icon
       * Choose "Solidity compiler" tab on the left
-      * Choose version 0.8.0
+      * Choose version 0.8.28
       * Click "Compile Gateway.sol" and view the warnings by scrolling down
       * Choose "Deploy and run transactions" tab on the left
       * Click "Environment" and choose "Customize this list..."

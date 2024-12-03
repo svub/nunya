@@ -2,8 +2,9 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 import { ethers, Contract, Wallet, utils } from "ethers";
-import abi from "../config/evm/nunyaBusinessABI.js";
-import config from '../config/deploy';
+import gatewayAbi from "../../../hardhat/artifacts/contracts/Gateway.sol/Gateway.json" assert { type: "json" };
+import nunyaAbi from "../../../hardhat/artifacts/contracts/NunyaBusiness.sol/NunyaBusiness.json" assert { type: "json" };
+import config from '../config/deploy.js';
 
 if (config.evm.network != "sepolia") {
   console.error("Unsupported network");
@@ -39,9 +40,12 @@ async function setGatewayAddress() {
   const blockNumber = await provider.getBlockNumber();
   console.log("Current block number: ", blockNumber);
 
+  const ifaceGateway = new ethers.utils.Interface(gatewayAbi.abi);
+  const ifaceNunya = new ethers.utils.Interface(nunyaAbi.abi);
+
   console.log("Setting the Gateway address in the Nunya contract...");
   // Set the gateway address now that the Nunya contract and Gateway contract have been deployed and funded
-  const nunyaContractInstance = new Contract(nunyaBusinessContractAddress, abi, signer);
+  const nunyaContractInstance = new Contract(nunyaBusinessContractAddress, ifaceNunya, signer);
   console.log('nunyaContractInstance', nunyaContractInstance);
   
   const setGatewayAddressReceipt = await nunyaContractInstance.setGatewayAddress(

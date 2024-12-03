@@ -1,0 +1,26 @@
+balance: 6.938741510492094
+nonce: 32
+Current block number:  7199882
+Setting the Gateway address in the Nunya contract...
+...
+Receipt: {
+  type: 2,
+  chainId: 11155111,
+  nonce: 32,
+  maxPriorityFeePerGas: BigNumber { _hex: '0x59682f00', _isBigNumber: true },
+  maxFeePerGas: BigNumber { _hex: '0x81a0b416', _isBigNumber: true },
+  gasPrice: null,
+  gasLimit: BigNumber { _hex: '0xa645', _isBigNumber: true },
+  to: '0x366C18C390B1cfC05ae7E6Af168a878D5B3c3b5C',
+  value: BigNumber { _hex: '0x5af3107a4000', _isBigNumber: true },
+  data: '0xa35ff0760000000000000000000000008375b3d0555c818ef2e50823f8f1f4cdd0696c54',
+  accessList: [],
+  hash: '0xd68415b9dbc6df7f8f7ae4027e2c935082cd5f212bf5e607a24ad3a62a98b898',
+  v: 0,
+  r: '0xe10410483a1b612606eeaf896832528bedf223de4f48f745f038d90f0ccd9c8e',
+  s: '0x5dabfe6a15f6b7ae6dac3ecb3794d440828a9a04d3c351f529970f1bfa247f20',
+  from: '0x83De04f1aad8ABF1883166B14A29c084b7B8AB59',
+  confirmations: 0,
+  wait: [Function (anonymous)]
+}
+Tx Hash: 0xd68415b9dbc6df7f8f7ae4027e2c935082cd5f212bf5e607a24ad3a62a98b898

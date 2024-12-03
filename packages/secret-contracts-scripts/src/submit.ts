@@ -3,7 +3,6 @@ import * as dotenv from "dotenv";
 dotenv.config();
 import { ethers, Wallet } from "ethers";
 import { NonceManager } from "@ethersproject/experimental";
-// import abi from "./config/abi.js";
 import config from './config/deploy.js';
 import { chacha20_poly1305_seal } from "@solar-republic/neutrino";
 import { bytes, concat, text_to_bytes, json_to_bytes } from "@blake.regalia/belt";
@@ -60,12 +59,9 @@ async function unsafeRequestSecretContractPubkey() {
 
   const routing_contract = SECRET_ADDRESS;
   const routing_code_hash = CONTRACT_CODE_HASH;
-
-//   // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/evm/gateway-contract-abi
-//   const iface = new ethers.utils.Interface(abi);
   
   if (!privateKey) {
-    console.log("🚫️ You don't have a deployer account. Run `yarn generate` first");
+    console.log("🚫️ You don't have a deployer account. Run `yarn hardhat:generate` first");
     return;
   }
 

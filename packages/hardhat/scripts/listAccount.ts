@@ -8,7 +8,7 @@ async function main() {
   const privateKey = process.env.DEPLOYER_PRIVATE_KEY;
 
   if (!privateKey) {
-    console.log("🚫️ You don't have a deployer account. Run `yarn generate` first");
+    console.log("🚫️ You don't have a deployer account. Run `yarn hardhat:generate` first");
     return;
   }
 

@@ -1,11 +1,12 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 import { ethers, Wallet } from "ethers";
+import { hexlify } from "ethers/lib/utils.js";
 
 import { NonceManager } from "@ethersproject/experimental";
-import config from './config/deploy.js';
-import gatewayAbi from "../../hardhat/artifacts/contracts/Gateway.sol/Gateway.json" assert { type: "json" };
-import nunyaAbi from "../../hardhat/artifacts/contracts/NunyaBusiness.sol/NunyaBusiness.json" assert { type: "json" };
+import config from '../config/deploy.js';
+import gatewayAbi from "../../../hardhat/artifacts/contracts/Gateway.sol/Gateway.json" assert { type: "json" };
+import nunyaAbi from "../../../hardhat/artifacts/contracts/NunyaBusiness.sol/NunyaBusiness.json" assert { type: "json" };
 
 if (config.evm.network != "sepolia") {
   console.error("Unsupported network");
@@ -30,7 +31,7 @@ async function unsafeRequestValue() {
   const routing_code_hash = CONTRACT_CODE_HASH;
   
   if (!privateKey) {
-    console.log("🚫️ You don't have a deployer account. Run `yarn generate` first");
+    console.log("🚫️ You don't have a deployer account. Run `yarn hardhat:generate` first");
     return;
   }
 
@@ -52,17 +53,24 @@ async function unsafeRequestValue() {
   const blockNumber = await provider.getBlockNumber();
   console.log("Current block number: ", blockNumber);
 
-  // TODO: Redeploy with `CustomGateway` publically accessible
   const nunyaContract = new ethers.Contract(nunyaBusinessContractAddress, ifaceNunya, managedSigner);
-  // const CustomGateway = await nunyaContract.CustomGateway();
-  // console.log("CustomGateway: ", CustomGateway);
+  const CustomGateway = await nunyaContract.CustomGateway();
+  console.log("CustomGateway: ", CustomGateway);
 
   const gatewayContract = new ethers.Contract(gatewayContractAddress, ifaceGateway, managedSigner);
   const taskDestinationNetwork = await gatewayContract.task_destination_network();
   console.log("taskDestinationNetwork: ", taskDestinationNetwork);
 
+  // TODO: override gasLimit and gasPrice otherwise get error code `UNPREDICTABLE_GAS_LIMIT` and reason
+  // `cannot estimate gas; transaction may fail or may require manual gas limit`. 
+  // or is that because there is a problem with the `unsafeSetSecretContractInfo` function
+  const txParams = {
+    value: ethers.utils.parseEther("0.0001"),
+    gasLimit: 10000000,
+    gasPrice: hexlify(200000),
+  }
   const txResponseSetUnsafeSetSecretContractInfo =
-    await nunyaContract.unsafeSetSecretContractInfo(routing_contract, routing_code_hash, { value: ethers.utils.parseEther("0.0001") });
+    await nunyaContract.unsafeSetSecretContractInfo(routing_contract, routing_code_hash, txParams);
   console.log("responseSetUnsafeSetSecretContractInfo", txResponseSetUnsafeSetSecretContractInfo);
   // wait() has the logic to return receipt once the transaction is mined
   const receipt = await txResponseSetUnsafeSetSecretContractInfo.wait();

@@ -11,7 +11,7 @@ const config = {
       chainId: 11155111,
       endpoint: process.env.PROVIDER_RPC_ETHEREUM_SEPOLIA,
       privateKey: process.env.DEPLOYER_PRIVATE_KEY,
-      nunyaBusinessContractAddress: "0x5c757f18B4f6d74cE99A290CC9884aFea4476af0", // only know after deploy
+      nunyaBusinessContractAddress: "0x366C18C390B1cfC05ae7E6Af168a878D5B3c3b5C", // only know after deploy
       gatewayContractAddress: "0x8375b3D0555c818eF2e50823f8F1F4cdD0696c54"
     }
   },
