@@ -1,0 +1,16 @@
+Generating typings for: 9 artifacts in dir: typechain-types for target: ethers-v6
+Successfully generated 20 typings!
+Compiled 9 Solidity files successfully (evm target: paris).
+network:  localhost
+chain id:  31337
+deployerAddress:  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+Deployer account balance: 10000.0 ETH
+deploying "NunyaBusiness" (tx: 0x932f4c98ac26557cf674d48ae941d2d5d4b402bdf05a2e54ab8f25bbc61ed5c0)...: deployed at 0x5FbDB2315678afecb367f032d93F642f64180aa3 with 2871810 gas
+Successfully deployed NunyaBusiness to address:  0x5FbDB2315678afecb367f032d93F642f64180aa3
+deploying "Gateway" (tx: 0x21d9641b416d1a45d6d7454155129f258c66ed4dd74276f9494f9d608fa78162)...: deployed at 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512 with 3337714 gas
+Successfully deployed Gateway to address:  0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
+setGatewayAddressTx tx hash: 0xe87ded4e0e64d7a0872e7120a2cea2e1be91190d7ac1d762f6e0d13e69aa4caf
+👋 Nunya contract: 0x5FbDB2315678afecb367f032d93F642f64180aa3
+NunyaBusiness balance:  0.000500000000021
+Gateway balance:  0.000099999999979
+📝 Updated TypeScript contract definition file on ../nextjs/contracts/deployedContracts.ts

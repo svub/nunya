@@ -32,13 +32,13 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   */
   console.log("network: ", hre.network.name);
   const { deploy } = hre.deployments;
-  const chainId = hre.network.config.chainId
+  const chainId = hre.network.config.chainId;
   console.log("chain id: ", chainId);
 
   let providerRpc;
   let deployer;
   let deployerAddress;
-  const fallbackAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+  const deployerAddressLocalNetwork = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 
   // const deployerWallet = new Wallet(deployer);
   // const deployerPublicKey = new SigningKey(deployerWallet.privateKey).compressedPublicKey;
@@ -49,16 +49,19 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   //   return;
   // }
 
-  if (hre.network.name = "sepolia") {
+  if (hre.network.name == "sepolia") {
     console.log("hre.network.name: ", hre.network.name);
-    deployer = process.env.DEPLOYER_PRIVATE_KEY || "",  // config.networks?.sepolia?.accounts[0];
-    deployerAddress = process.env.DEPLOYER_ADDRESS || fallbackAddress;
+    if (process.env.DEPLOYER_ADDRESS == "" || process.env.DEPLOYER_PRIVATE_KEY == "") {
+      throw new Error(`Please add deployer address and private key to the .env file for Sepolia Network.`)
+    }
+    deployer = process.env.DEPLOYER_PRIVATE_KEY || "";  // config.networks?.sepolia?.accounts[0];
+    deployerAddress = process.env.DEPLOYER_ADDRESS || "";
     providerRpc = String(config.networks?.sepolia);
   } else {
     const accounts = await hre.getNamedAccounts();
-    deployer = accounts.deployer;
-    deployerAddress = process.env.DEPLOYER_ADDRESS || fallbackAddress;
-    providerRpc = "http://127.0.0.1:8545/"
+    deployer = accounts.deployer || "";
+    deployerAddress = deployerAddressLocalNetwork;
+    providerRpc = "http://127.0.0.1:8545/";
   }
 
   if (logging) {

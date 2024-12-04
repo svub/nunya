@@ -67,8 +67,25 @@ If you want to run a local network in the first terminal:
 
 Note: Use `accounts: [deployerPrivateKey]` or `accounts: { mnemonic: MNEMONIC }` in ./packages/hardhat/hardhat.config.ts
 
+* Terminal 1
 ```
 yarn hardhat:chain
+```
+
+Example output:
+```
+Started HTTP and WebSocket JSON-RPC server at http://127.0.0.1:8545/
+
+Accounts
+========
+...
+```
+
+* Terminal 2
+```
+yarn hardhat:clean
+yarn hardhat:compile
+yarn hardhat:deploy --network localhost
 ```
 
 This command starts a local Ethereum network using Hardhat. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/hardhat/hardhat.config.ts`.
@@ -76,8 +93,6 @@ This command starts a local Ethereum network using Hardhat. The network runs on 
 * Testnet
 
 Check configured correctly.
-
-4. On a second terminal, compile and deploy the test contract to desired network (e.g. `yarn hardhat:deploy --network localhost` or `yarn hardhat:deploy --network sepolia`)
 
 ```
 yarn hardhat:clean
@@ -110,10 +125,9 @@ Gateway balance:  0.0
 ```
 
 > Warning: Do not rename 01_deploy_your_contract.ts to 00_deploy_your_contract.ts or it will only compile but will not deploy
+4. Add the deployed Nunya.business Contract Address to `nunyaBusinessContractAddress` and Gateway address `gatewayContractAddress` for the relevant network in ./nunya/packages/secret-contracts-scripts/src/config/deploy.ts
 
-5. Add the deployed Nunya.business Contract Address to `nunyaBusinessContractAddress` and Gateway address `gatewayContractAddress` for the relevant network in ./nunya/packages/secret-contracts-scripts/src/config/deploy.ts
-
-6. Call the Nunya.business Contract `setEVMGatewayAddress` function to set the Gateway EVM address in its state.
+5. Call the Nunya.business Contract `setEVMGatewayAddress` function to set the Gateway EVM address in its state.
 
 * Run script:
 ```bash
@@ -122,20 +136,20 @@ yarn run secret:setEVMGatewayAddress
 
 Example transaction hash: https://sepolia.etherscan.io/tx/0xef7a241e3eba870138323440e910e2a0e608654a46bd7720af8e03ed63618f3a
 
-7. View the contract in block explorer
+6. View the contract in block explorer
 
 Example previous deployment: 
   NunyaBusiness: https://sepolia.etherscan.io/address/0xAFFF311821C3F3AF863C7103BB17BDC1Ba04603D#code
 
   Gateway: https://sepolia.etherscan.io/address/0x1E4B12A9F82b33DA1127B27861EFf5E652de7a6F#code
 
-8. Interact with deployed EVM Gateway via the NunyaBusiness contract
+7. Interact with deployed EVM Gateway via the NunyaBusiness contract
 
 Assumes that you have already uploaded and instantiated the custom Secret contract in the [Setup Secret Contracts](#setup-secret) section.
 
 Skip to the [`requestValue`](#requestValue) step in the [Setup Secret Contracts](#setup-secret) section.
 
-9. On a third terminal, start the Nunya NextJS app:
+8. On a third terminal, start the Nunya NextJS app:
 
 ```
 yarn start
