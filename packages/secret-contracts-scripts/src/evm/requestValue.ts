@@ -82,6 +82,25 @@ async function unsafeRequestValue() {
   // const receipt = await txResponseSetUnsafeSetSecretContractInfo.wait();
   // console.log("Receipt: ", receipt);
   // console.log("Tx Hash: ", receipt.hash);
+
+  // FIXME: Use Remix instead until resolve how to do it via this script
+  // const callbackSelector = ifaceGateway.getSighash(
+  //   // requestValue - 0xb6c2b131
+  //   ifaceGateway.getFunction("requestValue")
+  // );
+  // console.log("callbackSelector: ", callbackSelector);
+  // const callbackGasLimit = 10000000; // 90000
+  // const txParams = {
+  //   value: ethers.utils.parseEther("0.0001"), // 100000 Gwei
+  //   gasLimit: callbackGasLimit, // 90000
+  //   gasPrice: hexlify(200000),
+  // }
+  // const txResponseUnsafeRequestValue =
+  //   await nunyaContract.unsafeRequestValue(routing_contract, routing_code_hash, txParams);
+  // console.log("responseSetUnsafeSetSecretContractInfo", txResponseUnsafeRequestValue);
+  // const receipt = await txResponseUnsafeRequestValue.wait();
+  // console.log("Receipt: ", receipt);
+  // console.log("Tx Hash: ", receipt.hash);
 }
 
 async function main() {
