@@ -1,0 +1,13 @@
+eth_sendRawTransaction
+  Contract call:       NunyaBusiness#setGatewayAddress
+  Transaction:         0x317bdda0226c846a66cc848a6a08d71e771a12a9429d12a1ea5bd1ad344d2b15
+  From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+  To:                  0x5fbdb2315678afecb367f032d93f642f64180aa3
+  Value:               0.1 ETH
+  Gas used:            41072 of 42516
+  Block #6:            0xd3e2d69c4fc3676f5fcaf67dd2772d4a693caf8136716824f39eaeb0c84c75ad
+
+  console.log:
+    ----- NunyaBusiness.sol fundGateway() keepGas:  0
+    fundGateway 100000000000000 21000
+    ----- Gateway.sol receive() msg.value: 99999999979000

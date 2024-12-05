@@ -659,34 +659,34 @@ contract Gateway is Ownable, Utils {
     }
 
     function newSecretUser(string calldata secret) public pure returns (uint256) {
-        // console.log("------ DummyGateway.newSecretUser", secret);
+        // console.log("------ Gateway.newSecretUser", secret);
         return 6;
     }
     function createPaymentReference(string calldata secret, string calldata ref) public pure returns (uint256) {
-        // console.log("------ DummyGateway.createPaymentReference", secret, ref);
+        // console.log("------ Gateway.createPaymentReference", secret, ref);
         return 5;
     }
     // TODO: `string calldata secret` or `uint256 secret`
     function pay(string calldata secret, string calldata ref, uint256 amount, string calldata denomination) public pure returns (uint256) {
-        // console.log("------ DummyGateway.pay", secret, ref, amount, denomination);
+        // console.log("------ Gateway.pay", secret, ref, amount, denomination);
         return 4;
     }
     // TODO: `string calldata secret` or `uint256 secret`
     function payWithReceipt(string calldata secret, string calldata ref, uint256 amount, string calldata denomination, uint256 userPubkey) public pure returns (uint256) {
-        // console.log("------ DummyGateway.payWithReceipt", secret, ref, amount, denomination, userPubkey);
+        // console.log("------ Gateway.payWithReceipt", secret, ref, amount, denomination, userPubkey);
         return 3;
     }
     // TODO: `string calldata secret` or `uint256 secret`
     function withdrawTo(string calldata secret, uint256 amount, string calldata denomination, address withdrawalAddress) public pure returns (uint256) {
-        // console.log("------ DummyGateway.withdraw", secret, amount, denomination, withdrawalAddress);
+        // console.log("------ Gateway.withdraw", secret, amount, denomination, withdrawalAddress);
         return 2;
     }
 
     fallback() external payable {
-        console.log("----- DummyGateway.sol fallback() msg.value:", msg.value);
+        console.log("----- Gateway.sol fallback() msg.value:", msg.value);
     }
 
     receive() external payable {
-        console.log("----- DummyGateway.sol receive() msg.value:", msg.value);
+        console.log("----- Gateway.sol receive() msg.value:", msg.value);
     }
 }

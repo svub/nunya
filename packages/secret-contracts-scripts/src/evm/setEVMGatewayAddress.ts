@@ -6,12 +6,15 @@ import gatewayAbi from "../../../hardhat/artifacts/contracts/Gateway.sol/Gateway
 import nunyaAbi from "../../../hardhat/artifacts/contracts/NunyaBusiness.sol/NunyaBusiness.json" assert { type: "json" };
 import config from '../config/deploy.js';
 
-if (config.evm.network != "sepolia") {
-  console.error("Unsupported network");
+let vars;
+if (config.evm.network == "sepolia") {
+  vars = config.evm.sepolia;
+} else if (config.evm.network == "localhost") {
+  vars = config.evm.localhost;
+} else {
+  throw new Error(`Unsupported network.`)
 }
-
-const { chainId, endpoint, nunyaBusinessContractAddress, gatewayContractAddress, privateKey } =
-  config.evm.sepolia;
+const { chainId, endpoint, nunyaBusinessContractAddress, gatewayContractAddress, privateKey } = vars;
 
 // Sets the deployed Gateway address storage value for the NunyaBusiness contract
 async function setGatewayAddress() {
