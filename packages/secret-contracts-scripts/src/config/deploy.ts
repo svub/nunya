@@ -24,7 +24,7 @@ const config = {
     }
   },
   secret: {
-    network: "testnet",
+    network: "localhost",
     mainnet: {
       walletMnemonic: process.env.WALLET_MNEMONIC_MAINNET,
       isOptimizedContractWasm: true,
@@ -56,7 +56,7 @@ const config = {
     },
     local: {
       walletMnemonic: process.env.WALLET_MNEMONIC_LOCAL,
-      isOptimizedContractWasm: false,
+      isOptimizedContractWasm: true,
       wasmContractPath: "secret_evm_storage.wasm.gz",
       gatewayAddress: "",
       gatewayHash: "",
