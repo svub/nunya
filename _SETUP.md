@@ -282,7 +282,7 @@ git submodule update --init --recursive
     make build
     ```
     * Note: Use `make build-mainnet-reproducible` to deploy to Testnet
-    * TODO: The default Makefile uses `--features="debug-print"` but running that gives error `error: none of the selected packages contains these features: debug-print`
+    * TODO: The default Makefile uses `--features="debug-print"` but running that gives error `the package secret_gateway depends on secret-cosmwasm-std, with features: debug-print but secret-cosmwasm-std does not have these features.`
 
 * Note: Use existing localsecret Docker container that is running already.
 
