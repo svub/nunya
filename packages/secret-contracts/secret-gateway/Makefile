@@ -38,10 +38,10 @@ build-mainnet-reproducible:
 
 .PHONY: compress-wasm
 compress-wasm:
-	cp ./target/wasm32-unknown-unknown/release/*.wasm ./contract.wasm
+	cp ./target/wasm32-unknown-unknown/release/*.wasm ./secret-gateway-contract.wasm
 	@## The following line is not necessary, may work only on linux (extra size optimization)
-	wasm-opt -Os ./contract.wasm -o ./contract.wasm
-	cat ./contract.wasm | gzip -9 > ./contract.wasm.gz
+	wasm-opt -Os ./secret-gateway-contract.wasm -o ./secret-gateway-contract.wasm
+	cat ./secret-gateway-contract.wasm | gzip -9 > ./secret-gateway-contract.wasm.gz
 
 .PHONY: schema
 schema:
@@ -51,16 +51,22 @@ schema:
 .PHONY: start-server
 start-server: # CTRL+C to stop
 	docker run -it --rm \
-		-p 26657:26657 -p 26656:26656 -p 1317:1317 -p 5000:5000 \
+		-p 9091:9091 -p 26657:26657 -p 26656:26656 -p 1317:1317 -p 5000:5000 \
 		-v $$(pwd):/root/code \
-		--name localsecret ghcr.io/scrtlabs/localsecret:1.3.1
+		--name localsecret ghcr.io/scrtlabs/localsecret:v1.6.0-rc.3
+
+
+.PHONY: copy-secret-gateway-contract-local
+copy-secret-gateway-contract-local:
+	docker cp secret-gateway-contract.wasm secretdev:/root/code/secret-gateway-contract.wasm
+	docker cp secret-gateway-contract.wasm.gz secretdev:/root/code/secret-gateway-contract.wasm.gz
 
 # This relies on running `start-server` in another console
 # You can run other commands on the secretcli inside the dev image
 # by using `docker exec secretdev secretcli`.
-.PHONY: store-contract-local
-store-contract-local:
-	docker exec secretdev secretcli tx compute store -y --from a --gas 2000000 /root/code/contract.wasm.gz
+.PHONY: store-secret-gateway-contract-local
+store-secret-gateway-contract-local:
+	docker exec secretdev secretcli tx compute store -y --from a --gas 2000000 /root/code/secret-gateway-contract.wasm.gz
 
 .PHONY: integration-test
 integration-test:
@@ -69,4 +75,6 @@ integration-test:
 .PHONY: clean
 clean:
 	cargo clean
-	-rm -f ./contract.wasm ./contract.wasm.gz
+	-rm -f ./secret-gateway-contract.wasm ./secret-gateway-contract.wasm.gz
+	docker exec secretdev rm -rf /root/code/secret-gateway-contract.wasm
+	docker exec secretdev rm -rf /root/code/secret-gateway-contract.wasm.gz

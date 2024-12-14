@@ -275,9 +275,24 @@ git submodule update --init --recursive
 
   * Secret Gateway Contract
     ```
+    make clean
     make build
     ```
     * Note: Use `make build-mainnet-reproducible` to deploy to Testnet
+
+* Note: Use existing localsecret Docker container that is running already.
+
+* Copy compiled Secret Gateway contract to the Docker container
+  ```
+  make copy-secret-gateway-contract-local
+  ```
+
+* Store compiled Secret Gateway contract on Localhost (Localsecret network)
+  ```
+  make store-secret-gateway-contract-local
+  ```
+
+* TODO
 
 ###### Deploy Relayer of SecretPath on Localhost
 
@@ -535,6 +550,7 @@ docker rmi sco
   * Nunya Contract
     ```
     cd packages/secret-contracts/nunya-contract
+    make clean
     make build-mainnet-reproducible
     ```
 
@@ -543,10 +559,13 @@ docker rmi sco
   * My Counter Contract (Example only)
     ```
     cd packages/secret-contracts/my-counter-contract
+    make clean
     make build-mainnet-reproducible
     ```
 
 ##### Deploy (Upload and Instantiate)
+
+###### Testnet
 
 * Upload and Instantiate 
 
@@ -589,7 +608,18 @@ yarn run secret:instantiate
 
 * Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
 
+###### Localhost
+
+```bash
+make clean
+make start-server
+make copy-nunya-contract-local
+make store-nunya-contract-local
+```
+
 #### Interact with Deployed Secret Contract via Deployed EVM Gateway to `requestValue` <a id="request-value"></a> 
+
+##### Testnet
 
 Options:
 
@@ -634,6 +664,8 @@ Options:
         * FIXME - Why get error `Paid Callback Fee Too Low` from the `requestValue` function in the Gateway EVM contract https://sepolia.etherscan.io/tx/0xdab1b76f3ede8042c850a483a28d73c23a271e5eac37d0e500b55d625fbdbabb. It may be necessary to deploy to local network for debugging.
 
 ##### Unsorted
+
+###### Testnet
 
 * Query Pubkey
 ```

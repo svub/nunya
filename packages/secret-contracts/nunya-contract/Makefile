@@ -64,14 +64,21 @@ start-server: # CTRL+C to stop
 		-v $$(pwd):/root/code \
 		--name secretdev ghcr.io/scrtlabs/localsecret:v1.6.0-rc.3
 
+.PHONY: copy-nunya-contract-local
+copy-nunya--contract-local:
+	docker cp contract.wasm secretdev:/root/code/contract.wasm
+	docker cp contract.wasm.gz secretdev:/root/code/contract.wasm.gz
+
 # This relies on running `start-server` in another console
 # You can run other commands on the secretcli inside the dev image
 # by using `docker exec secretdev secretcli`.
-.PHONY: store-contract-local
-store-contract-local:
+.PHONY: store-nunya-contract-local
+store-nunya-contract-local:
 	docker exec secretdev secretcli tx compute store -y --from a --gas 1000000 /root/code/contract.wasm.gz
 
 .PHONY: clean
 clean:
 	cargo clean
 	-rm -f ./contract.wasm ./contract.wasm.gz
+	docker exec secretdev rm -rf /root/code/contract.wasm
+	docker exec secretdev rm -rf /root/code/contract.wasm.gz
