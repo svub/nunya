@@ -206,7 +206,7 @@ Run smart contract test with `yarn hardhat:test`
   secretcli --help
   ```
 
-##### Localhost
+##### Deploy Gateway and Relayer of SecretPath on Localhost
 
 * Connect to Linode. Note: Replace the IP address with the address of your remote server.
 ```
@@ -252,11 +252,34 @@ AzBzrKqSZp3YXMzITB8ZAqYysO0YCjtV
 word twist toast cloth movie predict advance crumble escape whale sail such angry muffin balcony keen move employ cook valve hurt glimpse breeze brick
 ```
 
-### Deploy Gateway of SecretPath on Localhost
+Deploy Relayer of SecretPath on Localhost
 
-* TODO - deploy and customize
+###### Deploy Gateway of SecretPath on Localhost
 
-### Deploy Relayer of SecretPath on Localhost
+* Note: An example of the Gateway to be deployed on Secret Network is here https://github.com/SecretSaturn/SecretPath/tree/main/TNLS-Gateways/secret. This example was used to create github/svub/nunya/packages/secret-contracts/secret-gateway
+
+* Connect to Linode
+```
+ssh root@172.105.188.31
+```
+
+* Clone the Github repo containing the Secret Gateway and initialise the submodules
+```
+mkdir -p SecretSaturn && cd SecretSaturn
+git clone https://github.com/SecretSaturn/SecretPath
+cd SecretPath/TNLS-Gateways/secret
+git submodule update --init --recursive
+```
+
+* [Compile](https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy#compile-the-code). Note: Outputs contract.wasm or contract.wasm.gz file in the root directory being the ./SecretPath/TNLS-Gateways/secret/ folder. Using `make build-mainnet-reproducible` will remove contract.wasm so only the optimised contract.wasm.gz remains. Warning: If you only run `make build-mainnet` then you will get this error https://github.com/svub/nunya/issues/8 when deploying.
+
+  * Secret Gateway Contract
+    ```
+    make build
+    ```
+    * Note: Use `make build-mainnet-reproducible` to deploy to Testnet
+
+###### Deploy Relayer of SecretPath on Localhost
 
 * Reference: https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/basics/cross-chain-messaging/secretpath/how-to-deploy-secretpath-on-your-chain
 
@@ -349,7 +372,7 @@ git submodule update --init --recursive
   privateKey: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
   ```
 
-  * TODO
+  * TODO - is this necessary? why not just use the default account?
 
 * Transfer some Localhost Secret tokens from a default account that is shown when running Secret Localhost to that Secret wallet address.
   * Reference: https://docs.scrt.network/secret-network-documentation/infrastructure/secret-cli/configuration
@@ -376,13 +399,26 @@ git submodule update --init --recursive
   Error: failed to convert address field to address: key with address secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03 not found: key not found [scrtlabs/cosmos-sdk@v0.50.10-secret.2/crypto/keyring/keyring.go:538]
   ```
 
+    * TODO - is this necessary? why not just use the default account?
+
   * QUESTION - do i need to add both addresses into the keyring? but if i do that it asks me to provide the account's mnemonic phrase and then doesn't add the correct secret network account address to keyring, see how below the address should be `secret1u9....`. is it possible to provide the private key instead so it adds the correct secret network account address to the keyring. it appears that it is necessary to even add the default accounts `a`, `b`, `c`, and `d`, as required to the keyring. 
 
   ```
   a_mnemonic="grant rice replace explain federal release fix clever romance raise often wild taxi quarter soccer fiber love must tape steak together observe swap guitar"
   echo $a_mnemonic | secretcli keys add account --recover
   secretcli keys show account
+  
+  # it should output `secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03`
 
+  b_mnemonic="jelly shadow frog dirt dragon use armed praise universe win jungle close inmate rain oil canvas beauty pioneer chef soccer icon dizzy thunder meadow"
+  echo $b_mnemonic | secretcli keys add account2 --recover
+  secretcli keys show account2
+
+  # it should output `secret1fc3fzy78ttp0lwuujw7e52rhspxn8uj52zfyne`
+  ```
+
+  TODO - is the below necessary? why not just add the default accounts to the keyring above?
+  ```
   custom_mnemonic="<INSERT_MNEMONIC_PHRASE>"
   echo $custom_mnemonic | secretcli keys add custom --hd-path="m/44'/60'/0'/0" --recover
   secretcli keys show custom
