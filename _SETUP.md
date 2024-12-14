@@ -265,9 +265,12 @@ ssh root@172.105.188.31
 
 * Clone the Github repo containing the Secret Gateway and initialise the submodules
 ```
-mkdir -p SecretSaturn && cd SecretSaturn
-git clone https://github.com/SecretSaturn/SecretPath
-cd SecretPath/TNLS-Gateways/secret
+mkdir -p github/ltfschoen && cd github/ltfschoen
+git clone https://github.com/svub/nunya
+cd nunya
+git fetch origin submit-pubkey:submit-pubkey
+git checkout submit-pubkey
+cd packages/secret-contracts/secret-gateway
 git submodule update --init --recursive
 ```
 
@@ -279,6 +282,7 @@ git submodule update --init --recursive
     make build
     ```
     * Note: Use `make build-mainnet-reproducible` to deploy to Testnet
+    * TODO: The default Makefile uses `--features="debug-print"` but running that gives error `error: none of the selected packages contains these features: debug-print`
 
 * Note: Use existing localsecret Docker container that is running already.
 

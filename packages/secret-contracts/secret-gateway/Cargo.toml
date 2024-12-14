@@ -25,6 +25,7 @@ overflow-checks = true
 
 [features]
 default = ["contract"]
+debug-print = ["cosmwasm-std/debug-print"]
 # for quicker tests, cargo test --lib
 # for more explicit tests, cargo test --features=backtraces
 backtraces = ["cosmwasm-std/backtraces"]
@@ -36,7 +37,6 @@ contract = []
 cosmwasm-schema = { version = "1.1.0", optional = true }
 cosmwasm-std = { package = "secret-cosmwasm-std", version = "1.1.11" }
 cosmwasm-storage = { package = "secret-cosmwasm-storage", version = "1.1.11" }
-debug-print = "1.0.0"
 schemars = "0.8.11"
 serde = { version = "1.0.144", default-features = false, features = ["derive"] }
 serde-json-wasm = "0.5.0"

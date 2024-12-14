@@ -21,7 +21,7 @@ overflow-checks = true
 
 [features]
 default = []
-# debug-print = ["cosmwasm-std/debug-print"] doesn't work anymore?
+debug-print = ["cosmwasm-std/debug-print"]
 # for quicker tests, cargo test --lib
 # for more explicit tests, cargo test --features=backtraces
 backtraces = ["cosmwasm-std/backtraces"]
@@ -31,7 +31,6 @@ schema = ["cosmwasm-schema"]
 cosmwasm-schema = { version = "2.0.0", optional = true }
 cosmwasm-std = { package = "secret-cosmwasm-std", version = "1.1.10", features = ["stargate"] }
 cosmwasm-storage = { package = "secret-cosmwasm-storage", version = "1.0.0" }
-debug-print = "1.0.0"
 schemars = "0.8.11"
 secret-toolkit = { version = "0.10.0", default-features = false, features = [
     "utils",
