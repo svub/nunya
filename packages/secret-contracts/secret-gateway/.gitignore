@@ -20,3 +20,6 @@ Cargo.lock
 
 contract.wasm.gz
 contract.wasm
+
+secret-gateway-contract.wasm.gz
+secret-gateway-contract.wasm

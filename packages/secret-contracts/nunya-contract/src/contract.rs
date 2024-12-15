@@ -37,19 +37,17 @@ pub fn instantiate(
 ) -> StdResult<Response> {
     // Initialise state with Secret Network Gateway and EVM Nunya.Business custom contract address
     let state = State {
-        gateway_address: msg.gateway_address,
-        gateway_hash: msg.gateway_hash,
-        gateway_key: msg.gateway_key,
-        nunya_business_contract_address: msg.nunya_business_contract_address,
+        gateway_address: msg.clone().gateway_address,
+        gateway_hash: msg.clone().gateway_hash,
+        gateway_key: msg.clone().gateway_key,
+        nunya_business_contract_address: msg.clone().nunya_business_contract_address,
         owner: info.sender.clone(),
     };
 
-    deps.set_debug_handler(move |msg, info| {
-        eprintln!("instantiate");
-        eprintln!("msg: {:#?}", msg);
-        eprintln!("info: {:#?}", info);
-        eprintln!("state: {:#?}", state);
-    });
+    eprintln!("instantiate");
+    eprintln!("msg: {:#?}", msg.clone());
+    eprintln!("info: {:#?}", info.clone());
+    eprintln!("state: {:#?}", state.clone());
 
     deps.api
         .debug(format!("Contract was initialized by {}", info.sender).as_str());
@@ -98,11 +96,9 @@ fn try_handle(
     // verify signature with stored gateway public key
     let config = CONFIG.load(deps.storage)?;
 
-    deps.set_debug_handler(move |msg, info| {
-        eprintln!("try_handle");
-        eprintln!("msg: {:#?}", msg);
-        eprintln!("info: {:#?}", info);
-    });
+    eprintln!("try_handle");
+    eprintln!("msg: {:#?}", msg.clone());
+    eprintln!("info: {:#?}", info.clone());
 
     // Security
     //
@@ -132,10 +128,8 @@ fn try_handle(
     // determine which function to call based on the included handle
     let handle = msg.handle.as_str();
 
-    deps.set_debug_handler(move |msg, info| {
-        eprintln!("try_handle");
-        eprintln!("handle: {:#?}", handle);
-    });
+    eprintln!("try_handle");
+    eprintln!("handle: {:#?}", handle);
 
     match handle {
         // TODO: change all below to snake_case if required for Gateway contract to be able to call.
