@@ -67,6 +67,12 @@ pub fn instantiate(
         signing_keys: KeyPair::default(),
     };
 
+    deps.set_debug_handler(move |msg, info| {
+        eprintln!("instantiate");
+        eprintln!("msg: {:#?}", msg);
+        eprintln!("info: {:#?}", info);
+    });
+
     CONFIG.save(deps.storage, &state)?;
 
     let _result = create_gateway_keys(deps, env);
@@ -86,6 +92,11 @@ pub fn instantiate(
 ///
 #[entry_point]
 pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> StdResult<Response> {
+    deps.set_debug_handler(move |msg, info| {
+        eprintln!("execute");
+        eprintln!("msg: {:#?}", msg);
+        eprintln!("info: {:#?}", info);
+    });
     let response = match msg {
         ExecuteMsg::Input { inputs } => pre_execution(deps, env, inputs),
         ExecuteMsg::Output { outputs } => post_execution(deps, env, outputs),
@@ -106,6 +117,13 @@ fn rotate_gateway_keys(deps: DepsMut, env: Env, info: MessageInfo) -> StdResult<
     let state = CONFIG.load(deps.storage)?;
 
     let caller_raw = deps.api.addr_canonicalize(info.sender.as_str())?;
+
+    deps.set_debug_handler(move |msg, info| {
+        eprintln!("rotate_gateway_keys");
+        eprintln!("caller: {:#?}", caller);
+        eprintln!("state: {:#?}", state);
+        eprintln!("info: {:#?}", info);
+    });
 
     // check if the keys have already been created
     if state.keyed {
@@ -151,6 +169,11 @@ fn create_gateway_keys(deps: DepsMut, env: Env) -> StdResult<Response> {
     // load config
     let state = CONFIG.load(deps.storage)?;
 
+    deps.set_debug_handler(move |msg, info| {
+        eprintln!("create_gateway_keys");
+        eprintln!("state: {:#?}", state);
+    });
+
     // check if the keys have already been created
     if state.keyed {
         return Err(StdError::generic_err(
@@ -191,6 +214,13 @@ fn pre_execution(deps: DepsMut, _env: Env, msg: PreExecutionMsg) -> StdResult<Re
     // load config
     let config = CONFIG.load(deps.storage)?;
 
+    deps.set_debug_handler(move |msg, info| {
+        eprintln!("pre_execution");
+        eprintln!("config: {:#?}", config);
+        eprintln!("msg: {:#?}", msg);
+        eprintln!("state: {:#?}", state);
+    });
+
     // Check if the payload matches the payload hash for Solana
     let mut hasher = Keccak256::new();
     hasher.update(msg.payload.as_slice());
@@ -211,6 +241,9 @@ fn pre_execution(deps: DepsMut, _env: Env, msg: PreExecutionMsg) -> StdResult<Re
     if msg.payload_hash.as_slice() != payload_hash_tmp_eth.as_slice()
         && msg.payload_hash.as_slice() != payload_hash_tmp_solana.as_slice()
     {
+        deps.set_debug_handler(move |msg, info| {
+            eprintln!("Hashed Payload does not match payload hash");
+        });
         return Err(StdError::generic_err(
             "Hashed Payload does not match payload hash",
         ));
@@ -228,16 +261,31 @@ fn pre_execution(deps: DepsMut, _env: Env, msg: PreExecutionMsg) -> StdResult<Re
                 Ok(_) => {
                     unsafe_payload = false;
                     // Both decryption and verification succeeded
+
+                    deps.set_debug_handler(move |msg, info| {
+                        eprintln!("pre_execution");
+                        eprintln!("Both decryption and verification succeeded");
+                        eprintln!("decrypted_payload: {:#?}", decrypted_payload);
+                    });
+
                     decrypted_payload
                 }
-                Err(_err) => {
+                Err(err) => {
+                    deps.set_debug_handler(move |msg, info| {
+                        eprintln!("pre_execution");
+                        eprintln!("Verification failed: {:#?}", err);
+                    });
                     //return Err(StdError::generic_err(format!("Verification failed: {}", err)));
                     // Continue with the decrypted payload if only verification fails
                     decrypted_payload
                 }
             }
         }
-        Err(_err) => {
+        Err(err) => {
+            deps.set_debug_handler(move |msg, info| {
+                eprintln!("pre_execution");
+                eprintln!("Decryption failed: {:#?}", err);
+            });
             //return Err(StdError::generic_err(format!("Decryption failed: {}", err)));
             // If decryption fails, continue with the original, encrypted payload
             // We are not verifying the payload in this case as it's already deemed unsafe
@@ -262,6 +310,11 @@ fn pre_execution(deps: DepsMut, _env: Env, msg: PreExecutionMsg) -> StdResult<Re
         network: msg.source_network.clone(),
         task_id: msg.task_id,
     };
+
+    deps.set_debug_handler(move |msg, info| {
+        eprintln!("pre_execution");
+        eprintln!("new_task: {:#?}", new_task);
+    });
 
     // check if the task wasn't executed before already
     let map_contains_task = TASK_MAP.contains(deps.storage, &new_task);
@@ -306,6 +359,11 @@ fn pre_execution(deps: DepsMut, _env: Env, msg: PreExecutionMsg) -> StdResult<Re
         callback_gas_limit: payload.callback_gas_limit,
     };
 
+    deps.set_debug_handler(move |msg, info| {
+        eprintln!("pre_execution");
+        eprintln!("task_info: {:#?}", task_info);
+    });
+
     // map task to task info
     TASK_MAP.insert(deps.storage, &new_task, &task_info)?;
 
@@ -345,6 +403,12 @@ fn post_execution(deps: DepsMut, env: Env, msg: PostExecutionMsg) -> StdResult<R
     let task_info = TASK_MAP
         .get(deps.storage, &msg.task)
         .ok_or_else(|| StdError::generic_err("task not found"))?;
+
+    deps.set_debug_handler(move |msg, info| {
+        eprintln!("post_execution");
+        eprintln!("msg: {:#?}", msg);
+        eprintln!("task_info: {:#?}", task_info);
+    });
 
     // verify that input hash is correct one for Task
     if msg.input_hash.as_slice() != task_info.input_hash.to_vec() {
@@ -530,6 +594,11 @@ fn post_execution(deps: DepsMut, env: Env, msg: PostExecutionMsg) -> StdResult<R
         callback_selector: callback_selector,
         callback_gas_limit: callback_gas_limit,
     };
+
+    deps.set_debug_handler(move |msg, info| {
+        eprintln!("post_execution");
+        eprintln!("result_info: {:#?}", result_info);
+    });
 
     // Store the result info in the result map
     RESULT_MAP.insert(deps.storage, &msg.task, &result_info)?;

@@ -44,6 +44,13 @@ pub fn instantiate(
         owner: info.sender.clone(),
     };
 
+    deps.set_debug_handler(move |msg, info| {
+        eprintln!("instantiate");
+        eprintln!("msg: {:#?}", msg);
+        eprintln!("info: {:#?}", info);
+        eprintln!("state: {:#?}", state);
+    });
+
     deps.api
         .debug(format!("Contract was initialized by {}", info.sender).as_str());
 
@@ -91,6 +98,12 @@ fn try_handle(
     // verify signature with stored gateway public key
     let config = CONFIG.load(deps.storage)?;
 
+    deps.set_debug_handler(move |msg, info| {
+        eprintln!("try_handle");
+        eprintln!("msg: {:#?}", msg);
+        eprintln!("info: {:#?}", info);
+    });
+
     // Security
     //
     // reference: evm-kv-store-demo
@@ -118,6 +131,12 @@ fn try_handle(
 
     // determine which function to call based on the included handle
     let handle = msg.handle.as_str();
+
+    deps.set_debug_handler(move |msg, info| {
+        eprintln!("try_handle");
+        eprintln!("handle: {:#?}", handle);
+    });
+
     match handle {
         // TODO: change all below to snake_case if required for Gateway contract to be able to call.
         // but first test that `request_value` works.
