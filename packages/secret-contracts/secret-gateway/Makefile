@@ -40,7 +40,7 @@ build-mainnet-reproducible:
 compress-wasm:
 	cp ./target/wasm32-unknown-unknown/release/*.wasm ./secret-gateway-contract.wasm
 	@## The following line is not necessary, may work only on linux (extra size optimization)
-	wasm-opt -Os ./secret-gateway-contract.wasm -o ./secret-gateway-contract.wasm
+	wasm-opt -Os ./secret-gateway-contract.wasm -o ./secret-gateway-contract.wasm --enable-threads --enable-bulk-memory --all-features
 	cat ./secret-gateway-contract.wasm | gzip -9 > ./secret-gateway-contract.wasm.gz
 
 .PHONY: schema
