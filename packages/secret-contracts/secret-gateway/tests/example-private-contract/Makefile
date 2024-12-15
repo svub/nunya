@@ -20,7 +20,7 @@ unit-test:
 build: _build compress-wasm
 _build:
 	cargo clean && \
-	. ../../../../../set-env.sh && \
+	sudo bash ../../../../../set-env.sh && \
 	cargo build --release --target wasm32-unknown-unknown
 
 # This is a build suitable for uploading to mainnet.
@@ -29,7 +29,7 @@ _build:
 build-mainnet: _build-mainnet compress-wasm
 _build-mainnet:
 	cargo clean && \
-	. ../../../../../set-env.sh && \
+	sudo bash ../../../../../set-env.sh && \
 	cargo build --release --target wasm32-unknown-unknown
 
 # like build-mainnet, but slower and more deterministic
@@ -37,7 +37,7 @@ _build-mainnet:
 build-mainnet-reproducible: _build-mainnet-reproducible
 _build-mainnet-reproducible:
 	cargo clean && \
-	. ../../../../../set-env.sh && \
+	sudo bash ../../../../../set-env.sh && \
 	docker buildx build --label "sco" --tag "sco" -f "../../../../../docker/secret-contract-optimizer.Dockerfile" . && \
 	docker run --rm -v "$$(pwd)":/contract \
 		--mount type=volume,source="$$(basename "$$(pwd)")_cache",target=/contract/target \
