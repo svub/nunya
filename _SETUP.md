@@ -309,6 +309,11 @@ git submodule update --init --recursive
   make store-secret-gateway-contract-local
   ```
 
+  * Example output:
+    ```
+    Error: rpc error: code = NotFound desc = rpc error: code = NotFound desc = account secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03 not found: key not found
+    ```
+
 ###### Deploy Relayer of SecretPath on Localhost
 
 * Reference: https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/basics/cross-chain-messaging/secretpath/how-to-deploy-secretpath-on-your-chain
