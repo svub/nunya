@@ -68,7 +68,7 @@ copy-secret-gateway-contract-local:
 # by using `docker exec secretdev secretcli`.
 .PHONY: store-secret-gateway-contract-local
 store-secret-gateway-contract-local:
-	docker exec secretdev secretcli tx compute store -y --from a --gas 2000000 /root/code/secret-gateway-contract.wasm.gz
+	sudo docker exec secretdev secretcli tx compute store -y --from a --gas 3000000 /root/code/secret-gateway-contract.wasm.gz
 
 .PHONY: integration-test
 integration-test:
@@ -78,5 +78,5 @@ integration-test:
 clean:
 	cargo clean
 	-rm -f ./secret-gateway-contract.wasm ./secret-gateway-contract.wasm.gz
-	docker exec secretdev rm -rf /root/code/secret-gateway-contract.wasm
-	docker exec secretdev rm -rf /root/code/secret-gateway-contract.wasm.gz
+	sudo docker exec secretdev rm -rf /root/code/secret-gateway-contract.wasm
+	sudo docker exec secretdev rm -rf /root/code/secret-gateway-contract.wasm.gz
