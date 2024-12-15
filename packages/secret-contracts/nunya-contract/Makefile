@@ -79,7 +79,7 @@ copy-nunya--contract-local:
 # by using `docker exec secretdev secretcli`.
 .PHONY: store-nunya-contract-local
 store-nunya-contract-local:
-	sudo docker exec secretdev secretcli tx compute store -y --from a --gas 3000000 /root/code/contract.wasm.gz
+	sudo docker exec secretdev secretcli tx compute store -y --from a --gas 3000000 /root/code/contract.wasm.gz --keyring-backend test
 
 .PHONY: clean
 clean:

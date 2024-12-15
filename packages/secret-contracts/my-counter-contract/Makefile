@@ -69,7 +69,7 @@ start-server: # CTRL+C to stop
 # by using `docker exec secretdev secretcli`.
 .PHONY: store-contract-local
 store-contract-local:
-	sudo docker exec secretdev secretcli tx compute store -y --from a --gas 1000000 /root/code/contract.wasm.gz
+	sudo docker exec secretdev secretcli tx compute store -y --from a --gas 1000000 /root/code/contract.wasm.gz --keyring-backend test
 
 .PHONY: clean
 clean:

@@ -326,6 +326,23 @@ git submodule update --init --recursive
     ```
     * TODO: Why didn't it output `"height":"115"` instead of `"height":"0"`?
 
+* WIP - Option B
+  * Linux
+    ```
+    apt-get install -y nodejs
+    apt-get install -y npm
+    npm install -g yarn
+    npm install -g corepack
+    yarn set version 4.5.3
+    corepack enable
+    corepack prepare yarn@v4.5.3 --activate
+
+    yarn install
+    yarn run secret:clean
+    yarn run secret:uploadGateway
+    ```
+
+  * TODO: Is there a code ID and code hash? 
 
 ###### Deploy Relayer of SecretPath on Localhost
 
