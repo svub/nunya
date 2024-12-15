@@ -120,7 +120,7 @@ fn rotate_gateway_keys(deps: DepsMut, env: Env, info: MessageInfo) -> StdResult<
 
     deps.set_debug_handler(move |msg, info| {
         eprintln!("rotate_gateway_keys");
-        eprintln!("caller: {:#?}", caller);
+        eprintln!("caller: {:#?}", caller_raw);
         eprintln!("state: {:#?}", state);
         eprintln!("info: {:#?}", info);
     });
@@ -218,7 +218,6 @@ fn pre_execution(deps: DepsMut, _env: Env, msg: PreExecutionMsg) -> StdResult<Re
         eprintln!("pre_execution");
         eprintln!("config: {:#?}", config);
         eprintln!("msg: {:#?}", msg);
-        eprintln!("state: {:#?}", state);
     });
 
     // Check if the payload matches the payload hash for Solana
