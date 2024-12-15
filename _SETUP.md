@@ -343,6 +343,7 @@ git submodule update --init --recursive
     ```
 
   * TODO: Is there a code ID and code hash? 
+  * TODO: Unable to `apt update` on Linode, so need to use Localhost on a different Linode.
 
 ###### Deploy Relayer of SecretPath on Localhost
 
