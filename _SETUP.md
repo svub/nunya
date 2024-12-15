@@ -216,11 +216,11 @@ ssh root@172.105.188.31
 * Start Localhost server with chain-id `secretdev-1`
 
 ```bash
-docker stop localsecret && docker rm localsecret
+docker stop secretdev && docker rm secretdev
 docker run -it --rm \
   -p 9091:9091 -p 26657:26657 -p 26656:26656 -p 1317:1317 -p 5000:5000 \
   -v $(pwd):/root/code \
-  --name localsecret ghcr.io/scrtlabs/localsecret:latest
+  --name secretdev ghcr.io/scrtlabs/localsecret:latest
 ```
 
 * Ports:
@@ -274,7 +274,12 @@ cd packages/secret-contracts/secret-gateway
 git submodule update --init --recursive
 ```
 
-* [Compile](https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy#compile-the-code). Note: Outputs contract.wasm or contract.wasm.gz file in the root directory being the ./SecretPath/TNLS-Gateways/secret/ folder. Using `make build-mainnet-reproducible` will remove contract.wasm so only the optimised contract.wasm.gz remains. Warning: If you only run `make build-mainnet` then you will get this error https://github.com/svub/nunya/issues/8 when deploying.
+* Terminal Tab 1: Secret Localhost (Localsecret)
+  ```
+  make start-server
+  ```
+
+* Terminal Tab 2: [Compile](https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy#compile-the-code). Note: Outputs contract.wasm or contract.wasm.gz file in the root directory being the ./SecretPath/TNLS-Gateways/secret/ folder. Using `make build-mainnet-reproducible` will remove contract.wasm so only the optimised contract.wasm.gz remains. Warning: If you only run `make build-mainnet` then you will get this error https://github.com/svub/nunya/issues/8 when deploying.
 
   * Secret Gateway Contract
     ```
@@ -292,7 +297,7 @@ git submodule update --init --recursive
         * https://github.com/CosmWasm/cosmwasm/blob/main/contracts/cyberpunk/tests/integration.rs#L126
       * TODO: For Production on mainnet, configure it to use a debug-print or debug_print with a custom feature flag and wrap use of `set_debug_handler` with it so debug logs aren't output in production.
 
-* Note: Use existing localsecret Docker container that is running already.
+* Note: Use existing secretdev Docker container that is running already.
 
 * Copy compiled Secret Gateway contract to the Docker container
   ```
@@ -303,8 +308,6 @@ git submodule update --init --recursive
   ```
   make store-secret-gateway-contract-local
   ```
-
-* TODO
 
 ###### Deploy Relayer of SecretPath on Localhost
 
@@ -520,16 +523,18 @@ git submodule update --init --recursive
 
 #### Configure
 
+##### Deploy Nunya Contract on Localhost
+
 * Open file ./nunya/packages/secret-contracts-scripts/src/config/deploy.ts
 * Check ./nunya/packages/secret-contracts-scripts/.env has been created from the .env-sample file
 
 * Reference: https://docs.scrt.network/secret-network-documentation/development/example-contracts/tools-and-libraries/local-secret#advantages-of-localsecret-vs.-a-public-testnet
 
-##### Testnet
+###### Testnet
 
 * Edit config.secret.network to be "testnet"
 
-##### Localhost
+###### Localhost
 
 * Edit config.secret.network to be "localhost"
   * Ensure `ENDPOINT_LOCAL` is set to where you are running the Secret Localhost (e.g. `http://<IP_ADDRESS>:1317`)
@@ -559,6 +564,8 @@ docker rmi sco
 
 * [Compile](https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy#compile-the-code). Note: Outputs contract.wasm and contract.wasm.gz file in the root directory of the secret-contracts/nunya-contract folder. Using `make build-mainnet-reproducible` will remove contract.wasm so only the optimised contract.wasm.gz remains. Warning: If you only run `make build-mainnet` then you will get this error https://github.com/svub/nunya/issues/8 when deploying.
 
+###### Testnet
+
   * Nunya Contract
     ```
     cd packages/secret-contracts/nunya-contract
@@ -573,6 +580,15 @@ docker rmi sco
     cd packages/secret-contracts/my-counter-contract
     make clean
     make build-mainnet-reproducible
+    ```
+
+###### Localhost
+
+  * Nunya Contract
+    ```
+    cd packages/secret-contracts/nunya-contract
+    make clean
+    make build
     ```
 
 ##### Deploy (Upload and Instantiate)
@@ -622,12 +638,14 @@ yarn run secret:instantiate
 
 ###### Localhost
 
+* Note: Only run `make start-server if necessary
 ```bash
-make clean
 make start-server
 make copy-nunya-contract-local
 make store-nunya-contract-local
 ```
+
+* TODO: How to configure the Secret Gateway in Nunya Secret Contract?
 
 #### Interact with Deployed Secret Contract via Deployed EVM Gateway to `requestValue` <a id="request-value"></a> 
 

@@ -56,12 +56,12 @@ start-server: # CTRL+C to stop
 	docker run -it --rm \
 		-p 9091:9091 -p 26657:26657 -p 26656:26656 -p 1317:1317 -p 5000:5000 \
 		-v $$(pwd):/root/code \
-		--name localsecret ghcr.io/scrtlabs/localsecret:v1.6.0-rc.3
+		--name secretdev ghcr.io/scrtlabs/localsecret:v1.6.0-rc.3
 
 .PHONY: copy-secret-gateway-contract-local
 copy-secret-gateway-contract-local:
-	docker cp secret-gateway-contract.wasm secretdev:/root/code/secret-gateway-contract.wasm
-	docker cp secret-gateway-contract.wasm.gz secretdev:/root/code/secret-gateway-contract.wasm.gz
+	sudo docker cp secret-gateway-contract.wasm secretdev:/root/code/secret-gateway-contract.wasm
+	sudo docker cp secret-gateway-contract.wasm.gz secretdev:/root/code/secret-gateway-contract.wasm.gz
 
 # This relies on running `start-server` in another console
 # You can run other commands on the secretcli inside the dev image

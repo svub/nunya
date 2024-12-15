@@ -66,8 +66,8 @@ start-server: # CTRL+C to stop
 
 .PHONY: copy-nunya-contract-local
 copy-nunya--contract-local:
-	docker cp contract.wasm secretdev:/root/code/contract.wasm
-	docker cp contract.wasm.gz secretdev:/root/code/contract.wasm.gz
+	sudo docker cp contract.wasm secretdev:/root/code/contract.wasm
+	sudo docker cp contract.wasm.gz secretdev:/root/code/contract.wasm.gz
 
 # This relies on running `start-server` in another console
 # You can run other commands on the secretcli inside the dev image
