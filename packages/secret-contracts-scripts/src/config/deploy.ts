@@ -39,6 +39,9 @@ const config = {
       codeId: "", // only know after upload
       contractCodeHash: "", // only know after upload
       secretContractAddress: "", // only know after instantiate
+      secretGateway: {
+        wasmSecretGatewayContractPath: "secret-gateway-contract.wasm.gz",
+      }
     },
     testnet: {
       walletMnemonic: process.env.WALLET_MNEMONIC_TESTNET,
@@ -53,6 +56,9 @@ const config = {
       codeId: "12247", // only know after upload
       contractCodeHash: "b44049cbf187939df9f9857905197ecbc06e99702b3332b12cb6d968f39d88b2", // only know after upload
       secretContractAddress: "secret1h09whd3z8s9ms66mavd9rjm8r2rpew2trm0nkp", // only know after instantiate
+      secretGateway: {
+        wasmSecretGatewayContractPath: "secret-gateway-contract.wasm.gz",
+      }
     },
     local: {
       walletMnemonic: process.env.WALLET_MNEMONIC_LOCAL,
@@ -67,6 +73,9 @@ const config = {
       codeId: "0", // only know after upload
       contractCodeHash: "", // only know after upload
       secretContractAddress: "", // only know after instantiate
+      secretGateway: {
+        wasmSecretGatewayContractPath: "secret-gateway-contract.wasm.gz",
+      }
     }
   }
 };

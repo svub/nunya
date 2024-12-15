@@ -46,7 +46,9 @@
     "secret:requestValue": "yarn workspace secret-contracts-scripts requestValue",
     "secret:clean": "yarn workspace secret-contracts-scripts clean",
     "secret:upload": "yarn workspace secret-contracts-scripts upload",
-    "secret:instantiate": "yarn workspace secret-contracts-scripts instantiate"
+    "secret:instantiate": "yarn workspace secret-contracts-scripts instantiate",
+    "secret:uploadGateway": "yarn workspace secret-contracts-scripts uploadGateway",
+    "secret:instantiateGateway": "yarn workspace secret-contracts-scripts instantiateGateway"
   },
   "packageManager": "yarn@4.2.2",
   "dependencies": {

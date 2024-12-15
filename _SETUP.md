@@ -308,11 +308,24 @@ git submodule update --init --recursive
   ```
   make store-secret-gateway-contract-local
   ```
+  * Note: To enter the Docker container to interact manually with secretcli:
+    ```bash
+    docker exec -it secretdev /bin/bash
+    secretcli --help
+    secretcli keys list
+    ls /root/.secretd/config
+    ```
 
   * Example output:
     ```
-    Error: rpc error: code = NotFound desc = rpc error: code = NotFound desc = account secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03 not found: key not found
+    {"height":"0","txhash":"A5A2E9864A3F455AD503935AE739B4E898F71A5B5BFCDB7B7D6934942297223C","codespace":"","code":0,"data":"","raw_log":"","logs":[],"info":"","gas_wanted":"0","gas_used":"0","tx":null,"timestamp":"","events":[]}
     ```
+  * Note that in the Secret Localsecret chain logs it output:
+    ```
+    11:43AM INF finalizing commit of block hash=9B39F1E7367B876F61E45CFD0DE3EC55CE59D140A4604E35622D8C6CDEE1BB66 height=115 module=consensus num_txs=1 root=371919C2BE93B7F0C2B81837770B871592793F8A74847C04593F27F8A62109A1
+    ```
+    * TODO: Why didn't it output `"height":"115"` instead of `"height":"0"`?
+
 
 ###### Deploy Relayer of SecretPath on Localhost
 

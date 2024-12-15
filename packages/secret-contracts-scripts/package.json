@@ -12,7 +12,9 @@
     "build": "./node_modules/.bin/tsc --build",
     "clean": "./node_modules/.bin/tsc --build --clean",
     "upload": "yarn build && node ./dist/upload.js",
-    "instantiate": "yarn build && node ./dist/instantiate.js"
+    "instantiate": "yarn build && node ./dist/instantiate.js",
+    "uploadGateway": "yarn build && node ./dist/uploadGateway.js",
+    "instantiateGateway": "yarn build && node ./dist/instantiateGateway.js"
   },
   "dependencies": {
     "@blake.regalia/belt": "~0.35.1",

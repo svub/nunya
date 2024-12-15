@@ -133,7 +133,7 @@ async function main () {
   let codeParams: CODE_PARAMS = {
     codeId: CODE_ID,
     contractCodeHash: CONTRACT_CODE_HASH,
-  }; 
+  };
   
   // Chain the execution using promises
   await instantiate_contract(codeParams)
