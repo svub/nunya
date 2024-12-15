@@ -19,20 +19,25 @@ unit-test:
 .PHONY: build _build
 build: _build compress-wasm
 _build:
-	cargo clean && AR=/opt/homebrew/opt/llvm/bin/llvm-ar CC=/opt/homebrew/opt/llvm/bin/clang RUSTFLAGS='-C link-arg=-s' cargo build --release --target wasm32-unknown-unknown
+	cargo clean && \
+	. ../../../set-env.sh && \
+	cargo build --release --target wasm32-unknown-unknown
 
 # This is a build suitable for uploading to mainnet.
 # Calls to `debug_print` get removed by the compiler.
 .PHONY: build-mainnet _build-mainnet
 build-mainnet: _build-mainnet compress-wasm
 _build-mainnet:
-	cargo clean && AR=/opt/homebrew/opt/llvm/bin/llvm-ar CC=/opt/homebrew/opt/llvm/bin/clang RUSTFLAGS='-C link-arg=-s' cargo build --release --target wasm32-unknown-unknown
+	cargo clean && \
+	. ../../../set-env.sh && \
+	cargo build --release --target wasm32-unknown-unknown
 
 # like build-mainnet, but slower and more deterministic
 .PHONY: build-mainnet-reproducible _build-mainnet-reproducible
 build-mainnet-reproducible: _build-mainnet-reproducible
 _build-mainnet-reproducible:
-	cargo clean && AR=/opt/homebrew/opt/llvm/bin/llvm-ar CC=/opt/homebrew/opt/llvm/bin/clang RUSTFLAGS='-C link-arg=-s' && \
+	cargo clean && \
+	. ../../../set-env.sh && \
 	docker buildx build --label "sco" --tag "sco" -f "../../../docker/secret-contract-optimizer.Dockerfile" . && \
 	docker run --rm -v "$$(pwd)":/contract \
 		--mount type=volume,source="$$(basename "$$(pwd)")_cache",target=/contract/target \

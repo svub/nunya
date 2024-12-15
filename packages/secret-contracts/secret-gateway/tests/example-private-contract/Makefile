@@ -19,18 +19,26 @@ unit-test:
 .PHONY: build _build
 build: _build compress-wasm
 _build:
-	RUSTFLAGS='-C link-arg=-s' cargo build --release --target wasm32-unknown-unknown
+	cargo clean && \
+	. ../../../../../set-env.sh && \
+	cargo build --release --target wasm32-unknown-unknown
 
 # This is a build suitable for uploading to mainnet.
 # Calls to `debug_print` get removed by the compiler.
 .PHONY: build-mainnet _build-mainnet
 build-mainnet: _build-mainnet compress-wasm
 _build-mainnet:
-	RUSTFLAGS='-C link-arg=-s' cargo build --release --target wasm32-unknown-unknown
+	cargo clean && \
+	. ../../../../../set-env.sh && \
+	cargo build --release --target wasm32-unknown-unknown
 
 # like build-mainnet, but slower and more deterministic
-.PHONY: build-mainnet-reproducible
-build-mainnet-reproducible:
+.PHONY: build-mainnet-reproducible _build-mainnet-reproducible
+build-mainnet-reproducible: _build-mainnet-reproducible
+_build-mainnet-reproducible:
+	cargo clean && \
+	. ../../../../../set-env.sh && \
+	docker buildx build --label "sco" --tag "sco" -f "../../../../../docker/secret-contract-optimizer.Dockerfile" . && \
 	docker run --rm -v "$$(pwd)":/contract \
 		--mount type=volume,source="$$(basename "$$(pwd)")_cache",target=/contract/target \
 		--mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
@@ -38,10 +46,10 @@ build-mainnet-reproducible:
 
 .PHONY: compress-wasm
 compress-wasm:
-	cp ./target/wasm32-unknown-unknown/release/*.wasm ./contract.wasm
+	cp ./target/wasm32-unknown-unknown/release/*.wasm ./secret-gateway-contract.wasm
 	@## The following line is not necessary, may work only on linux (extra size optimization)
-	wasm-opt -Os ./contract.wasm -o ./contract.wasm --enable-threads --enable-bulk-memory --all-features
-	cat ./contract.wasm | gzip -9 > ./contract.wasm.gz
+	wasm-opt -Os ./secret-gateway-contract.wasm -o ./secret-gateway-contract.wasm --enable-threads --enable-bulk-memory --all-features
+	cat ./secret-gateway-contract.wasm | gzip -9 > ./secret-gateway-contract.wasm.gz
 
 .PHONY: schema
 schema:
@@ -60,9 +68,11 @@ start-server: # CTRL+C to stop
 # by using `docker exec secretdev secretcli`.
 .PHONY: store-contract-local
 store-contract-local:
-	sudo docker exec secretdev secretcli tx compute store -y --from a --gas 3000000 /root/code/contract.wasm.gz
+	sudo docker exec secretdev secretcli tx compute store -y --from a --gas 3000000 /root/code/secret-gateway-contract.wasm.gz
 
 .PHONY: clean
 clean:
 	cargo clean
-	-rm -f ./contract.wasm ./contract.wasm.gz
+	-rm -f ./secret-gateway-contract.wasm ./secret-gateway-contract.wasm.gz
+	sudo docker exec secretdev rm -rf /root/code/secret-gateway-contract.wasm
+	sudo docker exec secretdev rm -rf /root/code/secret-gateway-contract.wasm.gz

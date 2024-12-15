@@ -555,8 +555,8 @@ git submodule update --init --recursive
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 brew install llvm
 llvm-config --version
-echo 'export AR=/opt/homebrew/opt/llvm/bin/llvm-ar' >> ~/.zshrc
-echo 'export CC=/opt/homebrew/opt/llvm/bin/clang' >> ~/.zshrc
+echo "export AR=$(which llvm-ar)" >> ~/.zshrc
+echo "export CC=$(which clang)" >> ~/.zshrc
 source ~/.zshrc
 ``` 
 
