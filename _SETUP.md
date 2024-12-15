@@ -282,13 +282,14 @@ git submodule update --init --recursive
     make build
     ```
     * Note: Use `make build-mainnet-reproducible` to deploy to Testnet
-    * Note: The default Makefile uses `--features="debug-print"` but running that gives error `the package secret_gateway depends on secret-cosmwasm-std, with features: debug-print but secret-cosmwasm-std does not have these features.`. The reason why it was removed is mentioned here:
+    * Note: The default Makefile originally used `--features="debug-print"` but running that gives error `the package secret_gateway depends on secret-cosmwasm-std, with features: debug-print but secret-cosmwasm-std does not have these features.`. The reason why it was removed is mentioned here:
         * https://github.com/CosmWasm/cosmwasm/issues/1841
           * https://github.com/CosmWasm/wasmvm/pull/453
         * https://github.com/CosmWasm/cosmwasm/pull/1667
         * https://github.com/CosmWasm/cosmwasm/pull/1953
       * Solution:
         * https://github.com/CosmWasm/cosmwasm/blob/main/contracts/cyberpunk/tests/integration.rs#L126
+      * TODO: For Production on mainnet, configure it to use a debug-print or debug_print with a custom feature flag and wrap use of `set_debug_handler` with it so debug logs aren't output in production.
 
 * Note: Use existing localsecret Docker container that is running already.
 
