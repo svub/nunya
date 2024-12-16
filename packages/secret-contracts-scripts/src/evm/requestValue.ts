@@ -15,7 +15,7 @@ if (config.evm.network != "sepolia") {
 const { contractCodeHash, secretContractAddress } =
   config.secret.network == "testnet"
   ? config.secret.testnet
-  : config.secret.local;
+  : config.secret.localhost;
 
 const { chainId, endpoint, nunyaBusinessContractAddress, gatewayContractAddress, privateKey } =
   config.evm.sepolia;

@@ -60,9 +60,9 @@ const config = {
         wasmSecretGatewayContractPath: "secret-gateway-contract.wasm.gz",
       }
     },
-    local: {
+    localhost: {
       walletMnemonic: process.env.WALLET_MNEMONIC_LOCAL,
-      isOptimizedContractWasm: true,
+      isOptimizedContractWasm: false,
       wasmContractPath: "secret_evm_storage.wasm.gz",
       gatewayAddress: "",
       gatewayHash: "",

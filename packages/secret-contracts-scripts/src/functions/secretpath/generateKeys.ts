@@ -9,7 +9,7 @@ export async function generateKeys() {
   const { gatewayEncryptionKeyForChaChaPoly1305 } =
   config.secret.network == "testnet"
   ? config.secret.testnet
-  : config.secret.local;
+  : config.secret.localhost;
 
   if (gatewayEncryptionKeyForChaChaPoly1305 == "") {
     throw Error("Unable to obtain Secret Network Gateway information");

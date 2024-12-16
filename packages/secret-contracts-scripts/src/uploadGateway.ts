@@ -1,7 +1,12 @@
 import { BroadcastMode, SecretNetworkClient, Wallet } from "secretjs";
 import * as fs from "fs";
 import path from 'path';
-import config from './config/deploy';
+import { fileURLToPath } from 'url';
+import config from './config/deploy.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+console.log('__dirname: ', __dirname);
 
 const walletOptions = {
   hdAccountIndex: 0,
@@ -12,7 +17,7 @@ const walletOptions = {
 const { walletMnemonic, isOptimizedContractWasm, wasmContractPath, secretGateway: { wasmSecretGatewayContractPath }, gatewayAddress, gatewayHash, gatewayPublicKey, chainId, endpoint } =
   config.secret.network == "testnet"
   ? config.secret.testnet
-  : config.secret.local;
+  : config.secret.localhost;
 
 if (walletMnemonic == "") {
   throw Error("Unable to obtain mnemonic phrase");
@@ -25,12 +30,12 @@ if (walletMnemonic == "") {
 const wallet = new Wallet(walletMnemonic, walletOptions);
 console.log('wallet address: ', wallet.address);
 
-const rootPath = path.resolve(__dirname, '../../../'); // relative to ./dist
+const rootPath = path.join(__dirname, '../../../'); // relative to ./dist
 console.log('rootPath', rootPath)
-// const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/nunya-contract/${wasmContractPath}`);
+// const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${wasmContractPath}`);
 // Optimised nunya-contract
-// const contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/nunya-contract/${isOptimizedContractWasm ? "optimized-wasm/" : "/"}${wasmContractPath}`);
-const secret_gateway_contract_wasm: any = fs.readFileSync(`${rootPath}/packages/secret-contracts/secret-gateway/${isOptimizedContractWasm ? "optimized-wasm/" : "/"}${wasmSecretGatewayContractPath}`);
+// const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${isOptimizedContractWasm ? "optimized-wasm/" : "/"}${wasmContractPath}`);
+const secret_gateway_contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/secret-gateway/${isOptimizedContractWasm ? "optimized-wasm/" : "/"}${wasmSecretGatewayContractPath}`);
 
 // const gatewayPublicKeyBytes = Buffer.from(
 //   gatewayPublicKey.substring(2),
@@ -45,6 +50,7 @@ async function main () {
     walletAddress: wallet.address,
   });
 
+  console.log('endpoint: ', endpoint);
   // console.log('secretjs: ', secretjs);
 
   const { balance } = await secretjs.query.bank.balance({

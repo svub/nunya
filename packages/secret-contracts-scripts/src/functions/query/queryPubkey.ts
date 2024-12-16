@@ -19,7 +19,7 @@ async function main() {
   const { chainId, codeId, contractCodeHash, endpoint, secretContractAddress } =
     config.secret.network == "testnet"
     ? config.secret.testnet
-    : config.secret.local;
+    : config.secret.localhost;
 
   // Replace with deployed Secret contract details
   const SECRET_ADDRESS = secretContractAddress;

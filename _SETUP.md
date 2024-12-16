@@ -63,9 +63,9 @@ Verify the contents of ./packages/nextjs/scaffold.config.ts
 
 * **Local Network** (on remote machine)
 
-* Connect to Linode (e.g. in the example shown below the Linode server IP address is 172.105.188.31)
+* Connect to Linode (e.g. in the example shown below the Linode server IP address is 172.105.184.209)
 ```
-ssh root@172.105.188.31
+ssh root@172.105.184.209
 ```
 
 If you want to run a local network:
@@ -79,7 +79,7 @@ yarn hardhat:chain
 
 Example output:
 ```
-Started HTTP and WebSocket JSON-RPC server at http://172.105.188.31:8545/
+Started HTTP and WebSocket JSON-RPC server at http://172.105.184.209:8545/
 
 Accounts
 ========
@@ -210,7 +210,7 @@ Run smart contract test with `yarn hardhat:test`
 
 * Connect to Linode. Note: Replace the IP address with the address of your remote server.
 ```
-ssh root@172.105.188.31
+ssh root@172.105.184.209
 ```
 
 * Start Localhost server with chain-id `secretdev-1`
@@ -260,7 +260,7 @@ Deploy Relayer of SecretPath on Localhost
 
 * Connect to Linode
 ```
-ssh root@172.105.188.31
+ssh root@172.105.184.209
 ```
 
 * Clone the Github repo containing the Secret Gateway and initialise the submodules
@@ -274,6 +274,25 @@ cd packages/secret-contracts/secret-gateway
 git submodule update --init --recursive
 ```
 
+* Terminal Tab 1: Install Docker if necessary
+  * MacOS: Install Docker for Mac
+  * Linux: Run the following and set a password
+    ```bash
+    sudo apt-get remove docker docker-engine docker.io containerd runc
+    sudo apt-get update && sudo apt-get upgrade -y \
+    && sudo apt-get install apt-transport-https ca-certificates curl gnupg-agent software-properties-common -y \
+    && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - \
+    && sudo apt-key fingerprint 0EBFCD88 \
+    && sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
+    && sudo apt-get update \
+    && sudo apt-get install docker-ce docker-ce-cli containerd.io -y \
+    && adduser user \
+    && usermod -aG docker user \
+    && systemctl restart docker \
+    && systemctl enable docker \
+    && sudo apt-get install -y docker-compose-plugin
+    ```
+
 * Terminal Tab 1: Secret Localhost (Localsecret)
   ```
   make start-server
@@ -281,12 +300,12 @@ git submodule update --init --recursive
 
 * Terminal Tab 2: [Compile](https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy#compile-the-code). Note: Outputs contract.wasm or contract.wasm.gz file in the root directory being the ./SecretPath/TNLS-Gateways/secret/ folder. Using `make build-mainnet-reproducible` will remove contract.wasm so only the optimised contract.wasm.gz remains. Warning: If you only run `make build-mainnet` then you will get this error https://github.com/svub/nunya/issues/8 when deploying.
 
-  * Secret Gateway Contract
+  * Secret Gateway Contract. Note: Wait until the Docker container exists first.
     ```
     make clean
     make build
     ```
-    * Note: If `wasm-opt` binary is required but not installed on macOS install it with `brew install binaryen`
+    * Note: If `wasm-opt` binary is required but not installed on macOS install it with `brew install binaryen` or on Linux with `apt install binaryen`
     * Note: Use `make build-mainnet-reproducible` to deploy to Testnet
     * Note: The default Makefile originally used `--features="debug-print"` but running that gives error `the package secret_gateway depends on secret-cosmwasm-std, with features: debug-print but secret-cosmwasm-std does not have these features.`. The reason why it was removed is mentioned here:
         * https://github.com/CosmWasm/cosmwasm/issues/1841
@@ -308,7 +327,7 @@ git submodule update --init --recursive
   ```
   make store-secret-gateway-contract-local
   ```
-  * Note: To enter the Docker container to interact manually with secretcli:
+  * Optional: To enter the Docker container to interact manually with secretcli:
     ```bash
     docker exec -it secretdev /bin/bash
     secretcli --help
@@ -320,22 +339,46 @@ git submodule update --init --recursive
     ```
     {"height":"0","txhash":"A5A2E9864A3F455AD503935AE739B4E898F71A5B5BFCDB7B7D6934942297223C","codespace":"","code":0,"data":"","raw_log":"","logs":[],"info":"","gas_wanted":"0","gas_used":"0","tx":null,"timestamp":"","events":[]}
     ```
-  * Note that in the Secret Localsecret chain logs it output:
+  * Note that in the Secret Localsecret chain logs it output `num_txs=1`:
     ```
     11:43AM INF finalizing commit of block hash=9B39F1E7367B876F61E45CFD0DE3EC55CE59D140A4604E35622D8C6CDEE1BB66 height=115 module=consensus num_txs=1 root=371919C2BE93B7F0C2B81837770B871592793F8A74847C04593F27F8A62109A1
     ```
     * TODO: Why didn't it output `"height":"115"` instead of `"height":"0"`?
 
 * WIP - Option B
-  * Linux
+  * Change back to the project root directory
+  * Run the following on the local machine to copy the relevant environment variables to the remote machine
+    * TODO - change deploy.ts into a different kind of configuration file?
     ```
-    apt-get install -y nodejs
-    apt-get install -y npm
+    REMOTE_IP=172.105.184.209
+    SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/hardhat/.env
+    DESTINATION=/root/nunya/packages/hardhat/.env
+    scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+
+    SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/.env
+    DESTINATION=/root/nunya/packages/secret-contracts-scripts/.env
+    scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+
+    SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/config/deploy.ts
+    DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/config/deploy.ts
+    scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+    ```
+  * Linux, or, install NVM, then:
+    ```
+    apt update
+    nvm install lts/hydrogen
+    nvm use lts/hydrogen
     npm install -g yarn
     npm install -g corepack
     yarn set version 4.5.3
     corepack enable
     corepack prepare yarn@v4.5.3 --activate
+
+    # we need the latest ABI file to be generated /hardhat/artifacts/contracts/Gateway.sol/Gateway.json
+    # since it is used in the Secret network script `secret:uploadGateway`
+    yarn hardhat:clean
+    yarn hardhat:compile
+
 
     yarn install
     yarn run secret:clean
@@ -351,7 +394,7 @@ git submodule update --init --recursive
 
 * Connect to Linode
 ```
-ssh root@172.105.188.31
+ssh root@172.105.184.209
 ```
 
 * Clone the Relayer Github repo and initialise the submodules
@@ -386,13 +429,13 @@ git submodule update --init --recursive
           timeout: 1
         ```
       
-      * Localhost. Replacing `172.105.188.31` with the IP Address of your server that is running Ethereum on Localhost
+      * Localhost. Replacing `172.105.184.209` with the IP Address of your server that is running Ethereum on Localhost
         ```yaml
         "31337": #Ethereum Localhost
           active: true
           type: "evm"
           chain_id: "31337"
-          api_endpoint: http://172.105.188.31:8545/
+          api_endpoint: http://172.105.184.209:8545/
           contract_address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
           timeout: 1
         ```
@@ -410,13 +453,13 @@ git submodule update --init --recursive
             feegrant_address: "secret1gutgtpw0caqfsp8ja0r5yecv8jxz2y8vhpnck8"
         ```
       
-      * Localhost. Replacing `172.105.188.31` with the IP Address of your server that is running Secret Localhost. Replacing the value of `contract_address` with the Gateway EVM address that you deployed and stored in ./packages/secret-contracts-scripts/src/config/deploy.ts.
+      * Localhost. Replacing `172.105.184.209` with the IP Address of your server that is running Secret Localhost. Replacing the value of `contract_address` with the Gateway EVM address that you deployed and stored in ./packages/secret-contracts-scripts/src/config/deploy.ts.
         ```yaml
         "secretdev-1": #Secret Localhost
           active: true
           type: "secret"
           chain_id: "secretdev-1"
-          api_endpoint: "http://172.105.188.31:1317"
+          api_endpoint: "http://172.105.184.209:1317"
           contract_address: "<TODO>"
           timeout: 1
         ```
@@ -444,7 +487,7 @@ git submodule update --init --recursive
   * Reference: https://docs.scrt.network/secret-network-documentation/infrastructure/secret-cli/configuration
 
   ```
-  secretcli config set client node http://172.105.188.31:26657
+  secretcli config set client node http://172.105.184.209:26657
   secretcli config set client chain-id secretdev-1
   secretcli config set client output json
   secretcli config set client keyring-backend test
