@@ -1,0 +1,460 @@
+(secretpath_env) root@localhost:~/ltfschoen/SecretPath/TNLS-Relayers# python3 web_app.py
+2024-12-17 12:15:45,329 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:15:45,345 [ETH Interface: INFO] Chain-id 31337 nonce synced
+2024-12-17 12:15:45,349 [ETH Interface: INFO] Initialized Eth contract with address: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
+2024-12-17 12:15:45,349 [ETH Interface: INFO] Initialized Eth contract with address: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
+2024-12-17 12:15:45,392 [SCRT Interface: INFO] Initialized SCRT interface for contract secret1mfk7n6mc2cg6lznujmeckdh4x0a5ezf6hx6y8q
+2024-12-17 12:15:45,394 [Relayer: INFO] Starting relayer
+2024-12-17 12:15:45,434 [Relayer: INFO] Processed block 8 on 31337
+2024-12-17 12:15:45,435 [Relayer: INFO] Polled for transactions, now have 1 remaining
+2024-12-17 12:15:45,435 [Relayer: INFO] Routing task {'task_destination_network': 'secretdev-1', 'task_data': {'task_id': '1', 'source_network': '31337', 'user_address': '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 'routing_info': 'secret1gyruqan6yxf0q423t8z5zce3x7np35uw8s8wqc', 'payload_hash': b'\x88\x00\xb2t\x1b+w\x85xy6\x01\xd3\xdb\xb3G+U\xc7\x90NEi\x0e\x90 \xc0T#j\x04x', 'user_key': b'\x00\x00', 'user_pubkey': b'\x00\x00', 'routing_code_hash': '63383ca7e11c16a248ec07ac6e12949ea1bc7a70e33077c306f7be75388ca54b', 'task_destination_network': 'secretdev-1', 'handle': 'request_value', 'nonce': b'\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'callback_gas_limit': 30000000, 'payload': b'{"data":"{\\"callbackSelector\\":3066212657}","routing_info":"secret1gyruqan6yxf0q423t8z5zce3x7np35uw8s8wqc","routing_code_hash":"63383ca7e11c16a248ec07ac6e12949ea1bc7a70e33077c306f7be75388ca54b","user_address":"_\xbd\xb21Vx\xaf\xec\xb3g\xf02\xd9?d/d\x18\n\xa3","user_key":"X72yMVZ4r+yzZ/Ay2T9kL2QYCqM=","callback_address":"_\xbd\xb21Vx\xaf\xec\xb3g\xf02\xd9?d/d\x18\n\xa3"X72yMVZ4r+yzZ/Ay2T9kL2QYCqM=","callback_selector":"3066212657","callback_gas_limit":30000000}', 'payload_signature': b'\x88\x00\xb2t\x1b+w\x85xy6\x01\xd3\xdb\xb3G+U\xc7\x90NEi\x0e\x90 \xc0T#j\x04x'}}
+2024-12-17 12:15:45,435 [SCRT Interface: INFO] Using arguments {'input': {'inputs': {'task_id': '1', 'source_network': '31337', 'user_address': '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 'routing_info': 'secret1gyruqan6yxf0q423t8z5zce3x7np35uw8s8wqc', 'payload_hash': 'iACydBsrd4V4eTYB09uzRytVx5BORWkOkCDAVCNqBHg=', 'user_key': 'AAA=', 'user_pubkey': 'AAA=', 'routing_code_hash': '63383ca7e11c16a248ec07ac6e12949ea1bc7a70e33077c306f7be75388ca54b', 'handle': 'request_value', 'nonce': 'AQAAAAAAAAAAAAAA', 'callback_gas_limit': 30000000, 'payload': 'eyJkYXRhIjoie1wiY2FsbGJhY2tTZWxlY3RvclwiOjMwNjYyMTI2NTd9Iiwicm91dGluZ19pbmZvIjoic2VjcmV0MWd5cnVxYW42eXhmMHE0MjN0OHo1emNlM3g3bnAzNXV3OHM4d3FjIiwicm91dGluZ19jb2RlX2hhc2giOiI2MzM4M2NhN2UxMWMxNmEyNDhlYzA3YWM2ZTEyOTQ5ZWExYmM3YTcwZTMzMDc3YzMwNmY3YmU3NTM4OGNhNTRiIiwidXNlcl9hZGRyZXNzIjoiX72yMVZ4r+yzZ/Ay2T9kL2QYCqMiLCJ1c2VyX2tleSI6Ilg3MnlNVlo0cit5elovQXkyVDlrTDJRWUNxTT0iLCJjYWxsYmFja19hZGRyZXNzIjoiX72yMVZ4r+yzZ/Ay2T9kL2QYCqMiWDcyeU1WWjRyK3l6Wi9BeTJUOWtMMlFZQ3FNPSIsImNhbGxiYWNrX3NlbGVjdG9yIjoiMzA2NjIxMjY1NyIsImNhbGxiYWNrX2dhc19saW1pdCI6MzAwMDAwMDB9', 'payload_signature': 'iACydBsrd4V4eTYB09uzRytVx5BORWkOkCDAVCNqBA=='}}} to call function inputs at address secret1mfk7n6mc2cg6lznujmeckdh4x0a5ezf6hx6y8q
+2024-12-17 12:15:46,440 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:15:47,445 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:15:48,450 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:15:49,454 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:15:50,459 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:15:51,463 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:15:52,469 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:15:53,473 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:15:54,477 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:15:55,481 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:15:56,484 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:15:57,489 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:15:58,493 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:15:59,496 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:00,504 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:01,509 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:02,517 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:03,521 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:04,525 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:05,529 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:06,534 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:07,537 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:08,541 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:09,545 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:10,549 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:11,555 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:12,558 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:13,562 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:14,567 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:15,332 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:16:15,332 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:16:15,336 [ETH Interface: INFO] Chain-id 31337 nonce synced
+2024-12-17 12:16:15,336 [ETH Interface: INFO] Chain-id 31337 nonce synced
+New sequence 0 is not greater than the old sequence 1.
+2024-12-17 12:16:15,571 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:16,575 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:17,579 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:18,583 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:19,587 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:20,592 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:21,595 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:22,599 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:23,606 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:24,610 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:25,614 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:26,617 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:27,621 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:28,625 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:29,630 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:30,635 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:31,639 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:32,643 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:33,648 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:34,654 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:35,659 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:36,663 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:37,667 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:38,671 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:39,675 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:40,678 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:41,682 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:42,686 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:43,690 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:44,695 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:45,333 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:16:45,333 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:16:45,336 [ETH Interface: INFO] Chain-id 31337 nonce synced
+2024-12-17 12:16:45,336 [ETH Interface: INFO] Chain-id 31337 nonce synced
+New sequence 0 is not greater than the old sequence 1.
+Transaction 4141FD9EE7F6A5707348E35F2A36583F49B90AF17DC3223C8BDFBDE69AF62491 not included in a block after 20 retries. Retrying broadcast... (1/3)
+2024-12-17 12:16:45,699 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:46,704 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:47,709 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:48,714 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:49,719 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:50,724 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:51,727 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:52,731 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:53,736 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:54,743 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:55,747 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:56,751 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:57,755 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:58,759 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:16:59,767 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:00,771 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:01,775 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:02,779 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:03,783 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:04,787 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:05,792 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:06,840 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:07,849 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:08,853 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:09,858 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:10,863 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:11,868 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:12,871 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:13,876 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:14,879 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:15,333 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:17:15,333 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:17:15,337 [ETH Interface: INFO] Chain-id 31337 nonce synced
+2024-12-17 12:17:15,337 [ETH Interface: INFO] Chain-id 31337 nonce synced
+New sequence 0 is not greater than the old sequence 1.
+2024-12-17 12:17:15,884 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:16,889 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:17,893 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:18,897 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:19,900 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:20,904 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:21,909 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:22,912 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:23,917 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:24,921 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:25,925 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:26,930 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:27,934 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:28,939 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:29,945 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:30,949 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:31,953 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:32,956 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:33,960 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:34,965 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:35,969 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:36,974 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:37,978 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:38,981 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:39,985 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:40,989 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:41,993 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:42,998 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:44,001 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:45,004 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:45,334 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:17:45,334 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:17:45,344 [ETH Interface: INFO] Chain-id 31337 nonce synced
+2024-12-17 12:17:45,344 [ETH Interface: INFO] Chain-id 31337 nonce synced
+New sequence 0 is not greater than the old sequence 1.
+Transaction 4141FD9EE7F6A5707348E35F2A36583F49B90AF17DC3223C8BDFBDE69AF62491 not included in a block after 20 retries. Retrying broadcast... (2/3)
+2024-12-17 12:17:46,008 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:47,012 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:48,017 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:49,020 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:50,024 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:51,028 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:52,032 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:53,036 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:54,039 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:55,043 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:56,047 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:57,050 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:58,055 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:17:59,059 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:00,063 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:01,068 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:02,073 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:03,076 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:04,080 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:05,084 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:06,090 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:07,096 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:08,100 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:09,104 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:10,108 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:11,112 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:12,116 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:13,121 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:14,124 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:15,129 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:15,336 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:18:15,336 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:18:15,340 [ETH Interface: INFO] Chain-id 31337 nonce synced
+2024-12-17 12:18:15,340 [ETH Interface: INFO] Chain-id 31337 nonce synced
+New sequence 0 is not greater than the old sequence 1.
+2024-12-17 12:18:16,132 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:17,136 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:18,140 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:19,144 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:20,148 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:21,152 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:22,155 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:23,159 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:24,163 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:25,168 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:26,173 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:27,177 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:28,181 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:29,185 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:30,189 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:31,192 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:32,196 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:33,204 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:34,210 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:35,216 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:36,219 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:37,229 [Relayer: INFO] Processed block 9 on 31337
+2024-12-17 12:18:37,235 [Relayer: INFO] Processed block 10 on 31337
+2024-12-17 12:18:37,235 [Relayer: INFO] Polled for transactions, now have 1 remaining
+2024-12-17 12:18:37,235 [Relayer: INFO] Routing task {'task_destination_network': 'secretdev-1', 'task_data': {'task_id': '2', 'source_network': '31337', 'user_address': '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 'routing_info': 'secret1gyruqan6yxf0q423t8z5zce3x7np35uw8s8wqc', 'payload_hash': b'\x88\x00\xb2t\x1b+w\x85xy6\x01\xd3\xdb\xb3G+U\xc7\x90NEi\x0e\x90 \xc0T#j\x04x', 'user_key': b'\x00\x00', 'user_pubkey': b'\x00\x00', 'routing_code_hash': '63383ca7e11c16a248ec07ac6e12949ea1bc7a70e33077c306f7be75388ca54b', 'task_destination_network': 'secretdev-1', 'handle': 'request_value', 'nonce': b'\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'callback_gas_limit': 30000000, 'payload': b'{"data":"{\\"callbackSelector\\":3066212657}","routing_info":"secret1gyruqan6yxf0q423t8z5zce3x7np35uw8s8wqc","routing_code_hash":"63383ca7e11c16a248ec07ac6e12949ea1bc7a70e33077c306f7be75388ca54b","user_address":"_\xbd\xb21Vx\xaf\xec\xb3g\xf02\xd9?d/d\x18\n\xa3","user_key":"X72yMVZ4r+yzZ/Ay2T9kL2QYCqM=","callback_address":"_\xbd\xb21Vx\xaf\xec\xb3g\xf02\xd9?d/d\x18\n\xa3"X72yMVZ4r+yzZ/Ay2T9kL2QYCqM=","callback_selector":"3066212657","callback_gas_limit":30000000}', 'payload_signature': b'\x88\x00\xb2t\x1b+w\x85xy6\x01\xd3\xdb\xb3G+U\xc7\x90NEi\x0e\x90 \xc0T#j\x04x'}}
+2024-12-17 12:18:37,236 [SCRT Interface: INFO] Using arguments {'input': {'inputs': {'task_id': '2', 'source_network': '31337', 'user_address': '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 'routing_info': 'secret1gyruqan6yxf0q423t8z5zce3x7np35uw8s8wqc', 'payload_hash': 'iACydBsrd4V4eTYB09uzRytVx5BORWkOkCDAVCNqBHg=', 'user_key': 'AAA=', 'user_pubkey': 'AAA=', 'routing_code_hash': '63383ca7e11c16a248ec07ac6e12949ea1bc7a70e33077c306f7be75388ca54b', 'handle': 'request_value', 'nonce': 'AgAAAAAAAAAAAAAA', 'callback_gas_limit': 30000000, 'payload': 'eyJkYXRhIjoie1wiY2FsbGJhY2tTZWxlY3RvclwiOjMwNjYyMTI2NTd9Iiwicm91dGluZ19pbmZvIjoic2VjcmV0MWd5cnVxYW42eXhmMHE0MjN0OHo1emNlM3g3bnAzNXV3OHM4d3FjIiwicm91dGluZ19jb2RlX2hhc2giOiI2MzM4M2NhN2UxMWMxNmEyNDhlYzA3YWM2ZTEyOTQ5ZWExYmM3YTcwZTMzMDc3YzMwNmY3YmU3NTM4OGNhNTRiIiwidXNlcl9hZGRyZXNzIjoiX72yMVZ4r+yzZ/Ay2T9kL2QYCqMiLCJ1c2VyX2tleSI6Ilg3MnlNVlo0cit5elovQXkyVDlrTDJRWUNxTT0iLCJjYWxsYmFja19hZGRyZXNzIjoiX72yMVZ4r+yzZ/Ay2T9kL2QYCqMiWDcyeU1WWjRyK3l6Wi9BeTJUOWtMMlFZQ3FNPSIsImNhbGxiYWNrX3NlbGVjdG9yIjoiMzA2NjIxMjY1NyIsImNhbGxiYWNrX2dhc19saW1pdCI6MzAwMDAwMDB9', 'payload_signature': 'iACydBsrd4V4eTYB09uzRytVx5BORWkOkCDAVCNqBA=='}}} to call function inputs at address secret1mfk7n6mc2cg6lznujmeckdh4x0a5ezf6hx6y8q
+2024-12-17 12:18:38,246 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:39,250 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:40,255 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:41,260 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:42,265 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:43,269 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:44,273 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:45,277 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:45,337 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:18:45,337 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:18:45,340 [ETH Interface: INFO] Chain-id 31337 nonce synced
+2024-12-17 12:18:45,340 [ETH Interface: INFO] Chain-id 31337 nonce synced
+New sequence 0 is not greater than the old sequence 2.
+Transaction 4141FD9EE7F6A5707348E35F2A36583F49B90AF17DC3223C8BDFBDE69AF62491 not included in a block after 20 retries. Retrying broadcast... (3/3)
+Exception in thread Thread-3 (_thread_func):
+Traceback (most recent call last):
+  File "/root/miniconda3/envs/secretpath_env/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/root/miniconda3/envs/secretpath_env/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/root/ltfschoen/SecretPath/TNLS-Relayers/relayer.py", line 204, in _thread_func
+    self.route_transaction(task)
+  File "/root/ltfschoen/SecretPath/TNLS-Relayers/relayer.py", line 181, in route_transaction
+    new_tasks, _ = contract_for_txn.call_function(function_name, str(task))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/ltfschoen/SecretPath/TNLS-Relayers/scrt_interface.py", line 326, in call_function
+    transaction_result = self.interface.sign_and_send_transaction(txn)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/ltfschoen/SecretPath/TNLS-Relayers/scrt_interface.py", line 156, in sign_and_send_transaction
+    raise Exception(
+Exception: Transaction could not be included in a block after 3 broadcast attempts.
+2024-12-17 12:18:46,282 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:47,286 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:48,290 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:49,294 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:50,298 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:51,301 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:52,306 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:53,311 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:54,315 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:55,318 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:56,323 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:57,327 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:58,332 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:18:59,335 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:00,340 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:01,345 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:02,349 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:03,352 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:04,356 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:05,359 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:06,363 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:07,367 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:08,371 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:09,375 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:10,380 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:11,384 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:12,388 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:13,392 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:14,396 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:15,337 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:19:15,337 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:19:15,341 [ETH Interface: INFO] Chain-id 31337 nonce synced
+2024-12-17 12:19:15,341 [ETH Interface: INFO] Chain-id 31337 nonce synced
+2024-12-17 12:19:15,402 [Relayer: INFO] Polled for transactions, now have 0 remaining
+New sequence 0 is not greater than the old sequence 2.
+2024-12-17 12:19:16,406 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:17,410 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:18,414 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:19,418 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:20,421 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:21,424 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:22,429 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:23,433 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:24,437 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:25,441 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:26,446 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:27,449 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:28,453 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:29,456 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:30,460 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:31,464 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:32,468 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:33,472 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:34,476 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:35,480 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:36,484 [Relayer: INFO] Polled for transactions, now have 0 remaining
+Transaction 29B805B84B17F4DD5AE8F06A7ABA895D47AD76ECD6B76DC962BEE2CDC8573E38 not included in a block after 20 retries. Retrying broadcast... (1/3)
+2024-12-17 12:19:37,490 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:38,494 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:39,498 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:40,502 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:41,507 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:42,511 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:43,516 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:44,522 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:45,337 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:19:45,337 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:19:45,340 [ETH Interface: INFO] Chain-id 31337 nonce synced
+2024-12-17 12:19:45,340 [ETH Interface: INFO] Chain-id 31337 nonce synced
+New sequence 0 is not greater than the old sequence 2.
+2024-12-17 12:19:45,526 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:46,530 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:47,534 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:48,538 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:49,541 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:50,546 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:51,549 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:52,556 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:53,560 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:54,565 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:55,569 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:56,573 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:57,576 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:58,580 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:19:59,583 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:00,587 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:01,591 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:02,596 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:03,600 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:04,604 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:05,607 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:06,611 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:07,615 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:08,619 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:09,623 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:10,628 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:11,632 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:12,636 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:13,640 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:14,645 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:15,338 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:20:15,338 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:20:15,342 [ETH Interface: INFO] Chain-id 31337 nonce synced
+2024-12-17 12:20:15,342 [ETH Interface: INFO] Chain-id 31337 nonce synced
+New sequence 0 is not greater than the old sequence 2.
+2024-12-17 12:20:15,650 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:16,655 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:17,659 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:18,663 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:19,666 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:20,671 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:21,674 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:22,678 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:23,682 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:24,686 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:25,690 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:26,698 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:27,702 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:28,706 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:29,710 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:30,714 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:31,718 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:32,722 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:33,726 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:34,730 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:35,735 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:36,740 [Relayer: INFO] Polled for transactions, now have 0 remaining
+Transaction 29B805B84B17F4DD5AE8F06A7ABA895D47AD76ECD6B76DC962BEE2CDC8573E38 not included in a block after 20 retries. Retrying broadcast... (2/3)
+2024-12-17 12:20:37,745 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:38,750 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:39,755 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:40,759 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:41,763 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:42,767 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:43,771 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:44,775 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:45,338 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:20:45,338 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:20:45,342 [ETH Interface: INFO] Chain-id 31337 nonce synced
+2024-12-17 12:20:45,342 [ETH Interface: INFO] Chain-id 31337 nonce synced
+New sequence 0 is not greater than the old sequence 2.
+2024-12-17 12:20:45,780 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:46,784 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:47,788 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:48,795 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:49,800 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:50,804 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:51,808 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:52,814 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:53,818 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:54,822 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:55,825 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:56,830 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:57,834 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:58,838 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:20:59,842 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:00,847 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:01,851 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:02,855 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:03,859 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:04,864 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:05,868 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:06,872 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:07,876 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:08,880 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:09,884 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:10,893 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:11,897 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:12,901 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:13,905 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:14,909 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:15,339 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:21:15,339 [ETH Interface: INFO] Starting Chain-id 31337 nonce sync
+2024-12-17 12:21:15,343 [ETH Interface: INFO] Chain-id 31337 nonce synced
+2024-12-17 12:21:15,343 [ETH Interface: INFO] Chain-id 31337 nonce synced
+New sequence 0 is not greater than the old sequence 2.
+2024-12-17 12:21:15,919 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:16,924 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:17,928 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:18,933 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:19,936 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:20,941 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:21,944 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:22,949 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:23,953 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:24,957 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:25,961 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:26,966 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:27,970 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:28,974 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:29,979 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:30,983 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:31,988 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:32,992 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:33,997 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:35,000 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:36,005 [Relayer: INFO] Polled for transactions, now have 0 remaining
+2024-12-17 12:21:37,012 [Relayer: INFO] Polled for transactions, now have 0 remaining
+Transaction 29B805B84B17F4DD5AE8F06A7ABA895D47AD76ECD6B76DC962BEE2CDC8573E38 not included in a block after 20 retries. Retrying broadcast... (3/3)
+Exception in thread Thread-14 (_thread_func):
+Traceback (most recent call last):
+  File "/root/miniconda3/envs/secretpath_env/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/root/miniconda3/envs/secretpath_env/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/root/ltfschoen/SecretPath/TNLS-Relayers/relayer.py", line 204, in _thread_func
+    self.route_transaction(task)
+  File "/root/ltfschoen/SecretPath/TNLS-Relayers/relayer.py", line 181, in route_transaction
+    new_tasks, _ = contract_for_txn.call_function(function_name, str(task))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/ltfschoen/SecretPath/TNLS-Relayers/scrt_interface.py", line 326, in call_function
+    transaction_result = self.interface.sign_and_send_transaction(txn)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/ltfschoen/SecretPath/TNLS-Relayers/scrt_interface.py", line 156, in sign_and_send_transaction
+    raise Exception(
+Exception: Transaction could not be included in a block after 3 broadcast attempts.

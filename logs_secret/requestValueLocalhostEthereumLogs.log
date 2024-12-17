@@ -1,0 +1,56 @@
+eth_call
+  Contract call:       NunyaBusiness#CustomGateway
+  From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+  To:                  0x5fbdb2315678afecb367f032d93f642f64180aa3
+
+eth_chainId
+eth_call
+  Contract call:       Gateway#task_destination_network
+  From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+  To:                  0xe7f1725e7734ce288f8367e1bb143e90bb3f0512
+
+eth_chainId
+eth_getTransactionCount
+eth_chainId
+eth_gasPrice
+eth_getBlockByNumber
+eth_chainId (2)
+eth_sendRawTransaction
+  Contract call:       NunyaBusiness#unsafeSetSecretContractInfo
+  Transaction:         0x714d98185956ddb6b6bf75cc34b9fcf96338e3cfda29fce143db5cd5931e19d8
+  From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+  To:                  0x5fbdb2315678afecb367f032d93f642f64180aa3
+  Value:               0.1 ETH
+  Gas used:            62110 of 10000000
+  Block #9:            0x66c4e52836000364d3ad0132ef730ffdb270a2e33d6fe0714df13fcc10f1246b
+
+  console.log:
+    set secret contract info in gateway contract
+
+eth_chainId
+eth_getTransactionReceipt
+eth_chainId
+eth_gasPrice
+eth_getBlockByNumber
+eth_chainId (2)
+eth_sendRawTransaction
+  Contract call:       NunyaBusiness#unsafeRequestValue
+  Transaction:         0xed66864fdec7f308846ff71259d8ca36944ecf3f197345cc666ed63d3950cd8d
+  From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+  To:                  0x5fbdb2315678afecb367f032d93f642f64180aa3
+  Value:               2.5 ETH
+  Gas used:            130461 of 30000000
+  Block #10:           0xe5d88ab287cd623586c8c04e415509da5c2f88d1e0cfee1c383afa141b24402a
+
+  console.log:
+    ------ Gateway.requestValue
+    ------ Gateway.requestValue - _callbackGasLimit:  30000000
+    ------ Gateway.requestValue - estimatedPrice:  240000000000000000
+    ------ Gateway.requestValue - msg.value:  2500000000000000000
+    ------ Gateway.encodeAddressToBase64
+    ------ Gateway.encodeAddressToBase64
+    ------ Gateway.requestValue - _newNonce:  2
+    1
+    2
+    3
+    requested secret contract value - requestId= 3

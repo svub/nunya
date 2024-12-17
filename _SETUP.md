@@ -9,6 +9,8 @@
 
 ### Usage Guidelines <a id="usage"></a> 
 
+**Start Here** with section [Setup Secret](#setup-secret") and follow the instructions from there.
+
 Help judges and other developers understand the project.
 
 See the [DEMO_AND_VIDEO](./_DEMO_AND_VIDEO.md) file for details.
@@ -142,7 +144,7 @@ yarn run secret:setEVMGatewayAddress
 
 Example transaction hash: https://sepolia.etherscan.io/tx/0xef7a241e3eba870138323440e910e2a0e608654a46bd7720af8e03ed63618f3a
 
-6. View the contract in block explorer
+6. View the contract in block explorer (if not deploying to localhost)
 
 Example previous deployment: 
   NunyaBusiness: https://sepolia.etherscan.io/address/0xAFFF311821C3F3AF863C7103BB17BDC1Ba04603D#code
@@ -153,7 +155,7 @@ Example previous deployment:
 
 Assumes that you have already uploaded and instantiated the custom Secret contract in the [Setup Secret Contracts](#setup-secret) section.
 
-Skip to the [`requestValue`](#requestValue) step in the [Setup Secret Contracts](#setup-secret) section.
+Skip to the [`requestValue`](#request-value) step in the [Setup Secret Contracts](#setup-secret) section.
 
 8. On a third terminal, start the Nunya NextJS app:
 
@@ -217,11 +219,9 @@ ssh root@172.105.184.209
 * Start Localhost server with chain-id `secretdev-1`
 
 ```bash
+cd ./packages/secret-contracts/secret-gateway
 docker stop secretdev && docker rm secretdev
-docker run -it --rm \
-  -p 9091:9091 -p 26657:26657 -p 26656:26656 -p 1317:1317 -p 5000:5000 \
-  -v $(pwd):/root/code \
-  --name secretdev ghcr.io/scrtlabs/localsecret:latest
+make start-server
 ```
 
 * Ports:
@@ -343,7 +343,7 @@ git submodule update --init --recursive
   > IMPORTANT: If deployment of the code with `await secretjs.tx.compute.storeCode` is unsuccessful, then check if Beta version of secretjs is necessary incase the Secret Testnet is being upgraded.
 
   ```
-  yarn run secret:instantiate
+  yarn run secret:instantiateGateway
   ```
 
   * Add the `SECRET_ADDRESS` to `gatewayContractAddress` in the relevant config.secret.<network> in ./nunya/packages/secret-contracts-scripts/src/config/deploy.ts
@@ -354,7 +354,7 @@ git submodule update --init --recursive
 
   * Note: In order to populate the `secret.localhost.secretGateway.gatewayContractPublicKey` and `secret.localhost.secretGateway.gatewayContractEncryptionKeyForChaChaPoly1305`, according to Alex at Secret Network, you can't get a public key for it because it relies on the on-chain randomness (Secret VRF) to get a private key first. As such, you have to make some mock code to make it usable on a local testnet (where secretVRF from env.block.random is not available).
 
-  * Next, [Deploy Nunya Contract on Localhost](#deploy-nunya-contract-on-localhost)
+  * NEXT, [Deploy Nunya Contract on Localhost](#deploy-nunya-contract-on-localhost)
 
 * IGNORE - Terminal Tab 2: Option B (SecretCLI) Compile, Upload, Instantiate:
   * [Compile](https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy#compile-the-code). Note: Outputs contract.wasm or contract.wasm.gz file in the root directory being the ./SecretPath/TNLS-Gateways/secret/ folder. Using `make build-mainnet-reproducible` will remove contract.wasm so only the optimised contract.wasm.gz remains. Warning: If you only run `make build-mainnet` then you will get this error https://github.com/svub/nunya/issues/8 when deploying.
@@ -417,10 +417,11 @@ ssh root@172.105.184.209
 
 * Clone the Relayer Github repo and initialise the submodules
 ```
-mkdir -p SecretSaturn && cd SecretSaturn
-git clone https://github.com/SecretSaturn/SecretPath
-cd SecretPath/TNLS-Gateways/public-gateway
-git submodule update --init --recursive
+mkdir -p ltfschoen && cd ltfschoen
+git clone https://github.com/ltfschoen/SecretPath
+git fetch origin nunya:nunya
+git checkout nunya
+cd SecretPath/TNLS-Relayers
 ```
 
 * Configure the Relayer
@@ -431,69 +432,48 @@ git submodule update --init --recursive
     cd ../../TNLS-Relayers
     vim config.yml
     ```
+  
+  * TODO: If deployed EVM Gateway contract address or API endpoint change, update
+    * `contract_address` and `api_endpoint` of chain_id 31337
+    * `contract_address` and `api_endpoint` of chain_id secretdev-1
 
-  * **Add the Following Configuration**
 
-    * EVM
-      * Testnet Ethereum Sepolia. For `11155111` change it to the following. Replacing the value of `contract_address` with the Gateway EVM address that you deployed and stored in ./packages/secret-contracts-scripts/src/config/deploy.ts.
-
-        ```yaml
-        "11155111": #Ethereum Sepolia
-          active: true
-          type: "evm"
-          chain_id: "11155111"
-          api_endpoint: https://go.getblock.io/d9be982c38f64fd98d27533b1bff032c
-          contract_address: "0x1E4B12A9F82b33DA1127B27861EFf5E652de7a6F"
-          timeout: 1
-        ```
-      
-      * Localhost. Replacing `172.105.184.209` with the IP Address of your server that is running Ethereum on Localhost
-        ```yaml
-        "31337": #Ethereum Localhost
-          active: true
-          type: "evm"
-          chain_id: "31337"
-          api_endpoint: http://172.105.184.209:8545/
-          contract_address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
-          timeout: 1
-        ```
-
-    * Secret Network
-      * Testnet `pulsar-3` change it to the following. Replacing the value of `contract_address` with the Gateway EVM address that you deployed and stored in ./packages/secret-contracts-scripts/src/config/deploy.ts.
-        ```yaml
-          "pulsar-3": #Secret Testnet
-            active: true
-            type: "secret"
-            chain_id: "pulsar-3"
-            api_endpoint: "https://api.pulsar.scrttestnet.com"
-            contract_address: "secret10ex7r7c4y704xyu086lf74ymhrqhypayfk7fkj"
-            code_hash: "ad8ca07ffba1cb26ebf952c29bc4eced8319c171430993e5b5089887f27b3f70"
-            feegrant_address: "secret1gutgtpw0caqfsp8ja0r5yecv8jxz2y8vhpnck8"
-        ```
-      
-      * Localhost. Replacing `172.105.184.209` with the IP Address of your server that is running Secret Localhost. Replacing the value of `contract_address` with the Gateway EVM address that you deployed and stored in ./packages/secret-contracts-scripts/src/config/deploy.ts.
-        ```yaml
-        "secretdev-1": #Secret Localhost
-          active: true
-          type: "secret"
-          chain_id: "secretdev-1"
-          api_endpoint: "http://172.105.184.209:1317"
-          contract_address: "<TODO>"
-          timeout: 1
-        ```
-
-* Edit ./SecretPath/TNLS-Relayers/.env.example
+* Edit ./SecretPath/TNLS-Relayers/.env
   ```
-  vim ./SecretPath/TNLS-Relayers/.env.example
+  cp ./SecretPath/TNLS-Relayers/.env.example ./SecretPath/TNLS-Relayers/.env
   ```
 
-  * Generate an Ethereum wallet with address, private key, mnemonic phrase, and encrypted JSON file using MyCrypto desktop from Github https://github.com/MyCryptoHQ/MyCrypto/releases/tag/1.7.17 and ensure that you verify the checksum of the download. Import that into Keplar browser extension using the **private key** to obtain the associated Secret Network address. Verify that the Ethereum address on the Ethereum Network in the Keplar wallet once imported matches the Ethereum address that was chosen.
+  * IGNORE - Generate an Ethereum wallet with address, private key, mnemonic phrase, and encrypted JSON file using MyCrypto desktop from Github https://github.com/MyCryptoHQ/MyCrypto/releases/tag/1.7.17 and ensure that you verify the checksum of the download. Import that into Keplar browser extension using the **private key** to obtain the associated Secret Network address. Verify that the Ethereum address on the Ethereum Network in the Keplar wallet once imported matches the Ethereum address that was chosen.
 
-  * Add for Localhost of Ethereum the private key into `ethereum-private-key = XXXXX` of the .env file /Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/.env
+  * Localhost
+    * Add for Localhost of Ethereum the private key into `ethereum-private-key = XXXXX` of the .env file /Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/.env
+      * IMPORTANT: Exclude the leading `0x`
 
-  * Add for Localhost of Secret Network the private key to `secret-private-key = XXXXX` of the .env file /Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/.env
+    * Create a new Keplar Wallet that must use Google to generate an associated private key.
+      * Add for Localhost of Secret Network the private key to `secret-private-key = XXXXX` associated with that address (e.g. secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg)
+        * IMPORTANT: Exclude the leading `0x`
 
-* Transfer some Localhost Ethereum tokens from a default account like `Account #0` that is shown when running Ethereum Localhost to that Ethereum wallet address associated with the private key `ethereum-private-key`.
+  * Testnet
+    * Add for Ethereum Sepolia the private key into `ethereum-private-key = XXXXX` of the .env file /Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/.env to be the same as `DEPLOYER_PRIVATE_KEY`
+      * IMPORTANT: Exclude the leading `0x`
+
+    * TODO - similar to approach used on Localhost for Secret Network
+      * IMPORTANT: Exclude the leading `0x`
+
+* If you edit the config.yml file on your local machine (instead of directly on the server), copy it to the server
+  ```
+  REMOTE_IP=172.105.184.209
+  SOURCE=/Users/luke/code/clones/github/ltfschoen/SecretPath/TNLS-Relayers/config.yml
+  DESTINATION=/root/ltfschoen/SecretPath/TNLS-Relayers/config.yml
+  scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+
+  REMOTE_IP=172.105.184.209
+  SOURCE=/Users/luke/code/clones/github/ltfschoen/SecretPath/TNLS-Relayers/.env
+  DESTINATION=/root/ltfschoen/SecretPath/TNLS-Relayers/.env
+  scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+  ```
+
+* IGNORE - Transfer some Localhost Ethereum tokens from a default account like `Account #0` that is shown when running Ethereum Localhost to that Ethereum wallet address associated with the private key `ethereum-private-key`.
   ```
   Account #0: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 (10000 ETH)
   privateKey: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
@@ -501,72 +481,63 @@ git submodule update --init --recursive
 
   * TODO - is this necessary? why not just use the default account?
 
-* Transfer some Localhost Secret tokens from a default account that is shown when running Secret Localhost to that Secret wallet address.
+* Transfer some Localhost Secret tokens from a default account that is shown when running Secret Localhost (e.g. secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03) to that Secret wallet address (e.g. secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg).
   * Reference: https://docs.scrt.network/secret-network-documentation/infrastructure/secret-cli/configuration
 
   ```
-  secretcli config set client node http://172.105.184.209:26657
+  docker exec -it secretdev /bin/bash
+  secretcli config view
+  secretcli config set client node tcp://localhost:26657
   secretcli config set client chain-id secretdev-1
   secretcli config set client output json
   secretcli config set client keyring-backend test
   secretcli config view client --output-format json
   secretcli config home
 
-  secretcli query bank balances secret1kc6j4dvvcwtqjwcv68equux88lt4rar6scz32a | jq
-  secretcli query bank balances secret1u9jfestafdkr5cr057e436puzp6agf2vvcejfc | jq
+  secretcli query bank balances secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03 | jq
+  secretcli query bank balances secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg | jq
   ```
   * Note: Configuration is stored in /root/.secretd/config/client.toml
   * Note: `keyring-backend` is where the keys are stored from possible options including: (os|file|kwallet|pass|test|memory)
 
-  * TODO - how to transfer uscrt tokens from the default account to my account that i have the private key of
-
   ```
-  secretcli tx bank send secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03 secret1u9jfestafdkr5cr057e436puzp6agf2vvcejfc 10uscrt --fees=70000uscrt --fee-payer secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03
-  
-  Error: failed to convert address field to address: key with address secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03 not found: key not found [scrtlabs/cosmos-sdk@v0.50.10-secret.2/crypto/keyring/keyring.go:538]
+  secretcli tx bank send secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03 secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg 10uscrt
+  secretcli query bank balances secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg | jq
   ```
 
-    * TODO - is this necessary? why not just use the default account?
+    * Note: This is necessary because the default account only has a mnemonic phrase, not a private key.
 
-  * QUESTION - do i need to add both addresses into the keyring? but if i do that it asks me to provide the account's mnemonic phrase and then doesn't add the correct secret network account address to keyring, see how below the address should be `secret1u9....`. is it possible to provide the private key instead so it adds the correct secret network account address to the keyring. it appears that it is necessary to even add the default accounts `a`, `b`, `c`, and `d`, as required to the keyring. 
+  * IGNORE
+    ```
+    a_mnemonic="grant rice replace explain federal release fix clever romance raise often wild taxi quarter soccer fiber love must tape steak together observe swap guitar"
+    echo $a_mnemonic | secretcli keys add account --recover
+    secretcli keys show account
+    
+    # it should output `secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03`
 
-  ```
-  a_mnemonic="grant rice replace explain federal release fix clever romance raise often wild taxi quarter soccer fiber love must tape steak together observe swap guitar"
-  echo $a_mnemonic | secretcli keys add account --recover
-  secretcli keys show account
-  
-  # it should output `secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03`
+    b_mnemonic="jelly shadow frog dirt dragon use armed praise universe win jungle close inmate rain oil canvas beauty pioneer chef soccer icon dizzy thunder meadow"
+    echo $b_mnemonic | secretcli keys add account2 --recover
+    secretcli keys show account2
 
-  b_mnemonic="jelly shadow frog dirt dragon use armed praise universe win jungle close inmate rain oil canvas beauty pioneer chef soccer icon dizzy thunder meadow"
-  echo $b_mnemonic | secretcli keys add account2 --recover
-  secretcli keys show account2
+    # it should output `secret1fc3fzy78ttp0lwuujw7e52rhspxn8uj52zfyne`
 
-  # it should output `secret1fc3fzy78ttp0lwuujw7e52rhspxn8uj52zfyne`
-  ```
+    custom_mnemonic="<INSERT_MNEMONIC_PHRASE>"
+    echo $custom_mnemonic | secretcli keys add custom --hd-path="m/44'/60'/0'/0" --recover
+    secretcli keys show custom
+    ```
 
-  TODO - is the below necessary? why not just add the default accounts to the keyring above?
-  ```
-  custom_mnemonic="<INSERT_MNEMONIC_PHRASE>"
-  echo $custom_mnemonic | secretcli keys add custom --hd-path="m/44'/60'/0'/0" --recover
-  secretcli keys show custom
-  ```
-
-  TODO - why doesn't the wallet address recovered with `custom_mnemonic` match the one that was generated with MyCrypto when recovering it with that mnemonic phrase? is it possible to recover with the private key instead so it recovers the correct wallet address?
-
-  Note: Used `m/44'/60'/0'/0` since that was the default HD path chosen when generating the wallet in MyCrypto for use with Metamask that uses BIP44 derivation, where the HD path is defined as `m / purpose' / coin_type' / account' / change / address_index`
-  References: 
-    * https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
-    * https://ethereum.stackexchange.com/questions/19055/what-is-the-difference-between-m-44-60-0-0-and-m-44-60-0
-  * Note: The `coin_type` is `529` for Secret Network by default, but we generated it using MyCrypto for Ether, which is `60`
-  References:
-    * https://help.keplr.app/articles/how-to-set-a-custom-derivation-path
-
-  * TODO
-    * https://github.com/scrtlabs/SecretNetwork/issues/1690
-    * https://github.com/scrtlabs/SecretNetwork/issues/1689
-
-
-* TODO - how should we add the Secret Relayer to deploy.ts file, is that necessary, and ensure it is used by EVM Gateway and Secret Gateway, or do we just configure the Secret Relayer to listen to specific events and foreward the associated transactions?
+    * IGNORE
+      * TODO - why doesn't the wallet address recovered with `custom_mnemonic` match the one that was generated with MyCrypto when recovering it with that mnemonic phrase? is it possible to recover with the private key instead so it recovers the correct wallet address?
+      * Note: Used `m/44'/60'/0'/0` since that was the default HD path chosen when generating the wallet in MyCrypto for use with Metamask that uses BIP44 derivation, where the HD path is defined as `m / purpose' / coin_type' / account' / change / address_index`
+      References: 
+        * https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
+        * https://ethereum.stackexchange.com/questions/19055/what-is-the-difference-between-m-44-60-0-0-and-m-44-60-0
+      * Note: The `coin_type` is `529` for Secret Network by default, but we generated it using MyCrypto for Ether, which is `60`
+      References:
+        * https://help.keplr.app/articles/how-to-set-a-custom-derivation-path
+      * TODO
+        * https://github.com/scrtlabs/SecretNetwork/issues/1690
+        * https://github.com/scrtlabs/SecretNetwork/issues/1689
 
 * Install Miniconde
   * References:
@@ -596,6 +567,8 @@ git submodule update --init --recursive
 
     * Outputs:
       ```
+      environment location: /root/miniconda3/envs/secretpath_env
+
       # To activate this environment, use
       #
       #     $ conda activate secretpath_env
@@ -605,9 +578,15 @@ git submodule update --init --recursive
       #     $ conda deactivate
       ```
 
+    * Activate it:
+      ```
+      cd ~/ltfschoen/SecretPath/TNLS-Relayers
+      conda activate secretpath_env
+      ```
+
     * Install Relayer dependencies
       ```
-      cd ~/SecretSaturn/SecretPath/TNLS-Relayers
+      cd ~/ltfschoen/SecretPath/TNLS-Relayers
       pip install -r requirements.txt --no-dependencies
       pip install --upgrade lru-dict
       ```
@@ -616,7 +595,10 @@ git submodule update --init --recursive
       python3 web_app.py
       ```
     
-    * TODO - customize the relayer to watch for events from the gateway
+    * TODO - customize the relayer logs
+    * TODO - run the relayer as a service with logs
+
+    * Note: The relayer is configured to listen each gateway and forwards relevant messages.
 
 #### Configure
 
@@ -654,7 +636,7 @@ source ~/.zshrc
 
 * Run Docker (e.g. Docker Desktop on macOS)
 
-* Remove any old Docker containers
+* Remove any old Docker containers, if necessary
 ```
 docker rmi sco
 ```
@@ -793,7 +775,7 @@ yarn run secret:instantiate
   * View on Secret Localhost block explorer
   * Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
 
-  * Next: Assuming that the EVM contracts NunyaBusiness and Gateway have already been deployed on localhost, then skip to [requestValue](#requestValue).
+  * NEXT: Assuming that the EVM contracts NunyaBusiness and Gateway have already been deployed on localhost, then skip to [requestValue](#request-value), otherwise go through [Setup Frontend](#setup-frontend) first.
 
 * IGNORE - Option B:
 ```
@@ -808,12 +790,11 @@ make store-nunya-contract-local
 ##### Localhost
 
 1. Script requestValue.ts
-  * FIXME - Use Remix instead to make these transactions until resolve why not receive response from wait()
-    ```bash
-    yarn run secret:requestValue
-    ```
+  ```bash
+  yarn run secret:requestValue
+  ```
 
-  * View logs. Use console.log in Solidity https://book.getfoundry.sh/reference/forge-std/console-log
+  * View logs. Use console.log in Solidity
 
   * FIXME: See unresolve error status in comments of ./nunya/packages/secret-contracts-scripts/src/evm/requestValue.ts
 
@@ -863,8 +844,15 @@ make store-nunya-contract-local
         ```
       * View logs in both terminals
 
+      * Add log outputs to:
+        * ./logs_secret/requestValueLocalhostEthereumLogs.log - Logs from the JavaScript in terminal where you run `yarn run secret:requestValue` 
+        * ./logs_secret/requestValueLocalhostRelayerLogs.log - Logs from Relayer
+        * ./logs_secret/requestValueLocalhostSecretLogs.log - Logs from Secret Network running locally
+        * ./logs_secret/requestValueLocalhostEthereumLogs.log - Logs from Ethereum Network running locally
+
+      * TODO: Why isn't `fulfilledValueCallback` being called after `requestValue` gets called?
 2. Remix
-  * If necessary
+  * If necessary, similar to how used with Testnet below
 
 ##### Testnet
 
