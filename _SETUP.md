@@ -351,6 +351,10 @@ git submodule update --init --recursive
   * View on Secret Localhost block explorer
   * Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
 
+  * Note: In order to populate the `secret.localhost.secretGateway.gatewayContractPublicKey` and `secret.localhost.secretGateway.gatewayContractEncryptionKeyForChaChaPoly1305`, according to Alex at Secret Network, you can't get a public key for it because it relies on the on-chain randomness (Secret VRF) to get a private key first. As such, you have to make some mock code to make it usable on a local testnet (where secretVRF from env.block.random is not available).
+
+  * Next, deploy the Nunya Secret contract...
+
 * IGNORE - Terminal Tab 2: Option B (SecretCLI) Compile, Upload, Instantiate:
   * [Compile](https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy#compile-the-code). Note: Outputs contract.wasm or contract.wasm.gz file in the root directory being the ./SecretPath/TNLS-Gateways/secret/ folder. Using `make build-mainnet-reproducible` will remove contract.wasm so only the optimised contract.wasm.gz remains. Warning: If you only run `make build-mainnet` then you will get this error https://github.com/svub/nunya/issues/8 when deploying.
 

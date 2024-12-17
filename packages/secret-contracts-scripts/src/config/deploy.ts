@@ -83,8 +83,10 @@ const config = {
         gatewayContractCodeId: "1", // only know after upload
         gatewayContractAddress: "secret1mfk7n6mc2cg6lznujmeckdh4x0a5ezf6hx6y8q", // only know after instantiate
         gatewayContractCodeHash: "97653655266e70774ab8f0bf2ee2c17ff4a7f47d2e2fd477c69b52476841277b", // only know after upload
-        gatewayContractPublicKey: "",
-        gatewayContractEncryptionKeyForChaChaPoly1305: "",
+        // note: mock value hard-coded
+        gatewayContractPublicKey: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        // note: mock value hard-coded
+        gatewayContractEncryptionKeyForChaChaPoly1305: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
         gatewayContractWasmPath: "secret-gateway-contract.wasm.gz",
       }
     }
