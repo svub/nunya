@@ -500,6 +500,8 @@ contract Gateway is Ownable, Utils {
     function requestValue(uint256 _callbackSelector, uint32 _callbackGasLimit) external payable onlyOwner returns (uint256 requestId) {
         console.log("------ Gateway.requestValue");
 
+        bytes28 senderAddressBase64 = encodeAddressToBase64(address(msg.sender));
+
         requestId = taskId;
 
         // TODO: optionally add guard to verify value of _callbackSelector if necessary
@@ -537,7 +539,7 @@ contract Gateway is Ownable, Utils {
             // If the Gateway contract by the Secret team was used instead then we would need a way to upgrade that contract
             // to allow us to set an `owner`-like value that could be used to restrict calls to functions like this.
             '","user_address":"', address(msg.sender),
-            '","user_key":"', encodeAddressToBase64(address(msg.sender)),
+            '","user_key":"', senderAddressBase64,
             '","callback_address":"', address(msg.sender),
             '"'
         );
@@ -548,7 +550,7 @@ contract Gateway is Ownable, Utils {
             '{"data":"{\\"callbackSelector\\":',
             uint256toBytesString(_callbackSelector),
             payload_info,
-            encodeAddressToBase64(address(msg.sender)), //callback_address
+            senderAddressBase64, //callback_address
             // callback selector should be a hex value already converted into base64 to be used
             // as callback_selector of the request_value function in the Secret contract 
             '","callback_selector":"', uint256toBytesString(_callbackSelector),
@@ -572,14 +574,14 @@ contract Gateway is Ownable, Utils {
         // TODO - make `user_key` a unique key different from `user_pubkey`
         // FIXME - `Error: Transaction reverted without a reason` occurs the 3rd time that
         // `encodeAddressToBase64` is called in this function
-        // bytes memory userKey = bytes.concat(encodeAddressToBase64(address(msg.sender))); // equals AAA= in base64
+        bytes memory userKey = bytes.concat(senderAddressBase64); // equals AAA= in base64
 
         console.log("2");
 
         // ExecutionInfo struct
         ExecutionInfo memory executionInfo = ExecutionInfo({
-            // user_key: userKey, // FIXME - use this instead when resolve issue
-            user_key: emptyBytes,
+            user_key: userKey, // FIXME - use this instead when resolve issue
+            // user_key: emptyBytes,
             // FIXME: use of `secret_gateway_signer_pubkey` does not compile, what alternative to use?
             // user_pubkey: uint256toBytesString(secret_gateway_signer_pubkey),
             user_pubkey: emptyBytes, // Fill with 0 bytes
@@ -620,8 +622,10 @@ contract Gateway is Ownable, Utils {
     /// @param _callbackGasLimit The gas limit for the callback
     /// @return requestId The request ID for the random words
 
-    function retrievePubkey(uint256 _callbackSelector, uint32 _callbackGasLimit) external payable returns (uint256 requestId) {
+    function retrievePubkey(uint256 _callbackSelector, uint32 _callbackGasLimit) external payable onlyOwner returns (uint256 requestId) {
         console.log("------ Gateway.retrievePubkey");
+
+        bytes28 senderAddressBase64 = encodeAddressToBase64(address(msg.sender));
 
         requestId = taskId;
 
@@ -653,7 +657,7 @@ contract Gateway is Ownable, Utils {
             '}","routing_info":"', routing_info,
             '","routing_code_hash":"', routing_code_hash,
             '","user_address":"', address(msg.sender),
-            '","user_key":"', encodeAddressToBase64(address(msg.sender)),
+            '","user_key":"', senderAddressBase64,
             '","callback_address":"', address(msg.sender),
             '"'
         );
@@ -663,7 +667,7 @@ contract Gateway is Ownable, Utils {
             '{"data":"{\\"callbackSelector\\":',
             uint256toBytesString(_callbackSelector),
             payload_info,
-            encodeAddressToBase64(owner), //callback_address
+            senderAddressBase64, //callback_address
             '","callback_selector":"OLpGFA==","callback_gas_limit":', // 0x38ba4614 hex value already converted into base64, callback_selector of the fulfillRandomWords function
             uint256toBytesString(_callbackGasLimit),
             '}' 

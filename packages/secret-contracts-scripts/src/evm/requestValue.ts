@@ -61,8 +61,6 @@ async function unsafeRequestValue() {
   const taskDestinationNetwork = await gatewayContract.task_destination_network();
   console.log("taskDestinationNetwork: ", taskDestinationNetwork);
 
-  // FIXME: The below does not provide a response using this script. It does however work if done via Remix
-  //
   // Previously in the gateway evm contract onlyOwner was set to be whoever created the contract in its
   // constructor (e.g. the `DEPLOYER_ADDRESS`) with `owner = msg.sender` but `setSecretContractInfo`
   // function in the gateway evm contract only allows `onlyOwner` to call it, but the caller is using
