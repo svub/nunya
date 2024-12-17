@@ -91,7 +91,7 @@ async function unsafeRequestValue() {
   console.log("callbackSelector: ", callbackSelector);
   const callbackGasLimit = 30000000; // 30000000 is the block gas limit
   txParams = {
-    value: ethers.utils.parseEther("5.0000"), // 0.0001 ETH = 100000 Gwei
+    value: ethers.utils.parseEther("2.5000"), // 0.0001 ETH = 100000 Gwei
     gasLimit: callbackGasLimit,
     gasPrice: hexlify(8000000000),
   }

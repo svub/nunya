@@ -559,7 +559,7 @@ contract Gateway is Ownable, Utils {
         // TODO - make `user_key` a unique key different from `user_pubkey`
         // FIXME - `Error: Transaction reverted without a reason` occurs the 3rd time that
         // `encodeAddressToBase64` is called in this function
-        bytes memory userKey = bytes.concat(encodeAddressToBase64(address(owner))); // equals AAA= in base64
+        // bytes memory userKey = bytes.concat(encodeAddressToBase64(address(owner))); // equals AAA= in base64
 
         console.log("2");
 
