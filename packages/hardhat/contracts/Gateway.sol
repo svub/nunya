@@ -147,6 +147,7 @@ contract Gateway is Ownable, Utils {
     /// @return result The bytes28 encoded string
 
     function encodeAddressToBase64(address data) public pure returns (bytes28 result) {
+        console.log("------ Gateway.encodeAddressToBase64");
         bytes memory table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
         assembly {
             let resultPtr := mload(0x00) // Load scratch memory pointer
@@ -496,9 +497,9 @@ contract Gateway is Ownable, Utils {
         // TODO: optionally add guard to verify value of _callbackSelector if necessary
 
         uint256 estimatedPrice = estimateRequestPrice(_callbackGasLimit);
-        console.log("------ Gateway.send - _callbackGasLimit: ", _callbackGasLimit);
-        console.log("------ Gateway.send - estimatedPrice: ", estimatedPrice);
-        console.log("------ Gateway.send - msg.value: ", msg.value);
+        console.log("------ Gateway.requestValue - _callbackGasLimit: ", _callbackGasLimit);
+        console.log("------ Gateway.requestValue - estimatedPrice: ", estimatedPrice);
+        console.log("------ Gateway.requestValue - msg.value: ", msg.value);
 
         // Refund any excess gas paid beyond the estimated price
         if (msg.value > estimatedPrice) {
@@ -527,6 +528,7 @@ contract Gateway is Ownable, Utils {
             '","callback_address":"', address(owner),
             '"'
         );
+        // console.log("------ Gateway.requestValue - payload_info: ", payload_info);
 
         //construct the payload that is sent into the Secret Gateway
         bytes memory payload = bytes.concat(
@@ -540,19 +542,31 @@ contract Gateway is Ownable, Utils {
             '","callback_gas_limit":', uint256toBytesString(_callbackGasLimit),
             '}' 
         );
+        // console.log("------ Gateway.requestValue - payload: ", payload);
 
         uint256 _newNonce = nonce + 1;
         increaseNonce(_newNonce);
+        console.log("------ Gateway.requestValue - _newNonce: ", _newNonce);
 
         //generate the payload hash using the ethereum hash format for messages
         bytes32 payloadHash = ethSignedPayloadHash(payload);
+        // console.log("------ Gateway.requestValue - payloadHash: ", payloadHash);
 
         bytes memory emptyBytes = hex"0000";
 
+        console.log("1");
+
+        // TODO - make `user_key` a unique key different from `user_pubkey`
+        // FIXME - `Error: Transaction reverted without a reason` occurs the 3rd time that
+        // `encodeAddressToBase64` is called in this function
+        bytes memory userKey = bytes.concat(encodeAddressToBase64(address(owner))); // equals AAA= in base64
+
+        console.log("2");
+
         // ExecutionInfo struct
         ExecutionInfo memory executionInfo = ExecutionInfo({
-            // TODO - make `user_key` a unique key different from `user_pubkey`
-            user_key: bytes32ToBytes(encodeAddressToBase64(address(owner))), // equals AAA= in base64
+            // user_key: userKey, // FIXME - use this instead when resolve issue
+            user_key: emptyBytes,
             // FIXME: use of `secret_gateway_signer_pubkey` does not compile, what alternative to use?
             // user_pubkey: uint256toBytesString(secret_gateway_signer_pubkey),
             user_pubkey: emptyBytes, // Fill with 0 bytes
@@ -566,6 +580,8 @@ contract Gateway is Ownable, Utils {
             // Signature of hash of encrypted input values
             payload_signature: bytes32ToBytes(payloadHash)
         });
+
+        console.log("3");
 
         // persisting the task
         tasks[requestId] = Task(bytes31(payloadHash), false);
@@ -582,6 +598,8 @@ contract Gateway is Ownable, Utils {
 
         //Output the current task_id / request_id to the user and increase the taskId to be used in the next gateway call. 
         taskId = requestId + 1;
+
+        return taskId;
     }
 
     /// @notice Retrieves public key of the deployed secret contract
@@ -597,9 +615,9 @@ contract Gateway is Ownable, Utils {
         // TODO: optionally add guard to verify value of _callbackSelector if necessary
 
         uint256 estimatedPrice = estimateRequestPrice(_callbackGasLimit);
-        console.log("------ Gateway.send - _callbackGasLimit: ", _callbackGasLimit);
-        console.log("------ Gateway.send - estimatedPrice: ", estimatedPrice);
-        console.log("------ Gateway.send - msg.value: ", msg.value);
+        console.log("------ Gateway.retrievePubkey - _callbackGasLimit: ", _callbackGasLimit);
+        console.log("------ Gateway.retrievePubkey - estimatedPrice: ", estimatedPrice);
+        console.log("------ Gateway.retrievePubkey - msg.value: ", msg.value);
 
         // Refund any excess gas paid beyond the estimated price
         if (msg.value > estimatedPrice) {

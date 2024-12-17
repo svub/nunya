@@ -817,6 +817,52 @@ make store-nunya-contract-local
 
   * FIXME: See unresolve error status in comments of ./nunya/packages/secret-contracts-scripts/src/evm/requestValue.ts
 
+  * Note: To quickly rebuild and redeploy if Solidity files get changed run the following:
+    * Local machine
+      ```
+      REMOTE_IP=172.105.184.209
+      SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/hardhat/contracts/Gateway.sol
+      DESTINATION=/root/nunya/packages/hardhat/contracts/Gateway.sol
+      scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+      Gateway.sol
+
+      REMOTE_IP=172.105.184.209
+      SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/evm/requestValue.ts
+      DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/evm/requestValue.ts
+      scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+      requestValue.ts
+      ```
+    * Remote server
+      * Terminal 1
+        ```
+        yarn hardhat:chain
+        ```
+      * Terminal 2
+        ```
+        yarn hardhat:clean && yarn hardhat:compile && yarn hardhat:deploy --network localhost
+        ```
+        * Update deploy.ts with an updated gateway deployment address if it changed
+        * Copy it across if it changes:
+          ```
+          REMOTE_IP=172.105.184.209
+          SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/hardhat/.env
+          DESTINATION=/root/nunya/packages/hardhat/.env
+          scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+
+          SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/.env
+          DESTINATION=/root/nunya/packages/hardhat/.env
+          scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+
+          SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/config/deploy.ts
+          DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/config/deploy.ts
+          scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+          ```
+
+        ```
+        yarn run secret:setEVMGatewayAddress && yarn run secret:requestValue
+        ```
+      * View logs in both terminals
+
 2. Remix
   * If necessary
 
@@ -829,7 +875,7 @@ Options:
     yarn run secret:requestValue
     ```
 
-    * FIXME: Even if in requestValue.ts we provide a callbackGasLimit of 30000000, which is the block gas limit, in the `requestValue` function of Gateway.sol that gets called, it calculates that the `estimatedPrice` is `240000000000000000` based on that `30000000`, but the msg.value is only `100000000000000`
+    * FIXME: Even if in requestValue.ts we provide a callbackGasLimit of 30000000, which is the block gas limit, in the `requestValue` function of Gateway.sol that gets called, it calculates that the `estimatedPrice` is `2400000000000000000` based on that `30000000`, but the msg.value is only `100000000000000`
 
 2. Remix
 
