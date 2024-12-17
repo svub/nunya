@@ -529,11 +529,15 @@ contract Gateway is Ownable, Utils {
         bytes memory payload_info = abi.encodePacked(
             '}","routing_info":"', routing_info,
             '","routing_code_hash":"', routing_code_hash,
-            // FIXME: Should be msg.sender not the owner as discussed with Tom since we are forwarding to Secret network
-            // but I think it should be owner, which is the NunyaBusiness contract address
-            '","user_address":"', address(msg.sender),
-            '","user_key":"', encodeAddressToBase64(address(msg.sender)),
-            '","callback_address":"', address(msg.sender),
+            // Note: In this custom Gateway.sol, the NunyaBusiness contract address is provided as an argument in its
+            // constructor and set to be the `owner` in storage. Furthermore, we apply `onlyOwner` modifier to this
+            // function that restricts calls to only be allowed to come from a `msg.sender` that is the same as the `owner`.
+            // If it is `msg.sender` then it would allow a call to be made from anyone, even a "fake" NunyaBusiness contract.
+            // If the Gateway contract by the Secret team was used instead then we would need a way to upgrade that contract
+            // to allow us to set an `owner`-like value that could be used to restrict calls to functions like this.
+            '","user_address":"', address(owner),
+            '","user_key":"', encodeAddressToBase64(address(owner)),
+            '","callback_address":"', address(owner),
             '"'
         );
         // console.log("------ Gateway.requestValue - payload_info: ", payload_info);
@@ -543,7 +547,7 @@ contract Gateway is Ownable, Utils {
             '{"data":"{\\"callbackSelector\\":',
             uint256toBytesString(_callbackSelector),
             payload_info,
-            encodeAddressToBase64(address(msg.sender)), //callback_address
+            encodeAddressToBase64(address(owner)), //callback_address
             // callback selector should be a hex value already converted into base64 to be used
             // as callback_selector of the request_value function in the Secret contract 
             '","callback_selector":"', uint256toBytesString(_callbackSelector),
@@ -647,11 +651,9 @@ contract Gateway is Ownable, Utils {
         bytes memory payload_info = abi.encodePacked(
             '}","routing_info":"', routing_info,
             '","routing_code_hash":"', routing_code_hash,
-            // FIXME: Should be msg.sender not the owner as discussed with Tom since we are forwarding to Secret network
-            // but I think it should be owner, which is the NunyaBusiness contract address
-            '","user_address":"', address(msg.sender),
-            '","user_key":"', encodeAddressToBase64(address(msg.sender)),
-            '","callback_address":"', address(msg.sender),
+            '","user_address":"', address(owner),
+            '","user_key":"', encodeAddressToBase64(address(owner)),
+            '","callback_address":"', address(owner),
             '"'
         );
 
@@ -660,7 +662,7 @@ contract Gateway is Ownable, Utils {
             '{"data":"{\\"callbackSelector\\":',
             uint256toBytesString(_callbackSelector),
             payload_info,
-            encodeAddressToBase64(msg.sender), //callback_address
+            encodeAddressToBase64(owner), //callback_address
             '","callback_selector":"OLpGFA==","callback_gas_limit":', // 0x38ba4614 hex value already converted into base64, callback_selector of the fulfillRandomWords function
             uint256toBytesString(_callbackGasLimit),
             '}' 
