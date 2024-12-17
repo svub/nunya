@@ -16,7 +16,7 @@ const walletOptions = {
 
 const { nunyaBusinessContractAddress } = config.evm.sepolia;
 
-const { walletMnemonic, isOptimizedContractWasm, wasmContractPath, gatewayAddress, gatewayHash, gatewayPublicKey, chainId, endpoint } =
+const { walletMnemonic, isOptimizedContractWasm, secretNunya: { nunyaContractWasmPath }, secretGateway: { gatewayContractAddress, gatewayContractCodeHash, gatewayContractPublicKey }, chainId, endpoint } =
   config.secret.network == "testnet"
   ? config.secret.testnet
   : config.secret.localhost;
@@ -25,7 +25,7 @@ if (walletMnemonic == "") {
   throw Error("Unable to obtain mnemonic phrase");
 }
 
-if (gatewayAddress == "" || gatewayHash == "" || gatewayPublicKey == "") {
+if (gatewayContractAddress == "" || gatewayContractCodeHash == "" || gatewayContractPublicKey == "") {
   throw Error("Unable to obtain Secret Network Gateway information");
 }
 
@@ -38,12 +38,12 @@ console.log('wallet address: ', wallet.address);
 
 const rootPath = path.join(__dirname, '../../../'); // relative to ./dist
 console.log('rootPath', rootPath)
-// const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${wasmContractPath}`);
+// const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${nunyaContractWasmPath}`);
 // Optimised nunya-contract
-const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${isOptimizedContractWasm ? "optimized-wasm/" : "/"}${wasmContractPath}`);
+const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${isOptimizedContractWasm ? "optimized-wasm/" : "/"}${nunyaContractWasmPath}`);
 
-const gatewayPublicKeyBytes = Buffer.from(
-  gatewayPublicKey.substring(2),
+const gatewayContractPublicKeyBytes = Buffer.from(
+  gatewayContractPublicKey.substring(2),
   "hex"
 ).toString("base64");
 

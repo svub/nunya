@@ -16,20 +16,16 @@ export const queryPubkey = async (params: any) => {
 }
 
 async function main() {
-  const { chainId, codeId, contractCodeHash, endpoint, secretContractAddress } =
+  const { chainId, endpoint, secretNunya: { nunyaContractCodeId, nunyaContractAddress, nunyaContractCodeHash } } =
     config.secret.network == "testnet"
     ? config.secret.testnet
     : config.secret.localhost;
 
-  // Replace with deployed Secret contract details
-  const SECRET_ADDRESS = secretContractAddress;
-  const CONTRACT_CODE_HASH = contractCodeHash;
-
   let params = {
     endpoint: endpoint,
     chainId: chainId,
-    contractAddress: SECRET_ADDRESS,
-    contractCodeHash: CONTRACT_CODE_HASH,
+    contractAddress: nunyaContractAddress,
+    contractCodeHash: nunyaContractCodeHash,
   };
 
   // Chain the execution using promises

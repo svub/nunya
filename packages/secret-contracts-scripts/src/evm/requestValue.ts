@@ -12,7 +12,7 @@ if (config.evm.network != "sepolia") {
   console.error("Unsupported network");
 }
 
-const { contractCodeHash, secretContractAddress } =
+const { secretNunya: { nunyaContractCodeId, nunyaContractAddress, nunyaContractCodeHash } } =
   config.secret.network == "testnet"
   ? config.secret.testnet
   : config.secret.localhost;
@@ -20,8 +20,8 @@ const { contractCodeHash, secretContractAddress } =
 const { chainId, endpoint, nunyaBusinessContractAddress, gatewayContractAddress, privateKey } =
   config.evm.sepolia;
 
-const SECRET_ADDRESS = secretContractAddress;
-const CONTRACT_CODE_HASH = contractCodeHash;
+const SECRET_ADDRESS = nunyaContractAddress;
+const CONTRACT_CODE_HASH = nunyaContractCodeHash;
 
 async function unsafeRequestValue() {
   const ifaceGateway = new ethers.utils.Interface(gatewayAbi.abi);

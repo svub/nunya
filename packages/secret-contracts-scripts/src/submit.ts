@@ -20,7 +20,7 @@ if (config.evm.network != "sepolia") {
   console.error("Unsupported network");
 }
 
-const { contractCodeHash, secretContractAddress } =
+const { secretNunya: { nunyaContractCodeId, nunyaContractAddress, nunyaContractCodeHash } } =
   config.secret.network == "testnet"
   ? config.secret.testnet
   : config.secret.localhost;
@@ -28,8 +28,8 @@ const { contractCodeHash, secretContractAddress } =
 const { chainId, endpoint, nunyaBusinessContractAddress, gatewayContractAddress, privateKey } =
   config.evm.sepolia;
 
-const SECRET_ADDRESS = secretContractAddress;
-const CONTRACT_CODE_HASH = contractCodeHash;
+const SECRET_ADDRESS = nunyaContractAddress;
+const CONTRACT_CODE_HASH = nunyaContractCodeHash;
 
 // https://stackoverflow.com/questions/72476017/how-to-convert-a-javascript-number-to-a-uint8array#72476502
 function numToUint8Array(num: any) {

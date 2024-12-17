@@ -15,7 +15,7 @@ const walletOptions = {
 
 const { nunyaBusinessContractAddress } = config.evm.sepolia;
 
-const { walletMnemonic, codeId, contractCodeHash, gatewayAddress, gatewayHash, gatewayPublicKey, chainId, endpoint } =
+const { walletMnemonic, secretNunya: { nunyaContractCodeId, nunyaContractAddress, nunyaContractCodeHash }, secretGateway: { gatewayContractAddress, gatewayContractCodeHash, gatewayContractPublicKey }, chainId, endpoint } =
   config.secret.network == "testnet"
   ? config.secret.testnet
   : config.secret.localhost;
@@ -24,7 +24,7 @@ if (walletMnemonic == "") {
   throw Error("Unable to obtain mnemonic phrase");
 }
 
-if (gatewayAddress == "" || gatewayHash == "" || gatewayPublicKey == "") {
+if (gatewayContractAddress == "" || gatewayContractCodeHash == "" || gatewayContractPublicKey == "") {
   throw Error("Unable to obtain Secret Network Gateway information");
 }
 
@@ -38,10 +38,10 @@ console.log('wallet address: ', wallet.address);
 const rootPath = path.join(__dirname, '../../../'); // relative to ./dist
 console.log('rootPath', rootPath)
 
-let CODE_ID: String = codeId;
-let CONTRACT_CODE_HASH: String = contractCodeHash;
+let CODE_ID: String = nunyaContractCodeId;
+let CONTRACT_CODE_HASH: String = nunyaContractCodeHash;
 
-const gatewayPublicKeyBytes = Buffer.from(gatewayPublicKey.substring(2), "hex").toString("base64");
+const gatewayContractPublicKeyBytes = Buffer.from(gatewayContractPublicKey.substring(2), "hex").toString("base64");
 
 async function main () {
   const secretjs = new SecretNetworkClient({
@@ -91,9 +91,9 @@ async function main () {
     }
 
     let initMsg: INIT_MSG = {
-      gateway_address: gatewayAddress,
-      gateway_hash: gatewayHash,
-      gateway_key: gatewayPublicKeyBytes,
+      gateway_address: gatewayContractAddress,
+      gateway_hash: gatewayContractCodeHash,
+      gateway_key: gatewayContractPublicKeyBytes,
       nunya_business_contract_address: nunyaBusinessContractAddress,
     };
 

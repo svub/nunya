@@ -6,12 +6,12 @@ import { base64_to_bytes, sha256 } from "@blake.regalia/belt";
 import config from '../../config/deploy.js';
 
 export async function generateKeys() {
-  const { gatewayEncryptionKeyForChaChaPoly1305 } =
+  const { secretGateway: { gatewayContractEncryptionKeyForChaChaPoly1305 } } =
   config.secret.network == "testnet"
   ? config.secret.testnet
   : config.secret.localhost;
 
-  if (gatewayEncryptionKeyForChaChaPoly1305 == "") {
+  if (gatewayContractEncryptionKeyForChaChaPoly1305 == "") {
     throw Error("Unable to obtain Secret Network Gateway information");
   }
 
@@ -32,13 +32,13 @@ export async function generateKeys() {
   console.log('userPublicKeyBytes: ', userPublicKeyBytes);
   // Secret Network Testnet
   // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-testnet-pulsar-3-contracts
-  const gatewayPublicKey = gatewayEncryptionKeyForChaChaPoly1305;
-  console.log('gatewayPublicKey: ', gatewayPublicKey);
-  const gatewayPublicKeyBytes = base64_to_bytes(gatewayPublicKey);
-  console.log('gatewayPublicKeyBytes: ', gatewayPublicKeyBytes);
+  const gatewayContractPublicKey = gatewayContractEncryptionKeyForChaChaPoly1305;
+  console.log('gatewayContractPublicKey: ', gatewayContractPublicKey);
+  const gatewayContractPublicKeyBytes = base64_to_bytes(gatewayContractPublicKey);
+  console.log('gatewayContractPublicKeyBytes: ', gatewayContractPublicKeyBytes);
 
   // https://github.com/SolarRepublic/neutrino/blob/main/src/secp256k1.ts#L334
-  const sharedKey = await sha256(ecdh(userPrivateKeyBytes, gatewayPublicKeyBytes));
+  const sharedKey = await sha256(ecdh(userPrivateKeyBytes, gatewayContractPublicKeyBytes));
 
   return { userPrivateKeyBytes, userPublicKeyBytes, sharedKey };
 }

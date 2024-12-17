@@ -14,7 +14,7 @@ const walletOptions = {
   bech32Prefix: 'secret',
 }
 
-const { walletMnemonic, isOptimizedContractWasm, wasmContractPath, secretGateway: { wasmSecretGatewayContractPath }, gatewayAddress, gatewayHash, gatewayPublicKey, chainId, endpoint } =
+const { walletMnemonic, isOptimizedContractWasm, secretNunya: { nunyaContractWasmPath }, secretGateway: { gatewayContractWasmPath }, chainId, endpoint } =
   config.secret.network == "testnet"
   ? config.secret.testnet
   : config.secret.localhost;
@@ -23,24 +23,15 @@ if (walletMnemonic == "") {
   throw Error("Unable to obtain mnemonic phrase");
 }
 
-// if (gatewayAddress == "" || gatewayHash == "" || gatewayPublicKey == "") {
-//   throw Error("Unable to obtain Secret Network Gateway information");
-// }
-
 const wallet = new Wallet(walletMnemonic, walletOptions);
 console.log('wallet address: ', wallet.address);
 
 const rootPath = path.join(__dirname, '../../../'); // relative to ./dist
 console.log('rootPath', rootPath)
-// const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${wasmContractPath}`);
+// const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${nunyaContractWasmPath}`);
 // Optimised nunya-contract
-// const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${isOptimizedContractWasm ? "optimized-wasm/" : "/"}${wasmContractPath}`);
-const secret_gateway_contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/secret-gateway/${isOptimizedContractWasm ? "optimized-wasm/" : "/"}${wasmSecretGatewayContractPath}`);
-
-// const gatewayPublicKeyBytes = Buffer.from(
-//   gatewayPublicKey.substring(2),
-//   "hex"
-// ).toString("base64");
+// const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${isOptimizedContractWasm ? "optimized-wasm/" : "/"}${nunyaContractWasmPath}`);
+const secret_gateway_contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/secret-gateway/${isOptimizedContractWasm ? "optimized-wasm/" : "/"}${gatewayContractWasmPath}`);
 
 async function main () {
   const secretjs = new SecretNetworkClient({
@@ -79,7 +70,8 @@ async function main () {
     };
     // ../../packages/secret-contracts-scripts/node_modules/secretjs/src/secret_network_client.ts
     let txOptions = {
-      gasLimit: 5_000_000, // default 25_000
+      // requires gasLimit of 5844449 to deploy locally
+      gasLimit: 6_000_000, // default 25_000
       gasPriceInFeeDenom: 1, // default 0.1
       feeDenom: "uscrt",
       feeGranter: wallet.address,
