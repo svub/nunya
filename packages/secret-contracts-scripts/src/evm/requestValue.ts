@@ -8,27 +8,27 @@ import config from '../config/deploy.js';
 import gatewayAbi from "../../../hardhat/artifacts/contracts/Gateway.sol/Gateway.json" assert { type: "json" };
 import nunyaAbi from "../../../hardhat/artifacts/contracts/NunyaBusiness.sol/NunyaBusiness.json" assert { type: "json" };
 
-if (config.evm.network != "sepolia") {
-  console.error("Unsupported network");
-}
-
 const { secretNunya: { nunyaContractCodeId, nunyaContractAddress, nunyaContractCodeHash } } =
   config.secret.network == "testnet"
   ? config.secret.testnet
   : config.secret.localhost;
 
-const { chainId, endpoint, nunyaBusinessContractAddress, gatewayContractAddress, privateKey } =
-  config.evm.sepolia;
-
-const SECRET_ADDRESS = nunyaContractAddress;
-const CONTRACT_CODE_HASH = nunyaContractCodeHash;
+let vars;
+if (config.evm.network == "sepolia") {
+  vars = config.evm.sepolia;
+} else if (config.evm.network == "localhost") {
+  vars = config.evm.localhost;
+} else {
+  throw new Error(`Unsupported network.`)
+}
+const { chainId, endpoint, nunyaBusinessContractAddress, gatewayContractAddress, privateKey } = vars;
 
 async function unsafeRequestValue() {
   const ifaceGateway = new ethers.utils.Interface(gatewayAbi.abi);
   const ifaceNunya = new ethers.utils.Interface(nunyaAbi.abi);
 
-  const routing_contract = SECRET_ADDRESS;
-  const routing_code_hash = CONTRACT_CODE_HASH;
+  const routing_contract = nunyaContractAddress;
+  const routing_code_hash = nunyaContractCodeHash;
   
   if (!privateKey) {
     console.log("🚫️ You don't have a deployer account. Run `yarn hardhat:generate` first");
@@ -70,37 +70,46 @@ async function unsafeRequestValue() {
   // is calling that function in the gateway evm contract, so it was changed to be
   // `owner = nunyaBusinessAddress`
 
-  // const txParams = {
-  //   value: ethers.utils.parseEther("0.0001"),
-  //   gasLimit: 10000000,
-  //   gasPrice: hexlify(200000),
-  // }
-  // const txResponseSetUnsafeSetSecretContractInfo =
-  //   await nunyaContract.unsafeSetSecretContractInfo(routing_contract, routing_code_hash, txParams);
-  // console.log("responseSetUnsafeSetSecretContractInfo", txResponseSetUnsafeSetSecretContractInfo);
-  // // wait() has the logic to return receipt once the transaction is mined
-  // const receipt = await txResponseSetUnsafeSetSecretContractInfo.wait();
-  // console.log("Receipt: ", receipt);
-  // console.log("Tx Hash: ", receipt.hash);
+  let txParams = {
+    value: ethers.utils.parseEther("0.0001"),
+    gasLimit: 10000000,
+    // Error when use value `200000`: Transaction maxFeePerGas (200000) is too low for the next block, which has a baseFeePerGas of 25209935
+    gasPrice: hexlify(8000000000), // 8 Gwei is 8000000000
+  }
+  const txResponseSetUnsafeSetSecretContractInfo =
+    await nunyaContract.unsafeSetSecretContractInfo(routing_contract, routing_code_hash, txParams);
+  console.log("responseSetUnsafeSetSecretContractInfo", txResponseSetUnsafeSetSecretContractInfo);
+  // wait() has the logic to return receipt once the transaction is mined
+  let receipt = await txResponseSetUnsafeSetSecretContractInfo.wait();
+  console.log("Receipt: ", receipt);
 
   // FIXME: Use Remix instead until resolve how to do it via this script
-  // const callbackSelector = ifaceGateway.getSighash(
-  //   // requestValue - 0xb6c2b131
-  //   ifaceGateway.getFunction("requestValue")
-  // );
-  // console.log("callbackSelector: ", callbackSelector);
-  // const callbackGasLimit = 10000000; // 90000
-  // const txParams = {
-  //   value: ethers.utils.parseEther("0.0001"), // 0.0001 ETH = 100000 Gwei
-  //   gasLimit: callbackGasLimit, // 90000
-  //   gasPrice: hexlify(200000),
-  // }
-  // const txResponseUnsafeRequestValue =
-  //   await nunyaContract.unsafeRequestValue(routing_contract, routing_code_hash, txParams);
-  // console.log("responseSetUnsafeSetSecretContractInfo", txResponseUnsafeRequestValue);
-  // const receipt = await txResponseUnsafeRequestValue.wait();
-  // console.log("Receipt: ", receipt);
-  // console.log("Tx Hash: ", receipt.hash);
+  const callbackSelector = ifaceGateway.getSighash(
+    // requestValue - 0xb6c2b131
+    ifaceGateway.getFunction("requestValue")
+  );
+  console.log("callbackSelector: ", callbackSelector);
+  const callbackGasLimit = 30000000; // 30000000 is the block gas limit
+  txParams = {
+    value: ethers.utils.parseEther("0.2500"), // 0.0001 ETH = 100000 Gwei
+    gasLimit: callbackGasLimit,
+    gasPrice: hexlify(8000000000),
+  }
+  // Error: VM Exception while processing transaction: reverted with reason string 'Paid Callback Fee Too Low'
+  //
+  // Issue: If we provide a callbackGasLimit of 30000000, which is the block gas limit, the `requestValue` function of Gateway.sol that gets called
+  // calculates that the `estimatedPrice` is `240000000000000000` based on that `30000000`, but the msg.value we provided is only
+  // `100000000000000`
+  //
+  // Potential Solution: Increase `value` of the txParams from `100000000000000` to `250000000000000000`, which corresponds to 0.25 ETH,
+  // which is greater than 0.24 ETH that it needs to be larger than according to the estimate.
+  // However, even after making that change, or infact even increasing to 1 ETH results in a different error:
+  // `Error: Transaction reverted: contract call run out of gas and made the transaction revert`
+  const txResponseUnsafeRequestValue =
+    await nunyaContract.unsafeRequestValue(callbackSelector, callbackGasLimit, txParams);
+  console.log("txResponseUnsafeRequestValue", txResponseUnsafeRequestValue);
+  receipt = await txResponseUnsafeRequestValue.wait();
+  console.log("Receipt: ", receipt);
 }
 
 async function main() {

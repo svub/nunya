@@ -37,10 +37,18 @@ contract Gateway is Ownable, Utils {
 
     // SecretPath testnet (pulsar-3) contracts
     // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-testnet-pulsar-3-contracts
-    string constant public task_destination_network = "pulsar-3";
+    //string constant public task_destination_network = "pulsar-3";
     // This is the Derived Ethereum Address from the Public Key of the deployed Gateway contract on the Secret Network Testnet
     // uint256 immutable public secret_gateway_signer_pubkey = 0x046d0aac3ef10e69055e934ca899f508ba516832dc74aa4ed4d741052ed5a568774d99d3bfed641a7935ae73aac8e34938db747c2f0e8b2aa95c25d069a575cc8b;
-    address immutable public secret_gateway_signer_address = 0x2821E794B01ABF0cE2DA0ca171A1fAc68FaDCa06;
+    //address immutable public secret_gateway_signer_address = 0x2821E794B01ABF0cE2DA0ca171A1fAc68FaDCa06;
+
+    // SecretPath localhost () contracts
+    // Note: Match the value shown in ../../../packages/secret-contracts-scripts/src/config/deploy.ts
+    string constant public task_destination_network = "secretdev-1";
+    // This is the Derived Ethereum Address from the Public Key of the deployed Gateway contract on the Secret Network Testnet
+    // uint256 immutable public secret_gateway_signer_pubkey = ???;
+    // address immutable public secret_gateway_signer_address = ???;
+
     // TODO: Add deployed custom Secret contract address to be same as `SECRET_ADDRESS` and codehash `CONTRACT_CODE_HASH` used in scripts
     string public routing_info = "";
     string public routing_code_hash = "";
@@ -338,6 +346,8 @@ contract Gateway is Ownable, Utils {
         string calldata _routingInfo,
         ExecutionInfo calldata _info) 
         external payable onlyOwner returns (uint256 _taskId) {
+    
+        console.log("------ Gateway.send");
 
         require(_nunyaBusinessContractAddress == owner, "sender must be the owner of the deployed Gateway contract");
 
@@ -346,6 +356,9 @@ contract Gateway is Ownable, Utils {
         _taskId = taskId;
 
         uint256 estimatedPrice = estimateRequestPrice(_info.callback_gas_limit);
+        console.log("------ Gateway.send - _info.callback_gas_limit: ", _info.callback_gas_limit);
+        console.log("------ Gateway.send - estimatedPrice: ", estimatedPrice);
+        console.log("------ Gateway.send - msg.value: ", msg.value);
 
         // Refund any excess gas paid beyond the estimated price
         if (msg.value > estimatedPrice) {
@@ -421,8 +434,9 @@ contract Gateway is Ownable, Utils {
         // Packet hash verification
         require(packetHash == _info.packet_hash, "Invalid Packet Hash");
 
-        // Packet signature verification
-        require(recoverSigner(packetHash, _info.packet_signature) == secret_gateway_signer_address, "Invalid Packet Signature");
+        // FIXME: Temporarily disable since do not know how to obtain `secret_gateway_signer_address` when using Secret Localhost
+        // // Packet signature verification
+        // require(recoverSigner(packetHash, _info.packet_signature) == secret_gateway_signer_address, "Invalid Packet Signature");
         
         //Mark the task as completed
         tasks[_taskId].completed = true;
@@ -475,13 +489,16 @@ contract Gateway is Ownable, Utils {
     /// @return requestId The request ID
 
     function requestValue(uint256 _callbackSelector, uint32 _callbackGasLimit) external payable onlyOwner returns (uint256 requestId) {
-        // console.log("------ Gateway.requestValue");
+        console.log("------ Gateway.requestValue");
 
         requestId = taskId;
 
         // TODO: optionally add guard to verify value of _callbackSelector if necessary
 
         uint256 estimatedPrice = estimateRequestPrice(_callbackGasLimit);
+        console.log("------ Gateway.send - _callbackGasLimit: ", _callbackGasLimit);
+        console.log("------ Gateway.send - estimatedPrice: ", estimatedPrice);
+        console.log("------ Gateway.send - msg.value: ", msg.value);
 
         // Refund any excess gas paid beyond the estimated price
         if (msg.value > estimatedPrice) {
@@ -573,13 +590,16 @@ contract Gateway is Ownable, Utils {
     /// @return requestId The request ID for the random words
 
     function retrievePubkey(uint256 _callbackSelector, uint32 _callbackGasLimit) external payable returns (uint256 requestId) {
-        // console.log("------ Gateway.retrievePubkey");
+        console.log("------ Gateway.retrievePubkey");
 
         requestId = taskId;
 
         // TODO: optionally add guard to verify value of _callbackSelector if necessary
 
         uint256 estimatedPrice = estimateRequestPrice(_callbackGasLimit);
+        console.log("------ Gateway.send - _callbackGasLimit: ", _callbackGasLimit);
+        console.log("------ Gateway.send - estimatedPrice: ", estimatedPrice);
+        console.log("------ Gateway.send - msg.value: ", msg.value);
 
         // Refund any excess gas paid beyond the estimated price
         if (msg.value > estimatedPrice) {

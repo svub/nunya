@@ -46,7 +46,7 @@ async function setGatewayAddress() {
   const ifaceGateway = new ethers.utils.Interface(gatewayAbi.abi);
   const ifaceNunya = new ethers.utils.Interface(nunyaAbi.abi);
 
-  console.log("Setting the Gateway address in the Nunya contract...");
+  console.log("Setting the Gateway address in the Nunya contract to: ", gatewayContractAddress);
   // Set the gateway address now that the Nunya contract and Gateway contract have been deployed and funded
   const nunyaContractInstance = new Contract(nunyaBusinessContractAddress, ifaceNunya, signer);
   console.log('nunyaContractInstance', nunyaContractInstance);

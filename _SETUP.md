@@ -49,7 +49,7 @@ cp ./packages/hardhat/.env.example ./packages/hardhat/.env
 ```
 Verify the contents of ./packages/hardhat/hardhat.config.ts
 
-Update Gateway.sol to change the value of `secret_gateway_signer_address` to be the deployed Gateway address on the Mainnet or Testnet of the Secret Network.
+> IMPORTANT: Update Gateway.sol to change the value of `task_destination_network` and `secret_gateway_signer_address` to be the deployed Gateway address on the Mainnet or Testnet or Localhost of the Secret Network, to match the value stored in ./packages/secret-contracts-scripts/src/config/deploy.ts, and comment out the values for the network not being used.
 
 * Nextjs
 
@@ -88,6 +88,7 @@ Accounts
 
 * Compile and Deploy to Local Network
 ```
+nvm use lts/hydrogen
 yarn hardhat:clean
 yarn hardhat:compile
 yarn hardhat:deploy --network localhost
@@ -792,7 +793,7 @@ yarn run secret:instantiate
   * View on Secret Localhost block explorer
   * Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
 
-  * TODO: What next?
+  * Next: Assuming that the EVM contracts NunyaBusiness and Gateway have already been deployed on localhost, then skip to [requestValue](#requestValue).
 
 * IGNORE - Option B:
 ```
@@ -804,15 +805,31 @@ make store-nunya-contract-local
 
 #### Interact with Deployed Secret Contract via Deployed EVM Gateway to `requestValue` <a id="request-value"></a> 
 
-##### Testnet
-
-Options:
+##### Localhost
 
 1. Script requestValue.ts
   * FIXME - Use Remix instead to make these transactions until resolve why not receive response from wait()
     ```bash
     yarn run secret:requestValue
     ```
+
+  * View logs. Use console.log in Solidity https://book.getfoundry.sh/reference/forge-std/console-log
+
+  * FIXME: See unresolve error status in comments of ./nunya/packages/secret-contracts-scripts/src/evm/requestValue.ts
+
+2. Remix
+  * If necessary
+
+##### Testnet
+
+Options:
+
+1. Script requestValue.ts
+    ```bash
+    yarn run secret:requestValue
+    ```
+
+    * FIXME: Even if in requestValue.ts we provide a callbackGasLimit of 30000000, which is the block gas limit, in the `requestValue` function of Gateway.sol that gets called, it calculates that the `estimatedPrice` is `240000000000000000` based on that `30000000`, but the msg.value is only `100000000000000`
 
 2. Remix
 
@@ -847,6 +864,7 @@ Options:
         * Retrieve their values by clicking to calls `routing_info` and `routing_code_hash`
       * Click `unsafeRequestValue` to create a transaction after providing the following arguments `0xb6c2b131` and `10000000`
         * FIXME - Why get error `Paid Callback Fee Too Low` from the `requestValue` function in the Gateway EVM contract https://sepolia.etherscan.io/tx/0xdab1b76f3ede8042c850a483a28d73c23a271e5eac37d0e500b55d625fbdbabb. It may be necessary to deploy to local network for debugging.
+          * See reason in Localhost attempt above.
 
 ##### Unsorted
 
