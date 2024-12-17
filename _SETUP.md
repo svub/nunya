@@ -298,57 +298,9 @@ git submodule update --init --recursive
   make start-server
   ```
 
-* Terminal Tab 2: [Compile](https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy#compile-the-code). Note: Outputs contract.wasm or contract.wasm.gz file in the root directory being the ./SecretPath/TNLS-Gateways/secret/ folder. Using `make build-mainnet-reproducible` will remove contract.wasm so only the optimised contract.wasm.gz remains. Warning: If you only run `make build-mainnet` then you will get this error https://github.com/svub/nunya/issues/8 when deploying.
-
-  * Secret Gateway Contract. Note: Wait until the Docker container exists first.
-    ```
-    make clean
-    make build
-    ```
-    * Note: If `wasm-opt` binary is required but not installed on macOS install it with `brew install binaryen` or on Linux with `apt install binaryen`
-    * Note: Use `make build-mainnet-reproducible` to deploy to Testnet
-    * Note: The default Makefile originally used `--features="debug-print"` but running that gives error `the package secret_gateway depends on secret-cosmwasm-std, with features: debug-print but secret-cosmwasm-std does not have these features.`. The reason why it was removed is mentioned here:
-        * https://github.com/CosmWasm/cosmwasm/issues/1841
-          * https://github.com/CosmWasm/wasmvm/pull/453
-        * https://github.com/CosmWasm/cosmwasm/pull/1667
-        * https://github.com/CosmWasm/cosmwasm/pull/1953
-      * Solution:
-        * https://github.com/CosmWasm/cosmwasm/blob/main/contracts/cyberpunk/tests/integration.rs#L126
-      * TODO: For Production on mainnet, configure it to use a debug-print or debug_print with a custom feature flag and wrap use of `set_debug_handler` with it so debug logs aren't output in production.
-
-* Note: Use existing secretdev Docker container that is running already.
-
-* Copy compiled Secret Gateway contract to the Docker container
-  ```
-  make copy-secret-gateway-contract-local
-  ```
-
-* Store compiled Secret Gateway contract on Localhost (Localsecret network)
-  ```
-  make store-secret-gateway-contract-local
-  ```
-  * Optional: To enter the Docker container to interact manually with secretcli:
-    ```bash
-    docker exec -it secretdev /bin/bash
-    secretcli --help
-    secretcli keys list
-    ls /root/.secretd/config
-    ```
-
-  * Example output:
-    ```
-    {"height":"0","txhash":"A5A2E9864A3F455AD503935AE739B4E898F71A5B5BFCDB7B7D6934942297223C","codespace":"","code":0,"data":"","raw_log":"","logs":[],"info":"","gas_wanted":"0","gas_used":"0","tx":null,"timestamp":"","events":[]}
-    ```
-  * Note that in the Secret Localsecret chain logs it output `num_txs=1`:
-    ```
-    11:43AM INF finalizing commit of block hash=9B39F1E7367B876F61E45CFD0DE3EC55CE59D140A4604E35622D8C6CDEE1BB66 height=115 module=consensus num_txs=1 root=371919C2BE93B7F0C2B81837770B871592793F8A74847C04593F27F8A62109A1
-    ```
-    * TODO: Why didn't it output `"height":"115"` instead of `"height":"0"`?
-
-* WIP - Option B
+* Terminal Tab 2: Option A (SecretJS) Compile, Upload, Instantiate:
   * Change back to the project root directory
   * Run the following on the local machine to copy the relevant environment variables to the remote machine
-    * TODO - change deploy.ts into a different kind of configuration file?
     ```
     REMOTE_IP=172.105.184.209
     SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/hardhat/.env
@@ -398,6 +350,56 @@ git submodule update --init --recursive
   * Add the Secret Localhost chain logs to ./logs_secret/instantiateGatewaySecretLocalhostChainOutput.log
   * View on Secret Localhost block explorer
   * Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
+
+* IGNORE - Terminal Tab 2: Option B (SecretCLI) Compile, Upload, Instantiate:
+  * [Compile](https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy#compile-the-code). Note: Outputs contract.wasm or contract.wasm.gz file in the root directory being the ./SecretPath/TNLS-Gateways/secret/ folder. Using `make build-mainnet-reproducible` will remove contract.wasm so only the optimised contract.wasm.gz remains. Warning: If you only run `make build-mainnet` then you will get this error https://github.com/svub/nunya/issues/8 when deploying.
+
+    * Secret Gateway Contract. Note: Wait until the Docker container exists first.
+      ```
+      make clean
+      make build
+      ```
+      * Note: If `wasm-opt` binary is required but not installed on macOS install it with `brew install binaryen` or on Linux with `apt install binaryen`
+      * Note: Use `make build-mainnet-reproducible` to deploy to Testnet
+      * Note: The default Makefile originally used `--features="debug-print"` but running that gives error `the package secret_gateway depends on secret-cosmwasm-std, with features: debug-print but secret-cosmwasm-std does not have these features.`. The reason why it was removed is mentioned here:
+          * https://github.com/CosmWasm/cosmwasm/issues/1841
+            * https://github.com/CosmWasm/wasmvm/pull/453
+          * https://github.com/CosmWasm/cosmwasm/pull/1667
+          * https://github.com/CosmWasm/cosmwasm/pull/1953
+        * Solution:
+          * https://github.com/CosmWasm/cosmwasm/blob/main/contracts/cyberpunk/tests/integration.rs#L126
+        * TODO: For Production on mainnet, configure it to use a debug-print or debug_print with a custom feature flag and wrap use of `set_debug_handler` with it so debug logs aren't output in production.
+
+  * Note: Use existing secretdev Docker container that is running already.
+
+  * Copy compiled Secret Gateway contract to the Docker container
+    ```
+    make copy-secret-gateway-contract-local
+    ```
+
+  * Store compiled Secret Gateway contract on Localhost (Localsecret network)
+    ```
+    make store-secret-gateway-contract-local
+    ```
+    * Optional: To enter the Docker container to interact manually with secretcli:
+      ```bash
+      docker exec -it secretdev /bin/bash
+      secretcli --help
+      secretcli keys list
+      ls /root/.secretd/config
+      ```
+
+    * Example output:
+      ```
+      {"height":"0","txhash":"A5A2E9864A3F455AD503935AE739B4E898F71A5B5BFCDB7B7D6934942297223C","codespace":"","code":0,"data":"","raw_log":"","logs":[],"info":"","gas_wanted":"0","gas_used":"0","tx":null,"timestamp":"","events":[]}
+      ```
+    * Note that in the Secret Localsecret chain logs it output `num_txs=1`:
+      ```
+      11:43AM INF finalizing commit of block hash=9B39F1E7367B876F61E45CFD0DE3EC55CE59D140A4604E35622D8C6CDEE1BB66 height=115 module=consensus num_txs=1 root=371919C2BE93B7F0C2B81837770B871592793F8A74847C04593F27F8A62109A1
+      ```
+      * TODO: Why didn't it output `"height":"115"` instead of `"height":"0"`?
+      * TODO: Why doesn't it output the CODE_ID and CODE_HASH? Use Option A instead until resolve this issue.
+
 
 ###### Deploy Relayer of SecretPath on Localhost
 
