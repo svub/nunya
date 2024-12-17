@@ -263,6 +263,9 @@ contract Gateway is Ownable, Utils {
     /// @notice Emitted when the VRF callback was fulfilled
     event FulfilledRandomWords(uint256 indexed requestId);
 
+    /// @notice Emitted when the requestValue callback was fulfilled
+    event FulfilledRequestValue(uint256 indexed requestId);
+
     // Constructor
     constructor(address nunyaContractAddress) {
         // Initializer
@@ -453,6 +456,11 @@ contract Gateway is Ownable, Utils {
                 prepareRandomnessBytesToCallbackData(0x38ba4614, _taskId, _info.result));
             emit FulfilledRandomWords(_taskId);
         }
+        else if (_info.callback_selector == 0x0f7af612) {
+            (callbackSuccessful, ) = address(_info.callback_address).call(
+                prepareResultBytesToCallbackData(_info.callback_selector, _taskId, _info.result));
+            emit FulfilledRequestValue(_taskId);
+        }
         else {
             (callbackSuccessful, ) = address(_info.callback_address).call(
                 prepareResultBytesToCallbackData(_info.callback_selector, _taskId, _info.result));
@@ -523,9 +531,9 @@ contract Gateway is Ownable, Utils {
             '","routing_code_hash":"', routing_code_hash,
             // FIXME: Should be msg.sender not the owner as discussed with Tom since we are forwarding to Secret network
             // but I think it should be owner, which is the NunyaBusiness contract address
-            '","user_address":"', address(owner),
-            '","user_key":"', encodeAddressToBase64(address(owner)),
-            '","callback_address":"', address(owner),
+            '","user_address":"', address(msg.sender),
+            '","user_key":"', encodeAddressToBase64(address(msg.sender)),
+            '","callback_address":"', address(msg.sender),
             '"'
         );
         // console.log("------ Gateway.requestValue - payload_info: ", payload_info);
@@ -535,7 +543,7 @@ contract Gateway is Ownable, Utils {
             '{"data":"{\\"callbackSelector\\":',
             uint256toBytesString(_callbackSelector),
             payload_info,
-            encodeAddressToBase64(address(owner)), //callback_address
+            encodeAddressToBase64(address(msg.sender)), //callback_address
             // callback selector should be a hex value already converted into base64 to be used
             // as callback_selector of the request_value function in the Secret contract 
             '","callback_selector":"', uint256toBytesString(_callbackSelector),
@@ -641,9 +649,9 @@ contract Gateway is Ownable, Utils {
             '","routing_code_hash":"', routing_code_hash,
             // FIXME: Should be msg.sender not the owner as discussed with Tom since we are forwarding to Secret network
             // but I think it should be owner, which is the NunyaBusiness contract address
-            '","user_address":"', address(owner),
-            '","user_key":"', encodeAddressToBase64(address(owner)),
-            '","callback_address":"', address(owner),
+            '","user_address":"', address(msg.sender),
+            '","user_key":"', encodeAddressToBase64(address(msg.sender)),
+            '","callback_address":"', address(msg.sender),
             '"'
         );
 
@@ -652,7 +660,7 @@ contract Gateway is Ownable, Utils {
             '{"data":"{\\"callbackSelector\\":',
             uint256toBytesString(_callbackSelector),
             payload_info,
-            encodeAddressToBase64(owner), //callback_address
+            encodeAddressToBase64(msg.sender), //callback_address
             '","callback_selector":"OLpGFA==","callback_gas_limit":', // 0x38ba4614 hex value already converted into base64, callback_selector of the fulfillRandomWords function
             uint256toBytesString(_callbackGasLimit),
             '}' 

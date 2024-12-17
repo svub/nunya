@@ -93,13 +93,19 @@ async function unsafeRequestSecretContractPubkey() {
   const userPublicKeyBytes = arrayify(userPublicKey);
   const sharedKey: Uint8Array = arrayify(userPublicKey)
 
-  // TODO: should this be `upgradeHandler`
-  const callbackSelector = ifaceGateway.getSighash(
-    // # upgradeHandler - 0x373d450c
-    // ?? # fulfillRandomWords - 0x38ba4614 hex, OLpGFA== base64
-    // ifaceGateway.getFunction("fulfillRandomWords")
-    // requestValue - 0xb6c2b131
-    ifaceGateway.getFunction("requestValue")
+  // // TODO: should this be `upgradeHandler`
+  // const callbackSelector = ifaceGateway.getSighash(
+  //   // # upgradeHandler - 0x373d450c
+  //   // ?? # fulfillRandomWords - 0x38ba4614 hex, OLpGFA== base64
+  //   // ifaceGateway.getFunction("fulfillRandomWords")
+  //   // requestValue - 0xb6c2b131
+  //   ifaceGateway.getFunction("requestValue")
+  // );
+  // console.log("callbackSelector: ", callbackSelector);
+
+  const callbackSelector = ifaceNunya.getSighash(
+    // fulfilledValueCallback - 0x0f7af612
+    ifaceNunya.getFunction("fulfilledValueCallback")
   );
   console.log("callbackSelector: ", callbackSelector);
 

@@ -84,10 +84,15 @@ async function unsafeRequestValue() {
   console.log("Receipt: ", receipt);
 
   // FIXME: Use Remix instead until resolve how to do it via this script
-  const callbackSelector = ifaceGateway.getSighash(
-    // requestValue - 0xb6c2b131
-    ifaceGateway.getFunction("requestValue")
+  // const callbackSelector = ifaceGateway.getSighash(
+  //   // requestValue - 0xb6c2b131
+  //   ifaceGateway.getFunction("requestValue")
+  // );
+  const callbackSelector = ifaceNunya.getSighash(
+    // requestValue - 0x0f7af612
+    ifaceNunya.getFunction("fulfilledValueCallback")
   );
+  
   console.log("callbackSelector: ", callbackSelector);
   const callbackGasLimit = 30000000; // 30000000 is the block gas limit
   txParams = {
