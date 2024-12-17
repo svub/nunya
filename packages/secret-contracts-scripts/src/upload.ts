@@ -83,7 +83,7 @@ async function main () {
     };
     // ../../packages/secret-contracts-scripts/node_modules/secretjs/src/secret_network_client.ts
     let txOptions = {
-      gasLimit: 5_000_000, // default 25_000
+      gasLimit: 10_000_000, // default 25_000
       gasPriceInFeeDenom: 1, // default 0.1
       feeDenom: "uscrt",
       feeGranter: wallet.address,

@@ -353,7 +353,7 @@ git submodule update --init --recursive
 
   * Note: In order to populate the `secret.localhost.secretGateway.gatewayContractPublicKey` and `secret.localhost.secretGateway.gatewayContractEncryptionKeyForChaChaPoly1305`, according to Alex at Secret Network, you can't get a public key for it because it relies on the on-chain randomness (Secret VRF) to get a private key first. As such, you have to make some mock code to make it usable on a local testnet (where secretVRF from env.block.random is not available).
 
-  * Next, deploy the Nunya Secret contract...
+  * Next, [Deploy Nunya Contract on Localhost](#deploy-nunya-contract-on-localhost)
 
 * IGNORE - Terminal Tab 2: Option B (SecretCLI) Compile, Upload, Instantiate:
   * [Compile](https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy#compile-the-code). Note: Outputs contract.wasm or contract.wasm.gz file in the root directory being the ./SecretPath/TNLS-Gateways/secret/ folder. Using `make build-mainnet-reproducible` will remove contract.wasm so only the optimised contract.wasm.gz remains. Warning: If you only run `make build-mainnet` then you will get this error https://github.com/svub/nunya/issues/8 when deploying.
@@ -619,7 +619,7 @@ git submodule update --init --recursive
 
 #### Configure
 
-##### Deploy Nunya Contract on Localhost
+##### Deploy Nunya Contract on Localhost <a id="deploy-nunya-contract-on-localhost"></a>
 
 * Open file ./nunya/packages/secret-contracts-scripts/src/config/deploy.ts
 * Check ./nunya/packages/secret-contracts-scripts/.env has been created from the .env-sample file
@@ -734,9 +734,68 @@ yarn run secret:instantiate
 
 ###### Localhost
 
-* Note: Only run `make start-server if necessary
-```bash
-make start-server
+* Terminal Tab 1
+  * Note: Only run `make start-server if not already running
+  ```bash
+  make start-server
+  ```
+
+* Terminal Tab 2: Option A (SecretJS) Compile, Upload, Instantiate:
+  * Change back to the project root directory
+  * Run the following on the local machine to copy the relevant environment variables to the remote machine
+    ```
+    REMOTE_IP=172.105.184.209
+    SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/hardhat/.env
+    DESTINATION=/root/nunya/packages/hardhat/.env
+    scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+
+    SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/.env
+    DESTINATION=/root/nunya/packages/secret-contracts-scripts/.env
+    scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+
+    SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/config/deploy.ts
+    DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/config/deploy.ts
+    scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+    ```
+  * Linux, or, install NVM, then:
+    ```
+    apt update
+    nvm install lts/hydrogen
+    nvm use lts/hydrogen
+    npm install -g yarn
+    npm install -g corepack
+    yarn set version 4.5.3
+    corepack enable
+    corepack prepare yarn@v4.5.3 --activate
+
+    # we need the latest ABI file to be generated /hardhat/artifacts/contracts/NunyaBusiness.sol/NunyaBusiness.json
+    # since it is used in the Secret network script `secret:upload`
+    yarn hardhat:clean
+    yarn hardhat:compile
+
+    yarn install
+    yarn run secret:clean
+    yarn run secret:upload
+    ```
+
+  * Add the `CODE_ID` to `secretNunya -> nunyaContractCodeId` and `CODE_HASH` to `secretNunya -> nunyaContractCodeHash` respectively to the relevant config.secret.<network> in ./packages/secret-contracts-scripts/src/config/deploy.ts
+  * Add the terminal log to ./logs_secret/uploadNunyaSecretLocalhost.log
+
+  > IMPORTANT: If deployment of the code with `await secretjs.tx.compute.storeCode` is unsuccessful, then check if Beta version of secretjs is necessary incase the Secret Testnet is being upgraded.
+
+  ```
+  yarn run secret:instantiate
+  ```
+
+  * Add the `SECRET_ADDRESS` to `nunyaContractAddress` in the relevant config.secret.<network> in ./nunya/packages/secret-contracts-scripts/src/config/deploy.ts
+  * Add the Secret Localhost chain logs to ./logs_secret/instantiateNunyaSecretLocalhostChainOutput.log
+  * View on Secret Localhost block explorer
+  * Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
+
+  * TODO: What next?
+
+* IGNORE - Option B:
+```
 make copy-nunya-contract-local
 make store-nunya-contract-local
 ```

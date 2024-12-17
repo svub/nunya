@@ -35,7 +35,7 @@ const config = {
         nunyaContractCodeId: "", // only know after upload
         nunyaContractCodeHash: "", // only know after upload
         nunyaContractAddress: "", // only know after instantiate
-        nunyaContractWasmPath: "secret_evm_storage.wasm.gz",
+        nunyaContractWasmPath: "contract.wasm.gz",
       },
       secretGateway: {
         // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-mainnet-secret-4-contracts
@@ -56,7 +56,7 @@ const config = {
         nunyaContractCodeId: "12247", // only know after upload
         nunyaContractCodeHash: "b44049cbf187939df9f9857905197ecbc06e99702b3332b12cb6d968f39d88b2", // only know after upload
         nunyaContractAddress: "secret1h09whd3z8s9ms66mavd9rjm8r2rpew2trm0nkp", // only know after instantiate
-        nunyaContractWasmPath: "secret_evm_storage.wasm.gz",
+        nunyaContractWasmPath: "contract.wasm.gz",
       },
       secretGateway: {
         // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-testnet-pulsar-3-contracts
@@ -74,10 +74,10 @@ const config = {
       chainId: "secretdev-1",
       endpoint: process.env.ENDPOINT_LOCAL,
       secretNunya: {
-        nunyaContractCodeId: "", // only know after upload
-        nunyaContractCodeHash: "", // only know after upload
-        nunyaContractAddress: "", // only know after instantiate
-        nunyaContractWasmPath: "secret_evm_storage.wasm.gz",
+        nunyaContractCodeId: "2", // only know after upload
+        nunyaContractCodeHash: "63383ca7e11c16a248ec07ac6e12949ea1bc7a70e33077c306f7be75388ca54b", // only know after upload
+        nunyaContractAddress: "secret1gyruqan6yxf0q423t8z5zce3x7np35uw8s8wqc", // only know after instantiate
+        nunyaContractWasmPath: "contract.wasm.gz",
       },
       secretGateway: {
         gatewayContractCodeId: "1", // only know after upload
