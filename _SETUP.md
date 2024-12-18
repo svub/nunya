@@ -336,6 +336,7 @@ git submodule update --init --recursive
     yarn run secret:clean
     yarn run secret:uploadGateway
     ```
+      * Note: If you get error `TypeError: URL.canParse is not a function` then you're likely using the wrong Node.js version, so just change to the project root directory and run `nvm use` in that terminal tab.
 
   * Add the `CODE_ID` to `secretGateway -> gatewayContractCodeId` and `CODE_HASH` to `secretGateway -> gatewayContractCodeHash` respectively to the relevant config.secret.<network> in ./packages/secret-contracts-scripts/src/config/deploy.ts
   * Add the terminal log to ./logs_secret/uploadGatewaySecretLocalhost.log
@@ -424,6 +425,8 @@ git checkout nunya
 cd SecretPath/TNLS-Relayers
 ```
 
+* Check that it is using the latest version of the Python secret-sdk in requirements.txt https://github.com/secretanalytics/secret-sdk-python/releases
+
 * Configure the Relayer
   * Reference: https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/basics/cross-chain-messaging/secretpath/how-to-deploy-secretpath-on-your-chain#configuring-the-relayer
 
@@ -470,6 +473,16 @@ cd SecretPath/TNLS-Relayers
   REMOTE_IP=172.105.184.209
   SOURCE=/Users/luke/code/clones/github/ltfschoen/SecretPath/TNLS-Relayers/.env
   DESTINATION=/root/ltfschoen/SecretPath/TNLS-Relayers/.env
+  scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+
+  REMOTE_IP=172.105.184.209
+  SOURCE=/Users/luke/code/clones/github/ltfschoen/SecretPath/TNLS-Relayers/base_interface.py
+  DESTINATION=/root/ltfschoen/SecretPath/TNLS-Relayers/base_interface.py
+  scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+
+  REMOTE_IP=172.105.184.209
+  SOURCE=/Users/luke/code/clones/github/ltfschoen/SecretPath/TNLS-Relayers/scrt_interface.py
+  DESTINATION=/root/ltfschoen/SecretPath/TNLS-Relayers/scrt_interface.py
   scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
   ```
 
@@ -563,6 +576,7 @@ cd SecretPath/TNLS-Relayers
     ```
     conda create --name secretpath_env python=3.11
     y
+    y
     ```
 
     * Outputs:
@@ -578,15 +592,10 @@ cd SecretPath/TNLS-Relayers
       #     $ conda deactivate
       ```
 
-    * Activate it:
+    * Install Relayer dependencies and activate Conda environment
       ```
       cd ~/ltfschoen/SecretPath/TNLS-Relayers
       conda activate secretpath_env
-      ```
-
-    * Install Relayer dependencies
-      ```
-      cd ~/ltfschoen/SecretPath/TNLS-Relayers
       pip install -r requirements.txt --no-dependencies
       pip install --upgrade lru-dict
       ```
@@ -722,6 +731,7 @@ yarn run secret:instantiate
   ```bash
   make start-server
   ```
+    * Note: `docker logs -f --tail 10 secretdev` to view its logs
 
 * Terminal Tab 2: Option A (SecretJS) Compile, Upload, Instantiate:
   * Change back to the project root directory

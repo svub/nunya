@@ -500,6 +500,8 @@ contract Gateway is Ownable, Utils {
     function requestValue(uint256 _callbackSelector, uint32 _callbackGasLimit) external payable onlyOwner returns (uint256 requestId) {
         console.log("------ Gateway.requestValue");
 
+        // Note - It is only possible to call this function `encodeAddressToBase64` three times
+        // in this function, otherwise it generates error `Error: Transaction reverted without a reason`.
         bytes28 senderAddressBase64 = encodeAddressToBase64(address(msg.sender));
 
         requestId = taskId;
@@ -569,14 +571,8 @@ contract Gateway is Ownable, Utils {
 
         bytes memory emptyBytes = hex"0000";
 
-        console.log("1");
-
         // TODO - make `user_key` a unique key different from `user_pubkey`
-        // FIXME - `Error: Transaction reverted without a reason` occurs the 3rd time that
-        // `encodeAddressToBase64` is called in this function
         bytes memory userKey = bytes.concat(senderAddressBase64); // equals AAA= in base64
-
-        console.log("2");
 
         // ExecutionInfo struct
         ExecutionInfo memory executionInfo = ExecutionInfo({
@@ -595,8 +591,6 @@ contract Gateway is Ownable, Utils {
             // Signature of hash of encrypted input values
             payload_signature: bytes32ToBytes(payloadHash)
         });
-
-        console.log("3");
 
         // persisting the task
         tasks[requestId] = Task(bytes31(payloadHash), false);
