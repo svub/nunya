@@ -276,14 +276,25 @@ fn pre_execution(deps: DepsMut, _env: Env, msg: PreExecutionMsg) -> StdResult<Re
         }
     };
 
+    eprintln!("verify the internal verification key matches the user address");
+    eprintln!("msg.user_key: {:#?}", msg.user_key);
+    eprintln!("payload.user_key: {:#?}", payload.user_key);
+
+    eprintln!("Decryption failed: {:#?}", err);
     // verify the internal verification key matches the user address
     if payload.user_key != msg.user_key {
         return Err(StdError::generic_err("verification key mismatch"));
     }
+    eprintln!("verify the routing info matches the internally stored routing info");
+    eprintln!("msg.routing_info: {:#?}", msg.routing_info);
+    eprintln!("payload.routing_info: {:#?}", payload.routing_info);
     // verify the routing info matches the internally stored routing info
     if msg.routing_info != payload.routing_info {
         return Err(StdError::generic_err("routing info mismatch"));
     }
+    eprintln!("verify the callback_gas_limit defined in the payload matches the msg callback_gas_limit");
+    eprintln!("msg.callback_gas_limit: {:#?}", msg.callback_gas_limit);
+    eprintln!("payload.callback_gas_limit: {:#?}", payload.callback_gas_limit);
     // verify the callback_gas_limit defined in the payload matches the msg callback_gas_limit
     if msg.callback_gas_limit != payload.callback_gas_limit {
         return Err(StdError::generic_err("callback gas limit mismatch"));
@@ -386,6 +397,10 @@ fn post_execution(deps: DepsMut, env: Env, msg: PostExecutionMsg) -> StdResult<R
     eprintln!("post_execution");
     eprintln!("msg: {:#?}", msg.clone());
     eprintln!("task_info: {:#?}", task_info.clone());
+
+    eprintln!("verify that input hash is correct one for Task");
+    eprintln!("msg.input_hash.as_slice(): {:#?}", msg.input_hash.as_slice());
+    eprintln!("task_info.input_hash.to_vec(): {:#?}", task_info.input_hash.to_vec());
 
     // verify that input hash is correct one for Task
     if msg.input_hash.as_slice() != task_info.input_hash.to_vec() {

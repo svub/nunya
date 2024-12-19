@@ -78,6 +78,7 @@ Note: Use `accounts: [deployerPrivateKey]` or `accounts: { mnemonic: MNEMONIC }`
 ```
 yarn hardhat:chain
 ```
+* Note: It is necessary to restart the chain after chaining the EVM Gateway code, otherwise it may deploy the EVM Gateway to a different address
 
 Example output:
 ```
