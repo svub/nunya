@@ -280,7 +280,6 @@ fn pre_execution(deps: DepsMut, _env: Env, msg: PreExecutionMsg) -> StdResult<Re
     eprintln!("msg.user_key: {:#?}", msg.user_key);
     eprintln!("payload.user_key: {:#?}", payload.user_key);
 
-    eprintln!("Decryption failed: {:#?}", err);
     // verify the internal verification key matches the user address
     if payload.user_key != msg.user_key {
         return Err(StdError::generic_err("verification key mismatch"));

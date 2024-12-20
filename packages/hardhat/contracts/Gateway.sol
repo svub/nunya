@@ -530,35 +530,60 @@ contract Gateway is Ownable, Utils {
         // TODO: We will use the base64 value for both the value of the `user_key` and
         // the `user_pubkey`, but they should be different and `user_key` suggested to
         // be base64 (e.g. `AAA=`)
+        //
+        // Note: In this custom Gateway.sol, the NunyaBusiness contract address is provided as an argument in its
+        // constructor and set to be the `owner` in storage. Furthermore, we apply `onlyOwner` modifier to this
+        // function that restricts calls to only be allowed to come from a `msg.sender` that is the same as the `owner`.
+        // If it is `msg.sender` then it would allow a call to be made from anyone, even a "fake" NunyaBusiness contract
+        // if `onlyOwner` was removed.
+        // If the Gateway contract by the Secret team was used instead then we would need a way to upgrade that contract
+        // to allow us to set an `owner`-like value that could be used to restrict calls to functions like this.
+        // FIXME: Error parsing into type secret_gateway::types::Payload: Invalid unicode code point.: execute contract failed
+        // TODO: Try changing to `"user_address":"0x0000","user_key":"AAA="`
         bytes memory payload_info = abi.encodePacked(
-            '}","routing_info":"', routing_info,
-            '","routing_code_hash":"', routing_code_hash,
-            // Note: In this custom Gateway.sol, the NunyaBusiness contract address is provided as an argument in its
-            // constructor and set to be the `owner` in storage. Furthermore, we apply `onlyOwner` modifier to this
-            // function that restricts calls to only be allowed to come from a `msg.sender` that is the same as the `owner`.
-            // If it is `msg.sender` then it would allow a call to be made from anyone, even a "fake" NunyaBusiness contract
-            // if `onlyOwner` was removed.
-            // If the Gateway contract by the Secret team was used instead then we would need a way to upgrade that contract
-            // to allow us to set an `owner`-like value that could be used to restrict calls to functions like this.
-            '","user_address":"', address(msg.sender),
-            '","user_key":"', senderAddressBase64,
-            '","callback_address":"', address(msg.sender),
-            '"'
+            '}","routing_info":"',routing_info,
+            '","routing_code_hash":"',routing_code_hash,
+            '","user_address":"',address(msg.sender),
+            '","user_key":"',senderAddressBase64,
+            '","callback_address":"'
         );
+
+        //
+        // // Generic error: verification key mismatch
+        // bytes memory payload_info = abi.encodePacked(
+        //     '}","routing_info":"',routing_info,
+        //     '","routing_code_hash":"',routing_code_hash,
+        //     '","user_address":"',address(msg.sender),
+        //     '","user_key":"',senderAddressBase64,
+        //     '","callback_address":"'
+        // );
         // console.log("------ Gateway.requestValue - payload_info: ", payload_info);
 
+        uint32 _myArg = 123;
         //construct the payload that is sent into the Secret Gateway
+        // FIXME: Error parsing into type secret_gateway::types::Payload: Invalid unicode code point.: execute contract failed
         bytes memory payload = bytes.concat(
-            '{"data":"{\\"callbackSelector\\":',
-            uint256toBytesString(_callbackSelector),
+            '{"data":"{\\"myArg\\":',
+            uint256toBytesString(_myArg),
             payload_info,
             senderAddressBase64, //callback_address
             // callback selector should be a hex value already converted into base64 to be used
             // as callback_selector of the request_value function in the Secret contract 
-            '","callback_selector":"', uint256toBytesString(_callbackSelector),
-            '","callback_gas_limit":', uint256toBytesString(_callbackGasLimit),
-            '}' 
+            '","callback_selector":"',uint256toBytesString(_callbackSelector),
+            '","callback_gas_limit":',uint256toBytesString(_callbackGasLimit),
+            '}'
         );
+        //
+        // // Generic error: verification key mismatch
+        // bytes memory payload = bytes.concat(
+        //     '{"data":"{\\"myArg\\":',
+        //     uint256toBytesString(123),
+        //     payload_info,
+        //     senderAddressBase64, //callback_address
+        //     '","callback_selector":"OLpGFA==","callback_gas_limit":', // 0x38ba4614 hex value already converted into base64, callback_selector of the fullfillRandomWords function
+        //     uint256toBytesString(_callbackGasLimit),
+        //     '}' 
+        // );
         // console.log("------ Gateway.requestValue - payload: ", payload);
 
         uint256 _newNonce = nonce + 1;
@@ -589,7 +614,8 @@ contract Gateway is Ownable, Utils {
             payload: payload,
             // TODO: add a payload signature
             // Signature of hash of encrypted input values
-            payload_signature: bytes32ToBytes(payloadHash)
+            payload_signature: emptyBytes
+            // payload_signature: bytes32ToBytes(payloadHash)
         });
 
         // persisting the task

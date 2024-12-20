@@ -40,7 +40,7 @@ const rootPath = path.join(__dirname, '../../../'); // relative to ./dist
 console.log('rootPath', rootPath)
 // const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${nunyaContractWasmPath}`);
 // Optimised nunya-contract
-const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${isOptimizedContractWasm ? "optimized-wasm/" : "/"}${nunyaContractWasmPath}`);
+const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${isOptimizedContractWasm ? "optimized-wasm/" : ""}${nunyaContractWasmPath}`);
 
 const gatewayContractPublicKeyBytes = Buffer.from(
   gatewayContractPublicKey.substring(2),

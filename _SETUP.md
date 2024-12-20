@@ -514,10 +514,11 @@ cd SecretPath/TNLS-Relayers
   * Note: Configuration is stored in /root/.secretd/config/client.toml
   * Note: `keyring-backend` is where the keys are stored from possible options including: (os|file|kwallet|pass|test|memory)
   * Note: We need the 300000uscrt to process the broadcast the `requestValue` transaction from the relayer, so give them more than that.
+  * Note: If you forget to do this before running the relayer, then you might get error `[SCRT Interface: ERROR] Failed to fetch account info: HTTP 404`
   ```
   secretcli tx bank send secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03 secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg 100000000000000000uscrt
-  secretcli query bank balances secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg | jq
   y
+  secretcli query bank balances secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg | jq
   ```
 
     * Note: This is necessary because the default account only has a mnemonic phrase, not a private key.

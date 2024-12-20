@@ -30,8 +30,8 @@ const rootPath = path.join(__dirname, '../../../'); // relative to ./dist
 console.log('rootPath', rootPath)
 // const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${nunyaContractWasmPath}`);
 // Optimised nunya-contract
-// const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${isOptimizedContractWasm ? "optimized-wasm/" : "/"}${nunyaContractWasmPath}`);
-const secret_gateway_contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/secret-gateway/${isOptimizedContractWasm ? "optimized-wasm/" : "/"}${gatewayContractWasmPath}`);
+// const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${isOptimizedContractWasm ? "optimized-wasm/" : ""}${nunyaContractWasmPath}`);
+const secret_gateway_contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/secret-gateway/${isOptimizedContractWasm ? "optimized-wasm/" : ""}${gatewayContractWasmPath}`);
 
 async function main () {
   const secretjs = new SecretNetworkClient({

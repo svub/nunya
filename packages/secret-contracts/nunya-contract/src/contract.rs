@@ -6,7 +6,7 @@ use crate::{
     },
     state::{
         PaymentReceipt, PaymentReferenceBalance, ResponseStatusCode,
-        MyKeys, State, CONFIG, MY_KEYS,
+        MyKeys, State, InputRequestValue, CONFIG, MY_KEYS,
         VIEWING_KEY, VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP,
     },
 };
@@ -157,6 +157,13 @@ fn request_value(
     input_hash: Binary,
 ) -> StdResult<Response> {
     let config = CONFIG.load(deps.storage)?;
+
+    // Deserialize input values to an InputRequestValue struct
+    let input: InputRequestValue = serde_json_wasm::from_str(&input_values)
+        .map_err(|err| StdError::generic_err(err.to_string()))?;
+
+    let my_arg = input.myArg;
+    eprintln!("request_value: input.myArg {:#?}", input.myArg);
 
     let response_status_code: ResponseStatusCode = 0u16;
 
