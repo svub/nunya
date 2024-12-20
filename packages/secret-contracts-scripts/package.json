@@ -8,6 +8,7 @@
     "setEVMGatewayAddress": "yarn build && node ./dist/evm/setEVMGatewayAddress.js",
     "queryPubkey": "yarn build && node ./dist/functions/query/queryPubkey.js",
     "submit": "yarn build && node ./dist/submit.js",
+    "submitRequestValue": "yarn build && node ./dist/submitRequestValue.js",
     "requestValue": "yarn build && node ./dist/evm/requestValue.js",
     "build": "./node_modules/.bin/tsc --build",
     "clean": "./node_modules/.bin/tsc --build --clean",

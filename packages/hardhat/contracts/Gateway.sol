@@ -53,6 +53,8 @@ contract Gateway is Ownable, Utils {
     string public routing_info = "";
     string public routing_code_hash = "";
 
+    bytes public owner_public_key;
+
     /*//////////////////////////////////////////////////////////////
                               Structs
     //////////////////////////////////////////////////////////////*/
@@ -267,10 +269,11 @@ contract Gateway is Ownable, Utils {
     event FulfilledRequestValue(uint256 indexed requestId);
 
     // Constructor
-    constructor(address nunyaContractAddress) {
+    constructor(address nunyaContractAddress, bytes memory deployerPublicKeyBytes) {
         // Initializer
         // Set owner to be the deployed NunyaBusiness.sol contract
         owner = nunyaContractAddress;
+        owner_public_key = deployerPublicKeyBytes;
 
         taskId = 1;
         nonce = 0;
@@ -502,7 +505,7 @@ contract Gateway is Ownable, Utils {
 
         // Note - It is only possible to call this function `encodeAddressToBase64` three times
         // in this function, otherwise it generates error `Error: Transaction reverted without a reason`.
-        bytes28 senderAddressBase64 = encodeAddressToBase64(address(msg.sender));
+        bytes28 senderAddressBase64 = encodeAddressToBase64(msg.sender);
 
         requestId = taskId;
 
@@ -543,9 +546,7 @@ contract Gateway is Ownable, Utils {
         bytes memory payload_info = abi.encodePacked(
             '}","routing_info":"',routing_info,
             '","routing_code_hash":"',routing_code_hash,
-            '","user_address":"',address(msg.sender),
-            '","user_key":"',senderAddressBase64,
-            '","callback_address":"'
+            '","user_address":"0x0000","user_key":"AAA=","callback_address":"'
         );
 
         //
@@ -559,12 +560,12 @@ contract Gateway is Ownable, Utils {
         // );
         // console.log("------ Gateway.requestValue - payload_info: ", payload_info);
 
-        uint32 _myArg = 123;
+        // uint32 _myArg = 123;
         //construct the payload that is sent into the Secret Gateway
         // FIXME: Error parsing into type secret_gateway::types::Payload: Invalid unicode code point.: execute contract failed
         bytes memory payload = bytes.concat(
             '{"data":"{\\"myArg\\":',
-            uint256toBytesString(_myArg),
+            uint256toBytesString(123),
             payload_info,
             senderAddressBase64, //callback_address
             // callback selector should be a hex value already converted into base64 to be used
@@ -597,12 +598,12 @@ contract Gateway is Ownable, Utils {
         bytes memory emptyBytes = hex"0000";
 
         // TODO - make `user_key` a unique key different from `user_pubkey`
-        bytes memory userKey = bytes.concat(senderAddressBase64); // equals AAA= in base64
+        // bytes memory userKey = bytes.concat(senderAddressBase64); // equals AAA= in base64
 
         // ExecutionInfo struct
         ExecutionInfo memory executionInfo = ExecutionInfo({
-            user_key: userKey, // FIXME - use this instead when resolve issue
-            // user_key: emptyBytes,
+            // user_key: userKey, // FIXME - use this instead when resolve issue
+            user_key: emptyBytes, // equals AAA= in base64
             // FIXME: use of `secret_gateway_signer_pubkey` does not compile, what alternative to use?
             // user_pubkey: uint256toBytesString(secret_gateway_signer_pubkey),
             user_pubkey: emptyBytes, // Fill with 0 bytes
@@ -614,7 +615,7 @@ contract Gateway is Ownable, Utils {
             payload: payload,
             // TODO: add a payload signature
             // Signature of hash of encrypted input values
-            payload_signature: emptyBytes
+            payload_signature: emptyBytes // empty signature, fill with 0 bytes
             // payload_signature: bytes32ToBytes(payloadHash)
         });
 

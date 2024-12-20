@@ -11,11 +11,19 @@ export async function generateKeys() {
   ? config.secret.testnet
   : config.secret.localhost;
 
+  let vars;
+  if (config.evm.network == "sepolia") {
+    vars = config.evm.sepolia;
+  } else if (config.evm.network == "localhost") {
+    vars = config.evm.localhost;
+  } else {
+    throw new Error(`Unsupported network.`)
+  }
+  const { chainId, endpoint, nunyaBusinessContractAddress, gatewayContractAddress, privateKey } = vars;
+
   if (gatewayContractEncryptionKeyForChaChaPoly1305 == "") {
     throw Error("Unable to obtain Secret Network Gateway information");
   }
-
-  const privateKey = process.env.DEPLOYER_PRIVATE_KEY;
 
   if (!privateKey) {
     console.log("🚫️ You don't have a deployer account configured in environment variables");
@@ -39,6 +47,7 @@ export async function generateKeys() {
 
   // https://github.com/SolarRepublic/neutrino/blob/main/src/secp256k1.ts#L334
   const sharedKey = await sha256(ecdh(userPrivateKeyBytes, gatewayContractPublicKeyBytes));
+  console.log('sharedKey: ', sharedKey);
 
-  return { userPrivateKeyBytes, userPublicKeyBytes, sharedKey };
+  return { userPublicKey, userPrivateKeyBytes, userPublicKeyBytes, sharedKey };
 }

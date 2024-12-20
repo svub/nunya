@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { Contract, SigningKey, Wallet, ethers, formatEther, parseEther, parseUnits } from "ethers";
+import { Contract, SigningKey, Wallet, getBytes, ethers, formatEther, parseEther, parseUnits } from "ethers";
 import config from "../hardhat.config";
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -12,6 +12,17 @@ const logging = true;
 const value = 0;
 // const value = 1337;
 // const value = ethers.utils.parseEther("0.0000001337");
+
+function getDeployerPublicKeyBytes(deployer: string) {
+  const deployerWallet = new Wallet(deployer);
+  console.log("Generating keys for deployer public address:", deployerWallet.address, "\n");
+  const userPublicKey = new SigningKey(deployerWallet.privateKey).compressedPublicKey;
+  console.log('userPublicKey: ', userPublicKey);
+  // https://github.com/ethers-io/ethers.js/issues/3795#issue-1589631066
+  const userPublicKeyBytes = getBytes(userPublicKey);
+  console.log('userPublicKeyBytes: ', userPublicKeyBytes);
+  return userPublicKeyBytes;
+}
 
 /**
  * Deploys a contract named "YourContract" using the deployer account and
@@ -38,18 +49,12 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   let providerRpc;
   let deployer;
   let deployerAddress;
+  let deployerPublicKeyBytes;
+  // Ethereum Local Network
   // Account #0: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 (10000 ETH)
   // Private Key: 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+  const deployerPrivateKeyLocalNetwork = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
   const deployerAddressLocalNetwork = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
-
-  // const deployerWallet = new Wallet(deployer);
-  // const deployerPublicKey = new SigningKey(deployerWallet.privateKey).compressedPublicKey;
-  // const deployerAddressPublicKey = deployerPublicKey || "0x0";
-
-  // if (deployerAddressPublicKey == "0x0") {
-  //   console.error("Invalid public key");
-  //   return;
-  // }
 
   if (hre.network.name == "sepolia") {
     console.log("hre.network.name: ", hre.network.name);
@@ -58,11 +63,12 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     }
     deployer = process.env.DEPLOYER_PRIVATE_KEY || "";  // config.networks?.sepolia?.accounts[0];
     deployerAddress = process.env.DEPLOYER_ADDRESS || "";
+    deployerPublicKeyBytes = getDeployerPublicKeyBytes(deployer);
     providerRpc = String(config.networks?.sepolia);
   } else {
-    const accounts = await hre.getNamedAccounts();
-    deployer = accounts.deployer || "";
+    deployer = deployerPrivateKeyLocalNetwork;
     deployerAddress = deployerAddressLocalNetwork;
+    deployerPublicKeyBytes = getDeployerPublicKeyBytes(deployer);
     providerRpc = "http://127.0.0.1:8545/";
   }
 
@@ -88,7 +94,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
 
   const gateway = await deploy("Gateway", {
     from: deployer,
-    args: [nunyaContract.address],
+    args: [nunyaContract.address, deployerPublicKeyBytes],
     log: true,
     gasLimit: 30000000,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
