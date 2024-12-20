@@ -569,8 +569,11 @@ contract Gateway is Ownable, Utils {
             payload_info,
             senderAddressBase64, //callback_address
             // callback selector should be a hex value already converted into base64 to be used
-            // as callback_selector of the request_value function in the Secret contract 
-            '","callback_selector":"',uint256toBytesString(_callbackSelector),
+            // as callback_selector of the request_value function in the Secret contract
+            // FIXME: Error parsing into type secret_gateway::types::Payload: invalid base64: 259716626: execute contract failed
+            // '","callback_selector":"',uint256toBytesString(_callbackSelector),
+            // Note: fulfilledValueCallback - 0x0f7af612 hex, D3r2Eg== base64. Example: fulfillRandomWords - 0x38ba4614 hex, OLpGFA== base64
+            '","callback_selector":"D3r2Eg=="',
             '","callback_gas_limit":',uint256toBytesString(_callbackGasLimit),
             '}'
         );
