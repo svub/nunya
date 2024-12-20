@@ -563,6 +563,7 @@ contract Gateway is Ownable, Utils {
         // uint32 _myArg = 123;
         //construct the payload that is sent into the Secret Gateway
         // FIXME: Error parsing into type secret_gateway::types::Payload: Invalid unicode code point.: execute contract failed
+        // FIXME: Expected this character to be either a `','` or a `'}'`
         bytes memory payload = bytes.concat(
             '{"data":"{\\"myArg\\":',
             uint256toBytesString(123),
@@ -573,8 +574,7 @@ contract Gateway is Ownable, Utils {
             // FIXME: Error parsing into type secret_gateway::types::Payload: invalid base64: 259716626: execute contract failed
             // '","callback_selector":"',uint256toBytesString(_callbackSelector),
             // Note: fulfilledValueCallback - 0x0f7af612 hex, D3r2Eg== base64. Example: fulfillRandomWords - 0x38ba4614 hex, OLpGFA== base64
-            '","callback_selector":"D3r2Eg=="',
-            '","callback_gas_limit":',uint256toBytesString(_callbackGasLimit),
+            '","callback_selector":"D3r2Eg==","callback_gas_limit":',uint256toBytesString(_callbackGasLimit),
             '}'
         );
         //
