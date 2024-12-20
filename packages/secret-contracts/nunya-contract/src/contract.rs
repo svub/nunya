@@ -111,11 +111,13 @@ fn try_handle(
 
     // SecretPath source code
     // public network user address
-    if msg.user_address != config.nunya_business_contract_address {
-        return Err(StdError::generic_err(
-            "Only NunyaBusiness contract can call this function via SecretPath Gateway",
-        ));
-    }
+    // FIXME: the `msg.user_address` is actually the public address associated with
+    // the Ethereum private key is used to configure the relayer.
+    // if msg.user_address != config.nunya_business_contract_address {
+    //     return Err(StdError::generic_err(
+    //         "Only NunyaBusiness contract can call this function via SecretPath Gateway",
+    //     ));
+    // }
 
     deps.api
         .secp256k1_verify(
