@@ -98,17 +98,6 @@ async function unsafeRequestValue() {
     gasLimit: callbackGasLimit,
     gasPrice: hexlify(8000000000),
   }
-  // Error: VM Exception while processing transaction: reverted with reason string 'Paid Callback Fee Too Low'
-  //
-  // Issue: If we provide a callbackGasLimit of 30000000, which is the block gas limit, the `requestValue` function of Gateway.sol that gets called
-  // calculates that the `estimatedPrice` is `2400000000000000000` based on that `30000000`, but the msg.value we provided is only
-  // `100000000000000`
-  //
-  // Solution: Increase `value` of the txParams from `100000000000000` to `2500000000000000000`, which corresponds to 2.5 ETH,
-  // which is greater than 2.4 ETH that it needs to be larger than according to the estimate.
-
-  // Issue: `Error: Transaction reverted: contract call run out of gas and made the transaction revert`
-  // Cause: It occurs when it gets to this line in `requestValue` function `ExecutionInfo memory executionInfo = ExecutionInfo`
   const txResponseUnsafeRequestValue =
     await nunyaContract.unsafeRequestValue(callbackSelector, callbackGasLimit, txParams);
   console.log("txResponseUnsafeRequestValue", txResponseUnsafeRequestValue);
