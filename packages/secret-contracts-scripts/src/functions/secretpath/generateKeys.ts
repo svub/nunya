@@ -5,6 +5,9 @@ import { ecdh } from "@solar-republic/neutrino";
 import { base64_to_bytes, sha256 } from "@blake.regalia/belt";
 import config from '../../config/deploy.js';
 
+// Generate ephermal keys and load in the public encryption key for the Secret Gateway.
+// Then, use ECDH to create the encryption key
+// Reference: https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/usecases/vrf/using-encrypted-payloads-for-vrf#generating-the-encryption-key-using-ecdh
 export async function generateKeys() {
   const { secretGateway: { gatewayContractEncryptionKeyForChaChaPoly1305 } } =
   config.secret.network == "testnet"
@@ -38,7 +41,7 @@ export async function generateKeys() {
   console.log('userPublicKey: ', userPublicKey);
   const userPublicKeyBytes = arrayify(userPublicKey);
   console.log('userPublicKeyBytes: ', userPublicKeyBytes);
-  // Secret Network Testnet
+  // Secret Network Gateway
   // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-testnet-pulsar-3-contracts
   const gatewayContractPublicKey = gatewayContractEncryptionKeyForChaChaPoly1305;
   console.log('gatewayContractPublicKey: ', gatewayContractPublicKey);

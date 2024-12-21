@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "target": "esnext",
+    // https://stackoverflow.com/questions/59456390/using-bigint-in-typescript#59456518
+    "lib": ["dom", "dom.iterable", "esnext", "esnext.bigint"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": false,

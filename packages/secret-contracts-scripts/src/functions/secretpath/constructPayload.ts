@@ -12,6 +12,7 @@ export function constructPayload(
   callbackSelector: any,
   callbackGasLimit: any
 ) {
+  // payload adata that is going to be encrypted
   const payload = {
     data: data,
     routing_info: routing_contract,

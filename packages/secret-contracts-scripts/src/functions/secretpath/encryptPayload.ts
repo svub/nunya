@@ -10,7 +10,24 @@ import {
   arrayify,
   recoverPublicKey,
   hexlify,
-} from "ethers/lib/utils";
+} from "ethers/lib/utils.js";
+import config from '../../config/deploy.js';
+
+const { chainId, secretGateway: { gatewayContractEncryptionKeyForChaChaPoly1305 } } =
+config.secret.network == "testnet"
+? config.secret.testnet
+: config.secret.localhost;
+
+let vars;
+if (config.evm.network == "sepolia") {
+  vars = config.evm.sepolia;
+} else if (config.evm.network == "localhost") {
+  vars = config.evm.localhost;
+} else {
+  throw new Error(`Unsupported network.`)
+}
+const { } = vars;
+
 
 export async function encryptPayload(
   payload: any,
@@ -25,7 +42,8 @@ export async function encryptPayload(
   callbackSelector: any
 ) {
   const plaintext = json_to_bytes(payload);
-  const nonce = window.crypto.getRandomValues(bytes(12));
+  const nonce = crypto.getRandomValues(bytes(12));
+  // const nonce = window.crypto.getRandomValues(bytes(12));
 
   const [ciphertextClient, tagClient] = chacha20_poly1305_seal(
     sharedKey,
@@ -42,6 +60,7 @@ export async function encryptPayload(
   );
   const msgParams = ciphertextHash;
 
+  // FIXME: Do this without Metamask sign approach
   const params = [myAddress, msgParams];
   const method = "personal_sign";
   const payloadSignature = await provider.send(method, params);
@@ -51,7 +70,7 @@ export async function encryptPayload(
     user_key: hexlify(userPublicKeyBytes),
     user_pubkey: user_pubkey,
     routing_code_hash: routing_code_hash,
-    task_destination_network: "pulsar-3",
+    task_destination_network: chainId,
     handle: handle,
     nonce: hexlify(nonce),
     payload: hexlify(ciphertext),
