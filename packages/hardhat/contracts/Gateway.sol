@@ -524,6 +524,17 @@ contract Gateway is Ownable, Utils {
             require(msg.value >= estimatedPrice, "Paid Callback Fee Too Low");
         }
 
+        // TODO - make `user_key` a unique key different from `user_pubkey`
+        // bytes memory userKey = bytes.concat(senderAddressBase64); // equals AAA= in base64
+        // FIXME: failed to validate transaction. Message contains mismatched contract hash
+        // bytes memory userKey = bytes.concat(owner_public_key); // equals AAA= in base64
+        // secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg
+        // Note: Find the public key from the account_info in the Relayer logs
+        // '/cosmos.crypto.secp256k1.PubKey', 'key':
+        // Encode A4K+MyJNnNcdt78SncjhArLWNnDRHapkZFsemjmf9/7A to base64:
+        //   QTRLK015Sk5uTmNkdDc4U25jamhBckxXTm5EUkhhcGtaRnNlbWptZjkvN0E=
+        bytes memory userKey = bytes.concat("A4K+MyJNnNcdt78SncjhArLWNnDRHapkZFsemjmf9/7A");
+
         // Note: Since contracts only have an address, but not public keys, where the
         // addresses are derived from the address of the user (or other contract) that
         // created them, which are in turn are derived from the public key of a normal
@@ -547,8 +558,10 @@ contract Gateway is Ownable, Utils {
         bytes memory payload_info = abi.encodePacked(
             '}","routing_info":"',routing_info,
             '","routing_code_hash":"',routing_code_hash,
-            '","user_address":"',address(owner),
-            '","user_key":"',owner_public_key,
+            // '","user_address":"',address(owner),
+            // '","user_key":"',owner_public_key,
+            '","user_address":"secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg',
+            '","user_key":"',userKey,
             '","callback_address":"'
             // '","user_address":"0x0000","user_key":"AAA=","callback_address":"'
         );
@@ -604,17 +617,14 @@ contract Gateway is Ownable, Utils {
 
         bytes memory emptyBytes = hex"0000";
 
-        // TODO - make `user_key` a unique key different from `user_pubkey`
-        // bytes memory userKey = bytes.concat(senderAddressBase64); // equals AAA= in base64
-        bytes memory userKey = bytes.concat(owner_public_key); // equals AAA= in base64
-
         // ExecutionInfo struct
         ExecutionInfo memory executionInfo = ExecutionInfo({
             user_key: userKey, // FIXME - use this instead when resolve issue
             // user_key: emptyBytes, // equals AAA= in base64
             // FIXME: use of `secret_gateway_signer_pubkey` does not compile, what alternative to use?
             // user_pubkey: uint256toBytesString(secret_gateway_signer_pubkey),
-            user_pubkey: owner_public_key,
+            // user_pubkey: owner_public_key,
+            user_pubkey: userKey,
             // user_pubkey: emptyBytes, // Fill with 0 bytes
             routing_code_hash: routing_code_hash, // custom contract codehash on Secret 
             task_destination_network: task_destination_network,
@@ -624,8 +634,8 @@ contract Gateway is Ownable, Utils {
             payload: payload,
             // TODO: add a payload signature
             // Signature of hash of encrypted input values
-            // payload_signature: emptyBytes // empty signature, fill with 0 bytes
-            payload_signature: bytes32ToBytes(payloadHash)
+            payload_signature: emptyBytes // empty signature, fill with 0 bytes
+            // payload_signature: bytes32ToBytes(payloadHash)
         });
 
         // persisting the task

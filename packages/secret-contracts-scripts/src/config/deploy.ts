@@ -77,14 +77,14 @@ const config = {
       endpoint: process.env.ENDPOINT_LOCAL,
       secretNunya: {
         nunyaContractCodeId: "2", // only know after upload
-        nunyaContractCodeHash: "37bf978b95a5fb3aa60799ab8be8be410d9da9cb291c40c3dc3e0d110a5fca66", // only know after upload
+        nunyaContractCodeHash: "bd379de6cac6c154690c2c398631ccbcad13bd3242486356e764cf23327aa623", // only know after upload
         nunyaContractAddress: "secret1gyruqan6yxf0q423t8z5zce3x7np35uw8s8wqc", // only know after instantiate
         nunyaContractWasmPath: "contract.wasm.gz",
       },
       secretGateway: {
         gatewayContractCodeId: "1", // only know after upload
         gatewayContractAddress: "secret1mfk7n6mc2cg6lznujmeckdh4x0a5ezf6hx6y8q", // only know after instantiate
-        gatewayContractCodeHash: "2fec99443c428e1b9261b41c80717affd8e027a736490ab438157b09f2c83a71", // only know after upload
+        gatewayContractCodeHash: "836a34c60637d684c044d4ddc1277e3d21ae1f440d2bb2d26870c81639d2f4c4", // only know after upload
         // note: mock value hard-coded
         gatewayContractPublicKey: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
         // note: mock value hard-coded
