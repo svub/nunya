@@ -14,12 +14,20 @@ const walletOptions = {
   bech32Prefix: 'secret',
 }
 
-const { nunyaBusinessContractAddress } = config.evm.sepolia;
-
 const { walletMnemonic, isOptimizedContractWasm, secretNunya: { nunyaContractWasmPath }, secretGateway: { gatewayContractAddress, gatewayContractCodeHash, gatewayContractPublicKey }, chainId, endpoint } =
   config.secret.network == "testnet"
   ? config.secret.testnet
   : config.secret.localhost;
+
+let vars;
+if (config.evm.network == "sepolia") {
+  vars = config.evm.sepolia;
+} else if (config.evm.network == "localhost") {
+  vars = config.evm.localhost;
+} else {
+  throw new Error(`Unsupported network.`)
+}
+const { nunyaBusinessContractAddress } = vars;
 
 if (walletMnemonic == "") {
   throw Error("Unable to obtain mnemonic phrase");
