@@ -10,9 +10,11 @@ import "./JsmnSolLib.sol";
 
 import "./Utils.sol";
 
+import "./Base64.sol";
+
 import "./Ownable.sol";
 
-contract Gateway is Ownable, Utils {
+contract Gateway is Ownable, Utils, Base64 {
     /*//////////////////////////////////////////////////////////////
                               Constants
     //////////////////////////////////////////////////////////////*/
@@ -530,7 +532,8 @@ contract Gateway is Ownable, Utils {
         // Encode A4K+MyJNnNcdt78SncjhArLWNnDRHapkZFsemjmf9/7A to base64:
         //   QTRLK015Sk5uTmNkdDc4U25jamhBckxXTm5EUkhhcGtaRnNlbWptZjkvN0E=
         // bytes memory userKey = bytes.concat("A4K+MyJNnNcdt78SncjhArLWNnDRHapkZFsemjmf9/7A");
-        bytes memory userKey = bytes.concat("QTRLK015Sk5uTmNkdDc4U25jamhBckxXTm5EUkhhcGtaRnNlbWptZjkvN0E=");
+        // bytes memory userKey = bytes.concat("QTRLK015Sk5uTmNkdDc4U25jamhBckxXTm5EUkhhcGtaRnNlbWptZjkvN0E=");
+        bytes memory userKey = bytes.concat(owner_public_key);
 
         // Note: Since contracts only have an address, but not public keys, where the
         // addresses are derived from the address of the user (or other contract) that
@@ -555,10 +558,10 @@ contract Gateway is Ownable, Utils {
         bytes memory payload_info = abi.encodePacked(
             '}","routing_info":"',routing_info,
             '","routing_code_hash":"',routing_code_hash,
-            // '","user_address":"',address(owner),
+            // '","user_address":"',address(owner), // Invalid unicode code point.
+            '","user_address":"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
             // '","user_key":"',owner_public_key,
-            '","user_address":"secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg',
-            '","user_key":"',userKey,
+            '","user_key":"',encode(userKey),
             '","callback_address":"'
             // '","user_address":"0x0000","user_key":"AAA=","callback_address":"'
         );
