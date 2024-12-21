@@ -44,13 +44,12 @@ pub fn instantiate(
         owner: info.sender.clone(),
     };
 
-    eprintln!("instantiate");
-    eprintln!("msg: {:#?}", msg.clone());
-    eprintln!("info: {:#?}", info.clone());
-    eprintln!("state: {:#?}", state.clone());
+    deps.api.debug(format!("instantiate").as_str());
+    deps.api.debug(format!("msg: {:#?}", msg.clone()).as_str());
+    deps.api.debug(format!("info: {:#?}", info.clone()).as_str());
+    deps.api.debug(format!("state: {:#?}", state.clone()).as_str());
 
-    deps.api
-        .debug(format!("Contract was initialized by {}", info.sender).as_str());
+    deps.api.debug(format!("Contract was initialized by {}", info.sender).as_str());
 
     CONFIG.save(deps.storage, &state)?;
 
@@ -96,9 +95,9 @@ fn try_handle(
     // verify signature with stored gateway public key
     let config = CONFIG.load(deps.storage)?;
 
-    eprintln!("try_handle");
-    eprintln!("msg: {:#?}", msg.clone());
-    eprintln!("info: {:#?}", info.clone());
+    deps.api.debug(format!("try_handle").as_str());
+    deps.api.debug(format!("msg: {:#?}", msg.clone()).as_str());
+    deps.api.debug(format!("info: {:#?}", info.clone()).as_str());
 
     // Security
     //
@@ -119,6 +118,7 @@ fn try_handle(
     //     ));
     // }
 
+    // FIXME: Generic error: Invalid public key format
     deps.api
         .secp256k1_verify(
             msg.input_hash.as_slice(),
@@ -130,8 +130,8 @@ fn try_handle(
     // determine which function to call based on the included handle
     let handle = msg.handle.as_str();
 
-    eprintln!("try_handle");
-    eprintln!("handle: {:#?}", handle);
+    deps.api.debug(format!("try_handle").as_str());
+    deps.api.debug(format!("handle: {:#?}", handle).as_str());
 
     match handle {
         // TODO: change all below to snake_case if required for Gateway contract to be able to call.
@@ -165,7 +165,7 @@ fn request_value(
         .map_err(|err| StdError::generic_err(err.to_string()))?;
 
     let my_arg = input.myArg;
-    eprintln!("request_value: input.myArg {:#?}", input.myArg);
+    deps.api.debug(format!("request_value: input.myArg {:#?}", input.myArg).as_str());
 
     let response_status_code: ResponseStatusCode = 0u16;
 

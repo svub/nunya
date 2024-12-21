@@ -77,7 +77,7 @@ const config = {
       endpoint: process.env.ENDPOINT_LOCAL,
       secretNunya: {
         nunyaContractCodeId: "2", // only know after upload
-        nunyaContractCodeHash: "9cbd5742b70a5f6f94f93bc2a31f9c8e8b27c011d4782f18131e11e72ffe1655", // only know after upload
+        nunyaContractCodeHash: "37bf978b95a5fb3aa60799ab8be8be410d9da9cb291c40c3dc3e0d110a5fca66", // only know after upload
         nunyaContractAddress: "secret1gyruqan6yxf0q423t8z5zce3x7np35uw8s8wqc", // only know after instantiate
         nunyaContractWasmPath: "contract.wasm.gz",
       },

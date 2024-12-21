@@ -132,8 +132,8 @@ scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
 	# UPDATE IF DIFFERS deploy.ts
 
   ```bash
-	docker exec -it secretdev secretcli tx bank send secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03 secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg 100000000000000000uscrt
-	y
+	docker exec -it secretdev secretcli tx bank send secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03 secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg 100000000000000000uscrt -y
+
 	docker exec -it secretdev secretcli query bank balances secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg | jq
   ```
 
@@ -162,8 +162,8 @@ scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
   ```
 
   ```bash
-	docker exec -it secretdev secretcli tx bank send secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03 secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg 100000000000000000uscrt
-	y
+	docker exec -it secretdev secretcli tx bank send secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03 secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg 100000000000000000uscrt -y
+
 	docker exec -it secretdev secretcli query bank balances secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg | jq
   ```
 

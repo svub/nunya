@@ -67,9 +67,9 @@ pub fn instantiate(
         signing_keys: KeyPair::default(),
     };
 
-    eprintln!("instantiate");
-    eprintln!("msg: {:#?}", msg.clone());
-    eprintln!("info: {:#?}", info.clone());
+    deps.api.debug(format!("instantiate").as_str());
+    deps.api.debug(format!("msg: {:#?}", msg.clone()).as_str());
+    deps.api.debug(format!("info: {:#?}", info.clone()).as_str());
 
     CONFIG.save(deps.storage, &state)?;
 
@@ -90,9 +90,9 @@ pub fn instantiate(
 ///
 #[entry_point]
 pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> StdResult<Response> {
-    eprintln!("execute");
-    eprintln!("msg: {:#?}", msg.clone());
-    eprintln!("info: {:#?}", info.clone());
+    deps.api.debug(format!("execute").as_str());
+    deps.api.debug(format!("msg: {:#?}", msg.clone()).as_str());
+    deps.api.debug(format!("info: {:#?}", info.clone()).as_str());
 
     let response = match msg {
         ExecuteMsg::Input { inputs } => pre_execution(deps, env, inputs),
@@ -115,10 +115,10 @@ fn rotate_gateway_keys(deps: DepsMut, env: Env, info: MessageInfo) -> StdResult<
 
     let caller_raw = deps.api.addr_canonicalize(info.sender.as_str())?;
 
-    eprintln!("rotate_gateway_keys");
-    eprintln!("caller: {:#?}", caller_raw.clone());
-    eprintln!("state: {:#?}", state.clone());
-    eprintln!("info: {:#?}", info.clone());
+    deps.api.debug(format!("rotate_gateway_keys").as_str());
+    deps.api.debug(format!("caller: {:#?}", caller_raw.clone()).as_str());
+    deps.api.debug(format!("state: {:#?}", state.clone()).as_str());
+    deps.api.debug(format!("info: {:#?}", info.clone()).as_str());
 
     // check if the keys have already been created
     if state.keyed {
@@ -164,8 +164,8 @@ fn create_gateway_keys(deps: DepsMut, env: Env) -> StdResult<Response> {
     // load config
     let state = CONFIG.load(deps.storage)?;
 
-    eprintln!("create_gateway_keys");
-    eprintln!("state: {:#?}", state.clone());
+    deps.api.debug(format!("create_gateway_keys").as_str());
+    deps.api.debug(format!("state: {:#?}", state.clone()).as_str());
 
     // check if the keys have already been created
     if state.keyed {
@@ -207,9 +207,9 @@ fn pre_execution(deps: DepsMut, _env: Env, msg: PreExecutionMsg) -> StdResult<Re
     // load config
     let config = CONFIG.load(deps.storage)?;
 
-    eprintln!("pre_execution");
-    eprintln!("config: {:#?}", config.clone());
-    eprintln!("msg: {:#?}", msg.clone());
+    deps.api.debug(format!("pre_execution").as_str());
+    deps.api.debug(format!("config: {:#?}", config.clone()).as_str());
+    deps.api.debug(format!("msg: {:#?}", msg.clone()).as_str());
 
     // Check if the payload matches the payload hash for Solana
     let mut hasher = Keccak256::new();
@@ -231,7 +231,7 @@ fn pre_execution(deps: DepsMut, _env: Env, msg: PreExecutionMsg) -> StdResult<Re
     if msg.payload_hash.as_slice() != payload_hash_tmp_eth.as_slice()
         && msg.payload_hash.as_slice() != payload_hash_tmp_solana.as_slice()
     {
-        eprintln!("Hashed Payload does not match payload hash");
+        deps.api.debug(format!("Hashed Payload does not match payload hash").as_str());
         return Err(StdError::generic_err(
             "Hashed Payload does not match payload hash",
         ));
@@ -250,15 +250,15 @@ fn pre_execution(deps: DepsMut, _env: Env, msg: PreExecutionMsg) -> StdResult<Re
                     unsafe_payload = false;
                     // Both decryption and verification succeeded
 
-                    eprintln!("pre_execution");
-                    eprintln!("Both decryption and verification succeeded");
-                    eprintln!("decrypted_payload: {:#?}", decrypted_payload.clone());
+                    deps.api.debug(format!("pre_execution").as_str());
+                    deps.api.debug(format!("Both decryption and verification succeeded").as_str());
+                    deps.api.debug(format!("decrypted_payload: {:#?}", decrypted_payload.clone()).as_str());
 
                     decrypted_payload
                 }
                 Err(err) => {
-                    eprintln!("pre_execution");
-                    eprintln!("Verification failed: {:#?}", err);
+                    deps.api.debug(format!("pre_execution").as_str());
+                    deps.api.debug(format!("Verification failed: {:#?}", err).as_str());
 
                     //return Err(StdError::generic_err(format!("Verification failed: {}", err)));
                     // Continue with the decrypted payload if only verification fails
@@ -267,8 +267,8 @@ fn pre_execution(deps: DepsMut, _env: Env, msg: PreExecutionMsg) -> StdResult<Re
             }
         }
         Err(err) => {
-            eprintln!("pre_execution");
-            eprintln!("Decryption failed: {:#?}", err);
+            deps.api.debug(format!("pre_execution").as_str());
+            deps.api.debug(format!("Decryption failed: {:#?}", err).as_str());
             //return Err(StdError::generic_err(format!("Decryption failed: {}", err)));
             // If decryption fails, continue with the original, encrypted payload
             // We are not verifying the payload in this case as it's already deemed unsafe
@@ -276,24 +276,24 @@ fn pre_execution(deps: DepsMut, _env: Env, msg: PreExecutionMsg) -> StdResult<Re
         }
     };
 
-    eprintln!("verify the internal verification key matches the user address");
-    eprintln!("msg.user_key: {:#?}", msg.user_key);
-    eprintln!("payload.user_key: {:#?}", payload.user_key);
+    deps.api.debug(format!("verify the internal verification key matches the user address").as_str());
+    deps.api.debug(format!("msg.user_key: {:#?}", msg.user_key).as_str());
+    deps.api.debug(format!("payload.user_key: {:#?}", payload.user_key).as_str());
 
     // verify the internal verification key matches the user address
     if payload.user_key != msg.user_key {
         return Err(StdError::generic_err("verification key mismatch"));
     }
-    eprintln!("verify the routing info matches the internally stored routing info");
-    eprintln!("msg.routing_info: {:#?}", msg.routing_info);
-    eprintln!("payload.routing_info: {:#?}", payload.routing_info);
+    deps.api.debug(format!("verify the routing info matches the internally stored routing info").as_str());
+    deps.api.debug(format!("msg.routing_info: {:#?}", msg.routing_info).as_str());
+    deps.api.debug(format!("payload.routing_info: {:#?}", payload.routing_info).as_str());
     // verify the routing info matches the internally stored routing info
     if msg.routing_info != payload.routing_info {
         return Err(StdError::generic_err("routing info mismatch"));
     }
-    eprintln!("verify the callback_gas_limit defined in the payload matches the msg callback_gas_limit");
-    eprintln!("msg.callback_gas_limit: {:#?}", msg.callback_gas_limit);
-    eprintln!("payload.callback_gas_limit: {:#?}", payload.callback_gas_limit);
+    deps.api.debug(format!("verify the callback_gas_limit defined in the payload matches the msg callback_gas_limit").as_str());
+    deps.api.debug(format!("msg.callback_gas_limit: {:#?}", msg.callback_gas_limit).as_str());
+    deps.api.debug(format!("payload.callback_gas_limit: {:#?}", payload.callback_gas_limit).as_str());
     // verify the callback_gas_limit defined in the payload matches the msg callback_gas_limit
     if msg.callback_gas_limit != payload.callback_gas_limit {
         return Err(StdError::generic_err("callback gas limit mismatch"));
@@ -304,8 +304,8 @@ fn pre_execution(deps: DepsMut, _env: Env, msg: PreExecutionMsg) -> StdResult<Re
         task_id: msg.task_id,
     };
 
-    eprintln!("pre_execution");
-    eprintln!("new_task: {:#?}", new_task.clone());
+    deps.api.debug(format!("pre_execution").as_str());
+    deps.api.debug(format!("new_task: {:#?}", new_task.clone()).as_str());
 
     // check if the task wasn't executed before already
     let map_contains_task = TASK_MAP.contains(deps.storage, &new_task);
@@ -350,8 +350,8 @@ fn pre_execution(deps: DepsMut, _env: Env, msg: PreExecutionMsg) -> StdResult<Re
         callback_gas_limit: payload.callback_gas_limit,
     };
 
-    eprintln!("pre_execution");
-    eprintln!("task_info: {:#?}", task_info.clone());
+    deps.api.debug(format!("pre_execution").as_str());
+    deps.api.debug(format!("task_info: {:#?}", task_info.clone()).as_str());
 
     // map task to task info
     TASK_MAP.insert(deps.storage, &new_task, &task_info)?;
@@ -393,13 +393,13 @@ fn post_execution(deps: DepsMut, env: Env, msg: PostExecutionMsg) -> StdResult<R
         .get(deps.storage, &msg.task)
         .ok_or_else(|| StdError::generic_err("task not found"))?;
 
-    eprintln!("post_execution");
-    eprintln!("msg: {:#?}", msg.clone());
-    eprintln!("task_info: {:#?}", task_info.clone());
+    deps.api.debug(format!("post_execution").as_str());
+    deps.api.debug(format!("msg: {:#?}", msg.clone()).as_str());
+    deps.api.debug(format!("task_info: {:#?}", task_info.clone()).as_str());
 
-    eprintln!("verify that input hash is correct one for Task");
-    eprintln!("msg.input_hash.as_slice(): {:#?}", msg.input_hash.as_slice());
-    eprintln!("task_info.input_hash.to_vec(): {:#?}", task_info.input_hash.to_vec());
+    deps.api.debug(format!("verify that input hash is correct one for Task").as_str());
+    deps.api.debug(format!("msg.input_hash.as_slice(): {:#?}", msg.input_hash.as_slice()).as_str());
+    deps.api.debug(format!("task_info.input_hash.to_vec(): {:#?}", task_info.input_hash.to_vec()).as_str());
 
     // verify that input hash is correct one for Task
     if msg.input_hash.as_slice() != task_info.input_hash.to_vec() {
@@ -586,8 +586,8 @@ fn post_execution(deps: DepsMut, env: Env, msg: PostExecutionMsg) -> StdResult<R
         callback_gas_limit: callback_gas_limit,
     };
 
-    eprintln!("post_execution");
-    eprintln!("result_info: {:#?}", result_info.clone());
+    deps.api.debug(format!("post_execution").as_str());
+    deps.api.debug(format!("result_info: {:#?}", result_info.clone()).as_str());
 
     // Store the result info in the result map
     RESULT_MAP.insert(deps.storage, &msg.task, &result_info)?;
