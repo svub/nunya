@@ -543,10 +543,14 @@ contract Gateway is Ownable, Utils {
         // to allow us to set an `owner`-like value that could be used to restrict calls to functions like this.
         // FIXME: Error parsing into type secret_gateway::types::Payload: Invalid unicode code point.: execute contract failed
         // TODO: Try changing to `"user_address":"0x0000","user_key":"AAA="`
+        // FIXME: Generic error: Invalid public key format
         bytes memory payload_info = abi.encodePacked(
             '}","routing_info":"',routing_info,
             '","routing_code_hash":"',routing_code_hash,
-            '","user_address":"0x0000","user_key":"AAA=","callback_address":"'
+            '","user_address":"',address(owner),
+            '","user_key":"',owner_public_key,
+            '","callback_address":"'
+            // '","user_address":"0x0000","user_key":"AAA=","callback_address":"'
         );
 
         //
@@ -602,14 +606,16 @@ contract Gateway is Ownable, Utils {
 
         // TODO - make `user_key` a unique key different from `user_pubkey`
         // bytes memory userKey = bytes.concat(senderAddressBase64); // equals AAA= in base64
+        bytes memory userKey = bytes.concat(owner_public_key); // equals AAA= in base64
 
         // ExecutionInfo struct
         ExecutionInfo memory executionInfo = ExecutionInfo({
-            // user_key: userKey, // FIXME - use this instead when resolve issue
-            user_key: emptyBytes, // equals AAA= in base64
+            user_key: userKey, // FIXME - use this instead when resolve issue
+            // user_key: emptyBytes, // equals AAA= in base64
             // FIXME: use of `secret_gateway_signer_pubkey` does not compile, what alternative to use?
             // user_pubkey: uint256toBytesString(secret_gateway_signer_pubkey),
-            user_pubkey: emptyBytes, // Fill with 0 bytes
+            user_pubkey: owner_public_key,
+            // user_pubkey: emptyBytes, // Fill with 0 bytes
             routing_code_hash: routing_code_hash, // custom contract codehash on Secret 
             task_destination_network: task_destination_network,
             handle: "request_value",
@@ -618,8 +624,8 @@ contract Gateway is Ownable, Utils {
             payload: payload,
             // TODO: add a payload signature
             // Signature of hash of encrypted input values
-            payload_signature: emptyBytes // empty signature, fill with 0 bytes
-            // payload_signature: bytes32ToBytes(payloadHash)
+            // payload_signature: emptyBytes // empty signature, fill with 0 bytes
+            payload_signature: bytes32ToBytes(payloadHash)
         });
 
         // persisting the task
