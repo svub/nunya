@@ -533,7 +533,28 @@ contract Gateway is Ownable, Utils, Base64 {
         //   QTRLK015Sk5uTmNkdDc4U25jamhBckxXTm5EUkhhcGtaRnNlbWptZjkvN0E=
         // bytes memory userKey = bytes.concat("A4K+MyJNnNcdt78SncjhArLWNnDRHapkZFsemjmf9/7A");
         // bytes memory userKey = bytes.concat("QTRLK015Sk5uTmNkdDc4U25jamhBckxXTm5EUkhhcGtaRnNlbWptZjkvN0E=");
-        bytes memory userKey = bytes.concat(owner_public_key);
+        //
+        // 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+        // Hex value of `owner_public_key` is: 0x038318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed75
+        // In base64 it is A4MYU1tUEF1Keq5gwI/EX5aHGBtP38YlvRp1P6c5f+11
+        // bytes memory userKey = bytes.concat(owner_public_key);
+        //
+        // INFO  [enclave_contract_engine::wasm3] debug_print: "Decryption failed: GenericErr {\n    msg: \"malformed public key\",\n}"
+        // INFO  [enclave_contract_engine::wasm3] debug_print: "verify the internal verification key matches the user address"
+        // INFO  [enclave_contract_engine::wasm3] debug_print: "msg.user_key: Binary(41344d59553174554546314b6571356777492f4558356148474274503338596c7652703150366335662b3131)"
+        // INFO  [enclave_contract_engine::wasm3] debug_print: "payload.user_key: Binary(038318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed75)"
+        bytes memory userKey = bytes.concat("A4MYU1tUEF1Keq5gwI/EX5aHGBtP38YlvRp1P6c5f+11");
+
+        // Gateway contract public key
+        // Generated from ./packages/secret-contracts-scripts/src/functions/secretpath/generateKeys.ts
+        // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        // converted to base64: QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUE=
+
+        // INFO  [enclave_contract_engine::wasm3] debug_print: "Decryption failed: GenericErr {\n    msg: \"malformed public key\",\n}"
+        // INFO  [enclave_contract_engine::wasm3] debug_print: "verify the internal verification key matches the user address"
+        // INFO  [enclave_contract_engine::wasm3] debug_print: "msg.user_key: Binary(4141414141414141414141414141414141414141414141414141414141414141414141414141414141414141)"
+        // INFO  [enclave_contract_engine::wasm3] debug_print: "payload.user_key: Binary(000000000000000000000000000000000000000000000000000000000000000000)"
+        // bytes memory userKey = bytes.concat("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"); // malformed public key
 
         // Note: Since contracts only have an address, but not public keys, where the
         // addresses are derived from the address of the user (or other contract) that
@@ -561,7 +582,7 @@ contract Gateway is Ownable, Utils, Base64 {
             // '","user_address":"',address(owner), // Invalid unicode code point.
             '","user_address":"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
             // '","user_key":"',owner_public_key,
-            '","user_key":"',encode(userKey),
+            '","user_key":"',userKey,
             '","callback_address":"'
             // '","user_address":"0x0000","user_key":"AAA=","callback_address":"'
         );
