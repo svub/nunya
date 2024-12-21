@@ -1,17 +1,15 @@
-eth_sendTransaction
+eth_sendRawTransaction
   Contract deployment: NunyaBusiness
   Contract address:    0x5fbdb2315678afecb367f032d93f642f64180aa3
-  Transaction:         0x932f4c98ac26557cf674d48ae941d2d5d4b402bdf05a2e54ab8f25bbc61ed5c0
+  Transaction:         0x8e264271b461df23b8f468a166aaa9b0dfde81be3551ec196224faf55348cdbe
   From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
   Value:               0.5 ETH
   Gas used:            2871810 of 3000000
-  Block #1:            0x0c9d5830e9521dce4948583ceacb854e74ee49df6c8b28e8cf67ba5c2b12a75b
+  Block #1:            0x6697b5ea3733420251fae618449d0a6aaceb89cef9fc1573e1c38b434483f392
 
   console.log:
     constructor: msg.value 500000000000000
 
-eth_chainId
-eth_getTransactionByHash
 evm_mine
   Mined empty block #2 with base fee 786565282
 
@@ -19,37 +17,38 @@ eth_chainId
 eth_getTransactionReceipt
 eth_chainId
 eth_getTransactionCount
-eth_feeHistory
-eth_maxPriorityFeePerGas
-eth_sendTransaction
-  Contract deployment: <UnrecognizedContract>
+eth_chainId
+eth_gasPrice
+eth_getBlockByNumber
+eth_chainId (2)
+eth_sendRawTransaction
+  Contract deployment: Gateway
   Contract address:    0xe7f1725e7734ce288f8367e1bb143e90bb3f0512
-  Transaction:         0xda079741575953164a57cfca54ce002fe1ab844ba4adb8060853e4535fa1053e
+  Transaction:         0x7771cdeefd115e0e63c613d7a540e8ac82f3f752d22179524f5fae02700649dd
   From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
   Value:               0 ETH
-  Gas used:            3643214 of 30000000
-  Block #3:            0xb0ad479a76ea27b85b109be88c5b90c606eb5ffbe0a67923293720fad1c91d16
+  Gas used:            3715267 of 30000000
+  Block #3:            0x752a8b697acc0f774dc8904d5adc5c2bd0bd563d90bc326b4426bddb5d38f7c1
 
-eth_chainId
-eth_getTransactionByHash
 evm_mine
-  Mined empty block #4 with base fee 623109232
+  Mined empty block #4 with base fee 623522483
 
 eth_chainId
 eth_getTransactionReceipt
 eth_accounts
 hardhat_metadata (20)
 eth_blockNumber
+eth_getBlockByNumber
 eth_feeHistory
 eth_maxPriorityFeePerGas
 eth_sendTransaction
   Contract call:       NunyaBusiness#setGatewayAddress
-  Transaction:         0xcd6150db2cabfd2cf3b36b1f6d5832720d0c05222e5ba5f676a7d68e3a5af8a7
+  Transaction:         0x00cf2b2ae78a535d7b2f607e13fac658f6a01e40dbda7c7323afb44156ab4687
   From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
   To:                  0x5fbdb2315678afecb367f032d93f642f64180aa3
   Value:               0.1 ETH
   Gas used:            60984 of 30000000
-  Block #5:            0x67a7834cfdf84c19cf0b53d2d24f9414e94b241f377c31bc840d7d9330d4b54c
+  Block #5:            0x9b12413e741e047ce68c7425f79bbbd1a2a1851685a31b4663d7a43f24312353
 
   console.log:
     ----- NunyaBusiness.sol fundGateway() keepGas:  0
@@ -75,12 +74,12 @@ eth_estimateGas
 eth_chainId
 eth_sendRawTransaction
   Contract call:       NunyaBusiness#setGatewayAddress
-  Transaction:         0x104e053945a622469c6fba5438c30b5d5299b7642c1daf70b09b94252dad520c
+  Transaction:         0xfab62ea174ee82384a51c4e9458000f0770db86522e22ffad9858f49a459ec2e
   From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
   To:                  0x5fbdb2315678afecb367f032d93f642f64180aa3
   Value:               0.1 ETH
   Gas used:            41084 of 42528
-  Block #6:            0x552667df88f1f7923469acaf27450cc013637a59cd57f566763e8beab38e4124
+  Block #6:            0x8d34146c4c227fe595681ef6fdf3ea3e3ede14a599cabc2ec8e20483b0935b33
 
   console.log:
     ----- NunyaBusiness.sol fundGateway() keepGas:  0
@@ -90,18 +89,10 @@ eth_sendRawTransaction
 eth_getTransactionCount (2)
 eth_getBlockByNumber
 eth_getLogs
-eth_getBlockByNumber (29)
-eth_getTransactionCount
-eth_getBlockByNumber (16)
-eth_getTransactionCount (2)
+eth_getBlockByNumber (25)
+eth_chainId
 eth_getBlockByNumber
-eth_getLogs
-eth_getBlockByNumber (29)
-eth_getTransactionCount
-eth_getBlockByNumber (30)
-eth_getTransactionCount
-eth_getBlockByNumber (23)
-eth_chainId (2)
+eth_chainId
 eth_getBalance
 eth_chainId
 eth_getTransactionCount
@@ -114,7 +105,7 @@ eth_call
 
 eth_chainId
 eth_call
-  Contract call:       <UnrecognizedContract>
+  Contract call:       Gateway#task_destination_network
   From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
   To:                  0xe7f1725e7734ce288f8367e1bb143e90bb3f0512
 
@@ -126,12 +117,12 @@ eth_getBlockByNumber
 eth_chainId (2)
 eth_sendRawTransaction
   Contract call:       NunyaBusiness#unsafeSetSecretContractInfo
-  Transaction:         0x0243814803d4213294269ad88a15f1f379ce2c168f36744bbcf8b3344c237de9
+  Transaction:         0xa1f2eab9cea0962887e396fbbef75e429ea3405980f36ef863f311e05abb0a9e
   From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
   To:                  0x5fbdb2315678afecb367f032d93f642f64180aa3
   Value:               0.1 ETH
   Gas used:            181228 of 10000000
-  Block #7:            0xeacf118171a5239b37ec11844850609f4e39db8a425bca66dc4b4229f83c15fa
+  Block #7:            0xd44681acaad249f4e67c73a5113722bf63d8c95741f3dc9f801363e02ea6c027
 
   console.log:
     set secret contract info in gateway contract
@@ -148,8 +139,8 @@ eth_sendRawTransaction
   From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
   To:                  0x5fbdb2315678afecb367f032d93f642f64180aa3
   Value:               2.5 ETH
-  Gas used:            142587 of 30000000
-  Block #8:            0xc9104b1db82127a8a3bbb108320b13e9e85a88ca8f4479c14a61f212839848bb
+  Gas used:            142794 of 30000000
+  Block #8:            0x645408ae60ba45f47f971c00232efd6fec358979f6a4a5d78ccb931ec4e8be93
 
   console.log:
     ------ Gateway.requestValue
