@@ -548,6 +548,10 @@ contract Gateway is Ownable, Utils, Base64 {
         // INFO  [enclave_contract_engine::wasm3] debug_print: "verify the internal verification key matches the user address"
         // INFO  [enclave_contract_engine::wasm3] debug_print: "msg.user_key: Binary(41344d59553174554546314b6571356777492f4558356148474274503338596c7652703150366335662b3131)"
         // INFO  [enclave_contract_engine::wasm3] debug_print: "payload.user_key: Binary(038318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed75)"
+        
+        // secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg
+        // note: used as the 'admin' when instantiating the Secret Gateway
+        // hex equivalent: 0382be33224d9cd71db7bf129dc8e102b2d63670d11daa64645b1e9a399ff7fec0
         bytes memory userKey = bytes.concat("A4K+MyJNnNcdt78SncjhArLWNnDRHapkZFsemjmf9/7A");
 
         // 04d0ce1bd101c1a2a130185e4c63d1d7091db9ab0dca3c651998d314a1550323c02649b0960b00bb1fac896aaf4056abb605e87d55ec1805a91ddb3e32c6b89c36
