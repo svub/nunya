@@ -354,7 +354,23 @@ git submodule update --init --recursive
   * View on Secret Localhost block explorer
   * Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
 
-  * Note: In order to populate the `secret.localhost.secretGateway.gatewayContractPublicKey` and `secret.localhost.secretGateway.gatewayContractEncryptionKeyForChaChaPoly1305`, according to Alex at Secret Network, you can't get a public key for it because it relies on the on-chain randomness (Secret VRF) to get a private key first. As such, you have to make some mock code to make it usable on a local testnet (where secretVRF from env.block.random is not available).
+  * Note: In order to populate the `secret.localhost.secretGateway.gatewayContractPublicKey` and `secret.localhost.secretGateway.gatewayContractEncryptionKeyForChaChaPoly1305` do the following:
+
+  * Get the Secret Gateway public key (signing verification key '0x' prefixed hex string) and base64 encryption key
+
+  ```bash
+  yarn run secret:querySecretGatewayPubkey
+  ```
+
+  Example output:
+	```
+	res queryPubkey:  {
+	  encryption_key: 'AtDOG9EBwaKhMBheTGPR1wkduasNyjxlGZjTFKFVAyPA',
+	  verification_key: '0x04d0ce1bd101c1a2a130185e4c63d1d7091db9ab0dca3c651998d314a1550323c02649b0960b00bb1fac896aaf4056abb605e87d55ec1805a91ddb3e32c6b89c36'
+	}
+	```
+
+	* Paste them into deploy.ts, `gatewayContractPublicKey` with `verification_key` and `gatewayContractEncryptionKeyForChaChaPoly1305` with `encryption_key`
 
   * NEXT, [Deploy Nunya Contract on Localhost](#deploy-nunya-contract-on-localhost)
 

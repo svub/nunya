@@ -13,6 +13,7 @@ import { generateKeys } from "./functions/secretpath/generateKeys.js";
 // import getPublicClientAddress from "./functions/secretpath/getPublicClientAddress.js";
 import { constructPayload } from "./functions/secretpath/constructPayload.js";
 import { encryptPayload } from "./functions/secretpath/encryptPayload.js";
+import { queryPubkey } from "./functions/query/queryPubkey.js";
 import { arrayify, hexlify, SigningKey, keccak256, recoverPublicKey, computeAddress } from "ethers/lib/utils.js";
 import { assert } from "console";
 
@@ -90,64 +91,64 @@ async function unsafeRequestValue() {
   // https://github.com/blake-regalia/belt/issues/1
   const response: any = await generateKeys();
   console.log('response: ', response);
-  // FIXME: Hard-coded values used for Localsecret Gateway public key in ./packages/secret-contracts-scripts/src/config/deploy.ts
-  const { userPublicKey, userPrivateKeyBytes, userPublicKeyBytes, sharedKey }: any = response;
+  // // FIXME: Hard-coded values used for Localsecret Gateway public key in ./packages/secret-contracts-scripts/src/config/deploy.ts
+  // const { userPublicKey, userPrivateKeyBytes, userPublicKeyBytes, sharedKey }: any = response;
 
-  const callbackSelector = ifaceNunya.getSighash(
-    // requestValue - 0xb6c2b131
-    // fulfillRandomWords - 0x38ba4614 hex, OLpGFA== base64
-    // fulfilledValueCallback - 0x0f7af612
-    ifaceNunya.getFunction("fulfilledValueCallback")
-  );
-  console.log("callbackSelector: ", callbackSelector);
+  // const callbackSelector = ifaceNunya.getSighash(
+  //   // requestValue - 0xb6c2b131
+  //   // fulfillRandomWords - 0x38ba4614 hex, OLpGFA== base64
+  //   // fulfilledValueCallback - 0x0f7af612
+  //   ifaceNunya.getFunction("fulfilledValueCallback")
+  // );
+  // console.log("callbackSelector: ", callbackSelector);
 
-  const callbackGasLimit = 30000000; // 30000000 is the block gas limit
-  // The function name of the function that is called on the private contract
-  const handle = "request_value";
+  // const callbackGasLimit = 30000000; // 30000000 is the block gas limit
+  // // The function name of the function that is called on the private contract
+  // const handle = "request_value";
 
-  // Data are the calldata/parameters that are passed into the contract
-  const data = JSON.stringify({ myArg: "123" });
+  // // Data are the calldata/parameters that are passed into the contract
+  // const data = JSON.stringify({ myArg: "123" });
 
-  assert!(chainId.toString() == (await provider.getNetwork()).chainId.toString());
+  // assert!(chainId.toString() == (await provider.getNetwork()).chainId.toString());
 
-  // EVM gateway contract address
-  // const publicClientAddress = await getPublicClientAddress(chainId);
-  const publicClientAddress = gatewayContractAddress;
+  // // EVM gateway contract address
+  // // const publicClientAddress = await getPublicClientAddress(chainId);
+  // const publicClientAddress = gatewayContractAddress;
 
-  const callbackAddress = publicClientAddress.toLowerCase();
-  console.log("public client callback myAddress: ", callbackAddress);
+  // const callbackAddress = publicClientAddress.toLowerCase();
+  // console.log("public client callback myAddress: ", callbackAddress);
 
-  // Payload construction
-  const payload = constructPayload(
-    data,
-    routing_contract,
-    routing_code_hash,
-    myAddress,
-    userPublicKeyBytes,
-    callbackAddress,
-    callbackSelector,
-    callbackGasLimit
-  );
+  // // Payload construction
+  // const payload = constructPayload(
+  //   data,
+  //   routing_contract,
+  //   routing_code_hash,
+  //   myAddress,
+  //   userPublicKeyBytes,
+  //   callbackAddress,
+  //   callbackSelector,
+  //   callbackGasLimit
+  // );
 
-  // TODO: temporarily skip the below that encrypts the payload until resolve
-  // https://github.com/blake-regalia/belt/issues/1
-  const {
-    ciphertext,
-    payloadHash,
-    payloadSignature,
-    _info,
-  } = await encryptPayload(
-    payload,
-    sharedKey,
-    provider,
-    myAddress,
-    userPublicKeyBytes,
-    routing_code_hash,
-    handle,
-    callbackGasLimit,
-    ifaceGateway,
-    callbackSelector
-  );
+  // // TODO: temporarily skip the below that encrypts the payload until resolve
+  // // https://github.com/blake-regalia/belt/issues/1
+  // const {
+  //   ciphertext,
+  //   payloadHash,
+  //   payloadSignature,
+  //   _info,
+  // } = await encryptPayload(
+  //   payload,
+  //   sharedKey,
+  //   provider,
+  //   myAddress,
+  //   userPublicKeyBytes,
+  //   routing_code_hash,
+  //   handle,
+  //   callbackGasLimit,
+  //   ifaceGateway,
+  //   callbackSelector
+  // );
 
 //   // TODO - temporary only but remove after resolve
 //   // https://github.com/blake-regalia/belt/issues/1

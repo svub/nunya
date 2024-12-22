@@ -42,6 +42,7 @@
     "verify": "yarn workspace @se-2/hardhat verify",
     "secret:setEVMGatewayAddress": "yarn workspace secret-contracts-scripts setEVMGatewayAddress",
     "secret:queryPubkey": "yarn workspace secret-contracts-scripts queryPubkey",
+    "secret:querySecretGatewayPubkey": "yarn workspace secret-contracts-scripts querySecretGatewayPubkey",
     "secret:submit": "yarn workspace secret-contracts-scripts submit",
     "secret:submitRequestValue": "yarn workspace secret-contracts-scripts submitRequestValue",
     "secret:requestValue": "yarn workspace secret-contracts-scripts requestValue",

@@ -43,12 +43,16 @@ export async function generateKeys() {
   console.log('userPublicKeyBytes: ', userPublicKeyBytes);
   // Secret Network Gateway
   // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-testnet-pulsar-3-contracts
+  // Note: If you provide an invalid Secret Gateway public key you may get error:
+  // `Error: Invalid point data`
   const gatewayContractPublicKey = gatewayContractEncryptionKeyForChaChaPoly1305;
   console.log('gatewayContractPublicKey: ', gatewayContractPublicKey);
   const gatewayContractPublicKeyBytes = base64_to_bytes(gatewayContractPublicKey);
   console.log('gatewayContractPublicKeyBytes: ', gatewayContractPublicKeyBytes);
 
   // https://github.com/SolarRepublic/neutrino/blob/main/src/secp256k1.ts#L334
+  // ReferenceError: crypto is not defined
+  // at sha256 (file:///root/nunya/packages/secret-contracts-scripts/node_modules/@blake.regalia/belt/dist/mjs/data.js:80:56)
   const sharedKey = await sha256(ecdh(userPrivateKeyBytes, gatewayContractPublicKeyBytes));
   console.log('sharedKey: ', sharedKey);
 

@@ -85,10 +85,10 @@ const config = {
         gatewayContractCodeId: "1", // only know after upload
         gatewayContractAddress: "secret1mfk7n6mc2cg6lznujmeckdh4x0a5ezf6hx6y8q", // only know after instantiate
         gatewayContractCodeHash: "836a34c60637d684c044d4ddc1277e3d21ae1f440d2bb2d26870c81639d2f4c4", // only know after upload
-        // note: mock value hard-coded
-        gatewayContractPublicKey: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-        // note: mock value hard-coded
-        gatewayContractEncryptionKeyForChaChaPoly1305: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        // obtain from running `yarn run secret:querySecretGatewayPubkey`
+        gatewayContractPublicKey: "0x04d0ce1bd101c1a2a130185e4c63d1d7091db9ab0dca3c651998d314a1550323c02649b0960b00bb1fac896aaf4056abb605e87d55ec1805a91ddb3e32c6b89c36",
+        // obtain from running `yarn run secret:querySecretGatewayPubkey`
+        gatewayContractEncryptionKeyForChaChaPoly1305: "AtDOG9EBwaKhMBheTGPR1wkduasNyjxlGZjTFKFVAyPA",
         gatewayContractWasmPath: "secret-gateway-contract.wasm.gz",
       }
     }

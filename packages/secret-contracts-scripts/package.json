@@ -7,6 +7,7 @@
   "scripts": {
     "setEVMGatewayAddress": "yarn build && node ./dist/evm/setEVMGatewayAddress.js",
     "queryPubkey": "yarn build && node ./dist/functions/query/queryPubkey.js",
+    "querySecretGatewayPubkey": "yarn build && node ./dist/functions/query/querySecretGatewayPubkey.js",
     "submit": "yarn build && node ./dist/submit.js",
     "submitRequestValue": "yarn build && node ./dist/submitRequestValue.js",
     "requestValue": "yarn build && node ./dist/evm/requestValue.js",
