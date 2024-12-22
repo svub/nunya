@@ -47,8 +47,9 @@ contract Gateway is Ownable, Utils, Base64 {
     // SecretPath localhost () contracts
     // Note: Match the value shown in ../../../packages/secret-contracts-scripts/src/config/deploy.ts
     string constant public task_destination_network = "secretdev-1";
+    // TODO: Create a function to set these values? Or is it generated randomly each time the Secret Gateway contract is deployed?
     // This is the Derived Ethereum Address from the Public Key of the deployed Gateway contract on the Secret Network Testnet
-    // uint256 immutable public secret_gateway_signer_pubkey = ???;
+    // uint256 immutable public secret_gateway_signer_pubkey = 0x04d0ce1bd101c1a2a130185e4c63d1d7091db9ab0dca3c651998d314a1550323c02649b0960b00bb1fac896aaf4056abb605e87d55ec1805a91ddb3e32c6b89c36;
     // address immutable public secret_gateway_signer_address = ???;
 
     // TODO: Add deployed custom Secret contract address to be same as `SECRET_ADDRESS` and codehash `CONTRACT_CODE_HASH` used in scripts
@@ -543,7 +544,16 @@ contract Gateway is Ownable, Utils, Base64 {
         // INFO  [enclave_contract_engine::wasm3] debug_print: "verify the internal verification key matches the user address"
         // INFO  [enclave_contract_engine::wasm3] debug_print: "msg.user_key: Binary(41344d59553174554546314b6571356777492f4558356148474274503338596c7652703150366335662b3131)"
         // INFO  [enclave_contract_engine::wasm3] debug_print: "payload.user_key: Binary(038318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed75)"
-        bytes memory userKey = bytes.concat("A4MYU1tUEF1Keq5gwI/EX5aHGBtP38YlvRp1P6c5f+11");
+        // bytes memory userKey = bytes.concat("A4MYU1tUEF1Keq5gwI/EX5aHGBtP38YlvRp1P6c5f+11");
+
+        // 04d0ce1bd101c1a2a130185e4c63d1d7091db9ab0dca3c651998d314a1550323c02649b0960b00bb1fac896aaf4056abb605e87d55ec1805a91ddb3e32c6b89c36
+        // base64 value: BNDOG9EBwaKhMBheTGPR1wkduasNyjxlGZjTFKFVAyPAJkmwlgsAux+siWqvQFartgXofVXsGAWpHds+Msa4nDY=
+        // bytes memory userKey = bytes.concat(encode(hex"04d0ce1bd101c1a2a130185e4c63d1d7091db9ab0dca3c651998d314a1550323c02649b0960b00bb1fac896aaf4056abb605e87d55ec1805a91ddb3e32c6b89c36"));
+        bytes memory userKey = bytes.concat("BNDOG9EBwaKhMBheTGPR1wkduasNyjxlGZjTFKFVAyPAJkmwlgsAux+siWqvQFartgXofVXsGAWpHds+Msa4nDY=");
+
+        // 04d0ce1bd101c1a2a130185e4c63d1d7091db9ab0dca3c651998d314a1550323c02649b0960b00bb1fac896aaf4056abb605e87d55ec1805a91ddb3e32c6b89c36
+        bytes memory userPubkey = hex"04d0ce1bd101c1a2a130185e4c63d1d7091db9ab0dca3c651998d314a1550323c02649b0960b00bb1fac896aaf4056abb605e87d55ec1805a91ddb3e32c6b89c36";
+
 
         // Gateway contract public key
         // Generated from ./packages/secret-contracts-scripts/src/functions/secretpath/generateKeys.ts
@@ -643,11 +653,13 @@ contract Gateway is Ownable, Utils, Base64 {
 
         // ExecutionInfo struct
         ExecutionInfo memory executionInfo = ExecutionInfo({
-            user_key: userKey, // FIXME - use this instead when resolve issue
+            user_key: userPubkey,
+            // user_key: userKey, // FIXME - use this instead when resolve issue
             // user_key: emptyBytes, // equals AAA= in base64
             // FIXME: use of `secret_gateway_signer_pubkey` does not compile, what alternative to use?
             // user_pubkey: uint256toBytesString(secret_gateway_signer_pubkey),
-            user_pubkey: userKey,
+            user_pubkey: userPubkey,
+            // user_pubkey: userKey,
             // user_pubkey: emptyBytes, // Fill with 0 bytes
             routing_code_hash: routing_code_hash, // custom contract codehash on Secret 
             task_destination_network: task_destination_network,
