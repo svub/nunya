@@ -117,7 +117,7 @@ impl PreExecutionMsg {
         }
     }
 
-    pub fn decrypt_payload(&self, sk: Binary) -> StdResult<Payload> {
+    pub fn decrypt_payload(&self, sk: Binary, deps: &DepsMut) -> StdResult<Payload> {
         let my_secret = SecretKey::from_slice(sk.as_slice())
             .map_err(|err| StdError::generic_err(err.to_string()))?;
 
@@ -134,8 +134,6 @@ impl PreExecutionMsg {
 
         let cipher = ChaCha20Poly1305::new_from_slice(shared_key.as_ref())
             .map_err(|err| StdError::generic_err(err.to_string()))?;
-
-        deps.api.debug(format!("decrypt_payload: cipher: {:#?}", cipher.clone()).as_str());
 
         let nonce = Nonce::from_slice(self.nonce.as_slice());
 
