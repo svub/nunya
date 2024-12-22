@@ -125,6 +125,7 @@ contract Gateway is Ownable, Utils, Base64 {
     /// @param _signature The signature
     /// @return signerAddress The address of the signer
 
+    // Reference: https://docs.ethers.org/v6/cookbook/signing/
     function recoverSigner(bytes32 _signedMessageHash, bytes calldata _signature) public view returns (address signerAddress) {
         require(_signature.length == 65, "Invalid Signature Length");
         
@@ -412,7 +413,7 @@ contract Gateway is Ownable, Utils, Base64 {
     /// @param _info Post execution information
 
     function postExecution(uint256 _taskId, string calldata _sourceNetwork, PostExecutionInfo calldata _info) external {
-        
+        console.log("------ Gateway.postExecution - recoverSigner");
         Task memory task = tasks[_taskId];
 
         // Check if the task is already completed
@@ -443,6 +444,8 @@ contract Gateway is Ownable, Utils, Base64 {
 
         // Packet hash verification
         require(packetHash == _info.packet_hash, "Invalid Packet Hash");
+
+        console.log("------ Gateway.postExecution - recoverSigner");
 
         // FIXME: Temporarily disable since do not know how to obtain `secret_gateway_signer_address` when using Secret Localhost
         // // Packet signature verification
@@ -509,6 +512,7 @@ contract Gateway is Ownable, Utils, Base64 {
         // Note - It is only possible to call this function `encodeAddressToBase64` three times
         // in this function, otherwise it generates error `Error: Transaction reverted without a reason`.
         bytes28 senderAddressBase64 = encodeAddressToBase64(msg.sender);
+        bytes28 gatewayAddressBase64 = encodeAddressToBase64(address(this));
 
         requestId = taskId;
 
@@ -544,19 +548,23 @@ contract Gateway is Ownable, Utils, Base64 {
         // INFO  [enclave_contract_engine::wasm3] debug_print: "verify the internal verification key matches the user address"
         // INFO  [enclave_contract_engine::wasm3] debug_print: "msg.user_key: Binary(41344d59553174554546314b6571356777492f4558356148474274503338596c7652703150366335662b3131)"
         // INFO  [enclave_contract_engine::wasm3] debug_print: "payload.user_key: Binary(038318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed75)"
-        // bytes memory userKey = bytes.concat("A4MYU1tUEF1Keq5gwI/EX5aHGBtP38YlvRp1P6c5f+11");
+        bytes memory userKey = bytes.concat("A4MYU1tUEF1Keq5gwI/EX5aHGBtP38YlvRp1P6c5f+11");
 
         // 04d0ce1bd101c1a2a130185e4c63d1d7091db9ab0dca3c651998d314a1550323c02649b0960b00bb1fac896aaf4056abb605e87d55ec1805a91ddb3e32c6b89c36
         // base64 value: BNDOG9EBwaKhMBheTGPR1wkduasNyjxlGZjTFKFVAyPAJkmwlgsAux+siWqvQFartgXofVXsGAWpHds+Msa4nDY=
         // bytes memory userKey = bytes.concat(encode(hex"04d0ce1bd101c1a2a130185e4c63d1d7091db9ab0dca3c651998d314a1550323c02649b0960b00bb1fac896aaf4056abb605e87d55ec1805a91ddb3e32c6b89c36"));
-        bytes memory userKey = bytes.concat("BNDOG9EBwaKhMBheTGPR1wkduasNyjxlGZjTFKFVAyPAJkmwlgsAux+siWqvQFartgXofVXsGAWpHds+Msa4nDY=");
+        // bytes memory userKey = bytes.concat("BNDOG9EBwaKhMBheTGPR1wkduasNyjxlGZjTFKFVAyPAJkmwlgsAux+siWqvQFartgXofVXsGAWpHds+Msa4nDY=");
 
         // 04d0ce1bd101c1a2a130185e4c63d1d7091db9ab0dca3c651998d314a1550323c02649b0960b00bb1fac896aaf4056abb605e87d55ec1805a91ddb3e32c6b89c36
         bytes memory gatewayContractPubkey = hex"04d0ce1bd101c1a2a130185e4c63d1d7091db9ab0dca3c651998d314a1550323c02649b0960b00bb1fac896aaf4056abb605e87d55ec1805a91ddb3e32c6b89c36";
 
         // 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         // Hex value of `owner_public_key` is: 0x038318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed75
-        bytes memory userPubkey = hex"038318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed75";
+        // bytes memory userPubkey = hex"038318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed75";
+
+        // FIXME: Probably wrong, it should be generated like this https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/usecases/vrf/using-encrypted-payloads-for-vrf#signing-the-payload-with-metamask
+        // and likely different from `userKey`
+        bytes memory userPubkey = bytes.concat("A4MYU1tUEF1Keq5gwI/EX5aHGBtP38YlvRp1P6c5f+11");
 
         // Gateway contract public key
         // Generated from ./packages/secret-contracts-scripts/src/functions/secretpath/generateKeys.ts
@@ -595,6 +603,7 @@ contract Gateway is Ownable, Utils, Base64 {
             // '","user_address":"',address(owner), // Invalid unicode code point.
             '","user_address":"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
             // '","user_key":"',owner_public_key,
+            // https://github.com/SecretSaturn/SecretPath/blob/main/TNLS-Gateways/secret/tests/integration.ts#L340
             '","user_key":"',userKey,
             '","callback_address":"'
             // '","user_address":"0x0000","user_key":"AAA=","callback_address":"'
@@ -619,7 +628,9 @@ contract Gateway is Ownable, Utils, Base64 {
             '{"data":"{\\"myArg\\":',
             uint256toBytesString(123),
             payload_info,
-            senderAddressBase64, //callback_address
+            // callback_address should be this EVM Gateway address, the `publicClientAddress` in this example
+            // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/usecases/vrf/using-encrypted-payloads-for-vrf#defining-variables
+            gatewayAddressBase64,
             // callback selector should be a hex value already converted into base64 to be used
             // as callback_selector of the request_value function in the Secret contract
             // FIXME: Error parsing into type secret_gateway::types::Payload: invalid base64: 259716626: execute contract failed
@@ -656,7 +667,8 @@ contract Gateway is Ownable, Utils, Base64 {
 
         // ExecutionInfo struct
         ExecutionInfo memory executionInfo = ExecutionInfo({
-            user_key: gatewayContractPubkey,
+            // user_key: gatewayContractPubkey,
+            user_key: userKey,
             // user_key: userKey, // FIXME - use this instead when resolve issue
             // user_key: emptyBytes, // equals AAA= in base64
             // FIXME: use of `secret_gateway_signer_pubkey` does not compile, what alternative to use?
@@ -706,6 +718,7 @@ contract Gateway is Ownable, Utils, Base64 {
         console.log("------ Gateway.retrievePubkey");
 
         bytes28 senderAddressBase64 = encodeAddressToBase64(address(msg.sender));
+        bytes28 gatewayAddressBase64 = encodeAddressToBase64(address(this));
 
         requestId = taskId;
 
@@ -738,8 +751,7 @@ contract Gateway is Ownable, Utils, Base64 {
             '","routing_code_hash":"', routing_code_hash,
             '","user_address":"', address(msg.sender),
             '","user_key":"', senderAddressBase64,
-            '","callback_address":"', address(msg.sender),
-            '"'
+            '","callback_address":"'
         );
 
         //construct the payload that is sent into the Secret Gateway
@@ -747,7 +759,9 @@ contract Gateway is Ownable, Utils, Base64 {
             '{"data":"{\\"callbackSelector\\":',
             uint256toBytesString(_callbackSelector),
             payload_info,
-            senderAddressBase64, //callback_address
+            // callback_address should be this EVM Gateway address, the `publicClientAddress` in this example
+            // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/usecases/vrf/using-encrypted-payloads-for-vrf#defining-variables
+            gatewayAddressBase64,
             '","callback_selector":"OLpGFA==","callback_gas_limit":', // 0x38ba4614 hex value already converted into base64, callback_selector of the fulfillRandomWords function
             uint256toBytesString(_callbackGasLimit),
             '}' 
