@@ -237,6 +237,12 @@ fn pre_execution(deps: DepsMut, _env: Env, msg: PreExecutionMsg) -> StdResult<Re
         ));
     }
 
+    deps.api.debug(format!("pre_execution: config.encryption_keys.sk {:#?}", config.encryption_keys.sk.clone()).as_str());
+    deps.api.debug(format!("pre_execution: config.encryption_keys.pk {:#?}", config.encryption_keys.pk.clone()).as_str());
+    deps.api.debug(format!("pre_execution: config.encryption_keys.pk.to_base64() {:#?}", config.encryption_keys.pk.clone().to_base64()).as_str());
+    deps.api.debug(format!("pre_execution: config.signing_keys.pk {:#?}", config.signing_keys.pk.clone()).as_str());
+    deps.api.debug(format!("pre_execution: config.signing_keys.pk.to_base64() {:#?}", config.signing_keys.pk.clone().to_base64()).as_str());
+
     // Attempt to decrypt the payload
     let decrypted_payload_result = msg.decrypt_payload(config.encryption_keys.sk);
 

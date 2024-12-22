@@ -121,15 +121,25 @@ impl PreExecutionMsg {
         let my_secret = SecretKey::from_slice(sk.as_slice())
             .map_err(|err| StdError::generic_err(err.to_string()))?;
 
+        deps.api.debug(format!("decrypt_payload: my_secret: {:#?}", my_secret.clone()).as_str());
+
         let their_public = PublicKey::from_slice(self.user_key.as_slice())
             .map_err(|err| StdError::generic_err(err.to_string()))?;
 
+        deps.api.debug(format!("decrypt_payload: their_public: {:#?}", their_public.clone()).as_str());
+
         let shared_key = SharedSecret::new(&their_public, &my_secret);
+
+        deps.api.debug(format!("decrypt_payload: shared_key: {:#?}", shared_key.clone()).as_str());
 
         let cipher = ChaCha20Poly1305::new_from_slice(shared_key.as_ref())
             .map_err(|err| StdError::generic_err(err.to_string()))?;
 
+        deps.api.debug(format!("decrypt_payload: cipher: {:#?}", cipher.clone()).as_str());
+
         let nonce = Nonce::from_slice(self.nonce.as_slice());
+
+        deps.api.debug(format!("decrypt_payload: nonce: {:#?}", nonce.clone()).as_str());
 
         let plaintext = cipher
             .decrypt(nonce, self.payload.as_slice())
@@ -137,6 +147,7 @@ impl PreExecutionMsg {
             .map_err(|err| StdError::generic_err(err.to_string()))?;
 
         let payload: Payload = from_binary(&plaintext)?;
+        deps.api.debug(format!("decrypt_payload: payload plaintext: {:#?}", payload.clone()).as_str());
 
         Ok(payload)
     }
