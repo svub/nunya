@@ -49,7 +49,7 @@ contract Gateway is Ownable, Utils, Base64 {
     string constant public task_destination_network = "secretdev-1";
     // TODO: Create a function to set these values? Or is it generated randomly each time the Secret Gateway contract is deployed?
     // This is the Derived Ethereum Address from the Public Key of the deployed Gateway contract on the Secret Network Testnet
-    // uint256 immutable public secret_gateway_signer_pubkey = 0x04bff81eba9ab8d89900b8fd9c09982a766b3870ead47625f7c3b13cfb42fa7f41be1048681865382353c5d93654b81c76b459f632c70c61451eefc98ae08f61f7;
+    // uint256 immutable public secret_gateway_signer_pubkey = 0x041d515b717dfd0389615e2368e7ca2aee86f4b3f325a10ef4f3e6edf87d099b8b88d7f01a8b38dbc722a6d899033b5bb059bc3431543e4821ad0e8034a923ab18;
     // address immutable public secret_gateway_signer_address = ???;
 
     // TODO: Add deployed custom Secret contract address to be same as `SECRET_ADDRESS` and codehash `CONTRACT_CODE_HASH` used in scripts
