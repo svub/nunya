@@ -13,7 +13,7 @@ const walletOptions = {
   bech32Prefix: 'secret',
 }
 
-const { walletMnemonic, secretGateway: { gatewayContractCodeId, gatewayContractCodeHash }, chainId, endpoint } =
+const { walletMnemonic, secretGateway: { gatewayContractAdminAddress, gatewayContractCodeId, gatewayContractCodeHash }, chainId, endpoint } =
   config.secret.network == "testnet"
   ? config.secret.testnet
   : config.secret.localhost;
@@ -76,7 +76,7 @@ async function main () {
     }
 
     let initMsg: INIT_MSG = {
-      admin: wallet.address,
+      admin: gatewayContractAdminAddress,
     };
 
     let txParams = {

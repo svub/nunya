@@ -44,6 +44,7 @@ const config = {
         gatewayContractCodeId: "1533",
         gatewayContractAddress: "secret1qzk574v8lckjmqdg3r3qf3337pk45m7qd8x02a",
         gatewayContractCodeHash: "012dd8efab9526dec294b6898c812ef6f6ad853e32172788f54ef3c305c1ecc5",
+        gatewayContractAdminAddress: "secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg",
         gatewayContractPublicKey: "0x04a0d632acd0d2f5da02fc385ea30a8deab4d5639d1a821a3a552625ad0f1759d0d2e80ca3adb236d90caf1b12e0ddf3a351c5729b5e00505472dca6fed5c31e2a",
         gatewayContractEncryptionKeyForChaChaPoly1305: "AqDWMqzQ0vXaAvw4XqMKjeq01WOdGoIaOlUmJa0PF1nQ",
         gatewayContractWasmPath: "secret-gateway-contract.wasm.gz",
@@ -65,6 +66,7 @@ const config = {
         gatewayContractCodeId: "3375",
         gatewayContractAddress: "secret10ex7r7c4y704xyu086lf74ymhrqhypayfk7fkj",
         gatewayContractCodeHash: "ad8ca07ffba1cb26ebf952c29bc4eced8319c171430993e5b5089887f27b3f70",
+        gatewayContractAdminAddress: "secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg",
         gatewayContractPublicKey: "0x046d0aac3ef10e69055e934ca899f508ba516832dc74aa4ed4d741052ed5a568774d99d3bfed641a7935ae73aac8e34938db747c2f0e8b2aa95c25d069a575cc8b",
         gatewayContractEncryptionKeyForChaChaPoly1305: "A20KrD7xDmkFXpNMqJn1CLpRaDLcdKpO1NdBBS7VpWh3",
         gatewayContractWasmPath: "secret-gateway-contract.wasm.gz",
@@ -85,6 +87,13 @@ const config = {
         gatewayContractCodeId: "1", // only know after upload
         gatewayContractAddress: "secret1mfk7n6mc2cg6lznujmeckdh4x0a5ezf6hx6y8q", // only know after instantiate
         gatewayContractCodeHash: "836a34c60637d684c044d4ddc1277e3d21ae1f440d2bb2d26870c81639d2f4c4", // only know after upload
+        
+        // Generated with Keplar wallet using "Connect with Google" to obtain a private key and used in the
+        // .env file of the custom Secret Relayer. The `pub_key` associated with it may be obtained through debugging
+        // `account_info = data.get('account', {})` in the Relayer with `self.logger.info(f"sync_account_number_and_sequence: account_info {account_info}")`
+        // Address: secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg
+        // 'pub_key': {'@type': '/cosmos.crypto.secp256k1.PubKey', 'key': 'A4K+MyJNnNcdt78SncjhArLWNnDRHapkZFsemjmf9/7A'
+        gatewayContractAdminAddress: "secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg",
         // obtain from running `yarn run secret:querySecretGatewayPubkey`
         gatewayContractPublicKey: "0x041d515b717dfd0389615e2368e7ca2aee86f4b3f325a10ef4f3e6edf87d099b8b88d7f01a8b38dbc722a6d899033b5bb059bc3431543e4821ad0e8034a923ab18",
         // obtain from running `yarn run secret:querySecretGatewayPubkey`
