@@ -552,8 +552,11 @@ contract Gateway is Ownable, Utils, Base64 {
         bytes memory userKey = bytes.concat("BNDOG9EBwaKhMBheTGPR1wkduasNyjxlGZjTFKFVAyPAJkmwlgsAux+siWqvQFartgXofVXsGAWpHds+Msa4nDY=");
 
         // 04d0ce1bd101c1a2a130185e4c63d1d7091db9ab0dca3c651998d314a1550323c02649b0960b00bb1fac896aaf4056abb605e87d55ec1805a91ddb3e32c6b89c36
-        bytes memory userPubkey = hex"04d0ce1bd101c1a2a130185e4c63d1d7091db9ab0dca3c651998d314a1550323c02649b0960b00bb1fac896aaf4056abb605e87d55ec1805a91ddb3e32c6b89c36";
+        bytes memory gatewayContractPubkey = hex"04d0ce1bd101c1a2a130185e4c63d1d7091db9ab0dca3c651998d314a1550323c02649b0960b00bb1fac896aaf4056abb605e87d55ec1805a91ddb3e32c6b89c36";
 
+        // 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+        // Hex value of `owner_public_key` is: 0x038318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed75
+        bytes memory userPubkey = hex"038318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed75";
 
         // Gateway contract public key
         // Generated from ./packages/secret-contracts-scripts/src/functions/secretpath/generateKeys.ts
@@ -653,11 +656,13 @@ contract Gateway is Ownable, Utils, Base64 {
 
         // ExecutionInfo struct
         ExecutionInfo memory executionInfo = ExecutionInfo({
-            user_key: userPubkey,
+            user_key: gatewayContractPubkey,
             // user_key: userKey, // FIXME - use this instead when resolve issue
             // user_key: emptyBytes, // equals AAA= in base64
             // FIXME: use of `secret_gateway_signer_pubkey` does not compile, what alternative to use?
             // user_pubkey: uint256toBytesString(secret_gateway_signer_pubkey),
+            // Refer to ./packages/secret-contracts/secret-gateway/src/msg.rs that shows
+            // what to use for `user_key` and `user_pubkey`, as they are different
             user_pubkey: userPubkey,
             // user_pubkey: userKey,
             // user_pubkey: emptyBytes, // Fill with 0 bytes
