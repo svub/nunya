@@ -370,6 +370,10 @@ git submodule update --init --recursive
 	}
 	```
 
+  * Paste `verification_key` into Gateway.sol for value of `secret_gateway_signer_pubkey`
+
+  * Redeploy if differs Gateway.sol 
+
 	* Paste them into deploy.ts, `gatewayContractPublicKey` with `verification_key` and `gatewayContractEncryptionKeyForChaChaPoly1305` with `encryption_key`
 
   * NEXT, [Deploy Nunya Contract on Localhost](#deploy-nunya-contract-on-localhost)
