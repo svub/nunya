@@ -124,14 +124,22 @@ scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
   Example output:
 	```
 	res queryPubkey:  {
-	  encryption_key: 'AtDOG9EBwaKhMBheTGPR1wkduasNyjxlGZjTFKFVAyPA',
-	  verification_key: '0x04d0ce1bd101c1a2a130185e4c63d1d7091db9ab0dca3c651998d314a1550323c02649b0960b00bb1fac896aaf4056abb605e87d55ec1805a91ddb3e32c6b89c36'
+	  encryption_key: '...',
+	  verification_key: '0x...'
 	}
 	```
 
+  * Paste `verification_key` into Gateway.sol for value of `secret_gateway_signer_pubkey`
+  * Redeploy if differs Gateway.sol 
+
 	* Paste them into deploy.ts, `gatewayContractPublicKey` with `verification_key` and `gatewayContractEncryptionKeyForChaChaPoly1305` with `encryption_key`
 
-	# UPDATE IF DIFFERS deploy.ts
+	* UPDATE CONFIG AND RUN ON LOCAL IF DIFFERS
+  ```bash
+  SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/config/deploy.ts
+  DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/config/deploy.ts
+  scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+  ```
 
   ```bash
 	yarn run secret:clean
