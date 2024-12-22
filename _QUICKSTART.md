@@ -129,10 +129,6 @@ scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
 	}
 	```
 
-  * Paste `verification_key` into Gateway.sol for value of `secret_gateway_signer_pubkey`
-
-  * Redeploy if differs Gateway.sol 
-
 	* Paste them into deploy.ts, `gatewayContractPublicKey` with `verification_key` and `gatewayContractEncryptionKeyForChaChaPoly1305` with `encryption_key`
 
 	* UPDATE CONFIG AND RUN ON LOCAL IF DIFFERS

@@ -86,9 +86,9 @@ const config = {
         gatewayContractAddress: "secret1mfk7n6mc2cg6lznujmeckdh4x0a5ezf6hx6y8q", // only know after instantiate
         gatewayContractCodeHash: "b9fb512153812cd554884922d10c007bef9d2749d14ae9fda445e83710ee8c10", // only know after upload
         // obtain from running `yarn run secret:querySecretGatewayPubkey`
-        gatewayContractPublicKey: "0x04ce67eab1372a0f4dfadcb4354f07154cb1343efb8ae5a3671cb24732d217ee865d6101a90d23e3d640d7958657b9923d4e078994553770b466fd37b138fd802c",
+        gatewayContractPublicKey: "0x04c545d3a2aa0d070a579beca7eca512a1b6c84a027a2e7df0b9caad10190cf45d14495e7c0d04e9cc9b16205cce6ef4b2a1b1b613aaae97753be3379519b3cc7f",
         // obtain from running `yarn run secret:querySecretGatewayPubkey`
-        gatewayContractEncryptionKeyForChaChaPoly1305: "As5n6rE3Kg9N+ty0NU8HFUyxND77iuWjZxyyRzLSF+6G",
+        gatewayContractEncryptionKeyForChaChaPoly1305: "A8VF06KqDQcKV5vsp+ylEqG2yEoCei598LnKrRAZDPRd",
         gatewayContractWasmPath: "secret-gateway-contract.wasm.gz",
       }
     }
