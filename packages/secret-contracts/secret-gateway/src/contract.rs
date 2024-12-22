@@ -244,7 +244,7 @@ fn pre_execution(deps: DepsMut, _env: Env, msg: PreExecutionMsg) -> StdResult<Re
     deps.api.debug(format!("pre_execution: config.signing_keys.pk.to_base64() {:#?}", config.signing_keys.pk.clone().to_base64()).as_str());
 
     // Attempt to decrypt the payload
-    let decrypted_payload_result = msg.decrypt_payload(config.encryption_keys.sk, &deps);
+    let decrypted_payload_result = msg.decrypt_payload(config.encryption_keys.sk);
 
     let mut unsafe_payload = true;
 
