@@ -365,8 +365,8 @@ git submodule update --init --recursive
   Example output:
 	```
 	res queryPubkey:  {
-	  encryption_key: '...',
-	  verification_key: '0x...'
+	  encryption_key: 'AtDOG9EBwaKhMBheTGPR1wkduasNyjxlGZjTFKFVAyPA',
+	  verification_key: '0x04d0ce1bd101c1a2a130185e4c63d1d7091db9ab0dca3c651998d314a1550323c02649b0960b00bb1fac896aaf4056abb605e87d55ec1805a91ddb3e32c6b89c36'
 	}
 	```
 

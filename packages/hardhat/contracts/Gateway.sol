@@ -58,8 +58,6 @@ contract Gateway is Ownable, Utils, Base64 {
 
     bytes public owner_public_key;
 
-    bytes28 public gatewayAddressBase64 = encodeAddressToBase64(address(this));
-
     /*//////////////////////////////////////////////////////////////
                               Structs
     //////////////////////////////////////////////////////////////*/
@@ -513,7 +511,8 @@ contract Gateway is Ownable, Utils, Base64 {
 
         // Note - It is only possible to call this function `encodeAddressToBase64` three times
         // in this function, otherwise it generates error `Error: Transaction reverted without a reason`.
-        // bytes28 senderAddressBase64 = encodeAddressToBase64(msg.sender);
+        bytes28 senderAddressBase64 = encodeAddressToBase64(msg.sender);
+        bytes28 gatewayAddressBase64 = encodeAddressToBase64(address(this));
 
         requestId = taskId;
 
@@ -718,6 +717,9 @@ contract Gateway is Ownable, Utils, Base64 {
     function retrievePubkey(uint256 _callbackSelector, uint32 _callbackGasLimit) external payable onlyOwner returns (uint256 requestId) {
         console.log("------ Gateway.retrievePubkey");
 
+        bytes28 senderAddressBase64 = encodeAddressToBase64(address(msg.sender));
+        bytes28 gatewayAddressBase64 = encodeAddressToBase64(address(this));
+
         requestId = taskId;
 
         // TODO: optionally add guard to verify value of _callbackSelector if necessary
@@ -735,8 +737,6 @@ contract Gateway is Ownable, Utils, Base64 {
             require(msg.value >= estimatedPrice, "Paid Callback Fee Too Low");
         }
 
-        bytes memory userKey = bytes.concat("A4MYU1tUEF1Keq5gwI/EX5aHGBtP38YlvRp1P6c5f+11");
-
         // Note: Since contracts only have an address, but not public keys, where the
         // addresses are derived from the address of the user (or other contract) that
         // created them, which are in turn are derived from the public key of a normal
@@ -750,7 +750,7 @@ contract Gateway is Ownable, Utils, Base64 {
             '}","routing_info":"', routing_info,
             '","routing_code_hash":"', routing_code_hash,
             '","user_address":"', address(msg.sender),
-            '","user_key":"', userKey,
+            '","user_key":"', senderAddressBase64,
             '","callback_address":"'
         );
 
