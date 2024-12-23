@@ -17,7 +17,7 @@ import { queryPubkey } from "./functions/query/queryPubkey.js";
 import { arrayify, hexlify, SigningKey, keccak256, recoverPublicKey, computeAddress } from "ethers/lib/utils.js";
 import { assert } from "console";
 
-const { secretNunya: { nunyaContractCodeId, nunyaContractAddress, nunyaContractCodeHash } } =
+const { chainId: secretChainId, secretNunya: { nunyaContractCodeId, nunyaContractAddress, nunyaContractCodeHash } } =
   config.secret.network == "testnet"
   ? config.secret.testnet
   : config.secret.localhost;
@@ -30,7 +30,7 @@ if (config.evm.network == "sepolia") {
 } else {
   throw new Error(`Unsupported network.`)
 }
-const { chainId, endpoint, nunyaBusinessContractAddress, gatewayContractAddress, privateKey } = vars;
+const { chainId: evmChainId, endpoint, nunyaBusinessContractAddress, gatewayContractAddress, privateKey } = vars;
 
 const SECRET_ADDRESS = nunyaContractAddress;
 const CONTRACT_CODE_HASH = nunyaContractCodeHash;
@@ -109,10 +109,10 @@ async function unsafeRequestValue() {
   // // Data are the calldata/parameters that are passed into the contract
   // const data = JSON.stringify({ myArg: "123" });
 
-  // assert!(chainId.toString() == (await provider.getNetwork()).chainId.toString());
+  // assert!(evmChainId.toString() == (await provider.getNetwork()).chainId.toString());
 
   // // EVM gateway contract address
-  // // const publicClientAddress = await getPublicClientAddress(chainId);
+  // // const publicClientAddress = await getPublicClientAddress(evmChainId);
   // const publicClientAddress = gatewayContractAddress;
 
   // const callbackAddress = publicClientAddress.toLowerCase();
@@ -129,6 +129,8 @@ async function unsafeRequestValue() {
   //   callbackSelector,
   //   callbackGasLimit
   // );
+
+  // const taskDestinationNetwork = secretChainId;
 
   // // TODO: temporarily skip the below that encrypts the payload until resolve
   // // https://github.com/blake-regalia/belt/issues/1
@@ -147,7 +149,9 @@ async function unsafeRequestValue() {
   //   handle,
   //   callbackGasLimit,
   //   ifaceGateway,
-  //   callbackSelector
+  //   callbackSelector,
+  //   taskDestinationNetwork,
+  //   lastNonce,
   // );
 
 //   // TODO - temporary only but remove after resolve
@@ -190,7 +194,7 @@ async function unsafeRequestValue() {
 //     user_key: hexlify(userPublicKeyBytes),
 //     user_pubkey: userPublicKey, // user_pubkey;
 //     routing_code_hash: routing_code_hash,
-//     task_destination_network: chainId,
+//     task_destination_network: secretChainId,
 //     handle: handle,
 //     nonce: hexlify(nextNonce),
 //     payload: hexlify(ciphertext),
@@ -219,31 +223,31 @@ async function unsafeRequestValue() {
 //   let amountOfGas;
 //   let my_gas = 150000;
 
-//   if (chainId.toString() === "4202") {
+//   if (evmChainId.toString() === "4202") {
 //     amountOfGas = gasFee.mul(callbackGasLimit).mul(100000).div(2);
-//   } else if (chainId.toString() === "128123") {
+//   } else if (evmChainId.toString() === "128123") {
 //     amountOfGas = gasFee.mul(callbackGasLimit).mul(1000).div(2);
 //     my_gas = 15000000;
-//   } else if (chainId.toString() === "1287") {
+//   } else if (evmChainId.toString() === "1287") {
 //     amountOfGas = gasFee.mul(callbackGasLimit).mul(1000).div(2);
 //     my_gas = 15000000;
-//   } else if (chainId.toString() === "300") {
+//   } else if (evmChainId.toString() === "300") {
 //     amountOfGas = gasFee.mul(callbackGasLimit).mul(100000).div(2);
 //     my_gas = 15000000;
-//   } else if (chainId.toString() === "5003") {
+//   } else if (evmChainId.toString() === "5003") {
 //     amountOfGas = gasFee.mul(callbackGasLimit).mul(1000000).div(2);
 //     my_gas = 1500000000;
-//   } else if (chainId.toString() === "80002") {
+//   } else if (evmChainId.toString() === "80002") {
 //     amountOfGas = gasFee.mul(callbackGasLimit).mul(100).div(2);
 //     my_gas = 200000;
-//   } else if (chainId.toString() === "1995") {
+//   } else if (evmChainId.toString() === "1995") {
 //     amountOfGas = gasFee.mul(callbackGasLimit).mul(100).div(2);
 //     my_gas = 200000;
-//   } else if (chainId.toString() === "713715") {
+//   } else if (evmChainId.toString() === "713715") {
 //     amountOfGas = gasFee.mul(callbackGasLimit).mul(100).div(2);
 //     my_gas = 200000;
 //   } else {
-//     // Note: Sepolia Ethereum has chainId 11155111
+//     // Note: Sepolia Ethereum has evmChainId 11155111
 //     amountOfGas = gasFee.mul(callbackGasLimit).mul(3).div(2);
 //   }
 //   // Note: Only if get error `replacement fee too low` then just increase gasPrice by 10%
@@ -259,7 +263,7 @@ async function unsafeRequestValue() {
 //   //   from: myAddress,
 //   //   value: hexlify(amountOfGas),
 //   //   data: functionData,
-//   //   chainId: chainId,
+//   //   chainId: evmChainId,
 //   // };
 
 // // TODO: should the `gasLimit` instead be `hexlify(amountOfGas)`?
@@ -271,7 +275,7 @@ async function unsafeRequestValue() {
 //     gasPrice: hexlify(my_gas),
 //     nonce: nextNonce,
 //     data: functionData,
-//     chainId: chainId,
+//     chainId: evmChainId,
 //   }
 
 //   const tx = await managedSigner.sendTransaction(tx_params);

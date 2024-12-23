@@ -11,23 +11,6 @@ import {
   recoverPublicKey,
   hexlify,
 } from "ethers/lib/utils.js";
-import config from '../../config/deploy.js';
-
-const { chainId, secretGateway: { gatewayContractEncryptionKeyForChaChaPoly1305 } } =
-config.secret.network == "testnet"
-? config.secret.testnet
-: config.secret.localhost;
-
-let vars;
-if (config.evm.network == "sepolia") {
-  vars = config.evm.sepolia;
-} else if (config.evm.network == "localhost") {
-  vars = config.evm.localhost;
-} else {
-  throw new Error(`Unsupported network.`)
-}
-const { } = vars;
-
 
 export async function encryptPayload(
   payload: any,
@@ -39,10 +22,12 @@ export async function encryptPayload(
   handle: any,
   callbackGasLimit: any,
   iface: any,
-  callbackSelector: any
+  callbackSelector: any,
+  task_destination_network: any,
+  lastNonce: any,
 ) {
   const plaintext = json_to_bytes(payload);
-  const nonce = crypto.getRandomValues(bytes(12));
+  const nonce = lastNonce;
   // const nonce = window.crypto.getRandomValues(bytes(12));
 
   const [ciphertextClient, tagClient] = chacha20_poly1305_seal(
@@ -70,7 +55,7 @@ export async function encryptPayload(
     user_key: hexlify(userPublicKeyBytes),
     user_pubkey: user_pubkey,
     routing_code_hash: routing_code_hash,
-    task_destination_network: chainId,
+    task_destination_network: task_destination_network,
     handle: handle,
     nonce: hexlify(nonce),
     payload: hexlify(ciphertext),
