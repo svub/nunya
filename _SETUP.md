@@ -30,28 +30,25 @@ See the [DEMO_AND_VIDEO](./_DEMO_AND_VIDEO.md) file for details.
 nvm use
 nvm install
 ```
-
-```
 * Install dependencies
 ```bash
 yarn install
 ```
 * Copy environment variables
   ```bash
-  cp .env.development.local.example .env.development.local
-  cp .env.testnet.local.example .env.testnet.local
-  cp .env.production.local.example .env.production.local
+  cp .env.example .env
   ```
 * Upload and instantiate the private Secret contract on Secret Network. This must compiled, uploaded, and instantiated and the generated Secret Contract Code Hash `routing_code_hash` and Secret Contract Address `routing_contract` set in the EVM gateway.
+* Copy the ABI array under the key `abi` of the deployed EVM Gateway contract from ./packages/hardhat/artifacts/contracts/Gateway.sol/Gateway.json and make it the value of ./packages/kv-store-frontend/src/config/abi.js
 * Edit the environment variable file for the relevant network to be used and provide the Secret Contract Code Hash `routing_code_hash` as the value of `REACT_APP_CODE_HASH` and Secret Contract Address `routing_contract` as the value of `REACT_APP_SECRET_ADDRESS` that has been uploaded and instantiated on it.
-  * Secret Development (Localsecret): .env.development.local
-  * Secret Testnet: .env.testnet.local
-  * Secret Mainnet: .env.production.local
-* Edit the `network` in packages/kv-store-frontend/src/config.js to be either "development" (localsecret), "testnet", or "production" (mainnet)
+* Edit the `config.evm.network` and `config.secret.network` values in packages/kv-store-frontend/src/config.js to use the network configuration that you are planning to use in that file for both of those networks (e.g. EVM: localhost or sepolia, Secret: localhost, testnet, mainnet)
+* If using Secret Development
+  * Edit the `SECRET_LOCAL_WALLET_MNEMONIC` and `SECRET_LOCAL_ENDPOINT` values in .env for use in packages/kv-store-frontend/src/config.js
 * Start application
   ```bash
   yarn run frontend:start
-  ``` 
+  ```
+* Install Metamask in the browser where it is running.
 
 ### Setup Frontend and Solidity Contracts <a id="setup-frontend"></a> 
 

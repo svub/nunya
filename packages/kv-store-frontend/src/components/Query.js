@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 import { SecretNetworkClient } from "secretjs";
+import { config, projectId, metadata } from "./config.js";
+import * as dotenv from "dotenv";
+import path from "path";
+const envPath = path.join(__dirname, '../../.env').trim();
+dotenv.config({ path: envPath });
 
 const QueryValue = () => {
     const [key, setKey] = useState('');

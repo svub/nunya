@@ -22,10 +22,15 @@ import {
     handle,
     callbackGasLimit,
     iface,
-    callbackSelector
+    callbackSelector,
+    task_destination_network,
+    lastNonce
   ) {
+    const payloadJson = JSON.stringify(payload, null, 2);
+    console.log("payloadJSON: ", payloadJson);
     const plaintext = json_to_bytes(payload);
-    const nonce = window.crypto.getRandomValues(bytes(12));
+    const nonce = lastNonce;
+    // const nonce = window.crypto.getRandomValues(bytes(12));
   
     const [ciphertextClient, tagClient] = chacha20_poly1305_seal(
       sharedKey,
@@ -51,7 +56,7 @@ import {
       user_key: hexlify(userPublicKeyBytes),
       user_pubkey: user_pubkey,
       routing_code_hash: routing_code_hash,
-      task_destination_network: "pulsar-3",
+      task_destination_network: task_destination_network,
       handle: handle,
       nonce: hexlify(nonce),
       payload: hexlify(ciphertext),
