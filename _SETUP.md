@@ -317,6 +317,13 @@ git submodule update --init --recursive
     DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/config/deploy.ts
     scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
     ```
+	* UPDATE CONFIG `gatewayContractAdminAddress` before deploy Secret Gateway
+  ```bash
+  SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/config/deploy.ts
+  DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/config/deploy.ts
+  scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+  ```
+
   * Linux, or, install NVM, then:
     ```
     apt update

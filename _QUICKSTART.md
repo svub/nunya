@@ -88,6 +88,13 @@ scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
 
 	* PREPARE ABI USED FOR ROUTING INFO
 
+	* UPDATE CONFIG `gatewayContractAdminAddress` before deploy Secret Gateway
+  ```bash
+  SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/config/deploy.ts
+  DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/config/deploy.ts
+  scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+  ```
+
   ```bash
   cd ~/nunya/packages/secret-contracts/nunya-contract
   make clean
