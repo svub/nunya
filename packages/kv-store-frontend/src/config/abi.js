@@ -315,4 +315,4 @@ const abi = [
   },
 ];
 
-module.exports = abi;
+export default abi;

@@ -1,6 +1,6 @@
 // web3ModalConfig.js
 import { createWeb3Modal, defaultConfig } from "@web3modal/ethers5/react";
-import { projectId, metadata } from "./config";
+import { projectId, metadata } from "./config.js";
 
 // URL to your JSON file on GitHub (replace with your actual link)
 const jsonUrl = "https://raw.githubusercontent.com/SecretFoundation/secretpath-config/refs/heads/master/config/chains.json";

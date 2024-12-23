@@ -1,10 +1,10 @@
 import './App.css';
 import MyImage from './secret-logo.png';
 import React, { useState, useEffect } from "react";
-import { initializeWeb3Modal } from './config/web3ModalConfig';
-import { useInitEthereum } from "./functions/initEthereum";
-import Encrypt from './components/Encrypt';
-import QueryValue from './components/Query';
+import { initializeWeb3Modal } from './config/web3ModalConfig.js';
+import { useInitEthereum } from "./functions/initEthereum.js";
+import Encrypt from './components/Encrypt.js';
+import QueryValue from './components/Query.js';
 
 function App() {
   const [chainId, setChainId] = useState("");

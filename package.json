@@ -13,6 +13,7 @@
     "lint-staged": "~13.2.2"
   },
   "scripts": {
+    "frontend:start": "yarn workspace kv-store-frontend start",
     "hardhat:account": "yarn workspace @se-2/hardhat account",
     "hardhat:chain": "yarn workspace @se-2/hardhat chain",
     "hardhat:clean": "yarn workspace @se-2/hardhat clean",

@@ -23,7 +23,35 @@ See the [DEMO_AND_VIDEO](./_DEMO_AND_VIDEO.md) file for details.
 ### Frontend KV Store <a id="kv-store"></a>
 
 * [Tutorial](https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/usecases/storing-encrypted-data-on-secret-network/key-value-store-developer-tutorial)
-* Copy `kv-store-frontend` folder from https://github.com/writersblockchain/evm-kv-store-demo into the packages/ folder of this repo
+* Note: This was generated from copying the `kv-store-frontend` folder from https://github.com/writersblockchain/evm-kv-store-demo into the packages/ folder of this repo and then modifying it.
+* Install Node Version Manager (NVM)
+* Switch to NVM configured Node.js version
+```bash
+nvm use
+nvm install
+```
+
+```
+* Install dependencies
+```bash
+yarn install
+```
+* Copy environment variables
+  ```bash
+  cp .env.development.local.example .env.development.local
+  cp .env.testnet.local.example .env.testnet.local
+  cp .env.production.local.example .env.production.local
+  ```
+* Upload and instantiate the private Secret contract on Secret Network. This must compiled, uploaded, and instantiated and the generated Secret Contract Code Hash `routing_code_hash` and Secret Contract Address `routing_contract` set in the EVM gateway.
+* Edit the environment variable file for the relevant network to be used and provide the Secret Contract Code Hash `routing_code_hash` as the value of `REACT_APP_CODE_HASH` and Secret Contract Address `routing_contract` as the value of `REACT_APP_SECRET_ADDRESS` that has been uploaded and instantiated on it.
+  * Secret Development (Localsecret): .env.development.local
+  * Secret Testnet: .env.testnet.local
+  * Secret Mainnet: .env.production.local
+* Edit the `network` in packages/kv-store-frontend/src/config.js to be either "development" (localsecret), "testnet", or "production" (mainnet)
+* Start application
+  ```bash
+  yarn run frontend:start
+  ``` 
 
 ### Setup Frontend and Solidity Contracts <a id="setup-frontend"></a> 
 

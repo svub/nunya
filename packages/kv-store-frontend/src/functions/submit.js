@@ -1,10 +1,10 @@
 import { ethers } from "ethers";
-import abi from "../config/abi";
-import { generateKeys } from "../functions/secretpath/generateKeys";
-import { getPublicClientAddress } from "../functions/secretpath/getPublicClientAddress";
-import { constructPayload } from "../functions/secretpath/constructPayload";
-import { encryptPayload } from "../functions/secretpath/encryptPayload";
-import { hexlify } from "ethers/lib/utils";
+import abi from "../config/abi.js";
+import { generateKeys } from "../functions/secretpath/generateKeys.js";
+import { getPublicClientAddress } from "../functions/secretpath/getPublicClientAddress.js";
+import { constructPayload } from "../functions/secretpath/constructPayload.js";
+import { encryptPayload } from "../functions/secretpath/encryptPayload.js";
+import { hexlify } from "ethers/lib/utils.js";
 
 export async function handleSubmit(e, key, value, viewing_key) {
   e.preventDefault();

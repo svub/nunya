@@ -1,6 +1,6 @@
 // generateKeys.js
 import { ethers } from "ethers";
-import { arrayify, SigningKey } from "ethers/lib/utils";
+import { arrayify, SigningKey } from "ethers/lib/utils.js";
 import { ecdh } from "@solar-republic/neutrino";
 import { base64_to_bytes, sha256 } from "@blake.regalia/belt";
 

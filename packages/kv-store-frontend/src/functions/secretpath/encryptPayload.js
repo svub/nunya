@@ -10,7 +10,7 @@ import {
     arrayify,
     recoverPublicKey,
     hexlify,
-  } from "ethers/lib/utils";
+  } from "ethers/lib/utils.js";
   
   export async function encryptPayload(
     payload,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { handleSubmit } from "../functions/submit";
+import { handleSubmit } from "../functions/submit.js";
 
 const Encrypt = () => {
     const [key, setKey] = useState('');
