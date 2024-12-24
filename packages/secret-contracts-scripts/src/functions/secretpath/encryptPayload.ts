@@ -59,6 +59,8 @@ export async function encryptPayload(
   nextNonceNum: any,
 ) {
 
+  // FIXME: generate a nonce for ChaCha20-Poly1305 encryption. stream cipher encryptions are only secure with a random nonce
+  // Reference: https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/usecases/vrf/using-encrypted-payloads-for-vrf#signing-the-payload-with-metamask
   let nextNonceUint8Array: Uint8Array = numToUint8Array(nextNonceNum);
   console.log("nextNonceUint8Array: ", nextNonceUint8Array);
   console.log("uint8ArrayToNumV2: ", uint8ArrayToNumV2(nextNonceUint8Array));
