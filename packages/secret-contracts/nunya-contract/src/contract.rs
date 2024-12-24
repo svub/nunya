@@ -127,13 +127,13 @@ fn try_handle(
     deps.api.debug(format!("config.gateway_key.len(): {:#?}", config.gateway_key.len()).as_str());
     deps.api.debug(format!("config.gateway_key.as_bytes().len(): {:#?}", config.gateway_key.as_bytes().len()).as_str());
 
-    let gateway_key_bytes: &Bytes = &config.gateway_key.as_bytes();
+    let gateway_key_bytes = &config.gateway_key.as_bytes();
 
     deps.api
         .secp256k1_verify(
             msg.input_hash.as_slice(),
             msg.signature.as_slice(),
-            gateway_key_bytes.to_vec(), // &[u8]
+            gateway_key_bytes, // &[u8]
         )
         .map_err(|err| StdError::generic_err(err.to_string()))?;
 
