@@ -21,6 +21,7 @@
   "dependencies": {
     "@blake.regalia/belt": "~0.35.1",
     "@ethersproject/experimental": "5.7.0",
+    "@noble/secp256k1": "^2.1.0",
     "@solar-republic/cosmos-grpc": "^0.15.3",
     "@solar-republic/neutrino": "~1.2.4",
     "@types/node": "^22.7.4",

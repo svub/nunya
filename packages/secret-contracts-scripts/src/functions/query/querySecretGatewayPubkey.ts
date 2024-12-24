@@ -1,12 +1,17 @@
 import { SecretNetworkClient } from "secretjs";
 import config from '../../config/deploy.js';
 
-export const queryPubkey = async (params: any) => {
+type EphemeralKeys = {
+  encryption_key: string,
+  verification_key: string,
+}
+
+export const querySecretGatewayPubkey = async (params: any) => {
   const secretjs = new SecretNetworkClient({
     url: params.endpoint,
     chainId: params.chainId,
   });
-  const query_tx: Uint32Array = await secretjs.query.compute.queryContract({
+  const query_tx: EphemeralKeys = await secretjs.query.compute.queryContract({
     contract_address: params.contractAddress,
     code_hash: params.contractCodeHash,
     query: { get_public_keys: {} },
@@ -29,9 +34,9 @@ async function main() {
   };
 
   // Chain the execution using promises
-  await queryPubkey(params)
+  await querySecretGatewayPubkey(params)
     .then(async (res) => {
-      console.log('res queryPubkey: ', res);
+      console.log('res querySecretGatewayPubkey: ', res);
     })
     .catch((error) => {
       console.error("Error:", error);

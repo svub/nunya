@@ -82,7 +82,7 @@ async function unsafeRequestValue() {
   console.log("Receipt: ", receipt);
 
   const callbackSelector = ifaceNunya.getSighash(
-    // requestValue - 0xb6c2b131
+    // fulfilledValueCallback - 0x0f7af612
     ifaceNunya.getFunction("fulfilledValueCallback")
   );
   

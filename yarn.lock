@@ -1568,6 +1568,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@noble/secp256k1@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "@noble/secp256k1@npm:2.1.0"
+  checksum: 10/ffd7e7b555d253b2403a01939ab9d2d8d25c3aec89a7380d569385d1a36bd6f15234dcfa0ab215eda23590258454032f447b9847a9d2754ba31c70147a4cc4dd
+  languageName: node
+  linkType: hard
+
 "@nodelib/fs.scandir@npm:2.1.5":
   version: 2.1.5
   resolution: "@nodelib/fs.scandir@npm:2.1.5"
@@ -12501,6 +12508,7 @@ __metadata:
   dependencies:
     "@blake.regalia/belt": "npm:~0.35.1"
     "@ethersproject/experimental": "npm:5.7.0"
+    "@noble/secp256k1": "npm:^2.1.0"
     "@solar-republic/cosmos-grpc": "npm:^0.15.3"
     "@solar-republic/neutrino": "npm:~1.2.4"
     "@types/node": "npm:^22.7.4"

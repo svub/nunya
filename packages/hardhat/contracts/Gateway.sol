@@ -358,11 +358,13 @@ contract Gateway is Ownable, Utils, Base64 {
         address _nunyaBusinessContractAddress,
         string calldata _routingInfo,
         ExecutionInfo calldata _info) 
-        external payable onlyOwner returns (uint256 _taskId) {
+        external payable returns (uint256 _taskId) {
+        // FIXME: Temporary: Allow anyone to call via `send` otherwise we can't test submitRequestValue.ts
+        // external payable onlyOwner returns (uint256 _taskId) {
     
         console.log("------ Gateway.send");
 
-        require(_nunyaBusinessContractAddress == owner, "sender must be the owner of the deployed Gateway contract");
+        require(address(_nunyaBusinessContractAddress) == address(owner), "sender must be the owner of the deployed Gateway contract");
 
         address _userAddress = _nunyaBusinessContractAddress;
 
@@ -568,7 +570,10 @@ contract Gateway is Ownable, Utils, Base64 {
 
         // FIXME: Probably wrong, it should be generated like this https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/usecases/vrf/using-encrypted-payloads-for-vrf#signing-the-payload-with-metamask
         // and likely different from `userKey`
-        bytes memory userPubkey = bytes.concat("A4MYU1tUEF1Keq5gwI/EX5aHGBtP38YlvRp1P6c5f+11");
+        // Output of encodePayload.ts `user_pubkey`
+        // 0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5
+        // base64: BIMYU1tUEF1Keq5gwI/EX5aHGBtP38YlvRp1P6c5f+11NUfxHKhpZkby86ywjjEBavrCPmMMXRH1n2H+9XsNKqU=
+        bytes memory userPubkey = bytes.concat("BIMYU1tUEF1Keq5gwI/EX5aHGBtP38YlvRp1P6c5f+11NUfxHKhpZkby86ywjjEBavrCPmMMXRH1n2H+9XsNKqU=");
 
         // Gateway contract public key
         // Generated from ./packages/secret-contracts-scripts/src/functions/secretpath/generateKeys.ts

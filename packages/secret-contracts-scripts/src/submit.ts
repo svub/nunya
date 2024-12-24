@@ -83,8 +83,6 @@ async function unsafeRequestSecretContractPubkey() {
   const blockNumber = await provider.getBlockNumber();
   console.log("Current block number: ", blockNumber);
 
-  // FIXME - `ReferenceError: crypto is not defined`
-  // https://github.com/blake-regalia/belt/issues/1
   // const { userPrivateKeyBytes, userPublicKeyBytes, sharedKey } = await generateKeys();
   
   // FIXME - hardcoded values, should be done using `generateKeys()` above

@@ -101,6 +101,7 @@ const config = {
         // obtain from running `yarn run secret:querySecretGatewayPubkey`
         gatewayContractPublicKey: "0x0497317d078a66a2432a4c78dd4983cfe50ad0a1d16dc7da563017bd3050093d0a6beecf60a43684dc808bda3bbf814771b94cf399e7bcbc550677d1c6a26d26e5",
         // obtain from running `yarn run secret:querySecretGatewayPubkey`
+        // Note: Used in generateKey.ts
         gatewayContractEncryptionKeyForChaChaPoly1305: "A5cxfQeKZqJDKkx43UmDz+UK0KHRbcfaVjAXvTBQCT0K",
         gatewayContractWasmPath: "secret-gateway-contract.wasm.gz",
       }
