@@ -99,10 +99,10 @@ const config = {
         // 'pub_key': {'@type': '/cosmos.crypto.secp256k1.PubKey', 'key': 'A4K+MyJNnNcdt78SncjhArLWNnDRHapkZFsemjmf9/7A'
         gatewayContractAdminAddress: "secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg",
         // obtain from running `yarn run secret:querySecretGatewayPubkey`
-        gatewayContractPublicKey: "0x0497317d078a66a2432a4c78dd4983cfe50ad0a1d16dc7da563017bd3050093d0a6beecf60a43684dc808bda3bbf814771b94cf399e7bcbc550677d1c6a26d26e5",
+        gatewayContractPublicKey: "0x04c97c52af0aeebaf846f2ad91a38717192c8efa76f822442a8477c5645a863abcc7e77d29afc269ec3295a3f8a74bb4ba918e313e9eee18b9e4e297692342a1a3",
         // obtain from running `yarn run secret:querySecretGatewayPubkey`
         // Note: Used in generateKey.ts
-        gatewayContractEncryptionKeyForChaChaPoly1305: "A5cxfQeKZqJDKkx43UmDz+UK0KHRbcfaVjAXvTBQCT0K",
+        gatewayContractEncryptionKeyForChaChaPoly1305: "A8l8Uq8K7rr4RvKtkaOHFxksjvp2+CJEKoR3xWRahjq8",
         gatewayContractWasmPath: "secret-gateway-contract.wasm.gz",
       }
     }
