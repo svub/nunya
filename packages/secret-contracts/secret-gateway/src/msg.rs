@@ -6,17 +6,17 @@ use crate::types::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
+use crate::state::Task;
 use chacha20poly1305::aead::{Aead, NewAead};
 use chacha20poly1305::{ChaCha20Poly1305, Nonce};
 use secp256k1::{ecdh::SharedSecret, PublicKey, SecretKey};
-use crate::state::Task;
 
 use base64::{engine::general_purpose, Engine};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct InstantiateMsg {
     /// Optional admin address, info.sender if missing.
-    pub admin: Option<Addr>
+    pub admin: Option<Addr>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
@@ -54,7 +54,9 @@ pub struct InputResponse {
 pub enum QueryMsg {
     /// Query the gateway's public keys.
     GetPublicKeys {},
-    GetExecutionResult {task: Task}
+    GetExecutionResult {
+        task: Task,
+    },
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
@@ -97,7 +99,6 @@ pub struct PreExecutionMsg {
 }
 
 impl PreExecutionMsg {
-    
     pub fn verify(&self, deps: &DepsMut) -> StdResult<()> {
         match deps.api.secp256k1_verify(
             self.payload_hash.as_slice(),
@@ -105,15 +106,23 @@ impl PreExecutionMsg {
             self.user_pubkey.as_slice(),
         ) {
             Ok(true) => Ok(()),
-            Ok(false) | Err(_) => {
-                deps.api.ed25519_verify(
-                    &general_purpose::STANDARD.encode(self.payload_hash.as_slice()).as_bytes(),
+            Ok(false) | Err(_) => deps
+                .api
+                .ed25519_verify(
+                    &general_purpose::STANDARD
+                        .encode(self.payload_hash.as_slice())
+                        .as_bytes(),
                     self.payload_signature.as_slice(),
                     self.user_pubkey.as_slice(),
                 )
                 .map_err(|err| StdError::generic_err(err.to_string()))
-                .and_then(|verified| if verified { Ok(()) } else { Err(StdError::generic_err("Verification failed")) })
-            }
+                .and_then(|verified| {
+                    if verified {
+                        Ok(())
+                    } else {
+                        Err(StdError::generic_err("Verification failed"))
+                    }
+                }),
         }
     }
 
@@ -146,9 +155,7 @@ impl PreExecutionMsg {
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum SecretMsg {
-    Input {
-        message: PrivContractHandleMsg,
-    },
+    Input { message: PrivContractHandleMsg },
 }
 impl HandleCallback for SecretMsg {
     const BLOCK_SIZE: usize = 256;
