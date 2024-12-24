@@ -121,19 +121,17 @@ fn try_handle(
 
     // FIXME: Generic error: Invalid public key format
     //
-    // Note: The serialized public key should be &[u8] and in one of the two supported formats:
+    // Note: According to https://github.com/CosmWasm/cosmwasm, the serialized public key should be
+    // &[u8] and in one of the two supported formats:
     // 1. Uncompressed: 65 bytes starting with 0x04
     // 2. Compressed: 33 bytes starting with 0x02 or 0x03
-    deps.api.debug(format!("config.gateway_key.len(): {:#?}", config.gateway_key.len()).as_str());
-    deps.api.debug(format!("config.gateway_key.as_bytes().len(): {:#?}", config.gateway_key.as_bytes().len()).as_str());
-
-    let gateway_key_bytes = &config.gateway_key.as_bytes();
+    deps.api.debug(format!("config.gateway_key.as_slice().len(): {:#?}", config.gateway_key.as_slice().len()).as_str());
 
     deps.api
         .secp256k1_verify(
             msg.input_hash.as_slice(),
             msg.signature.as_slice(),
-            gateway_key_bytes, // &[u8]
+            config.gateway_key.as_slice(),
         )
         .map_err(|err| StdError::generic_err(err.to_string()))?;
 
