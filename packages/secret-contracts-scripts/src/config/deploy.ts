@@ -86,8 +86,12 @@ const config = {
       secretGateway: {
         gatewayContractCodeId: "1", // only know after upload
         gatewayContractAddress: "secret1mfk7n6mc2cg6lznujmeckdh4x0a5ezf6hx6y8q", // only know after instantiate
-        gatewayContractCodeHash: "836a34c60637d684c044d4ddc1277e3d21ae1f440d2bb2d26870c81639d2f4c4", // only know after upload
-        
+        // IMPORTANT: If this changes, then you need to update the Relayer config.yml file to match this value
+        // otherwise you will get an error `Message contains mismatched contract hash` whenever you try to interact
+        // with the Secret Gateway via the Relayer.
+        //   "secretdev-1": # Secret Localhost 
+        //     code_hash: "..."
+        gatewayContractCodeHash: "b9fb512153812cd554884922d10c007bef9d2749d14ae9fda445e83710ee8c10", // only know after upload
         // Generated with Keplar wallet using "Connect with Google" to obtain a private key and used in the
         // .env file of the custom Secret Relayer. The `pub_key` associated with it may be obtained through debugging
         // `account_info = data.get('account', {})` in the Relayer with `self.logger.info(f"sync_account_number_and_sequence: account_info {account_info}")`
@@ -95,9 +99,9 @@ const config = {
         // 'pub_key': {'@type': '/cosmos.crypto.secp256k1.PubKey', 'key': 'A4K+MyJNnNcdt78SncjhArLWNnDRHapkZFsemjmf9/7A'
         gatewayContractAdminAddress: "secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg",
         // obtain from running `yarn run secret:querySecretGatewayPubkey`
-        gatewayContractPublicKey: "0x041d515b717dfd0389615e2368e7ca2aee86f4b3f325a10ef4f3e6edf87d099b8b88d7f01a8b38dbc722a6d899033b5bb059bc3431543e4821ad0e8034a923ab18",
+        gatewayContractPublicKey: "0x0466a1e0a99c5320dd13669ef7c83a55bc92a1a940fb50e440e4b7ca083a2248c3ccf3a9c6921521c283eed35119cd8910d959367326554c21c709e6e158e3e6bd",
         // obtain from running `yarn run secret:querySecretGatewayPubkey`
-        gatewayContractEncryptionKeyForChaChaPoly1305: "Ah1RW3F9/QOJYV4jaOfKKu6G9LPzJaEO9PPm7fh9CZuL",
+        gatewayContractEncryptionKeyForChaChaPoly1305: "A2ah4KmcUyDdE2ae98g6VbySoalA+1DkQOS3ygg6IkjD",
         gatewayContractWasmPath: "secret-gateway-contract.wasm.gz",
       }
     }

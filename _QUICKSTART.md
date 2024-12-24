@@ -119,6 +119,8 @@ scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
   scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
   ```
 
+	* IMPORTANT: If the CODE_HASH changes due to changes in the Secret Gateway codebase, it is also necessary to update the `code_hash` in the Relay to match it.
+
   ```bash
   yarn run secret:instantiateGateway
   ```

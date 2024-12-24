@@ -351,6 +351,8 @@ git submodule update --init --recursive
 
   > IMPORTANT: If deployment of the code with `await secretjs.tx.compute.storeCode` is unsuccessful, then check if Beta version of secretjs is necessary incase the Secret Testnet is being upgraded.
 
+	> IMPORTANT: If the CODE_HASH changes due to changes in the Secret Gateway codebase, it is also necessary to update the `code_hash` in the Relay to match it.
+
   ```
   yarn run secret:instantiateGateway
   ```
