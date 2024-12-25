@@ -156,7 +156,8 @@ Example previous deployment:
 
 Assumes that you have already uploaded and instantiated the custom Secret contract in the [Setup Secret Contracts](#setup-secret) section.
 
-Skip to the [`requestValue`](#request-value) step in the [Setup Secret Contracts](#setup-secret) section.
+Skip to the [`submitRequestValue`](#submit-request-value) step in the [Setup Secret Contracts](#setup-secret) section.
+
 
 8. On a third terminal, start the Nunya NextJS app:
 
@@ -816,7 +817,7 @@ yarn run secret:instantiate
   * View on Secret Localhost block explorer
   * Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
 
-  * NEXT: Assuming that the EVM contracts NunyaBusiness and Gateway have already been deployed on localhost, then skip to [requestValue](#request-value), otherwise go through [Setup Frontend](#setup-frontend) first.
+  * NEXT: Assuming that the EVM contracts NunyaBusiness and Gateway have already been deployed on localhost, then skip to [submitRequestValue](#submit-request-value), otherwise go through [Setup Frontend](#setup-frontend) first.
 
 * IGNORE - Option B:
 ```
@@ -825,6 +826,37 @@ make store-nunya-contract-local
 ```
 
 * TODO: How to configure the Secret Gateway in Nunya Secret Contract?
+
+#### Interact with Deployed Secret Contract via Deployed EVM Gateway to `submitRequestValue` <a id="submit-request-value"></a> 
+
+##### Localhost
+
+	* Record logs from Localsecret since the output is too long otherwise. Press CTRL+C to cancel when PostExecution occurs in Ethereum Local Network logs to indicate it has finished. 
+		```bash
+		docker logs -f secretdev | tee ~/nunya/docker.log
+		```
+
+	* Run end-to-end transaction
+
+		```bash
+		cd ~/nunya
+		nvm use
+		yarn run secret:submitRequestValue
+		```
+
+		* Note: `requestValue` alternative that goes via NunyaBusiness.sol is not working yet
+
+	* Copy Localsecret logs from remote machine to local.  
+		```bash
+		REMOTE_IP=172.105.184.209
+		SOURCE=/root/nunya/docker.log
+		DESTINATION=/Users/luke/code/clones/github/svub/nunya
+		scp -r root@$REMOTE_IP:$SOURCE $DESTINATION
+		```
+
+##### Testnet
+
+TODO
 
 #### Interact with Deployed Secret Contract via Deployed EVM Gateway to `requestValue` <a id="request-value"></a> 
 
@@ -891,7 +923,6 @@ make store-nunya-contract-local
         * ./logs_secret/requestValueLocalhostSecretLogs.log - Logs from Secret Network running locally
         * ./logs_secret/requestValueLocalhostEthereumLogs.log - Logs from Ethereum Network running locally
 
-      * TODO: Why isn't `fulfilledValueCallback` being called after `requestValue` gets called?
 2. Remix
   * If necessary, similar to how used with Testnet below
 

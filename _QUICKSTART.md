@@ -211,12 +211,31 @@ scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
 
 #### Terminal Tab 3
 
-	# RUN AFTER RELAYER STARTED
-  ```bash
-	cd ~/nunya
-	nvm use
-	yarn run secret:requestValue
-  ```
+* RUN AFTER RELAYER STARTED
+
+* Record logs from Localsecret since the output is too long otherwise. Press CTRL+C to cancel when PostExecution occurs in Ethereum Local Network logs to indicate it has finished.
+
+```bash
+docker logs -f secretdev | tee ~/nunya/docker.log
+```
+
+* Run end-to-end transaction
+
+```bash
+cd ~/nunya
+nvm use
+yarn run secret:submitRequestValue
+```
+
+* Note: `requestValue` alternative that goes via NunyaBusiness.sol is not working yet
+
+* Copy Localsecret logs from remote machine to local.  
+```bash
+REMOTE_IP=172.105.184.209
+SOURCE=/root/nunya/docker.log
+DESTINATION=/Users/luke/code/clones/github/svub/nunya
+scp -r root@$REMOTE_IP:$SOURCE $DESTINATION
+```
 
 ### Notes
 
