@@ -155,10 +155,10 @@ contract NunyaBusiness is Ownable, Utils {
 
     /// @notice Callback by the CustomGateway with the requested value
     /// @param _requestId requestId of the request that was initally called
-    /// @param _value Value in uint256
+    /// @param data Value in bytes
     function fulfilledValueCallback(uint256 _requestId, bytes calldata data) external onlyGateway {
         console.log("fulfilledValueCallback - _requestId", _requestId);
-        console.log("fulfilledValueCallback - data", data);
+
         // TODO: Obtain the following from the `data`
         //  uint256 _request_id: task.clone(), uint256 _value (or _key), uint16 _code, address _nunya_business_contract_address
 
