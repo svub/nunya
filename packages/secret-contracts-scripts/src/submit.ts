@@ -119,7 +119,10 @@ async function unsafeRequestSecretContractPubkey() {
 
   const publicClientAddress = await getPublicClientAddress(chainId);
 
-  const callbackAddress = publicClientAddress.toLowerCase();
+  // const callbackAddress = publicClientAddress.toLowerCase();
+  // Note: We want the `postExecution` function in the EVM Gateway contract to use this
+  // callbackAddress and then call the EVM NunyaBusiness contract's `fulfilledValueCallback` function
+  const callbackAddress = nunyaBusinessContractAddress.toLowerCase();
   console.log("public client callback myAddress: ", callbackAddress);
 
   // Payload construction

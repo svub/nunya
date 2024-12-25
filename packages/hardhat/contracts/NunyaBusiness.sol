@@ -58,7 +58,8 @@ contract NunyaBusiness is Ownable, Utils {
     /// @notice Event that is emitted when a call was made (optional)
     /// @param requestId requestId of the request. Contract can track a call that way
     event RequestedValue(uint256 requestId);
-    event FulfilledValue(uint256 requestId, uint256 value, uint16 code, address _nunya_business_contract_address);
+    // event FulfilledValue(uint256 requestId, uint256 value, uint16 code, address _nunya_business_contract_address);
+    event FulfilledValue(uint256 requestId, bytes data);
     event RetrievePubkey(uint256 requestId);
     event FulfilledPubkey(uint256 requestId, uint256 pubkey, uint16 code, address _nunya_business_contract_address);
     event AccountCreated(uint256 requestId, uint16 code);
@@ -155,17 +156,23 @@ contract NunyaBusiness is Ownable, Utils {
     /// @notice Callback by the CustomGateway with the requested value
     /// @param _requestId requestId of the request that was initally called
     /// @param _value Value in uint256
-    function fulfilledValueCallback(uint256 _requestId, uint256 _value, uint16 _code, address _nunya_business_contract_address) external onlyGateway {
-        console.log("fulfilledValueCallback - requestId", _requestId);
-        console.log("fulfilledValueCallback - value", _value);
-        console.log("fulfilledValueCallback - code", _code);
-        console.log("fulfilledValueCallback - nunya_business_contract_address", _nunya_business_contract_address);
+    function fulfilledValueCallback(uint256 _requestId, bytes calldata data) external onlyGateway {
+        console.log("fulfilledValueCallback - _requestId", _requestId);
+        console.log("fulfilledValueCallback - data", data);
+        // TODO: Obtain the following from the `data`
+        //  uint256 _request_id: task.clone(), uint256 _value (or _key), uint16 _code, address _nunya_business_contract_address
 
-        emit FulfilledValue(_requestId, _value, _code, _nunya_business_contract_address);
+        // console.log("fulfilledValueCallback - requestId", _requestId);
+        // console.log("fulfilledValueCallback - value", _value);
+        // console.log("fulfilledValueCallback - code", _code);
+        // console.log("fulfilledValueCallback - nunya_business_contract_address", _nunya_business_contract_address);
+
+        // emit FulfilledValue(_requestId, _value, _code, _nunya_business_contract_address);
+        emit FulfilledValue(_requestId, data);
 
         // TODO - move to start of callback function after debugging
-        console.log("fulfilledValueCallback - address(this)", address(this));
-        require(address(this) == _nunya_business_contract_address);
+        // console.log("fulfilledValueCallback - address(this)", address(this));
+        // require(address(this) == _nunya_business_contract_address);
     }
 
     /// @notice Demo function on how to implement a call

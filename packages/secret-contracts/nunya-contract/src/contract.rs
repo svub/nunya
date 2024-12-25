@@ -171,8 +171,9 @@ fn request_value(
     let input: InputRequestValue = serde_json_wasm::from_str(&input_values)
         .map_err(|err| StdError::generic_err(err.to_string()))?;
     deps.api.debug(format!("request_value: input {:#?}", input).as_str());
-    let my_arg = input.myArg;
-    deps.api.debug(format!("request_value: input.myArg {:#?}", input.myArg).as_str());
+    // 'type mismatch, parameter: code_id, error: strconv.ParseUint: parsing "undefined": invalid syntax'
+    // let my_arg = input.myArg.as_str();
+    // deps.api.debug(format!("request_value: input.myArg {:#?}", &input.myArg.as_str()).as_str());
 
     let response_status_code: ResponseStatusCode = 0u16;
 
