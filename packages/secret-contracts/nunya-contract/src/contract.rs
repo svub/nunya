@@ -164,12 +164,13 @@ fn request_value(
     task: Task,
     input_hash: Binary,
 ) -> StdResult<Response> {
+    deps.api.debug(format!("request_value").as_str());
     let config = CONFIG.load(deps.storage)?;
 
     // Deserialize input values to an InputRequestValue struct
     let input: InputRequestValue = serde_json_wasm::from_str(&input_values)
         .map_err(|err| StdError::generic_err(err.to_string()))?;
-
+    deps.api.debug(format!("request_value: input {:#?}", input).as_str());
     let my_arg = input.myArg;
     deps.api.debug(format!("request_value: input.myArg {:#?}", input.myArg).as_str());
 
@@ -185,14 +186,18 @@ fn request_value(
         _code: response_status_code,
         _nunya_business_contract_address: config.nunya_business_contract_address,
     };
+    deps.api.debug(format!("request_value: data {:#?}", data).as_str());
 
     let json_string =
         serde_json_wasm::to_string(&data).map_err(|err| StdError::generic_err(err.to_string()))?;
+    deps.api.debug(format!("request_value: json_string {:#?}", json_string).as_str());
 
     let result = general_purpose::STANDARD.encode(json_string);
+    deps.api.debug(format!("request_value: result {:#?}", result).as_str());
 
     // Get the contract's code hash using the gateway address
-    let gateway_code_hash = get_contract_code_hash(deps, config.gateway_address.to_string())?;
+    let gateway_code_hash = get_contract_code_hash(&deps, config.gateway_address.to_string())?;
+    deps.api.debug(format!("request_value: gateway_code_hash {:#?}", gateway_code_hash).as_str());
 
     let callback_msg = GatewayMsg::Output {
         outputs: PostExecutionMsg {
@@ -206,6 +211,7 @@ fn request_value(
         config.gateway_address.to_string(),
         None,
     )?;
+    deps.api.debug(format!("request_value: callback_msg {:#?}", callback_msg).as_str());
 
     Ok(Response::new()
         .add_message(callback_msg)
@@ -248,7 +254,7 @@ fn retrieve_pubkey(
     let result = general_purpose::STANDARD.encode(json_string);
 
     // Get the contract's code hash using the gateway address
-    let gateway_code_hash = get_contract_code_hash(deps, config.gateway_address.to_string())?;
+    let gateway_code_hash = get_contract_code_hash(&deps, config.gateway_address.to_string())?;
 
     let callback_msg = GatewayMsg::Output {
         outputs: PostExecutionMsg {
@@ -344,7 +350,7 @@ fn create_new_auth_out(
     let result = general_purpose::STANDARD.encode(json_string);
 
     // Get the contract's code hash using the gateway address
-    let gateway_code_hash = get_contract_code_hash(deps, config.gateway_address.to_string())?;
+    let gateway_code_hash = get_contract_code_hash(&deps, config.gateway_address.to_string())?;
 
     let callback_msg = GatewayMsg::Output {
         // Sepolia network gateway contract Solidity source code
@@ -453,7 +459,7 @@ fn create_payment_reference(
     let result = general_purpose::STANDARD.encode(json_string);
 
     // Get the contract's code hash using the gateway address
-    let gateway_code_hash = get_contract_code_hash(deps, config.gateway_address.to_string())?;
+    let gateway_code_hash = get_contract_code_hash(&deps, config.gateway_address.to_string())?;
 
     let callback_msg = GatewayMsg::Output {
         outputs: PostExecutionMsg {
@@ -610,7 +616,7 @@ fn create_pay(
     let result = general_purpose::STANDARD.encode(json_string);
 
     // Get the contract's code hash using the gateway address
-    let gateway_code_hash = get_contract_code_hash(deps, config.gateway_address.to_string())?;
+    let gateway_code_hash = get_contract_code_hash(&deps, config.gateway_address.to_string())?;
 
     let callback_msg = GatewayMsg::Output {
         outputs: PostExecutionMsg {
@@ -728,7 +734,7 @@ fn create_withdraw_to(
     let result = general_purpose::STANDARD.encode(json_string);
 
     // Get the contract's code hash using the gateway address
-    let gateway_code_hash = get_contract_code_hash(deps, config.gateway_address.to_string())?;
+    let gateway_code_hash = get_contract_code_hash(&deps, config.gateway_address.to_string())?;
 
     let callback_msg = GatewayMsg::Output {
         outputs: PostExecutionMsg {
@@ -749,7 +755,7 @@ fn create_withdraw_to(
 }
 
 // reference: https://github.com/writersblockchain/secretpath-voting/commit/b0b5d8ac7b7d691c7d7ebf0bc52e5aedb8da7e86#diff-a982e501ba4bd05192a8c497bd5093517ea5606f9e341b9b7d09b233068da829R232
-fn get_contract_code_hash(deps: DepsMut, contract_address: String) -> StdResult<String> {
+fn get_contract_code_hash(deps: &DepsMut, contract_address: String) -> StdResult<String> {
     let code_hash_query: cosmwasm_std::QueryRequest<cosmwasm_std::Empty> =
         cosmwasm_std::QueryRequest::Stargate {
             path: "/secret.compute.v1beta1.Query/CodeHashByContractAddress".into(),
