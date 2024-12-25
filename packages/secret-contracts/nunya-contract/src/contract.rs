@@ -119,8 +119,6 @@ fn try_handle(
     //     ));
     // }
 
-    // FIXME: Generic error: Invalid public key format
-    //
     // Note: According to https://github.com/CosmWasm/cosmwasm, the serialized public key should be
     // &[u8] and in one of the two supported formats:
     // 1. Uncompressed: 65 bytes starting with 0x04

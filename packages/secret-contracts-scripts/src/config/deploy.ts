@@ -79,7 +79,7 @@ const config = {
       endpoint: process.env.ENDPOINT_LOCAL,
       secretNunya: {
         nunyaContractCodeId: "2", // only know after upload
-        nunyaContractCodeHash: "a93905a4bd08ade208f0ac2e5a4fe3a522ae1cdc33781838bfe02744e49a4d11", // only know after upload
+        nunyaContractCodeHash: "2b1ec012fd624efd6bf3cf72b1d2d80ac62b1a2b76bf0360d222c57d9e3d0703", // only know after upload
         nunyaContractAddress: "secret1gyruqan6yxf0q423t8z5zce3x7np35uw8s8wqc", // only know after instantiate
         nunyaContractWasmPath: "contract.wasm.gz",
       },
@@ -99,10 +99,10 @@ const config = {
         // 'pub_key': {'@type': '/cosmos.crypto.secp256k1.PubKey', 'key': 'A4K+MyJNnNcdt78SncjhArLWNnDRHapkZFsemjmf9/7A'
         gatewayContractAdminAddress: "secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg",
         // obtain from running `yarn run secret:querySecretGatewayPubkey`
-        gatewayContractPublicKey: "0x04aad4c687ec7287632a2019ea0fef623d052830b9fcd5a41cd8cb3209aabc7a22a2cd4b8af7b39eeba6398a7fec408ba88e37fd2705d00a117818900167f9aecd",
+        gatewayContractPublicKey: "0x04a495ce3c02a9329d4f66cb5041f46b7d5cc70ecc3ed5874124aa19c7cbe451b241415d854a0fbdf48c579d81420f6be301f427b9ad17620aae728b95f77ecf55",
         // obtain from running `yarn run secret:querySecretGatewayPubkey`
         // Note: Used in generateKey.ts
-        gatewayContractEncryptionKeyForChaChaPoly1305: "A6rUxofscodjKiAZ6g/vYj0FKDC5/NWkHNjLMgmqvHoi",
+        gatewayContractEncryptionKeyForChaChaPoly1305: "A6SVzjwCqTKdT2bLUEH0a31cxw7MPtWHQSSqGcfL5FGy",
         gatewayContractWasmPath: "secret-gateway-contract.wasm.gz",
       }
     }

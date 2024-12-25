@@ -605,7 +605,6 @@ contract Gateway is Ownable, Utils, Base64 {
         // to allow us to set an `owner`-like value that could be used to restrict calls to functions like this.
         // FIXME: Error parsing into type secret_gateway::types::Payload: Invalid unicode code point.: execute contract failed
         // TODO: Try changing to `"user_address":"0x0000","user_key":"AAA="`
-        // FIXME: Generic error: Invalid public key format
         bytes memory payload_info = abi.encodePacked(
             '}","routing_info":"',routing_info,
             '","routing_code_hash":"',routing_code_hash,
