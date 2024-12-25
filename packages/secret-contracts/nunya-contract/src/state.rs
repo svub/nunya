@@ -49,7 +49,7 @@ pub struct PaymentReceipt {
     pub sig: Binary,
 }
 
-#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct InputRequestValue {
     pub myArg: String
 }
