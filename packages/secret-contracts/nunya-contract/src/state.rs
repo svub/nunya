@@ -51,5 +51,5 @@ pub struct PaymentReceipt {
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct InputRequestValue {
-    pub myArg: u64
+    pub myArg: String
 }

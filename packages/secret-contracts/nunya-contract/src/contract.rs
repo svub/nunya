@@ -166,7 +166,7 @@ fn request_value(
 ) -> StdResult<Response> {
     deps.api.debug(format!("request_value").as_str());
     let config = CONFIG.load(deps.storage)?;
-
+    deps.api.debug(format!("request_value: config {:#?}", config).as_str());
     // Deserialize input values to an InputRequestValue struct
     let input: InputRequestValue = serde_json_wasm::from_str(&input_values)
         .map_err(|err| StdError::generic_err(err.to_string()))?;
