@@ -228,7 +228,7 @@ contract Gateway is Ownable, Utils, Base64 {
 
     function prepareResultBytesToCallbackData(bytes4 callback_selector, uint256 _taskId, bytes calldata data) public pure returns (bytes memory result) {
         console.log("------ Gateway.prepareResultBytesToCallbackData - _taskId: ", _taskId);
-        console.log("------ Gateway.prepareResultBytesToCallbackData - data: ", data);
+        console.log("------ Gateway.prepareResultBytesToCallbackData - data.length: ", data.length);
         assembly {
             result := mload(0x40) 
             mstore(result, add(100, data.length))
