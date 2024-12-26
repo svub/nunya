@@ -285,8 +285,11 @@ contract Gateway is Ownable, Utils, Base64 {
     /// @notice Emitted when the VRF callback was fulfilled
     event FulfilledRandomWords(uint256 indexed requestId);
 
-    /// @notice Emitted when the requestValue callback was fulfilled
+    /// @notice Emitted when the unsafeRequestValue callback was fulfilled
     event FulfilledRequestValue(uint256 indexed requestId);
+
+    /// @notice Emitted when the unsafeRetrievePubkey callback was fulfilled
+    event FulfilledSecretContractRequestPubkey(uint256 indexed requestId);
 
     // Note: In this custom Gateway.sol, the NunyaBusiness contract address is provided as an argument in its
     // constructor and set to be the `owner` in storage. Furthermore, we apply `onlyOwner` modifier to this
@@ -501,6 +504,13 @@ contract Gateway is Ownable, Utils, Base64 {
 
             emit FulfilledRequestValue(_taskId);
         }
+        // // fulfilledSecretContractPubkeyCallback == ???
+        // else if (_info.callback_selector == ???) {
+        //     (callbackSuccessful, ) = address(_info.callback_address).call(
+        //         prepareResultBytesToCallbackData(_info.callback_selector, _taskId, _info.result));
+
+        //     emit FulfilledSecretContractRequestPubkey(_taskId);
+        // }
         else {
             (callbackSuccessful, ) = address(_info.callback_address).call(
                 prepareResultBytesToCallbackData(_info.callback_selector, _taskId, _info.result));

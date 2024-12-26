@@ -61,7 +61,8 @@ contract NunyaBusiness is Ownable, Utils {
     // event FulfilledValue(uint256 requestId, uint256 value, uint16 code, address _nunya_business_contract_address);
     event FulfilledValue(uint256 requestId, bytes data);
     event RetrievePubkey(uint256 requestId);
-    event FulfilledPubkey(uint256 requestId, uint256 pubkey, uint16 code, address _nunya_business_contract_address);
+    // event FulfilledPubkey(uint256 requestId, uint256 pubkey, uint16 code, address _nunya_business_contract_address);
+    event FulfilledPubkey(uint256 requestId, bytes data);
     event AccountCreated(uint256 requestId, uint16 code);
     event PaymentReferenceCreated(uint256 requestId, uint16 code, string ref);
     event PaymentProcessed(uint256 requestId, uint16 code);
@@ -197,7 +198,15 @@ contract NunyaBusiness is Ownable, Utils {
     /// @notice Callback by the CustomGateway with the requested value
     /// @param _requestId requestId of the request that was initally called
     /// @param _key Public key of the custom Secret contract deployed on the Secret network
-    function fulfilledSecretContractPubkeyCallback (uint256 _requestId, uint256 _key, uint16 _code, address _nunya_business_contract_address) public onlyGateway validateRequest(_requestId, FunctionCallType.GET_KEY) {
+    function fulfilledSecretContractPubkeyCallback (uint256 _requestId, bytes calldata data) external onlyGateway {
+    // function fulfilledSecretContractPubkeyCallback (uint256 _requestId, uint256 _key, uint16 _code, address _nunya_business_contract_address) public onlyGateway validateRequest(_requestId, FunctionCallType.GET_KEY) {
+        console.log("------ NunyaBusiness - fulfilledValueCallback - _requestId: ", _requestId);
+        console.log("------ NunyaBusiness - fulfilledValueCallback - data.length: ", data.length);
+
+        emit FulfilledPubkey(_requestId, data);
+
+        // TODO: Implement the below instead when get working with `data` response initially
+        
         // require (secretContractPubkey==0, "Key already set");
         // Make sure it's our secret contract setting the key, not some interloper
         // (will fail one time in 2^96 ;)
@@ -207,18 +216,18 @@ contract NunyaBusiness is Ownable, Utils {
         // IDEA turned this into a modifier, leaving the code for discussion and then removal
         // require (expectedResult[_requestId] == FunctionCallType.GET_KEY);
         // delete expectedResult[_requestId];
-        secretContractPubkey = _key;
+        // secretContractPubkey = _key;
 
-        console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - requestId", _requestId);
-        console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - key", _key);
-        console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - code", _code);
-        console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - nunya_business_contract_address", _nunya_business_contract_address);
+        // console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - requestId", _requestId);
+        // console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - key", _key);
+        // console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - code", _code);
+        // console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - nunya_business_contract_address", _nunya_business_contract_address);
 
-        emit FulfilledPubkey(_requestId, _key, _code, _nunya_business_contract_address);
+        // emit FulfilledPubkey(_requestId, _key, _code, _nunya_business_contract_address);
 
-        // TODO - move to start of callback function after debugging
-        console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - address(this)", address(this));
-        require(address(this) == _nunya_business_contract_address);
+        // // TODO - move to start of callback function after debugging
+        // console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - address(this)", address(this));
+        // require(address(this) == _nunya_business_contract_address);
     }
 
     // Function wrapped in secret network payload encryption

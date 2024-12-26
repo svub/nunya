@@ -3,13 +3,14 @@ dotenv.config();
 import { requestNunya } from "./requestNunya.js";
 import { RequestParams } from "./types/index.js";
 
-async function unsafeSubmitRequestValue() {
+async function unsafeSubmitRequestPubkey() {
   const params: RequestParams = {
-    requestFunctionName: "unsafeRequestValue",
+    requestFunctionName: "unsafeRequestSecretContractPubkey",
     requestEthValue: "2.5000",
-    secretContractRequestHandle: "request_value",
-    secretContractRequestHandleArgs: { myArg: "123" },
-    callbackSelectorName: "fulfilledValueCallback",
+    // TODO: Rename to "retrieve_pubkey" in all relevant locations
+    secretContractRequestHandle: "retrievePubkey",
+    secretContractRequestHandleArgs: {},
+    callbackSelectorName: "fulfilledSecretContractPubkeyCallback",
     callbackGasLimitAmount: 30000000,
   }
 
@@ -18,7 +19,7 @@ async function unsafeSubmitRequestValue() {
 }
 
 async function main() {
-  await unsafeSubmitRequestValue();
+  await unsafeSubmitRequestPubkey();
 }
 
 main().catch((error) => {
