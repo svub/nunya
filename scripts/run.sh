@@ -1,4 +1,26 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+# FIXME -
+# ```
+# Warning: The unit file, source configuration file or drop-ins of ethlocal.service changed on disk. Run 'systemctl daemon-reload' to reload units.
+# ● ethlocal.service - Ethereum Network Development Node systemd service
+#      Loaded: loaded (/etc/systemd/system/ethlocal.service; enabled; preset: enabled)
+#      Active: active (running) since Thu 2024-12-26 15:39:27 UTC; 14ms ago
+#    Main PID: 1110762 (start.sh)
+#       Tasks: 1 (limit: 4614)
+#      Memory: 308.0K (peak: 352.0K)
+#         CPU: 3ms
+#      CGroup: /system.slice/ethlocal.service
+#              └─1110762 /bin/bash /opt/ethlocal/start.sh
+
+# Dec 26 15:39:27 localhost systemd[1]: Started ethlocal.service - Ethereum Network Development Node systemd service.
+# Dec 26 15:39:27 localhost ethlocal[1110762]: -----------------------
+# Dec 26 15:39:27 localhost ethlocal[1110762]: Executing: /opt/ethlocal/hardhat node --network hardhat   --no-deploy   --watch   --port 8545
+# Dec 26 15:39:27 localhost ethlocal[1110762]: ----------------------
+# Dec 26 15:39:27 localhost ethlocal[1110765]: /opt/ethlocal/start.sh: line 18: /opt/ethlocal/hardhat: Permission denied
+# Dec 26 15:39:27 localhost systemd[1]: ethlocal.service: Main process exited, code=exited, status=126/n/a
+# Dec 26 15:39:27 localhost systemd[1]: ethlocal.service: Failed with result 'exit-code'.
+# ```
 
 # Part 1
 
@@ -11,7 +33,7 @@
 # ```
 # docker stop secretdev && docker rm secretdev && sleep 5 &&
 # cd ~/nunya/packages/secret-contracts/secret-gateway && nvm use &&
-# make start-server
+# docker run -it --rm -p 9091:9091 -p 26657:26657 -p 26656:26656 -p 1317:1317 -p 5000:5000 -v $PWD:/root/code --name secretdev ghcr.io/scrtlabs/localsecret:v1.15.0-beta.19
 # docker logs -f secretdev | tee ~/nunya/docker.log
 # ```
 #
@@ -49,33 +71,37 @@
 # Secret Network Development Node
 cd ~/nunya
 rm docker.log
-nvm use
+# nvm use
 # TODO - update to clone and checkout if folder not exist
 git stash
 git pull origin submit-pubkey
 git checkout submit-pubkey
 cd ~/nunya/packages/secret-contracts/secret-gateway
 git submodule update --init --recursive
-nvm use
+# nvm use
 docker stop secretdev && docker rm secretdev
 sleep 5
-make start-server
-docker logs -f secretdev | tee ~/nunya/docker.log
+# run `make start-server` in daemon background mode
+docker run -it -d --rm -p 9091:9091 -p 26657:26657 -p 26656:26656 -p 1317:1317 -p 5000:5000 -v $PWD:/root/code --name secretdev ghcr.io/scrtlabs/localsecret:v1.15.0-beta.19
+# docker logs -f secretdev | tee ~/nunya/docker.log
 
 # Ethereum Network Development Node
 cd ~/nunya
-nvm use
+# nvm use
 
-adduser ethlocal_service --system --no-create-home
+sudo adduser ethlocal_service --system --no-create-home
 DB_STORAGE="/mnt/storage1"
 mkdir -p $DB_STORAGE/.chains
 
 mkdir -p /opt/ethlocal
 cp ~/nunya/scripts/ethlocal/start.sh /opt/ethlocal
-chmod +x /opt/ethlocal/start.sh
+sudo chmod 777 /opt/ethlocal/start.sh
 
-cp ~/nunya/packages/hardhat/node_modules/.bin/hardhat /opt/ethlocal
-chmod +x /opt/ethlocal/hardhat
+# create a soft link to this file in my present directory:
+
+sudo rm /opt/ethlocal/hardhat
+sudo ln -s ~/nunya/packages/hardhat/node_modules/.bin/hardhat /opt/ethlocal/hardhat
+sudo chmod 777 /opt/ethlocal/hardhat
 
 sudo chown -R ethlocal_service $DB_STORAGE/.chains
 sudo chown -R ethlocal_service /opt/ethlocal
@@ -108,8 +134,14 @@ DB_STORAGE="/mnt/storage1"
 mkdir -p $DB_STORAGE/.chains/ethlocal
 sudo chown -R ethlocal_service $DB_STORAGE/.chains
 
+systemctl stop ethlocal
+systemctl daemon-reload
+systemctl enable ethlocal
+systemctl start ethlocal
+systemctl status ethlocal
+
 cd ~/nunya
-nvm use
+# nvm use
 yarn hardhat:clean
 yarn hardhat:compile
 yarn hardhat:deploy --network localhost
@@ -150,7 +182,7 @@ docker exec -it secretdev secretcli tx bank send secret1ap26qrlp8mcq2pg6r47w43l0
 
 # TODO - update to clone and checkout if folder not exist
 cd ~/nunya
-nvm use
+# nvm use
 cd ~/ltfschoen/SecretPath/TNLS-Relayers
 git stash
 git pull origin nunya
@@ -166,17 +198,18 @@ pip install --upgrade lru-dict
 
 # Part 5
 
-adduser relayer_service --system --no-create-home
+sudo adduser relayer_service --system --no-create-home
 
 mkdir -p /opt/relayer
 cp ~/nunya/scripts/relayer/start.sh /opt/relayer
-chmod +x /opt/relayer/start.sh
+sudo chmod 777 /opt/relayer/start.sh
 
 # create symlink in /opt/relayer to /root/ltfschoen/SecretPath/TNLS-Relayers/web_app.py
 
 # create a soft link to this file in my present directory:
 
-ln -s ~/ltfschoen/SecretPath/TNLS-Relayers/web_app.py /opt/relayer/web_app.py
+sudo rm /opt/relayer/web_app.py
+sudo ln -s ~/ltfschoen/SecretPath/TNLS-Relayers/web_app.py /opt/relayer/web_app.py
 
 sudo chown -R relayer_service /opt/relayer
 
@@ -204,9 +237,15 @@ touch /etc/systemd/system/relayer.service
 
 cat /etc/systemd/system/relayer.service
 
+systemctl stop relayer
+systemctl daemon-reload
+systemctl enable relayer
+systemctl start relayer
+systemctl status relayer
+
 # Part 6
 
 cd ~/nunya
-nvm use
+# nvm use
 yarn run secret:submitRequestValue
 yarn run secret:submitRetrievePubkey
