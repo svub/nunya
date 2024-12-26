@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 import { ethers, Wallet } from "ethers";
 import { NonceManager } from "@ethersproject/experimental";
-import config from './config/deploy.js';
+import config from './config/config.js';
 import gatewayAbi from "../../hardhat/artifacts/contracts/Gateway.sol/Gateway.json" assert { type: "json" };
 import nunyaAbi from "../../hardhat/artifacts/contracts/NunyaBusiness.sol/NunyaBusiness.json" assert { type: "json" };
 import { generateKeys } from "./functions/secretpath/generateKeys.js";

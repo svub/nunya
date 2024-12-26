@@ -4,7 +4,7 @@ dotenv.config();
 import { ethers, Contract, Wallet, utils } from "ethers";
 import gatewayAbi from "../../../hardhat/artifacts/contracts/Gateway.sol/Gateway.json" assert { type: "json" };
 import nunyaAbi from "../../../hardhat/artifacts/contracts/NunyaBusiness.sol/NunyaBusiness.json" assert { type: "json" };
-import config from '../config/deploy.js';
+import config from '../config/config.js';
 
 let vars;
 if (config.evm.network == "sepolia") {

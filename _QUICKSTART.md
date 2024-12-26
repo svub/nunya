@@ -21,8 +21,8 @@ SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scrip
 DESTINATION=/root/nunya/packages/secret-contracts-scripts/.env
 scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
 
-SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/config/deploy.ts
-DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/config/deploy.ts
+SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/config/config.ts
+DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/config/config.ts
 scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
 ```
 
@@ -90,8 +90,8 @@ scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
 
 	* UPDATE CONFIG `gatewayContractAdminAddress` before deploy Secret Gateway
   ```bash
-  SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/config/deploy.ts
-  DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/config/deploy.ts
+  SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/config/config.ts
+  DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/config/config.ts
   scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
   ```
 
@@ -114,8 +114,8 @@ scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
 
 	* UPDATE CONFIG AND RUN ON LOCAL IF DIFFERS
   ```bash
-  SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/config/deploy.ts
-  DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/config/deploy.ts
+  SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/config/config.ts
+  DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/config/config.ts
   scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
   ```
 
@@ -141,12 +141,12 @@ scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
   * Paste `verification_key` into Gateway.sol for value of `secret_gateway_signer_pubkey`
   * Redeploy if differs Gateway.sol 
 
-	* Paste them into deploy.ts, `gatewayContractPublicKey` with `verification_key` and `gatewayContractEncryptionKeyForChaChaPoly1305` with `encryption_key`
+	* Paste them into config.ts, `gatewayContractPublicKey` with `verification_key` and `gatewayContractEncryptionKeyForChaChaPoly1305` with `encryption_key`
 
 	* UPDATE CONFIG AND RUN ON LOCAL IF DIFFERS
   ```bash
-  SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/config/deploy.ts
-  DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/config/deploy.ts
+  SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/config/config.ts
+  DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/config/config.ts
   scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
   ```
 
@@ -155,13 +155,13 @@ scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
 	yarn run secret:upload
   ```
 
-	# UPDATE IF DIFFERS deploy.ts
+	# UPDATE IF DIFFERS config.ts
 
   ```bash
 	yarn run secret:instantiate
   ```
 
-	# UPDATE IF DIFFERS deploy.ts
+	# UPDATE IF DIFFERS config.ts
 
   ```bash
 	docker exec -it secretdev secretcli tx bank send secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03 secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg 100000000000000000uscrt -y

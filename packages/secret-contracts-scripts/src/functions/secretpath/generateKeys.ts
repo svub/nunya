@@ -4,7 +4,7 @@ import { arrayify, SigningKey } from "ethers/lib/utils.js";
 // import { ecdh } from "@solar-republic/neutrino";
 import * as secp from "@noble/secp256k1";
 import { base64_to_bytes, sha256 } from "@blake.regalia/belt";
-import config from '../../config/deploy.js';
+import config from '../../config/config.js';
 import { getSecretGatewayPubkey } from "../query/getSecretGatewayPubkey.js";
 import { assert } from "console";
 
@@ -69,7 +69,7 @@ export async function generateKeys() {
     verification_key: string,
   }
 
-  // Fetch the latest from the Secret Gateway since it is generated randomly when instantiated rather than rely on user having populated it in deployer.ts already
+  // Fetch the latest from the Secret Gateway since it is generated randomly when instantiated rather than rely on user having populated it in config.ts already
   const gatewayContractPublicKey: EphemeralKeys = await getSecretGatewayPubkey(params);
   console.log('gatewayContractPublicKey.encryption_key: ', gatewayContractPublicKey.encryption_key);
   const gatewayContractPublicKeyBytes = base64_to_bytes(gatewayContractPublicKey.encryption_key);

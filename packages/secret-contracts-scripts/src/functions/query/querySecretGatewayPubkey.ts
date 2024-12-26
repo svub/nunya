@@ -1,5 +1,5 @@
 import { SecretNetworkClient } from "secretjs";
-import config from '../../config/deploy.js';
+import config from '../../config/config.js';
 
 type EphemeralKeys = {
   encryption_key: string,

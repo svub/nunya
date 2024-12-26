@@ -45,7 +45,7 @@ contract Gateway is Ownable, Utils, Base64 {
     //address immutable public secret_gateway_signer_address = 0x2821E794B01ABF0cE2DA0ca171A1fAc68FaDCa06;
 
     // SecretPath localhost () contracts
-    // Note: Match the value shown in ../../../packages/secret-contracts-scripts/src/config/deploy.ts
+    // Note: Match the value shown in ../../../packages/secret-contracts-scripts/src/config/config.ts
     string constant public task_destination_network = "secretdev-1";
     // TODO: Create a function to set these values? Or is it generated randomly each time the Secret Gateway contract is deployed?
     // This is the Derived Ethereum Address from the Public Key of the deployed Gateway contract on the Secret Network Testnet
