@@ -14,7 +14,7 @@ const walletOptions = {
   bech32Prefix: 'secret',
 }
 
-const { walletMnemonic, isOptimizedContractWasm, secretNunya: { nunyaContractWasmPath }, secretGateway: { gatewayContractWasmPath }, chainId, endpoint } =
+const { walletMnemonic, isOptimizedContractWasm, secretNunya: { nunyaContractWasmPath }, secretGateway: { gatewayContractAdminAddress, gatewayContractCodeId, gatewayContractCodeHash, gatewayContractWasmPath }, chainId, endpoint } =
   config.secret.network == "testnet"
   ? config.secret.testnet
   : config.secret.localhost;
@@ -51,11 +51,21 @@ async function main () {
 
   console.log('balance: ', balance);
 
+  type INIT_MSG = {
+    admin: String,
+  };
+
   type CODE_PARAMS = {
     codeId: String,
     contractCodeHash: String,
   };
 
+  type CONTRACT_PARAMS = {
+    contractAddress: String,
+    contractCodeHash: String,
+  };
+
+  // TODO: Refactor into its own file
   let uploadContract = async () => {
     console.log("Starting deployment...");
 
@@ -119,6 +129,62 @@ async function main () {
       contractCodeHash
     }
   };
+
+  // TODO: Refactor into its own file
+  let instantiateContract = async (params: CODE_PARAMS) => {
+    console.log("Instantiating contract...");
+    console.log('params: ', params)
+    if (typeof params.codeId == undefined || typeof params.contractCodeHash == undefined) {
+      throw Error("Unable to instantiate without codeId and contractCodeHash");
+    }
+
+    let contractAddress: String;
+
+    if (!params.codeId || !params.contractCodeHash) {
+      throw new Error("codeId or contractCodeHash is not set.");
+    }
+
+    let initMsg: INIT_MSG = {
+      admin: gatewayContractAdminAddress,
+    };
+
+    let txParams = {
+      code_id: params.codeId.toString(),
+      sender: wallet.address,
+      code_hash: params.contractCodeHash.toString(),
+      init_msg: initMsg,
+      label: "SnakePath Encrypt " + Math.ceil(Math.random() * 10000),
+    };
+
+    let txOptions = {
+      gasLimit: 5_000_000, // default 25_000
+      gasPriceInFeeDenom: 1, // default 0.1
+      feeDenom: "uscrt",
+      feeGranter: wallet.address,
+      waitForCommit: true, // default true
+      broadcastTimeoutMs: 240_000, // default 60_000
+      broadcastCheckIntervalMs: 24_000, // default 6_000 for 6 second block
+      broadcastMode: BroadcastMode.Async,
+    };
+
+    let tx = await secretjs.tx.compute.instantiateContract(txParams, txOptions);
+    console.log('tx: ', tx)
+
+    // Find the contract_address in the logs
+    contractAddress = tx?.arrayLog?.find(
+      (log) => log?.type === "message" && log?.key === "contract_address"
+    )?.value || "";
+
+    if (contractAddress == "") {
+      throw Error("Unable to find the contract_address");
+    }
+
+    let contractParams: CONTRACT_PARAMS = {
+      contractAddress,
+      contractCodeHash: params.contractCodeHash,
+    };
+    return contractParams;
+  };
   
   // Chain the execution using promises
   await uploadContract()
@@ -128,6 +194,18 @@ async function main () {
 
       // TODO: Add res.codeId and res.contractCodeHash to config.ts file
 
+      const codeParams = {
+        codeId: res.codeId,
+        contractCodeHash: res.contractCodeHash,
+      };
+
+      await instantiateContract(codeParams)
+        .then(async (contractParams: CONTRACT_PARAMS) => {
+          console.log("SECRET_ADDRESS: ", contractParams.contractAddress);
+        })
+        .catch((error: any) => {
+          console.error("Error:", error);
+        });
 
     })
     .catch((error) => {

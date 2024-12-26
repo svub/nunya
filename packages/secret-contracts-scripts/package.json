@@ -15,7 +15,8 @@
     "upload": "yarn build && node ./dist/upload.js",
     "instantiate": "yarn build && node ./dist/instantiate.js",
     "uploadGateway": "yarn build && node ./dist/uploadGateway.js",
-    "instantiateGateway": "yarn build && node ./dist/instantiateGateway.js"
+    "instantiateGateway": "yarn build && node ./dist/instantiateGateway.js",
+    "uploadAndInstantiateGateway": "yarn build && node ./dist/uploadAndInstantiateGateway.js"
   },
   "dependencies": {
     "@blake.regalia/belt": "~0.35.1",

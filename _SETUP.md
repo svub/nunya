@@ -345,6 +345,13 @@ git submodule update --init --recursive
     yarn run secret:clean
     yarn run secret:uploadGateway
     ```
+
+    OR 
+
+    ```bash
+    yarn run secret:uploadAndInstantiateGateway
+    ```
+
       * Note: If you get error `TypeError: URL.canParse is not a function` then you're likely using the wrong Node.js version, so just change to the project root directory and run `nvm use` in that terminal tab.
 
   * Add the `CODE_ID` to `secretGateway -> gatewayContractCodeId` and `CODE_HASH` to `secretGateway -> gatewayContractCodeHash` respectively to the relevant config.secret.<network> in ./packages/secret-contracts-scripts/src/config/config.ts

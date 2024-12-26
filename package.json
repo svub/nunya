@@ -15,6 +15,7 @@
   "scripts": {
     "hardhat:account": "yarn workspace @se-2/hardhat account",
     "hardhat:chain": "yarn workspace @se-2/hardhat chain",
+    "hardhat:chain-watch": "yarn workspace @se-2/hardhat chain-watch",
     "hardhat:clean": "yarn workspace @se-2/hardhat clean",
     "hardhat:compile": "yarn workspace @se-2/hardhat compile",
     "hardhat:deploy": "yarn workspace @se-2/hardhat deploy",
@@ -50,7 +51,8 @@
     "secret:upload": "yarn workspace secret-contracts-scripts upload",
     "secret:instantiate": "yarn workspace secret-contracts-scripts instantiate",
     "secret:uploadGateway": "yarn workspace secret-contracts-scripts uploadGateway",
-    "secret:instantiateGateway": "yarn workspace secret-contracts-scripts instantiateGateway"
+    "secret:instantiateGateway": "yarn workspace secret-contracts-scripts instantiateGateway",
+    "secret:uploadAndInstantiateGateway": "yarn workspace secret-contracts-scripts uploadAndInstantiateGateway"
   },
   "packageManager": "yarn@4.2.2",
   "dependencies": {

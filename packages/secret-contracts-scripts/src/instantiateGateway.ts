@@ -62,7 +62,7 @@ async function main () {
     contractCodeHash: String,
   };
 
-  let instantiate_contract = async (params: CODE_PARAMS) => {
+  let instantiateContract = async (params: CODE_PARAMS) => {
     console.log("Instantiating contract...");
     console.log('params: ', params)
     if (typeof params.codeId == undefined || typeof params.contractCodeHash == undefined) {
@@ -123,7 +123,7 @@ async function main () {
   };
   
   // Chain the execution using promises
-  await instantiate_contract(codeParams)
+  await instantiateContract(codeParams)
     .then(async (contractParams) => {
       console.log("SECRET_ADDRESS: ", contractParams.contractAddress);
       // await query_pubkey(contractParams);

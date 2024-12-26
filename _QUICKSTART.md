@@ -112,6 +112,12 @@ scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
   yarn run secret:uploadGateway
   ```
 
+	OR 
+
+	```bash
+  yarn run secret:uploadAndInstantiateGateway
+  ```
+
 	* UPDATE CONFIG AND RUN ON LOCAL IF DIFFERS
   ```bash
   SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/config/config.ts
