@@ -29,7 +29,7 @@ if (config.evm.network == "sepolia") {
 }
 const { chainId: evmChainId, endpoint, nunyaBusinessContractAddress, gatewayContractAddress, privateKey } = vars;
 
-async function unsafeRequestValue() {
+async function unsafeSubmitRequestValue() {
   const ifaceGateway = new ethers.utils.Interface(gatewayAbi.abi);
   const ifaceNunya = new ethers.utils.Interface(nunyaAbi.abi);
 
@@ -82,7 +82,6 @@ async function unsafeRequestValue() {
   let callbackGasLimit = 30000000; // 30000000 is the block gas limit
   // The function name of the function that is called on the private contract
   const handle = "request_value";
-
   // Data are the calldata/parameters that are passed into the contract
   const data = JSON.stringify({ myArg: "123" });
 
@@ -148,10 +147,21 @@ async function unsafeRequestValue() {
     nextNonceNum,
   );
 
-  const functionData = ifaceGateway.encodeFunctionData("send", [
+  const functionName = "send";
+  const functionData = ifaceGateway.encodeFunctionData(functionName, [
     payloadHash,
     // FIXME: Try changing this to `myAddress` to see if it resolves the
     // `IncorrectSignature` error https://github.com/svub/nunya/issues/48
+    // FIXME: In this submitRequestValue.ts, `myAddress` associated with the `privateKey` for the value
+    // is used for `encryptPayload`, and then the deployed NunyaBusiness address is used as the
+    // address value provided to `functionData`. Are those values even
+    // correct or cause this `IncorrectSignature` error somehow https://github.com/svub/nunya/issues/48 
+    // It might need to be account associated with the `privateKey`, since it might be used
+    // in the Gateway.sol for creating the payloadSignature with `ethSignedPayloadHash`, so in turn it 
+    // might refer to that address when validating the signature at the Secret Gateway.
+    //
+    // Note: In Gateway.sol, check if the `send` function assigns a different value to the
+    // `_userAddress` other than the value that we provide here.
     nunyaBusinessContractAddress, // myAddress,
     routing_contract,
     _info,
@@ -204,6 +214,12 @@ async function unsafeRequestValue() {
   // console.log("amountOfGas: ", amountOfGas);
   // console.log("my_gas: ", my_gas);
 
+  // Note: Previously in the gateway evm contract onlyOwner was set to be whoever created the contract in its
+  // constructor (e.g. the `DEPLOYER_ADDRESS`) with `owner = msg.sender` but `setSecretContractInfo`
+  // function in the gateway evm contract only allows `onlyOwner` to call it, but the caller is using
+  // `nunyaContract.unsafeSetSecretContractInfo` the NunyaBusiness contract instead of that `DEPLOYER_ADDRESS`
+  // is calling that function in the gateway evm contract, so it was changed to be
+  // `owner = nunyaBusinessAddress`
   let txParams = {
     value: ethers.utils.parseEther("0.0001"),
     gasLimit: 10000000,
@@ -221,18 +237,18 @@ async function unsafeRequestValue() {
   let my_gas =  8000000000;
 
   // TODO: should the `gasLimit` and/or `value` instead be `hexlify(amountOfGas)`?
-  const tx_params = {
+  const txParamsSend = {
     from: myAddress,
     to: publicClientAddress,
     value: ethers.utils.parseEther("2.5000"), // 0.0001 ETH = 100000 Gwei
     gasLimit: callbackGasLimit, // 30000000 is the block gas limit
     gasPrice: hexlify(my_gas),
     nonce: nextNonceNum,
-    data: functionData,
+    data: functionData, // function to call and args
     chainId: evmChainId,
   }
 
-  tx = await managedSigner.sendTransaction(tx_params);
+  tx = await managedSigner.sendTransaction(txParamsSend);
   console.log("txResponseUnsafeRequestValue: ", tx);
   // wait() has the logic to return receipt once the transaction is mined
   receipt = await tx.wait();
@@ -240,7 +256,7 @@ async function unsafeRequestValue() {
 }
 
 async function main() {
-  await unsafeRequestValue();
+  await unsafeSubmitRequestValue();
 }
 
 main().catch((error) => {

@@ -72,7 +72,7 @@ contract NunyaBusiness is Ownable, Utils {
     constructor() payable {
         owner = msg.sender;
 
-        console.log("constructor: msg.value", msg.value);
+        console.log("------ NunyaBusiness - constructor: msg.value", msg.value);
 
         // TODO: only uncomment when hardhat has gateway deployed
         // TODO can we test if it's deployed and call then automatically? 
@@ -129,7 +129,7 @@ contract NunyaBusiness is Ownable, Utils {
         // Call the CustomGateway for a specific request
         // Returns requestId of the request. A contract can track the call that way.
         bool isSet = customGateway.setSecretContractInfo{value: msg.value}(_routingInfo, _routingCodeHash);
-        console.log("set secret contract info in gateway contract");
+        console.log("------ NunyaBusiness - unsafeSetSecretContractInfo");
 
         // Emit the event
         emit SetSecretContractInfo(isSet);
@@ -138,16 +138,22 @@ contract NunyaBusiness is Ownable, Utils {
     }
 
     /// @notice Demo function on how to implement a call
-    // e.g. callbackGaslimit of 300000
+    // Note that we keep this function instead of just directly calling `send` in the Gateway.sol
+    // so that we can easily keep track of the original requestId by emitting a custom event here
     // testing function - DO NOT KEEP IN PROD!
-    function unsafeRequestValue(uint256 _callbackSelector, uint32 _callbackGasLimit) public payable existsGateway onlyOwner {
+    function unsafeRequestValue(
+        bytes32 _payloadHash,
+        address _userAddress,
+        string calldata _routingInfo,
+        ExecutionInfo calldata _info
+    ) public payable existsGateway onlyOwner {
         // Get the CustomGateway contract interface 
         IGateway customGateway = IGateway(CustomGateway);
 
         // Call the CustomGateway for a specific request
         // Returns requestId of the request. A contract can track the call that way.
-        uint256 requestId = customGateway.requestValue{value: msg.value}(_callbackSelector, _callbackGasLimit);
-        console.log("requested secret contract value - requestId=", requestId);
+        uint256 requestId = customGateway.send{value: msg.value}(_payloadHash, _userAddress, _routingInfo, _info);
+        console.log("------ NunyaBusiness - unsafeRequestValue - requestId=", requestId);
 
         // Emit the event
         emit RequestedValue(requestId);
@@ -157,8 +163,8 @@ contract NunyaBusiness is Ownable, Utils {
     /// @param _requestId requestId of the request that was initally called
     /// @param data Value in bytes in base64 representation
     function fulfilledValueCallback(uint256 _requestId, bytes calldata data) external onlyGateway {
-        console.log("fulfilledValueCallback - _requestId: ", _requestId);
-        console.log("fulfilledValueCallback - data.length: ", data.length);
+        console.log("------ NunyaBusiness - fulfilledValueCallback - _requestId: ", _requestId);
+        console.log("------ NunyaBusiness - fulfilledValueCallback - data.length: ", data.length);
         // Example `data` value: {"_request_id":{"network":"31337","task_id":"10"},"_key":[78,85,78,89,65],"_code":0,"_nunya_business_contract_address":"0xAFFF311821C3F3AF863C7103BB17BDC1Ba04603D"}
 
         // emit FulfilledValue(_requestId, _value, _code, _nunya_business_contract_address);
@@ -172,12 +178,17 @@ contract NunyaBusiness is Ownable, Utils {
     /// @notice Demo function on how to implement a call
     // e.g. callbackGaslimit of 300000
     // testing function - DO NOT KEEP IN PROD!
-    function unsafeRequestSecretContractPubkey (uint32 _callbackSelector, uint32 _callbackGasLimit) public payable existsGateway onlyOwner {
+    function unsafeRequestSecretContractPubkey (
+        bytes32 _payloadHash,
+        address _userAddress,
+        string calldata _routingInfo,
+        ExecutionInfo calldata _info
+    ) public payable existsGateway onlyOwner {
         // Get the CustomGateway contract interface 
         IGateway customGateway = IGateway(CustomGateway);
 
-        uint256 requestId = customGateway.retrievePubkey{value: msg.value}(_callbackSelector, _callbackGasLimit);
-        console.log("requested secret contract pubkey - requestId=", requestId);
+        uint256 requestId = customGateway.send{value: msg.value}(_payloadHash, _userAddress, _routingInfo, _info);
+        console.log("------ NunyaBusiness - unsafeRequestSecretContractPubkey - requestId=", requestId);
 
         // Emit the event
         emit RetrievePubkey(requestId);
@@ -198,15 +209,15 @@ contract NunyaBusiness is Ownable, Utils {
         // delete expectedResult[_requestId];
         secretContractPubkey = _key;
 
-        console.log("fulfilledSecretContractPubkeyCallback - requestId", _requestId);
-        console.log("fulfilledSecretContractPubkeyCallback - key", _key);
-        console.log("fulfilledSecretContractPubkeyCallback - code", _code);
-        console.log("fulfilledSecretContractPubkeyCallback - nunya_business_contract_address", _nunya_business_contract_address);
+        console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - requestId", _requestId);
+        console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - key", _key);
+        console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - code", _code);
+        console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - nunya_business_contract_address", _nunya_business_contract_address);
 
         emit FulfilledPubkey(_requestId, _key, _code, _nunya_business_contract_address);
 
         // TODO - move to start of callback function after debugging
-        console.log("fulfilledSecretContractPubkeyCallback - address(this)", address(this));
+        console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - address(this)", address(this));
         require(address(this) == _nunya_business_contract_address);
     }
 
@@ -220,7 +231,7 @@ contract NunyaBusiness is Ownable, Utils {
         fundGateway(100000); // TODO find out how much gas is needed to call customGateway.newSecretUser(_secret)
         uint256 requestId = customGateway.newSecretUser(_secret);
         expectedResult[requestId] = FunctionCallType.NEW_USER;
-        console.log("----- NunyaBusiness.sol newSecretUser requestId: ", requestId);
+        console.log("------ NunyaBusiness - newSecretUser requestId: ", requestId);
         return(requestId);
     }
 
@@ -346,11 +357,11 @@ contract NunyaBusiness is Ownable, Utils {
     }
 
     function fundGateway(uint256 keepGas) internal existsGateway returns (uint256) {
-        console.log("----- NunyaBusiness.sol fundGateway() keepGas: ", keepGas);
+        console.log("------ NunyaBusiness - fundGateway() keepGas: ", keepGas);
         uint256 txGas = 21000; // seems the default for a normal TX, TODO confirm
         require(keepGas <= 30000000, "Keep more than maximum per block?!");
         uint256 totalGasReserved = txGas + keepGas;
-        console.log("fundGateway", msg.value, totalGasReserved);
+        console.log("------ NunyaBusiness - fundGateway", msg.value, totalGasReserved);
         // require (msg.value >= totalGasReserved , string(abi.encodePacked("You need to send enough to cover the forward fees. Sent: ", uint2str(msg.value), " required for fees: ", uint2str(totalGasReserved))));
         require (msg.value >= totalGasReserved , "You need to send enough to cover the forward fees.");
         uint256 value = msg.value - totalGasReserved;
@@ -388,10 +399,10 @@ contract NunyaBusiness is Ownable, Utils {
     }
 
     fallback() external payable {
-        console.log("----- NunyaBusiness.sol fallback() msg.value:", msg.value);
+        console.log("------ NunyaBusiness - fallback() msg.value:", msg.value);
     }
 
     receive() external payable {
-        console.log("----- NunyaBusiness.sol receive() msg.value:", msg.value);
+        console.log("------ NunyaBusiness - receive() msg.value:", msg.value);
     }
 }

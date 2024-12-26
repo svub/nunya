@@ -227,8 +227,6 @@ nvm use
 yarn run secret:submitRequestValue
 ```
 
-* Note: `requestValue` alternative that goes via NunyaBusiness.sol is not working yet
-
 * Copy Localsecret logs from remote machine to local.  
 ```bash
 REMOTE_IP=172.105.184.209

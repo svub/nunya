@@ -542,7 +542,7 @@ cd SecretPath/TNLS-Relayers
   ```
   * Note: Configuration is stored in /root/.secretd/config/client.toml
   * Note: `keyring-backend` is where the keys are stored from possible options including: (os|file|kwallet|pass|test|memory)
-  * Note: We need the 300000uscrt to process the broadcast the `requestValue` transaction from the relayer, so give them more than that.
+  * Note: We need the 300000uscrt to process the broadcast the `submitRequestValue` transaction from the relayer, so give them more than that.
   * Note: If you forget to do this before running the relayer, then you might get error `[SCRT Interface: ERROR] Failed to fetch account info: HTTP 404`
   ```
   secretcli tx bank send secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03 secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg 100000000000000000uscrt -y
@@ -844,8 +844,6 @@ make store-nunya-contract-local
 		yarn run secret:submitRequestValue
 		```
 
-		* Note: `requestValue` alternative that goes via NunyaBusiness.sol is not working yet
-
 	* Copy Localsecret logs from remote machine to local.  
 		```bash
 		REMOTE_IP=172.105.184.209
@@ -858,18 +856,23 @@ make store-nunya-contract-local
 
 TODO
 
-#### Interact with Deployed Secret Contract via Deployed EVM Gateway to `requestValue` <a id="request-value"></a> 
+#### Interact with Deployed Secret Contract via Deployed EVM Gateway to `submitRequestValue` <a id="submit-request-value"></a> 
 
 ##### Localhost
 
-1. Script requestValue.ts
+* Record logs from Localsecret since the output is too long otherwise. Press CTRL+C to cancel when PostExecution occurs in Ethereum Local Network logs to indicate it has finished. 
   ```bash
-  yarn run secret:requestValue
+  docker logs -f secretdev | tee ~/nunya/docker.log
   ```
 
-  * View logs. Use console.log in Solidity
+1. Script submitRequestValue.ts
+	* Run end-to-end transaction
 
-  * FIXME: See unresolve error status in comments of ./nunya/packages/secret-contracts-scripts/src/evm/requestValue.ts
+		```bash
+		yarn run secret:submitRequestValue
+		```
+
+  * View logs. Use console.log in Solidity
 
   * Note: To quickly rebuild and redeploy if Solidity files get changed run the following:
     * Local machine
@@ -878,13 +881,11 @@ TODO
       SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/hardhat/contracts/Gateway.sol
       DESTINATION=/root/nunya/packages/hardhat/contracts/Gateway.sol
       scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
-      Gateway.sol
 
       REMOTE_IP=172.105.184.209
-      SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/evm/requestValue.ts
-      DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/evm/requestValue.ts
+      SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/submitRequestValue.ts
+      DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/submitRequestValue.ts
       scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
-      requestValue.ts
       ```
     * Remote server
       * Terminal 1
@@ -913,15 +914,15 @@ TODO
           ```
 
         ```
-        yarn run secret:setEVMGatewayAddress && yarn run secret:requestValue
+        yarn run secret:setEVMGatewayAddress && yarn run secret:submitRequestValue
         ```
       * View logs in both terminals
 
       * Add log outputs to:
-        * ./logs_secret/requestValueLocalhostEthereumLogs.log - Logs from the JavaScript in terminal where you run `yarn run secret:requestValue` 
-        * ./logs_secret/requestValueLocalhostRelayerLogs.log - Logs from Relayer
-        * ./logs_secret/requestValueLocalhostSecretLogs.log - Logs from Secret Network running locally
-        * ./logs_secret/requestValueLocalhostEthereumLogs.log - Logs from Ethereum Network running locally
+        * ./logs_secret/submitRequestValueLocalhostEthereumLogs.log - Logs from the JavaScript in terminal where you run `yarn run secret:submitRequestValue` 
+        * ./logs_secret/submitRequestValueLocalhostRelayerLogs.log - Logs from Relayer
+        * ./logs_secret/submitRequestValueLocalhostSecretLogs.log - Logs from Secret Network running locally
+        * ./logs_secret/submitRequestValueLocalhostEthereumLogs.log - Logs from Ethereum Network running locally
 
 2. Remix
   * If necessary, similar to how used with Testnet below
@@ -930,14 +931,14 @@ TODO
 
 Options:
 
-1. Script requestValue.ts
+1. Script submitRequestValue.ts
     ```bash
-    yarn run secret:requestValue
+    yarn run secret:submitRequestValue
     ```
 
-    * FIXME: Even if in requestValue.ts we provide a callbackGasLimit of 30000000, which is the block gas limit, in the `requestValue` function of Gateway.sol that gets called, it calculates that the `estimatedPrice` is `2400000000000000000` based on that `30000000`, but the msg.value is only `100000000000000`
-
 2. Remix
+
+* FIXME - the below is outdated and needs to be updated
 
 * Interact with the deployed Gateway EVM contract on Sepolia Ethereum
   * Open Remix https://remix.ethereum.org/

@@ -56,6 +56,10 @@ contract Gateway is Ownable, Utils, Base64 {
     string public routing_info = "";
     string public routing_code_hash = "";
 
+    // Note: Since contracts only have an address, but not public keys, where the addresses are
+    // derived from the address of the user (or other contract) that created them, which are in
+    // turn are derived from the public key of a normal user's keypair. So we will use the public
+    // key of the `owner` that created the Gateway contract.
     bytes public owner_public_key;
 
     bytes28 public nunyaAddressBase64 = encodeAddressToBase64(address(owner));
@@ -156,6 +160,8 @@ contract Gateway is Ownable, Utils, Base64 {
     /// @param data The address data to encode
     /// @return result The bytes28 encoded string
 
+    // Note - It may be only possible to call this function `encodeAddressToBase64` a few times
+    // in some functions, otherwise it generates error `Error: Transaction reverted without a reason`.
     function encodeAddressToBase64(address data) public pure returns (bytes28 result) {
         console.log("------ Gateway.encodeAddressToBase64");
         bytes memory table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -282,6 +288,14 @@ contract Gateway is Ownable, Utils, Base64 {
     /// @notice Emitted when the requestValue callback was fulfilled
     event FulfilledRequestValue(uint256 indexed requestId);
 
+    // Note: In this custom Gateway.sol, the NunyaBusiness contract address is provided as an argument in its
+    // constructor and set to be the `owner` in storage. Furthermore, we apply `onlyOwner` modifier to this
+    // function that restricts calls to only be allowed to come from a `msg.sender` that is the same as the `owner`.
+    // If it is `msg.sender` then it would allow a call to be made from anyone, even a "fake" NunyaBusiness contract
+    // if `onlyOwner` was removed.
+    // If the Gateway contract by the Secret team was used instead then we would need a way to upgrade that contract
+    // to allow us to set an `owner`-like value that could be used to restrict calls to functions like this.
+
     // Constructor
     constructor(address nunyaContractAddress, bytes memory deployerPublicKeyBytes) {
         // Initializer
@@ -363,7 +377,7 @@ contract Gateway is Ownable, Utils, Base64 {
 
     function send(
         bytes32 _payloadHash,
-        address _nunyaBusinessContractAddress,
+        address _userAddress,
         string calldata _routingInfo,
         ExecutionInfo calldata _info) 
         external payable returns (uint256 _taskId) {
@@ -372,9 +386,14 @@ contract Gateway is Ownable, Utils, Base64 {
     
         console.log("------ Gateway.send");
 
-        require(address(_nunyaBusinessContractAddress) == address(owner), "sender must be the owner of the deployed Gateway contract");
+        // TODO: Add constraints if permanent destination like the following so we can integrate into the public gateway
+        // if keccak256(_info.handle) == keccak256("request_value") {
+            // require(address(msg.sender) == address(owner), "sender must be the owner of the deployed Gateway contract");
 
-        address _userAddress = _nunyaBusinessContractAddress;
+            // Note: previously _userAddress was msg.sender, but customized for Nunya to be
+            // the deployed NunyaBusiness.sol contract address to be picked up by the relayer that listens to emitted logs
+            // address _userAddress = owner;
+        // }
 
         _taskId = taskId;
 
@@ -393,7 +412,7 @@ contract Gateway is Ownable, Utils, Base64 {
 
         // Payload hash verification
         require(ethSignedPayloadHash(_info.payload) == _payloadHash, "Invalid Payload Hash");
-        
+
         // TODO: Alternative: `tasks[taskId] = Task(sliceLastByte(payloadHash), false);`
         // Reference: https://github.com/SecretFoundation/Secretpath-tutorials/blob/master/encrypted-payloads/evm-contract/contracts/Gateway.sol#L381C9-L381C65
         //
@@ -404,8 +423,7 @@ contract Gateway is Ownable, Utils, Base64 {
         emit logNewTask(
             _taskId,
             getChainId(chain_id_1, chain_id_2, chain_id_3, chain_id_length),
-            // Note: previously _userAddress but customized for Nunya to be NunyaBusiness.sol
-            owner,
+            _userAddress,
             _routingInfo,
             _payloadHash,
             _info
@@ -512,273 +530,6 @@ contract Gateway is Ownable, Utils, Base64 {
         routing_code_hash = _routingCodeHash;
 
         return true;
-    }
-
-    /// @notice Request value from the deployed secret contract
-    /// @param _callbackSelector callback function to call in Secret contract as argument
-    /// @param _callbackGasLimit The gas limit for the callback
-    /// @return requestId The request ID
-
-    function requestValue(uint256 _callbackSelector, uint32 _callbackGasLimit) external payable onlyOwner returns (uint256 requestId) {
-        console.log("------ Gateway.requestValue");
-
-        // Note - It is only possible to call this function `encodeAddressToBase64` three times
-        // in this function, otherwise it generates error `Error: Transaction reverted without a reason`.
-        // bytes28 senderAddressBase64 = encodeAddressToBase64(msg.sender);
-
-        requestId = taskId;
-
-        // TODO: optionally add guard to verify value of _callbackSelector if necessary
-
-        uint256 estimatedPrice = estimateRequestPrice(_callbackGasLimit);
-        console.log("------ Gateway.requestValue - _callbackGasLimit: ", _callbackGasLimit);
-        console.log("------ Gateway.requestValue - estimatedPrice: ", estimatedPrice);
-        console.log("------ Gateway.requestValue - msg.value: ", msg.value);
-
-        // Refund any excess gas paid beyond the estimated price
-        if (msg.value > estimatedPrice) {
-            payable(tx.origin).transfer(msg.value - estimatedPrice);
-        } else {
-            // If not enough gas was paid, revert the transaction
-            require(msg.value >= estimatedPrice, "Paid Callback Fee Too Low");
-        }
-
-        // secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg
-        // Note: Find the public key from the account_info in the Relayer logs
-        // '/cosmos.crypto.secp256k1.PubKey', 'key':
-        // Encode A4K+MyJNnNcdt78SncjhArLWNnDRHapkZFsemjmf9/7A to base64:
-        //   QTRLK015Sk5uTmNkdDc4U25jamhBckxXTm5EUkhhcGtaRnNlbWptZjkvN0E=
-        // bytes memory userKey = bytes.concat("A4K+MyJNnNcdt78SncjhArLWNnDRHapkZFsemjmf9/7A");
-        // bytes memory userKey = bytes.concat("QTRLK015Sk5uTmNkdDc4U25jamhBckxXTm5EUkhhcGtaRnNlbWptZjkvN0E=");
-        //
-        // 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-        // Hex value of `owner_public_key` is: 0x038318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed75
-        // In base64 it is A4MYU1tUEF1Keq5gwI/EX5aHGBtP38YlvRp1P6c5f+11
-        // bytes memory userKey = bytes.concat(owner_public_key);
-
-        // secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg
-        // note: used as the 'admin' when instantiating the Secret Gateway
-        // hex equivalent: 0382be33224d9cd71db7bf129dc8e102b2d63670d11daa64645b1e9a399ff7fec0
-        bytes memory userKey = bytes.concat("A4K+MyJNnNcdt78SncjhArLWNnDRHapkZFsemjmf9/7A");
-
-        // Output of encodePayload.ts `user_pubkey`
-        // 0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5
-        // base64: BIMYU1tUEF1Keq5gwI/EX5aHGBtP38YlvRp1P6c5f+11NUfxHKhpZkby86ywjjEBavrCPmMMXRH1n2H+9XsNKqU=
-        bytes memory userPubkey = bytes.concat("BIMYU1tUEF1Keq5gwI/EX5aHGBtP38YlvRp1P6c5f+11NUfxHKhpZkby86ywjjEBavrCPmMMXRH1n2H+9XsNKqU=");
-
-        // Note: Since contracts only have an address, but not public keys, where the
-        // addresses are derived from the address of the user (or other contract) that
-        // created them, which are in turn are derived from the public key of a normal
-        // user's keypair. So we will use the public key of the `owner` that created the
-        // Gateway contract.
-        //
-        // Note: In this custom Gateway.sol, the NunyaBusiness contract address is provided as an argument in its
-        // constructor and set to be the `owner` in storage. Furthermore, we apply `onlyOwner` modifier to this
-        // function that restricts calls to only be allowed to come from a `msg.sender` that is the same as the `owner`.
-        // If it is `msg.sender` then it would allow a call to be made from anyone, even a "fake" NunyaBusiness contract
-        // if `onlyOwner` was removed.
-        // If the Gateway contract by the Secret team was used instead then we would need a way to upgrade that contract
-        // to allow us to set an `owner`-like value that could be used to restrict calls to functions like this.
-        bytes memory payload_info = abi.encodePacked(
-            '}","routing_info":"',routing_info,
-            '","routing_code_hash":"',routing_code_hash,
-            // '","user_address":"',address(owner), // Invalid unicode code point.
-            '","user_address":"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // What is `address(msg.sender)`?
-            // '","user_key":"',owner_public_key,
-            // https://github.com/SecretSaturn/SecretPath/blob/main/TNLS-Gateways/secret/tests/integration.ts#L340
-            // Note: `user_key` must be base64 value
-            '","user_key":"',userKey,
-            // Note: `callback_address` must be base64 value
-            '","callback_address":"'
-            // '","user_address":"0x0000","user_key":"AAA=","callback_address":"'
-        );
-        console.log("------ Gateway.requestValue - msg.sender: ", msg.sender);
-        console.log("------ Gateway.requestValue - payload_info: ", payload_info);
-
-        // uint32 _myArg = 123;
-        //construct the payload that is sent into the Secret Gateway
-        // FIXME: Error parsing into type secret_gateway::types::Payload: Invalid unicode code point.: execute contract failed
-        // FIXME: Expected this character to be either a `','` or a `'}'`
-        bytes memory payload = bytes.concat(
-            '{"data":"{\\"myArg\\":',
-            uint256toBytesString(123),
-            payload_info,
-            // callback_address in this example is the EVM Gateway address (the `publicClientAddress`)
-            // but our callback_selector is in NunyaBusiness.sol so we need to use that instead.
-            // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/usecases/vrf/using-encrypted-payloads-for-vrf#defining-variables
-            // Note: `callback_address` must be base64 value
-            nunyaAddressBase64, //callback_address
-            // callback selector should be a hex value already converted into base64 to be used
-            // as callback_selector of the request_value function in the Secret contract
-            // FIXME: Error parsing into type secret_gateway::types::Payload: invalid base64: 259716626: execute contract failed
-            // '","callback_selector":"',uint256toBytesString(_callbackSelector),
-            // Note: `callback_address` must be base64 value
-            // Note: fulfilledValueCallback - 0x0f7af612 hex, D3r2Eg== base64. Example: fulfillRandomWords - 0x38ba4614 hex, OLpGFA== base64
-            '","callback_selector":"D3r2Eg==","callback_gas_limit":',uint256toBytesString(_callbackGasLimit),
-            '}'
-        );
-
-        // FIXME: This should be a random nonce and generated similar to
-        // how it is generated in encryptPayload.ts using `window.crypto.getRandomValues(bytes(12))`
-        uint256 _newNonce = nonce + 1;
-        increaseNonce(_newNonce);
-        console.log("------ Gateway.requestValue - _newNonce: ", _newNonce);
-
-        //generate the payload hash using the ethereum hash format for messages
-        bytes32 payloadHash = ethSignedPayloadHash(payload);
-        console.log("------ Gateway.requestValue - payloadHash: ", payloadHash);
-
-        // FIXME: Even though we have generated the payloadHash, we haven't done it using the
-        // `sharedKey` that would be generated using generateKeys.ts, the same way we have done that
-        // in encryptPayload.ts, but neither of those TypeScript files are being used to provide inputs
-        // to this `requestValue` function, as they are only being used in the submitReqestValue.ts
-        // script that calls the `send` function in the Gateway.sol directly and does the encryption
-        // in TypeScript before sending the transaction to call `send`.
-        // It may be necessary to provide the `sharedKey` and `nonce` encrypted into this `requestValue` function
-        // and use them to generate the payload, but then we may as well just prepare all the
-        // relevant information in TypeScript and send it via NunyaBusiness to `send`.
-        
-        // FIXME: How to generate payloadSignature??
-        // We should be providing it to the smart contract and verifying it is valid here
-        // https://ethereum.stackexchange.com/questions/24367/is-it-possible-to-sign-a-message-in-solidity
-        const payloadSignature = ...
-
-        // FIXME: Do not know how to recover public key using Solidity this way,
-        // only know how to do it in TypeScript.
-        uint256 userPubkeyRecovered = recoverPublicKey(payloadHash, payloadSignature);
-
-        bytes memory emptyBytes = hex"0000"; // equals AAA= in base64
-
-        // ExecutionInfo struct
-        ExecutionInfo memory executionInfo = ExecutionInfo({
-            // Note: `user_key` and `user_pubkey` here are in bytes, NOT base64 like in the `payload`
-            user_key: userKey, // emptyBytes,
-            // user_pubkey: uint256toBytesString(userPubkeyRecovered),
-            // Refer to ./packages/secret-contracts/secret-gateway/src/msg.rs that shows
-            // what to use for `user_key` and `user_pubkey`, as they are different
-            user_pubkey: userPubkey, // emptyBytes,
-            routing_code_hash: routing_code_hash, // custom contract codehash on Secret 
-            task_destination_network: task_destination_network,
-            handle: "request_value",
-            nonce: bytes12(toBytes(_newNonce)),
-            callback_gas_limit: _callbackGasLimit,
-            payload: payload,
-            // FIXME: add a payload signature, as it `payloadHash` is incorrect
-            // Signature of hash of encrypted input values
-            // payload_signature: emptyBytes // empty signature, fill with 0 bytes
-            payload_signature: bytes32ToBytes(payloadHash)
-        });
-
-        // persisting the task
-        tasks[requestId] = Task(bytes31(payloadHash), false);
-
-        //emit the task to be picked up by the relayer
-        emit logNewTask(
-            requestId,
-            getChainId(chain_id_1, chain_id_2, chain_id_3, chain_id_length),
-            tx.origin,
-            routing_info, // custom contract address on Secret 
-            payloadHash,
-            executionInfo
-        );
-
-        //Output the current task_id / request_id to the user and increase the taskId to be used in the next gateway call. 
-        taskId = requestId + 1;
-
-        return taskId;
-    }
-
-    /// @notice Retrieves public key of the deployed secret contract
-    /// @param _callbackSelector callback function to call in Secret contract as argument
-    /// @param _callbackGasLimit The gas limit for the callback
-    /// @return requestId The request ID for the random words
-
-    function retrievePubkey(uint256 _callbackSelector, uint32 _callbackGasLimit) external payable onlyOwner returns (uint256 requestId) {
-        console.log("------ Gateway.retrievePubkey");
-
-        requestId = taskId;
-
-        // TODO: optionally add guard to verify value of _callbackSelector if necessary
-
-        uint256 estimatedPrice = estimateRequestPrice(_callbackGasLimit);
-        console.log("------ Gateway.retrievePubkey - _callbackGasLimit: ", _callbackGasLimit);
-        console.log("------ Gateway.retrievePubkey - estimatedPrice: ", estimatedPrice);
-        console.log("------ Gateway.retrievePubkey - msg.value: ", msg.value);
-
-        // Refund any excess gas paid beyond the estimated price
-        if (msg.value > estimatedPrice) {
-            payable(tx.origin).transfer(msg.value - estimatedPrice);
-        } else {
-            // If not enough gas was paid, revert the transaction
-            require(msg.value >= estimatedPrice, "Paid Callback Fee Too Low");
-        }
-
-        bytes memory userKey = bytes.concat("A4MYU1tUEF1Keq5gwI/EX5aHGBtP38YlvRp1P6c5f+11");
-
-        // Note: Since contracts only have an address, but not public keys, where the
-        // addresses are derived from the address of the user (or other contract) that
-        // created them, which are in turn are derived from the public key of a normal
-        // user's keypair. So we will use the public key of the `owner` that created the
-        // Gateway contract.
-        //
-        // TODO: We will use the base64 value for both the value of the `user_key` and
-        // the `user_pubkey`, but they should be different and `user_key` suggested to
-        // be base64 (e.g. `AAA=`)
-        bytes memory payload_info = abi.encodePacked(
-            '}","routing_info":"', routing_info,
-            '","routing_code_hash":"', routing_code_hash,
-            '","user_address":"', address(msg.sender),
-            '","user_key":"', userKey,
-            '","callback_address":"'
-        );
-
-        //construct the payload that is sent into the Secret Gateway
-        bytes memory payload = bytes.concat(
-            '{"data":"{\\"callbackSelector\\":',
-            uint256toBytesString(_callbackSelector),
-            payload_info,
-            nunyaAddressBase64, //callback_address
-            '","callback_selector":"OLpGFA==","callback_gas_limit":', // 0x38ba4614 hex value already converted into base64, callback_selector of the fulfillRandomWords function
-            uint256toBytesString(_callbackGasLimit),
-            '}' 
-        );
-
-        uint256 _newNonce = nonce + 1;
-        increaseNonce(_newNonce);
-
-        //generate the payload hash using the ethereum hash format for messages
-        bytes32 payloadHash = ethSignedPayloadHash(payload);
-
-        bytes memory emptyBytes = hex"0000";
-
-        // ExecutionInfo struct
-        ExecutionInfo memory executionInfo = ExecutionInfo({
-            user_key: emptyBytes, // equals AAA= in base64
-            user_pubkey: emptyBytes, // Fill with 0 bytes
-            routing_code_hash: routing_code_hash, // custom contract codehash on Secret 
-            task_destination_network: task_destination_network,
-            handle: "retrieve_pubkey",
-            nonce: bytes12(toBytes(_newNonce)),
-            callback_gas_limit: _callbackGasLimit,
-            payload: payload,
-            payload_signature: emptyBytes // empty signature, fill with 0 bytes
-        });
-
-        // persisting the task
-        tasks[requestId] = Task(bytes31(payloadHash), false);
-
-        //emit the task to be picked up by the relayer
-        emit logNewTask(
-            requestId,
-            getChainId(chain_id_1, chain_id_2, chain_id_3, chain_id_length),
-            tx.origin,
-            routing_info, // custom contract address on Secret 
-            payloadHash,
-            executionInfo
-        );
-
-        //Output the current task_id / request_id to the user and increase the taskId to be used in the next gateway call. 
-        taskId = requestId + 1;
     }
 
     function newSecretUser(string calldata secret) public pure returns (uint256) {
