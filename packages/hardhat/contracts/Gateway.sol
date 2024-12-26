@@ -510,7 +510,7 @@ contract Gateway is Ownable, Utils, Base64 {
             emit FulfilledRequestValue(_taskId);
         }
         // fulfilledSecretContractPubkeyCallback == 0xf5a66c73
-        else if (_info.callback_selector == 0xf5a66c73 {
+        else if (_info.callback_selector == 0xf5a66c73) {
         console.log("------ Gateway.postExecution - callback_selector == 0xf5a66c73");
             (callbackSuccessful, ) = address(_info.callback_address).call(
                 prepareResultBytesToCallbackData(_info.callback_selector, _taskId, _info.result));
