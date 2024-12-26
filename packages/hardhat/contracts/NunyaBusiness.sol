@@ -200,8 +200,8 @@ contract NunyaBusiness is Ownable, Utils {
     // TODO: Add other args to doc comments: _key Public key of the custom Secret contract deployed on the Secret network
     function fulfilledSecretContractPubkeyCallback (uint256 _requestId, bytes calldata data) external onlyGateway {
     // function fulfilledSecretContractPubkeyCallback (uint256 _requestId, uint256 _key, uint16 _code, address _nunya_business_contract_address) public onlyGateway validateRequest(_requestId, FunctionCallType.GET_KEY) {
-        console.log("------ NunyaBusiness - fulfilledValueCallback - _requestId: ", _requestId);
-        console.log("------ NunyaBusiness - fulfilledValueCallback - data.length: ", data.length);
+        console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - _requestId: ", _requestId);
+        console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - data.length: ", data.length);
 
         emit FulfilledPubkey(_requestId, data);
 
