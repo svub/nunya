@@ -235,7 +235,6 @@ contract Gateway is Ownable, Utils, Base64 {
     /// @return result The calldata for the returned data
 
     function prepareResultBytesToCallbackData(bytes4 callback_selector, uint256 _taskId, bytes calldata data) public pure returns (bytes memory result) {
-        console.log("------ Gateway.prepareResultBytesToCallbackData - callback_selector: ", callback_selector);
         console.log("------ Gateway.prepareResultBytesToCallbackData - _taskId: ", _taskId);
         console.log("------ Gateway.prepareResultBytesToCallbackData - data.length: ", data.length);
         assembly {
@@ -491,8 +490,6 @@ contract Gateway is Ownable, Utils, Base64 {
 
         // Additional conversion if callback_selector matches
         bool callbackSuccessful;
-
-        console.log("------ Gateway.postExecution - callback_selector: ", _info.callback_selector);
 
         // case where callback_selector is the fulfillRandomWords function
         if (_info.callback_selector == 0x38ba4614) {
