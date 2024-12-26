@@ -147,7 +147,7 @@ async function unsafeSubmitRequestValue() {
     nextNonceNum,
   );
 
-  const functionName = "send";
+  const functionName = "unsafeRequestValue";
   const functionData = ifaceGateway.encodeFunctionData(functionName, [
     payloadHash,
     // FIXME: Try changing this to `myAddress` to see if it resolves the
@@ -239,7 +239,7 @@ async function unsafeSubmitRequestValue() {
   // TODO: should the `gasLimit` and/or `value` instead be `hexlify(amountOfGas)`?
   const txParamsSend = {
     from: myAddress,
-    to: publicClientAddress,
+    to: nunyaBusinessContractAddress,
     value: ethers.utils.parseEther("2.5000"), // 0.0001 ETH = 100000 Gwei
     gasLimit: callbackGasLimit, // 30000000 is the block gas limit
     gasPrice: hexlify(my_gas),
