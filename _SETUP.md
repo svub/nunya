@@ -842,6 +842,7 @@ make store-nunya-contract-local
 		cd ~/nunya
 		nvm use
 		yarn run secret:submitRequestValue
+    yarn run secret:submitRequestPubkey
 		```
 
 	* Copy Localsecret logs from remote machine to local.  
@@ -870,6 +871,7 @@ TODO
 
 		```bash
 		yarn run secret:submitRequestValue
+    yarn run secret:submitRequestPubkey
 		```
 
   * View logs. Use console.log in Solidity
@@ -915,6 +917,7 @@ TODO
 
         ```
         yarn run secret:setEVMGatewayAddress && yarn run secret:submitRequestValue
+        yarn run secret:submitRequestPubkey
         ```
       * View logs in both terminals
 
@@ -934,6 +937,7 @@ Options:
 1. Script submitRequestValue.ts
     ```bash
     yarn run secret:submitRequestValue
+    yarn run secret:submitRequestPubkey
     ```
 
 2. Remix

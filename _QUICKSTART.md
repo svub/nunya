@@ -225,6 +225,7 @@ docker logs -f secretdev | tee ~/nunya/docker.log
 cd ~/nunya
 nvm use
 yarn run secret:submitRequestValue
+yarn run secret:submitRequestPubkey
 ```
 
 * Copy Localsecret logs from remote machine to local.  
@@ -233,6 +234,11 @@ REMOTE_IP=172.105.184.209
 SOURCE=/root/nunya/docker.log
 DESTINATION=/Users/luke/code/clones/github/svub/nunya
 scp -r root@$REMOTE_IP:$SOURCE $DESTINATION
+```
+
+* Decode the base64 `result` value (e.g. `eyJ...n0=\` from Localsecret logs at https://base64.guru/converter/decode/text
+```
+INFO  [enclave_contract_engine::wasm3] debug_print: "msg: PostExecutionMsg {\n    result: \"eyJfcmVxdWVzdF9pZCI6eyJuZXR3b3JrIjoiMzEzMzciLCJ0YXNrX2lkIjoiNCJ9LCJfa2V5IjpbMiwyNTEsMTg4LDE0MywxNjMsMTExLDM0LDE1OCwxNjcsODIsMTE1LDE4OSwyNSwyMzksMTcyLDEyNiw4LDY3LDIzMCwxMzgsNTAsNzcsODEsMTEzLDEyMiwyMDEsNzYsMjE5LDI0Myw1NSwxMzQsMjE0LDg2XSwiX2NvZGUiOjAsIl9udW55YV9idXNpbmVzc19jb250cmFjdF9hZGRyZXNzIjoiMHhBRkZGMzExODIxQzNGM0FGODYzQzcxMDNCQjE3QkRDMUJhMDQ2MDNEIn0=\"
 ```
 
 ### Notes

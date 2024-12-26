@@ -13,8 +13,7 @@ async function unsafeSubmitRequestValue() {
     callbackGasLimitAmount: 30000000,
   }
 
-  const res = await requestNunya(params);
-  console.log("res: ", res);
+  await requestNunya(params);
 }
 
 async function main() {

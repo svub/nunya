@@ -77,6 +77,7 @@ export const requestNunya = async (params: RequestParams) => {
     // requestValue - 0xb6c2b131
     // fulfillRandomWords - 0x38ba4614 hex, OLpGFA== base64
     // fulfilledValueCallback - 0x0f7af612
+    // fulfilledSecretContractPubkeyCallback - 0xf5a66c73 hex, 9aZscw== base64
     ifaceNunya.getFunction(callbackSelectorName)
   );
   console.log("callbackSelector: ", callbackSelector);
