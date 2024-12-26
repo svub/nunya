@@ -141,14 +141,14 @@ async function unsafeSubmitRequestValue() {
     routing_code_hash,
     handle,
     callbackGasLimit,
-    ifaceGateway,
+    ifaceNunya,
     callbackSelector,
     taskDestinationNetwork,
     nextNonceNum,
   );
 
   const functionName = "unsafeRequestValue";
-  const functionData = ifaceGateway.encodeFunctionData(functionName, [
+  const functionData = ifaceNunya.encodeFunctionData(functionName, [
     payloadHash,
     // FIXME: Try changing this to `myAddress` to see if it resolves the
     // `IncorrectSignature` error https://github.com/svub/nunya/issues/48
