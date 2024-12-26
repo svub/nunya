@@ -3,7 +3,7 @@ dotenv.config();
 import { requestNunya } from "./requestNunya.js";
 import { RequestParams } from "./types/index.js";
 
-async function unsafeSubmitRequestPubkey() {
+async function unsafeSubmitRetrievePubkey() {
   const params: RequestParams = {
     requestFunctionName: "unsafeRequestSecretContractPubkey",
     requestEthValue: "2.5000",
@@ -18,7 +18,7 @@ async function unsafeSubmitRequestPubkey() {
 }
 
 async function main() {
-  await unsafeSubmitRequestPubkey();
+  await unsafeSubmitRetrievePubkey();
 }
 
 main().catch((error) => {

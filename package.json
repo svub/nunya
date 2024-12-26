@@ -46,7 +46,7 @@
     "secret:queryPubkey": "yarn workspace secret-contracts-scripts queryPubkey",
     "secret:querySecretGatewayPubkey": "yarn workspace secret-contracts-scripts querySecretGatewayPubkey",
     "secret:submitRequestValue": "yarn workspace secret-contracts-scripts submitRequestValue",
-    "secret:submitRequestPubkey": "yarn workspace secret-contracts-scripts submitRequestPubkey",
+    "secret:submitRetrievePubkey": "yarn workspace secret-contracts-scripts submitRetrievePubkey",
     "secret:upload": "yarn workspace secret-contracts-scripts upload",
     "secret:instantiate": "yarn workspace secret-contracts-scripts instantiate",
     "secret:uploadGateway": "yarn workspace secret-contracts-scripts uploadGateway",

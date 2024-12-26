@@ -225,7 +225,7 @@ docker logs -f secretdev | tee ~/nunya/docker.log
 cd ~/nunya
 nvm use
 yarn run secret:submitRequestValue
-yarn run secret:submitRequestPubkey
+yarn run secret:submitRetrievePubkey
 ```
 
 * Copy Localsecret logs from remote machine to local.  
