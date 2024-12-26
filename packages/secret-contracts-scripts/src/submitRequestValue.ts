@@ -5,18 +5,16 @@ dotenv.config();
 import { ethers, Wallet } from "ethers";
 import { NonceManager } from "@ethersproject/experimental";
 import config from './config/deploy.js';
-import { ecdh, chacha20_poly1305_seal } from "@solar-republic/neutrino";
-import { bytes, bytes_to_base64, json_to_bytes, sha256, concat, text_to_bytes, base64_to_bytes } from "@blake.regalia/belt";
 import gatewayAbi from "../../hardhat/artifacts/contracts/Gateway.sol/Gateway.json" assert { type: "json" };
 import nunyaAbi from "../../hardhat/artifacts/contracts/NunyaBusiness.sol/NunyaBusiness.json" assert { type: "json" };
 import { generateKeys } from "./functions/secretpath/generateKeys.js";
 // import getPublicClientAddress from "./functions/secretpath/getPublicClientAddress.js";
 import { constructPayload } from "./functions/secretpath/constructPayload.js";
 import { encryptPayload } from "./functions/secretpath/encryptPayload.js";
-import { arrayify, hexlify, SigningKey, keccak256, recoverPublicKey, computeAddress } from "ethers/lib/utils.js";
+import { hexlify } from "ethers/lib/utils.js";
 import { assert } from "console";
 
-const { chainId: secretChainId, secretNunya: { nunyaContractCodeId, nunyaContractAddress, nunyaContractCodeHash } } =
+const { chainId: secretChainId, secretNunya: { nunyaContractAddress, nunyaContractCodeHash } } =
   config.secret.network == "testnet"
   ? config.secret.testnet
   : config.secret.localhost;
@@ -31,15 +29,12 @@ if (config.evm.network == "sepolia") {
 }
 const { chainId: evmChainId, endpoint, nunyaBusinessContractAddress, gatewayContractAddress, privateKey } = vars;
 
-const SECRET_ADDRESS = nunyaContractAddress;
-const CONTRACT_CODE_HASH = nunyaContractCodeHash;
-
 async function unsafeRequestValue() {
   const ifaceGateway = new ethers.utils.Interface(gatewayAbi.abi);
   const ifaceNunya = new ethers.utils.Interface(nunyaAbi.abi);
 
-  const routing_contract = SECRET_ADDRESS;
-  const routing_code_hash = CONTRACT_CODE_HASH;
+  const routing_contract = nunyaContractAddress;
+  const routing_code_hash = nunyaContractCodeHash;
   
   if (!privateKey) {
     console.log("🚫️ You don't have a deployer account. Run `yarn hardhat:generate` first");
@@ -66,7 +61,6 @@ async function unsafeRequestValue() {
 
   const response: any = await generateKeys();
   console.log('response: ', response);
-  // // FIXME: Hard-coded values used for Localsecret Gateway public key in ./packages/secret-contracts-scripts/src/config/deploy.ts
   const { userPublicKey, userPrivateKeyBytes, userPublicKeyBytes, sharedKey }: any = response;
 
   const nunyaContract = new ethers.Contract(nunyaBusinessContractAddress, ifaceNunya, managedSigner);
@@ -117,10 +111,18 @@ async function unsafeRequestValue() {
   );
   console.log("payload: ", JSON.stringify(payload, null, 2));
 
+  // FIXME: Should we still increment the nonce and use this
+  // in the `tx_params`?
+  // It shouldn't be passed to `encryptPayload` since
+  // that function should generate a random nonce, so consider
+  // removing that `encryptPayload` argument and just generate
+  // the nonce that is used there with `crypto.getRandomValues(bytes(12))`
+  //
+  // Similarly, the `_newNonce` used in `requestValue` that is called
+  // by requestValue.ts should be random too instead of incremented.
+  // The equivalent to `_info` in Gateway.sol is `executionInfo`. 
   let nextNonceNum = lastNonce + 1;
 
-  // TODO: temporarily skip the below that encrypts the payload until resolve
-  // https://github.com/blake-regalia/belt/issues/1
   const {
     ciphertext,
     payloadHash,
@@ -130,6 +132,11 @@ async function unsafeRequestValue() {
     payload,
     sharedKey,
     provider,
+    // FIXME: Why is this value for `myAddress` that is included
+    // for encrypting the payload different from the `myAddress`
+    // value that is included in `functionData` later. Could this
+    // be the cause of InvalidSignature error?
+    // https://github.com/svub/nunya/issues/48
     myAddress,
     userPublicKeyBytes,
     routing_code_hash,
@@ -141,24 +148,10 @@ async function unsafeRequestValue() {
     nextNonceNum,
   );
 
-//   // TODO - temporary only but remove after resolve
-//   // https://github.com/blake-regalia/belt/issues/1
-
-  // // Note: This approach differs from how we do it in encryptPayload.ts and returns
-  // const message = text_to_bytes("\x19Ethereum Signed Message:\n32");
-  // const signature = await managedSigner.signMessage(message);
-  // const userAddress = await managedSigner.getAddress();
-  // console.log("signature: ", signature);
-  // console.log("userAddress: ", userAddress);
-  // console.log("userPublicKey: ", userPublicKey);
-  // const signerAddress = await ethers.utils.verifyMessage(message, signature);
-  // console.log('signerAddress: ', signerAddress);
-  // if (signerAddress !== userAddress) {
-  //   throw("Error: signer address is not equal to user address")
-  // }
-
   const functionData = ifaceGateway.encodeFunctionData("send", [
     payloadHash,
+    // FIXME: Try changing this to `myAddress` to see if it resolves the
+    // `IncorrectSignature` error https://github.com/svub/nunya/issues/48
     nunyaBusinessContractAddress, // myAddress,
     routing_contract,
     _info,

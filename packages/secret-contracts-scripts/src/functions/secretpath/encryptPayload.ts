@@ -89,6 +89,7 @@ export async function encryptPayload(
   console.log("ciphertext: ", ciphertext);
   const ciphertextHash = keccak256(ciphertext);
   const message = text_to_bytes("\x19Ethereum Signed Message:\n32");
+  // Similar to `ethSignedPayloadHash` in Gateway.sol
   const payloadHash = keccak256(
     concat([
       message,
@@ -107,6 +108,7 @@ export async function encryptPayload(
   const user_pubkey_base64 = bytes_to_base64(secp.etc.hexToBytes(user_pubkey.slice(2)));
   console.log("user_pubkey_base64: ", user_pubkey_base64);
 
+  // The equivalent in Gateway.sol is `executionInfo`. 
   const _info = {
     user_key: hexlify(userPublicKeyBytes),
     user_pubkey: user_pubkey,

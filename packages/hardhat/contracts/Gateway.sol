@@ -58,7 +58,7 @@ contract Gateway is Ownable, Utils, Base64 {
 
     bytes public owner_public_key;
 
-    bytes28 public gatewayAddressBase64 = encodeAddressToBase64(address(this));
+    bytes28 public nunyaAddressBase64 = encodeAddressToBase64(address(owner));
 
     /*//////////////////////////////////////////////////////////////
                               Structs
@@ -111,7 +111,9 @@ contract Gateway is Ownable, Utils, Base64 {
                               Helpers
     //////////////////////////////////////////////////////////////*/
 
-   function ethSignedPayloadHash(bytes memory payload) public pure returns (bytes32 payloadHash) {
+    // Note: Why isn't a random nonce used to generate this, similar to how that
+    // is done in encryptPayload.ts to generate the payloadHash there?
+    function ethSignedPayloadHash(bytes memory payload) public pure returns (bytes32 payloadHash) {
         assembly {
             // Take scratch memory for the data to hash
             let data := mload(0x40)
@@ -230,13 +232,17 @@ contract Gateway is Ownable, Utils, Base64 {
         console.log("------ Gateway.prepareResultBytesToCallbackData - _taskId: ", _taskId);
         console.log("------ Gateway.prepareResultBytesToCallbackData - data.length: ", data.length);
         assembly {
-            result := mload(0x40) 
-            mstore(result, add(100, data.length))
-            mstore(add(result, 32), callback_selector)
-            mstore(add(result, 36), _taskId)
-            mstore(add(result, 68), 0x40)
-            mstore(add(result, 100), data.length) 
+            result := mload(0x40) // Set `result` to point to the free memory pointer
+            mstore(result, add(100, data.length)) // Update the free memory pointer
+            mstore(add(result, 32), callback_selector) // Load `callback_selector` and store at `result` + 32
+            mstore(add(result, 36), _taskId) // Load `_taskId` and store at `result` + 36
+            mstore(add(result, 68), 0x40) // Load `0x40` (free memory pointer) and store at `result` + 68
+            mstore(add(result, 100), data.length) // Load `data.length` and store at `result` + 100
+            // Directly copy data from the transaction's call data (read only)
+            // that was the input data sent with the call into memory
             calldatacopy(add(result, 132), data.offset, data.length)
+            // Update the free memory pointer with that
+            // loaded from `data.length` and stored at `result` + 132 bytes
             mstore(0x40, add(add(result, 132), data.length))
         }
     }
@@ -549,56 +555,22 @@ contract Gateway is Ownable, Utils, Base64 {
         // Hex value of `owner_public_key` is: 0x038318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed75
         // In base64 it is A4MYU1tUEF1Keq5gwI/EX5aHGBtP38YlvRp1P6c5f+11
         // bytes memory userKey = bytes.concat(owner_public_key);
-        //
-        // INFO  [enclave_contract_engine::wasm3] debug_print: "Decryption failed: GenericErr {\n    msg: \"malformed public key\",\n}"
-        // INFO  [enclave_contract_engine::wasm3] debug_print: "verify the internal verification key matches the user address"
-        // INFO  [enclave_contract_engine::wasm3] debug_print: "msg.user_key: Binary(41344d59553174554546314b6571356777492f4558356148474274503338596c7652703150366335662b3131)"
-        // INFO  [enclave_contract_engine::wasm3] debug_print: "payload.user_key: Binary(038318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed75)"
-        
+
         // secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg
         // note: used as the 'admin' when instantiating the Secret Gateway
         // hex equivalent: 0382be33224d9cd71db7bf129dc8e102b2d63670d11daa64645b1e9a399ff7fec0
         bytes memory userKey = bytes.concat("A4K+MyJNnNcdt78SncjhArLWNnDRHapkZFsemjmf9/7A");
 
-        // 04d0ce1bd101c1a2a130185e4c63d1d7091db9ab0dca3c651998d314a1550323c02649b0960b00bb1fac896aaf4056abb605e87d55ec1805a91ddb3e32c6b89c36
-        // base64 value: BNDOG9EBwaKhMBheTGPR1wkduasNyjxlGZjTFKFVAyPAJkmwlgsAux+siWqvQFartgXofVXsGAWpHds+Msa4nDY=
-        // bytes memory userKey = bytes.concat(encode(hex"04d0ce1bd101c1a2a130185e4c63d1d7091db9ab0dca3c651998d314a1550323c02649b0960b00bb1fac896aaf4056abb605e87d55ec1805a91ddb3e32c6b89c36"));
-        // bytes memory userKey = bytes.concat("BNDOG9EBwaKhMBheTGPR1wkduasNyjxlGZjTFKFVAyPAJkmwlgsAux+siWqvQFartgXofVXsGAWpHds+Msa4nDY=");
-
-        // 04d0ce1bd101c1a2a130185e4c63d1d7091db9ab0dca3c651998d314a1550323c02649b0960b00bb1fac896aaf4056abb605e87d55ec1805a91ddb3e32c6b89c36
-        // bytes memory gatewayContractPubkey = hex"04d0ce1bd101c1a2a130185e4c63d1d7091db9ab0dca3c651998d314a1550323c02649b0960b00bb1fac896aaf4056abb605e87d55ec1805a91ddb3e32c6b89c36";
-
-        // 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-        // Hex value of `owner_public_key` is: 0x038318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed75
-        // bytes memory userPubkey = hex"038318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed75";
-
-        // FIXME: Probably wrong, it should be generated like this https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/usecases/vrf/using-encrypted-payloads-for-vrf#signing-the-payload-with-metamask
-        // and likely different from `userKey`
         // Output of encodePayload.ts `user_pubkey`
         // 0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5
         // base64: BIMYU1tUEF1Keq5gwI/EX5aHGBtP38YlvRp1P6c5f+11NUfxHKhpZkby86ywjjEBavrCPmMMXRH1n2H+9XsNKqU=
         bytes memory userPubkey = bytes.concat("BIMYU1tUEF1Keq5gwI/EX5aHGBtP38YlvRp1P6c5f+11NUfxHKhpZkby86ywjjEBavrCPmMMXRH1n2H+9XsNKqU=");
-
-        // Gateway contract public key
-        // Generated from ./packages/secret-contracts-scripts/src/functions/secretpath/generateKeys.ts
-        // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        // converted to base64: QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUE=
-
-        // INFO  [enclave_contract_engine::wasm3] debug_print: "Decryption failed: GenericErr {\n    msg: \"malformed public key\",\n}"
-        // INFO  [enclave_contract_engine::wasm3] debug_print: "verify the internal verification key matches the user address"
-        // INFO  [enclave_contract_engine::wasm3] debug_print: "msg.user_key: Binary(4141414141414141414141414141414141414141414141414141414141414141414141414141414141414141)"
-        // INFO  [enclave_contract_engine::wasm3] debug_print: "payload.user_key: Binary(000000000000000000000000000000000000000000000000000000000000000000)"
-        // bytes memory userKey = bytes.concat("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"); // malformed public key
 
         // Note: Since contracts only have an address, but not public keys, where the
         // addresses are derived from the address of the user (or other contract) that
         // created them, which are in turn are derived from the public key of a normal
         // user's keypair. So we will use the public key of the `owner` that created the
         // Gateway contract.
-        //
-        // TODO: We will use the base64 value for both the value of the `user_key` and
-        // the `user_pubkey`, but they should be different and `user_key` suggested to
-        // be base64 (e.g. `AAA=`)
         //
         // Note: In this custom Gateway.sol, the NunyaBusiness contract address is provided as an argument in its
         // constructor and set to be the `owner` in storage. Furthermore, we apply `onlyOwner` modifier to this
@@ -607,30 +579,21 @@ contract Gateway is Ownable, Utils, Base64 {
         // if `onlyOwner` was removed.
         // If the Gateway contract by the Secret team was used instead then we would need a way to upgrade that contract
         // to allow us to set an `owner`-like value that could be used to restrict calls to functions like this.
-        // FIXME: Error parsing into type secret_gateway::types::Payload: Invalid unicode code point.: execute contract failed
-        // TODO: Try changing to `"user_address":"0x0000","user_key":"AAA="`
         bytes memory payload_info = abi.encodePacked(
             '}","routing_info":"',routing_info,
             '","routing_code_hash":"',routing_code_hash,
             // '","user_address":"',address(owner), // Invalid unicode code point.
-            '","user_address":"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+            '","user_address":"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // What is `address(msg.sender)`?
             // '","user_key":"',owner_public_key,
             // https://github.com/SecretSaturn/SecretPath/blob/main/TNLS-Gateways/secret/tests/integration.ts#L340
+            // Note: `user_key` must be base64 value
             '","user_key":"',userKey,
+            // Note: `callback_address` must be base64 value
             '","callback_address":"'
             // '","user_address":"0x0000","user_key":"AAA=","callback_address":"'
         );
-
-        //
-        // // Generic error: verification key mismatch
-        // bytes memory payload_info = abi.encodePacked(
-        //     '}","routing_info":"',routing_info,
-        //     '","routing_code_hash":"',routing_code_hash,
-        //     '","user_address":"',address(msg.sender),
-        //     '","user_key":"',senderAddressBase64,
-        //     '","callback_address":"'
-        // );
-        // console.log("------ Gateway.requestValue - payload_info: ", payload_info);
+        console.log("------ Gateway.requestValue - msg.sender: ", msg.sender);
+        console.log("------ Gateway.requestValue - payload_info: ", payload_info);
 
         // uint32 _myArg = 123;
         //construct the payload that is sent into the Secret Gateway
@@ -640,63 +603,67 @@ contract Gateway is Ownable, Utils, Base64 {
             '{"data":"{\\"myArg\\":',
             uint256toBytesString(123),
             payload_info,
-            // callback_address should be this EVM Gateway address, the `publicClientAddress` in this example
+            // callback_address in this example is the EVM Gateway address (the `publicClientAddress`)
+            // but our callback_selector is in NunyaBusiness.sol so we need to use that instead.
             // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/usecases/vrf/using-encrypted-payloads-for-vrf#defining-variables
-            gatewayAddressBase64, //callback_address
+            // Note: `callback_address` must be base64 value
+            nunyaAddressBase64, //callback_address
             // callback selector should be a hex value already converted into base64 to be used
             // as callback_selector of the request_value function in the Secret contract
             // FIXME: Error parsing into type secret_gateway::types::Payload: invalid base64: 259716626: execute contract failed
             // '","callback_selector":"',uint256toBytesString(_callbackSelector),
+            // Note: `callback_address` must be base64 value
             // Note: fulfilledValueCallback - 0x0f7af612 hex, D3r2Eg== base64. Example: fulfillRandomWords - 0x38ba4614 hex, OLpGFA== base64
             '","callback_selector":"D3r2Eg==","callback_gas_limit":',uint256toBytesString(_callbackGasLimit),
             '}'
         );
-        //
-        // // Generic error: verification key mismatch
-        // bytes memory payload = bytes.concat(
-        //     '{"data":"{\\"myArg\\":',
-        //     uint256toBytesString(123),
-        //     payload_info,
-        //     senderAddressBase64, //callback_address
-        //     '","callback_selector":"OLpGFA==","callback_gas_limit":', // 0x38ba4614 hex value already converted into base64, callback_selector of the fullfillRandomWords function
-        //     uint256toBytesString(_callbackGasLimit),
-        //     '}' 
-        // );
-        // console.log("------ Gateway.requestValue - payload: ", payload);
 
+        // FIXME: This should be a random nonce and generated similar to
+        // how it is generated in encryptPayload.ts using `window.crypto.getRandomValues(bytes(12))`
         uint256 _newNonce = nonce + 1;
         increaseNonce(_newNonce);
         console.log("------ Gateway.requestValue - _newNonce: ", _newNonce);
 
         //generate the payload hash using the ethereum hash format for messages
         bytes32 payloadHash = ethSignedPayloadHash(payload);
-        // console.log("------ Gateway.requestValue - payloadHash: ", payloadHash);
+        console.log("------ Gateway.requestValue - payloadHash: ", payloadHash);
 
-        bytes memory emptyBytes = hex"0000";
+        // FIXME: Even though we have generated the payloadHash, we haven't done it using the
+        // `sharedKey` that would be generated using generateKeys.ts, the same way we have done that
+        // in encryptPayload.ts, but neither of those TypeScript files are being used to provide inputs
+        // to this `requestValue` function, as they are only being used in the submitReqestValue.ts
+        // script that calls the `send` function in the Gateway.sol directly and does the encryption
+        // in TypeScript before sending the transaction to call `send`.
+        // It may be necessary to provide the `sharedKey` and `nonce` encrypted into this `requestValue` function
+        // and use them to generate the payload, but then we may as well just prepare all the
+        // relevant information in TypeScript and send it via NunyaBusiness to `send`.
+        
+        // FIXME: How to generate payloadSignature??
+        // We should be providing it to the smart contract and verifying it is valid here
+        // https://ethereum.stackexchange.com/questions/24367/is-it-possible-to-sign-a-message-in-solidity
+        const payloadSignature = ...
 
-        // TODO - make `user_key` a unique key different from `user_pubkey`
-        // bytes memory userKey = bytes.concat(senderAddressBase64); // equals AAA= in base64
+        // FIXME: Do not know how to recover public key using Solidity this way,
+        // only know how to do it in TypeScript.
+        uint256 userPubkeyRecovered = recoverPublicKey(payloadHash, payloadSignature);
+
+        bytes memory emptyBytes = hex"0000"; // equals AAA= in base64
 
         // ExecutionInfo struct
         ExecutionInfo memory executionInfo = ExecutionInfo({
-            // user_key: gatewayContractPubkey,
-            user_key: userKey,
-            // user_key: userKey, // FIXME - use this instead when resolve issue
-            // user_key: emptyBytes, // equals AAA= in base64
-            // FIXME: use of `secret_gateway_signer_pubkey` does not compile, what alternative to use?
-            // user_pubkey: uint256toBytesString(secret_gateway_signer_pubkey),
+            // Note: `user_key` and `user_pubkey` here are in bytes, NOT base64 like in the `payload`
+            user_key: userKey, // emptyBytes,
+            // user_pubkey: uint256toBytesString(userPubkeyRecovered),
             // Refer to ./packages/secret-contracts/secret-gateway/src/msg.rs that shows
             // what to use for `user_key` and `user_pubkey`, as they are different
-            user_pubkey: userPubkey,
-            // user_pubkey: userKey,
-            // user_pubkey: emptyBytes, // Fill with 0 bytes
+            user_pubkey: userPubkey, // emptyBytes,
             routing_code_hash: routing_code_hash, // custom contract codehash on Secret 
             task_destination_network: task_destination_network,
             handle: "request_value",
             nonce: bytes12(toBytes(_newNonce)),
             callback_gas_limit: _callbackGasLimit,
             payload: payload,
-            // TODO: add a payload signature
+            // FIXME: add a payload signature, as it `payloadHash` is incorrect
             // Signature of hash of encrypted input values
             // payload_signature: emptyBytes // empty signature, fill with 0 bytes
             payload_signature: bytes32ToBytes(payloadHash)
@@ -770,9 +737,7 @@ contract Gateway is Ownable, Utils, Base64 {
             '{"data":"{\\"callbackSelector\\":',
             uint256toBytesString(_callbackSelector),
             payload_info,
-            // callback_address should be this EVM Gateway address, the `publicClientAddress` in this example
-            // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/usecases/vrf/using-encrypted-payloads-for-vrf#defining-variables
-            gatewayAddressBase64, //callback_address
+            nunyaAddressBase64, //callback_address
             '","callback_selector":"OLpGFA==","callback_gas_limit":', // 0x38ba4614 hex value already converted into base64, callback_selector of the fulfillRandomWords function
             uint256toBytesString(_callbackGasLimit),
             '}' 
