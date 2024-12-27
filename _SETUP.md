@@ -9,6 +9,8 @@
 
 ### Usage Guidelines <a id="usage"></a> 
 
+**Quick Start** with section: [_QUICKSTART.md](./_QUICKSTART.md), otherwise if that doesn't work:
+
 **Start Here** with section [Setup Secret](#setup-secret") and follow the instructions from there.
 
 Help judges and other developers understand the project.
@@ -613,9 +615,7 @@ cd SecretPath/TNLS-Relayers
   
   * Setup
     ```
-    conda create --name secretpath_env python=3.11
-    y
-    y
+    conda -y create --name secretpath_env python=3.11
     ```
 
     * Outputs:

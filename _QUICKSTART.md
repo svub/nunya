@@ -7,7 +7,62 @@ It may be used to create a script in future.
 It assumes that the Ethereum Local Network and Secret Local Network are being run on a remote machine running Linux, since macOS may not support SGX.
 The guide uses `scp` to copy file changes that are being made on a local machine across to the remote machine. Alternatively make the changes directly on the remote server using `vim` or similar, or otheriwse configure your code editor like Visual Studio Code to do so.
 
-### Local Machine
+### Super Quick Start
+
+* Clone https://github.com/svub/nunya into `~/nunya`
+* Fetch latest from branch 'submit-pubkey'
+	```
+	git fetch origin submit-pubkey:submit-pubkey
+	git checkout submit-pubkey
+	```
+* Clone https://github.com/ltfschoen/SecretPath into `~/ltfschoen`
+* Fetch latest from branch 'nunya'
+	```
+	git fetch origin nunya:nunya
+	git checkout nunya
+	```
+* Run the following on a remote server:
+	```
+	./scripts/run.sh
+	```
+* Wait for it to all load
+* Run
+	```
+	cd ~/nunya && nvm use && yarn run secret:submitRequestValue
+	```
+	OR 
+	```
+	cd ~/nunya && nvm use && yarn run secret:submitRetrievePubkey
+	```
+* Watch the logs
+	* Ethereum Local Node
+		```
+		journalctl -u ethlocal.service -f
+		```
+		* Optionally store in a file:
+			```
+			journalctl -u ethlocal.service -f | tee ~/nunya/ethlocal.service.log
+			```
+	* Secret Local Node
+		```
+		docker logs -f --tail 10 secretdev
+		```
+		* Optionally store in a file:
+			```
+			docker logs -f secretdev | tee ~/nunya/secret-docker.log
+			```
+	* Relayer
+		```
+		journalctl -u relayer.service -f
+		```
+		* Optionally store in a file:
+			```
+			journalctl -u relayer.service -f | tee ~/nunya/relayer.service.log
+			```
+
+### Slow Start
+
+#### Local Machine
 
 ```
 cd /Users/luke/code/clones/github/svub/nunya
@@ -26,9 +81,9 @@ DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/config/config.ts
 scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
 ```
 
-### Remote server
+#### Remote server
 
-#### Terminal Tab 1
+##### Terminal Tab 1
 
 	* Start here
 
@@ -59,7 +114,7 @@ scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
 
 	* TODO - turn into service that can start and stop and reset
 
-#### Terminal Tab 2
+##### Terminal Tab 2
 
   ```bash
 	ssh root@172.105.184.209
@@ -72,7 +127,7 @@ scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
 
 	* TODO - turn into service that can start and stop and reset
 
-#### Terminal Tab 3
+##### Terminal Tab 3
 
   ```bash
 	ssh root@172.105.184.209
@@ -175,7 +230,7 @@ scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
 	docker exec -it secretdev secretcli query bank balances secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg | jq
   ```
 
-#### Terminal Tab 4
+##### Terminal Tab 4
 
   ```bash
 	cd ~/nunya
@@ -215,7 +270,7 @@ scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
 	python3 web_app.py
   ```
 
-#### Terminal Tab 3
+##### Terminal Tab 3
 
 * RUN AFTER RELAYER STARTED
 
@@ -247,6 +302,6 @@ scp -r root@$REMOTE_IP:$SOURCE $DESTINATION
 INFO  [enclave_contract_engine::wasm3] debug_print: "msg: PostExecutionMsg {\n    result: \"eyJfcmVxdWVzdF9pZCI6eyJuZXR3b3JrIjoiMzEzMzciLCJ0YXNrX2lkIjoiNCJ9LCJfa2V5IjpbMiwyNTEsMTg4LDE0MywxNjMsMTExLDM0LDE1OCwxNjcsODIsMTE1LDE4OSwyNSwyMzksMTcyLDEyNiw4LDY3LDIzMCwxMzgsNTAsNzcsODEsMTEzLDEyMiwyMDEsNzYsMjE5LDI0Myw1NSwxMzQsMjE0LDg2XSwiX2NvZGUiOjAsIl9udW55YV9idXNpbmVzc19jb250cmFjdF9hZGRyZXNzIjoiMHhBRkZGMzExODIxQzNGM0FGODYzQzcxMDNCQjE3QkRDMUJhMDQ2MDNEIn0=\"
 ```
 
-### Notes
+#### Notes
 
 * Note: Restart all nodes and re-do steps in Terminal Tab 2 if any of the changes are made since it's faster, otherwise the CODE_ID and CONTRACT_ADDRESS may change requiring updating the config file between uploading and instantiation, which is annoying.

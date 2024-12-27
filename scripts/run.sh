@@ -142,8 +142,10 @@ mkdir -p $DB_STORAGE/.chains
 
 mkdir -p /opt/ethlocal
 cp ~/nunya/scripts/ethlocal/start.sh /opt/ethlocal
+cp ~/nunya/scripts/ethlocal/node.sh /opt/ethlocal
 sudo chown -R ethlocal_service /opt/ethlocal
 sudo chmod 755 /opt/ethlocal/start.sh
+sudo chmod 755 /opt/ethlocal/node.sh
 
 # create a soft link to this file in my present directory:
 
@@ -181,6 +183,10 @@ touch /etc/systemd/system/ethlocal.service
   echo 'SyslogFacility=local7'
   echo 'KillSignal=SIGHUP'
   echo 'ExecStart=/opt/ethlocal/start.sh'
+  # Note: Must be inside a hardhat project to run the command otherwise error
+  # Error HH1: You are not inside a Hardhat project.
+  # It runs this from directory root `/` hence the error. Suggest move into a script where can change directory.
+  echo 'WorkingDirectory=/root/nunya/packages/hardhat' # must be run inside a Hardhat project
   echo '[Install]'
   echo 'WantedBy=multi-user.target'
 } > /etc/systemd/system/ethlocal.service
@@ -238,20 +244,14 @@ docker exec -it secretdev secretcli tx bank send secret1ap26qrlp8mcq2pg6r47w43l0
 # Part 4
 
 # TODO - update to clone and checkout if folder not exist
-cd ~/nunya
-nvm use
 cd ~/ltfschoen/SecretPath/TNLS-Relayers
-git stash
-git pull origin nunya
-git checkout nunya
+# git stash
+# git pull origin nunya
+# git checkout nunya
 
-## TODO - configure thes files
+## TODO - configure these files
 # /root/ltfschoen/SecretPath/TNLS-Relayers/config.yml
 # /root/ltfschoen/SecretPath/TNLS-Relayers/.env
-
-conda activate secretpath_env
-pip install -r requirements.txt --no-dependencies
-pip install --upgrade lru-dict
 
 # Part 5
 
@@ -259,8 +259,10 @@ sudo adduser relayer_service --system --no-create-home
 
 mkdir -p /opt/relayer
 cp ~/nunya/scripts/relayer/start.sh /opt/relayer
+cp ~/nunya/scripts/relayer/node.sh /opt/relayer
 sudo chown -R relayer_service /opt/relayer
 sudo chmod 755 /opt/relayer/start.sh
+sudo chmod 755 /opt/relayer/node.sh
 
 sudo rm /opt/relayer/web_app.py
 # create symlink in /opt/relayer to /root/ltfschoen/SecretPath/TNLS-Relayers/web_app.py
@@ -270,7 +272,6 @@ sudo chown -R relayer_service ~/ltfschoen/SecretPath/TNLS-Relayers
 # change permission to symlink and where it points to
 sudo chmod 755 /opt/relayer/web_app.py
 sudo chmod 755 ~/ltfschoen/SecretPath/TNLS-Relayers/web_app.py
-ls -al /opt/relayer
 
 # Create service file
 
@@ -291,6 +292,7 @@ touch /etc/systemd/system/relayer.service
   echo 'SyslogIdentifier=relayer'
   echo 'SyslogFacility=local7'
   echo 'KillSignal=SIGHUP'
+  echo 'WorkingDirectory=/root/ltfschoen/SecretPath/TNLS-Relayers' # run from inside the project where dependencies are installed
   echo 'ExecStart=/opt/relayer/start.sh'
   echo '[Install]'
   echo 'WantedBy=multi-user.target'
@@ -308,5 +310,5 @@ systemctl status relayer
 
 cd ~/nunya
 nvm use
-yarn run secret:submitRequestValue
-yarn run secret:submitRetrievePubkey
+# yarn run secret:submitRequestValue
+# yarn run secret:submitRetrievePubkey
