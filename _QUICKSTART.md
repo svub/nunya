@@ -9,6 +9,16 @@ The guide uses `scp` to copy file changes that are being made on a local machine
 
 ### Super Quick Start
 
+* Setup remote editing
+	* Install and open Visual Studio Code
+	* Install Plugin "Remote Explorer"
+	* Remote Explorer
+	* Click SSH > + (Note: Use your own IP address)
+		* Enter `ssh root@172.105.184.209`, choose to update /Users/luke/ssh/config
+		* Click 172.105.184.209 > "root" > "Connect in Current Window"
+	* Go to Extensions, search for "solidity", and click the apply that extension to "SSH 172.105.184.209" for syntax highlighting
+	* Use the "Terminal" in Visual Studio code to interact
+
 * Clone https://github.com/svub/nunya into `~/nunya`
 * Fetch latest from branch 'submit-pubkey'
 	```
