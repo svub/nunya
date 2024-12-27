@@ -4,7 +4,7 @@ NAME="relayer_service"
 NODE_PATH="/opt/relayer"
 PORT="8545"
 
-CMD="cd $NODE_PATH && sudo python3 web_app.py
+CMD="python3 $NODE_PATH/web_app.py
 "
 
 echo "-----------------------"

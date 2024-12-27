@@ -1,26 +1,6 @@
 #!/usr/bin/env bash
 
-# FIXME -
-# ```
-# Warning: The unit file, source configuration file or drop-ins of ethlocal.service changed on disk. Run 'systemctl daemon-reload' to reload units.
-# ● ethlocal.service - Ethereum Network Development Node systemd service
-#      Loaded: loaded (/etc/systemd/system/ethlocal.service; enabled; preset: enabled)
-#      Active: active (running) since Thu 2024-12-26 15:39:27 UTC; 14ms ago
-#    Main PID: 1110762 (start.sh)
-#       Tasks: 1 (limit: 4614)
-#      Memory: 308.0K (peak: 352.0K)
-#         CPU: 3ms
-#      CGroup: /system.slice/ethlocal.service
-#              └─1110762 /bin/bash /opt/ethlocal/start.sh
-
-# Dec 26 15:39:27 localhost systemd[1]: Started ethlocal.service - Ethereum Network Development Node systemd service.
-# Dec 26 15:39:27 localhost ethlocal[1110762]: -----------------------
-# Dec 26 15:39:27 localhost ethlocal[1110762]: Executing: /opt/ethlocal/hardhat node --network hardhat   --no-deploy   --watch   --port 8545
-# Dec 26 15:39:27 localhost ethlocal[1110762]: ----------------------
-# Dec 26 15:39:27 localhost ethlocal[1110765]: /opt/ethlocal/start.sh: line 18: /opt/ethlocal/hardhat: Permission denied
-# Dec 26 15:39:27 localhost systemd[1]: ethlocal.service: Main process exited, code=exited, status=126/n/a
-# Dec 26 15:39:27 localhost systemd[1]: ethlocal.service: Failed with result 'exit-code'.
-# ```
+# Important: Only configured to work on Linux since cannot run on macOS Silicon due to SGX
 
 # Part 1
 
@@ -70,15 +50,82 @@
 
 # Secret Network Development Node
 cd ~/nunya
+
 rm docker.log
-# nvm use
+
+docker stop secretdev && docker rm secretdev
+
+sleep 5
+
+SERVICE=ethlocal.service
+systemctl stop $SERVICE
+sleep 5
+systemctl disable $SERVICE
+rm /etc/systemd/system/$SERVICE
+systemctl daemon-reload
+systemctl reset-failed
+
+SERVICE=relayer.service
+systemctl stop $SERVICE
+sleep 5
+systemctl disable $SERVICE
+rm /etc/systemd/system/$SERVICE
+systemctl daemon-reload
+systemctl reset-failed
+
+rm -rf /opt/ethlocal
+rm -rf /opt/relayer
+rm -rf /mnt/storage1/.chains
+
+touch ~/.zprofile
+
+nvm_cmd=$(which nvm)
+if [ -z $nvm_cmd ]; then
+  echo -e "Installing NVM and adding to PATH"
+
+  printf '%s' '
+  # nvm installation
+  export NVM_DIR="$HOME/.nvm" && (
+    git clone https://github.com/nvm-sh/nvm.git "$NVM_DIR"
+    cd "$NVM_DIR"
+    git checkout `git describe --abbrev=0 --tags --match "v[0-9]*" $(git rev-list --tags --max-count=1)`
+  ) && \. "$NVM_DIR/nvm.sh"
+
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+  # node path
+  export PATH="/root/.nvm/versions/node/v18.20.5/bin/node/v18.20.5/bin/node:$PATH"
+  ' >> ~/.zprofile
+
+  source ~/.zprofile
+else
+	echo -e "Detected NVM"
+fi
+
+source ~/.zprofile
+
+nvm install
+nvm use
+
+which node
+
+npm install -g yarn
+npm install -g corepack
+yarn set version 4.5.3
+corepack enable
+corepack prepare yarn@v4.5.3 --activate
+yarn install
+
 # TODO - update to clone and checkout if folder not exist
-git stash
-git pull origin submit-pubkey
-git checkout submit-pubkey
+# git stash
+# git pull origin submit-pubkey
+# git checkout submit-pubkey
+
 cd ~/nunya/packages/secret-contracts/secret-gateway
 git submodule update --init --recursive
-# nvm use
+nvm use
 docker stop secretdev && docker rm secretdev
 sleep 5
 # run `make start-server` in daemon background mode
@@ -86,8 +133,8 @@ docker run -it -d --rm -p 9091:9091 -p 26657:26657 -p 26656:26656 -p 1317:1317 -
 # docker logs -f secretdev | tee ~/nunya/docker.log
 
 # Ethereum Network Development Node
-cd ~/nunya
-# nvm use
+cd ~/nunya/packages/hardhat
+nvm use
 
 sudo adduser ethlocal_service --system --no-create-home
 DB_STORAGE="/mnt/storage1"
@@ -95,16 +142,24 @@ mkdir -p $DB_STORAGE/.chains
 
 mkdir -p /opt/ethlocal
 cp ~/nunya/scripts/ethlocal/start.sh /opt/ethlocal
-sudo chmod 777 /opt/ethlocal/start.sh
+sudo chown -R ethlocal_service /opt/ethlocal
+sudo chmod 755 /opt/ethlocal/start.sh
 
 # create a soft link to this file in my present directory:
 
 sudo rm /opt/ethlocal/hardhat
+# create symlink
 sudo ln -s ~/nunya/packages/hardhat/node_modules/.bin/hardhat /opt/ethlocal/hardhat
-sudo chmod 777 /opt/ethlocal/hardhat
-
+# change permission to symlink and where it points to
 sudo chown -R ethlocal_service $DB_STORAGE/.chains
 sudo chown -R ethlocal_service /opt/ethlocal
+sudo chown -R ethlocal_service ~/nunya/packages/hardhat/node_modules/.bin/
+sudo chown -R ethlocal_service /root/nunya/packages/hardhat/node_modules/hardhat/
+# change permission to symlink and where it points to
+sudo chmod 755 /opt/ethlocal/hardhat
+sudo chmod 755 ~/nunya/packages/hardhat/node_modules/.bin/hardhat
+sudo chmod 755 ~/nunya/packages/hardhat/node_modules/hardhat/internal/cli/bootstrap.js
+ls -al /opt/ethlocal
 
 # Create service file
 
@@ -119,7 +174,9 @@ touch /etc/systemd/system/ethlocal.service
   echo 'Type=simple'
   echo 'Restart=on-failure'
   echo 'RestartSec=10'
-  echo 'User=ethlocal_service'
+  # FIXME: Change to `User=ethlocal_service` without `Permission denied` error
+  echo 'User=root'
+  # echo 'User=ethlocal_service'
   echo 'SyslogIdentifier=ethlocal'
   echo 'SyslogFacility=local7'
   echo 'KillSignal=SIGHUP'
@@ -141,7 +198,7 @@ systemctl start ethlocal
 systemctl status ethlocal
 
 cd ~/nunya
-# nvm use
+nvm use
 yarn hardhat:clean
 yarn hardhat:compile
 yarn hardhat:deploy --network localhost
@@ -182,7 +239,7 @@ docker exec -it secretdev secretcli tx bank send secret1ap26qrlp8mcq2pg6r47w43l0
 
 # TODO - update to clone and checkout if folder not exist
 cd ~/nunya
-# nvm use
+nvm use
 cd ~/ltfschoen/SecretPath/TNLS-Relayers
 git stash
 git pull origin nunya
@@ -202,16 +259,18 @@ sudo adduser relayer_service --system --no-create-home
 
 mkdir -p /opt/relayer
 cp ~/nunya/scripts/relayer/start.sh /opt/relayer
-sudo chmod 777 /opt/relayer/start.sh
-
-# create symlink in /opt/relayer to /root/ltfschoen/SecretPath/TNLS-Relayers/web_app.py
-
-# create a soft link to this file in my present directory:
+sudo chown -R relayer_service /opt/relayer
+sudo chmod 755 /opt/relayer/start.sh
 
 sudo rm /opt/relayer/web_app.py
+# create symlink in /opt/relayer to /root/ltfschoen/SecretPath/TNLS-Relayers/web_app.py
 sudo ln -s ~/ltfschoen/SecretPath/TNLS-Relayers/web_app.py /opt/relayer/web_app.py
-
 sudo chown -R relayer_service /opt/relayer
+sudo chown -R relayer_service ~/ltfschoen/SecretPath/TNLS-Relayers
+# change permission to symlink and where it points to
+sudo chmod 755 /opt/relayer/web_app.py
+sudo chmod 755 ~/ltfschoen/SecretPath/TNLS-Relayers/web_app.py
+ls -al /opt/relayer
 
 # Create service file
 
@@ -226,7 +285,9 @@ touch /etc/systemd/system/relayer.service
   echo 'Type=simple'
   echo 'Restart=on-failure'
   echo 'RestartSec=10'
-  echo 'User=relayer_service'
+  # FIXME: Change to `User=relayer_service` without `Permission denied` error
+  echo 'User=root'
+  # echo 'User=relayer_service'
   echo 'SyslogIdentifier=relayer'
   echo 'SyslogFacility=local7'
   echo 'KillSignal=SIGHUP'
@@ -246,6 +307,6 @@ systemctl status relayer
 # Part 6
 
 cd ~/nunya
-# nvm use
+nvm use
 yarn run secret:submitRequestValue
 yarn run secret:submitRetrievePubkey
