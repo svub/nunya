@@ -50,6 +50,7 @@
     "secret:submitRetrievePubkey": "yarn workspace secret-contracts-scripts submitRetrievePubkey",
     "secret:upload": "yarn workspace secret-contracts-scripts upload",
     "secret:instantiate": "yarn workspace secret-contracts-scripts instantiate",
+    "secret:uploadAndInstantiateNunya": "yarn workspace secret-contracts-scripts uploadAndInstantiateNunya",
     "secret:uploadGateway": "yarn workspace secret-contracts-scripts uploadGateway",
     "secret:instantiateGateway": "yarn workspace secret-contracts-scripts instantiateGateway",
     "secret:uploadAndInstantiateGateway": "yarn workspace secret-contracts-scripts uploadAndInstantiateGateway"

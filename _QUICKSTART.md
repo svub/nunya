@@ -177,11 +177,11 @@ scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
   yarn run secret:uploadGateway
   ```
 
-	OR 
+	OR  (combine with instantiate)
 
 	```bash
-  yarn run secret:uploadAndInstantiateGateway
-  ```
+	yarn run secret:uploadAndInstantiateGateway
+	```
 
 	* UPDATE CONFIG AND RUN ON LOCAL IF DIFFERS
   ```bash
@@ -225,6 +225,12 @@ scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
 	yarn run secret:clean
 	yarn run secret:upload
   ```
+
+	OR (combine with instantiate)
+
+	```bash
+	yarn run secret:uploadAndInstantiateNunya
+	```
 
 	# UPDATE IF DIFFERS config.ts
 

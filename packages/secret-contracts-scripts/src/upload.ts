@@ -19,26 +19,12 @@ const { walletMnemonic, isOptimizedContractWasm, secretNunya: { nunyaContractWas
   ? config.secret.testnet
   : config.secret.localhost;
 
-let vars;
-if (config.evm.network == "sepolia") {
-  vars = config.evm.sepolia;
-} else if (config.evm.network == "localhost") {
-  vars = config.evm.localhost;
-} else {
-  throw new Error(`Unsupported network.`)
-}
-const { nunyaBusinessContractAddress } = vars;
-
 if (walletMnemonic == "") {
   throw Error("Unable to obtain mnemonic phrase");
 }
 
 if (gatewayContractAddress == "" || gatewayContractCodeHash == "" || gatewayContractPublicKey == "") {
   throw Error("Unable to obtain Secret Network Gateway information");
-}
-
-if (nunyaBusinessContractAddress == "" ) {
-  throw Error("Unable to obtain Nunya.business EVM contract address");
 }
 
 const wallet = new Wallet(walletMnemonic, walletOptions);
@@ -49,11 +35,6 @@ console.log('rootPath', rootPath)
 // const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${nunyaContractWasmPath}`);
 // Optimised nunya-contract
 const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${isOptimizedContractWasm ? "optimized-wasm/" : ""}${nunyaContractWasmPath}`);
-
-const gatewayContractPublicKeyBytes = Buffer.from(
-  gatewayContractPublicKey.substring(2),
-  "hex"
-).toString("base64");
 
 async function main () {
   const secretjs = new SecretNetworkClient({

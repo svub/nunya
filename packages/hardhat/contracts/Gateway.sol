@@ -234,21 +234,55 @@ contract Gateway is Ownable, Utils, Base64 {
     /// @param data The bytes memory data to convert
     /// @return result The calldata for the returned data
 
+    // code: `result := mload(0x40)`
+    // intro:
+    //   - each message call starts with a cleared memory. all locations are initially defined as zero.
+    //   - calldata memory can be addressed at byte level, but can only read 32-byte words at a time
+    // notes:
+    //   - Solidity always stores a free memory pointer at memory position 0x40, i.e. a reference to the first unused word in memory
+    //   - The initial 64 bytes of assembly level memory are reserved for the EVM, ensuring we are not overwriting memory that is used internally by Solidity
+    // about: 
+    //   - load by reading from a free memory pointer at 0x40 and storing it in variable `result`
+    //
+    // code: `mstore(add(result, 32), callback_selector)`
+    // about:
+    //   - `mstore(add(result, 32), callback_selector)` means the value to store of `callback_selector` is stored at a memory address,
+    //     which is the position between the free memory pointer at `result` and 32 bytes
+    //
+    // code: `mstore(result, add(100, data.length))`
+    // notes:
+    //   - `mstore(start_address_location, value_to_store)` EVM opcode interacts with memory. 
+    //     it writes a word value from the top of the stack to memory at a specified address, and has an EVM opcode of 0x52
+    //   - `add(x, y)`  opcode that adds the top two elements on the stack and pushes the result onto the stack, performing addition operations
+    // about:
+    //   - `mstore(result, add(100, data.length))` means the value to store, which is the position between 100 bytes and `data.length` bytes
+    //     (after the free memory pointer at 0x40), is stored at the memory address `result` (updating the free memory pointer)
+    //
+    // code: `calldatacopy(add(result, 132), data.offset, data.length)`
+    // notes:
+    //   - calldatacopy:
+    //     - copies bytes of the transaction calldata to a memory pointer
+    //     - expects three arguments (t, f, s):
+    //     - Solidity lets you access calldata through msg.data
+    // about:
+    //   - copies `data.length` bytes of read-only calldata (s) at position `data.offset` (f) into memory at position `add(result, 132))` (t)
+    //     that is between `result` + 132 bytes
+    //
+    // code: `mstore(0x40, add(add(result, 132), data.length))`
+    // about:
+    //   - position between `result` bytes and 132 bytes, and the position between that range and `data.length`, is stored at free memory pointer `0x40`
+    //     and store at free memory pointer
     function prepareResultBytesToCallbackData(bytes4 callback_selector, uint256 _taskId, bytes calldata data) public pure returns (bytes memory result) {
         console.log("------ Gateway.prepareResultBytesToCallbackData - _taskId: ", _taskId);
         console.log("------ Gateway.prepareResultBytesToCallbackData - data.length: ", data.length);
         assembly {
-            result := mload(0x40) // Set `result` to point to the free memory pointer
-            mstore(result, add(100, data.length)) // Update the free memory pointer
-            mstore(add(result, 32), callback_selector) // Load `callback_selector` and store at `result` + 32
+            result := mload(0x40) 
+            mstore(result, add(100, data.length))
+            mstore(add(result, 32), callback_selector) // Load value `callback_selector` and store at `result` + 32 (it is bytes4)
             mstore(add(result, 36), _taskId) // Load `_taskId` and store at `result` + 36
             mstore(add(result, 68), 0x40) // Load `0x40` (free memory pointer) and store at `result` + 68
             mstore(add(result, 100), data.length) // Load `data.length` and store at `result` + 100
-            // Directly copy data from the transaction's call data (read only)
-            // that was the input data sent with the call into memory
-            calldatacopy(add(result, 132), data.offset, data.length)
-            // Update the free memory pointer with that
-            // loaded from `data.length` and stored at `result` + 132 bytes
+            calldatacopy(add(result, 132), data.offset, data.length) // Update the free memory pointer with that loaded from `data.length` and stored at `result` + 132 bytes
             mstore(0x40, add(add(result, 132), data.length))
         }
     }
@@ -448,6 +482,10 @@ contract Gateway is Ownable, Utils, Base64 {
     function postExecution(uint256 _taskId, string calldata _sourceNetwork, PostExecutionInfo calldata _info) external {
         console.log("------ Gateway.postExecution");
         Task memory task = tasks[_taskId];
+
+        console.log("------ Gateway.postExecution - _taskId: ", _taskId);
+        console.log("------ Gateway.postExecution - _info.result: ");
+        console.logBytes(_info.result);
 
         // Check if the task is already completed
         require(!task.completed, "Task Already Completed");

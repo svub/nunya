@@ -142,10 +142,8 @@ mkdir -p $DB_STORAGE/.chains
 
 mkdir -p /opt/ethlocal
 cp ~/nunya/scripts/ethlocal/start.sh /opt/ethlocal
-cp ~/nunya/scripts/ethlocal/node.sh /opt/ethlocal
 sudo chown -R ethlocal_service /opt/ethlocal
 sudo chmod 755 /opt/ethlocal/start.sh
-sudo chmod 755 /opt/ethlocal/node.sh
 
 # create a soft link to this file in my present directory:
 
@@ -223,6 +221,8 @@ yarn install
 yarn run secret:clean
 yarn run secret:uploadAndInstantiateGateway
 
+## TODO - automatically if contract code hash changes then try to update the `contract_code_hash` and `contract_address` in ~/ltfschoen/SecretPath/TNLS-Relayers/config.yml
+
 ## TODO - write output to config.ts including code id, code hash, and contract hash
 
 # PART 2
@@ -235,8 +235,7 @@ yarn run secret:querySecretGatewayPubkey
 ## TODO - upload and instantiate private Secret contract
 
 yarn run secret:clean
-yarn run secret:upload
-yarn run secret:instantiate
+yarn run secret:uploadAndInstantiateNunya
 docker exec -it secretdev secretcli tx bank send secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03 secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg 100000000000000000uscrt -y
 
 # TODO - update config.ts

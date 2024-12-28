@@ -11,6 +11,8 @@ import "./IGateway.sol";
 
 import "./JsmnSolLib.sol";
 
+import "./JSONParser.sol";
+
 import "./Utils.sol";
 
 import "./Ownable.sol";
@@ -167,6 +169,8 @@ contract NunyaBusiness is Ownable, Utils {
         console.log("------ NunyaBusiness - fulfilledValueCallback - _requestId: ", _requestId);
         console.log("------ NunyaBusiness - fulfilledValueCallback - data.length: ", data.length);
         // Example `data` value: {"_request_id":{"network":"31337","task_id":"10"},"_key":[78,85,78,89,65],"_code":0,"_nunya_business_contract_address":"0xAFFF311821C3F3AF863C7103BB17BDC1Ba04603D"}
+        console.log("------ NunyaBusiness - fulfilledValueCallback - data: ");
+        console.logBytes(data);
 
         // emit FulfilledValue(_requestId, _value, _code, _nunya_business_contract_address);
         emit FulfilledValue(_requestId, data);
@@ -202,7 +206,20 @@ contract NunyaBusiness is Ownable, Utils {
     // function fulfilledSecretContractPubkeyCallback (uint256 _requestId, uint256 _key, uint16 _code, address _nunya_business_contract_address) public onlyGateway validateRequest(_requestId, FunctionCallType.GET_KEY) {
         console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - _requestId: ", _requestId);
         console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - data.length: ", data.length);
+        console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - data: ");
+        console.logBytes(data);
+        // Note: `Transaction ran out of gas` error if try to parse JSON response that has been prepared in the private Secret contract.
+        // To prevent it from out of gas errors then try sending it as the first key and converting the value into a fixed-length hash using Keccak256
+        // so it is easy to find the start and end of the `result` by index.
 
+        // JSONParser parser = new JSONParser();
+        // secretContractPubkey = parser.extractKeyArray(data);
+        // // https://github.com/NomicFoundation/hardhat/issues/2043
+        // for (uint i=0; i<secretContractPubkey.length; i++) {
+        //     console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - secretContractPubkey: ", i);
+        // }
+
+        // emit FulfilledPubkey(_requestId, secretContractPubkey);
         emit FulfilledPubkey(_requestId, data);
 
         // TODO: Implement the below instead when get working with `data` response initially

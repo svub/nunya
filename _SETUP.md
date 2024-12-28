@@ -746,6 +746,12 @@ yarn run secret:clean
 yarn run secret:upload
 ```
 
+OR (combine with instantiate)
+
+```bash
+yarn run secret:uploadAndInstantiateNunya
+```
+
 * Add the `CODE_ID` to `codeId` and `CODE_HASH` to `secretNunya -> nunyaContractCodeHash` respectively to the relevant config.secret.<network> in ./packages/secret-contracts-scripts/src/config/config.ts
 * Add the terminal log to ./logs_secret/uploadOutput.log
 
