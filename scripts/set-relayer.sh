@@ -4,8 +4,8 @@
 
 apt install -y jq
 echo -e "Folder: $PWD"
-PARENT_DIR="$(dirname "$PWD")"
-JSON_DEPLOYED=$(cat $PARENT_DIR/deployed.json)
+# PARENT_DIR="$(dirname "$PWD")"
+JSON_DEPLOYED=$(cat ./scripts/deployed.json)
 echo -e "deployed.json: $JSON_DEPLOYED"
 RELAYER_CONFIG_PATH=$(echo "$JSON_DEPLOYED" | jq -r '.data.relayer.configPath')
 echo -e "Relayer path: $RELAYER_CONFIG_PATH"

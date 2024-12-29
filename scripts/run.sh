@@ -253,6 +253,7 @@ cd ~/ltfschoen/SecretPath/TNLS-Relayers
 # git pull origin nunya
 # git checkout nunya
 
+cd ~/nunya
 # Set the Secret Gateway code hash in the Relay config.yml file for the network to be the latest deployed code hash
 bash ~/nunya/scripts/set-relayer.sh
 
