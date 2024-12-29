@@ -3,7 +3,10 @@
 # Only run after ./scripts/run.sh
 
 apt install -y jq
-JSON_DEPLOYED=$(cat ../deployed.json)
+echo -e "Folder: $PWD"
+PARENT_DIR="$(dirname "$PWD")"
+JSON_DEPLOYED=$(cat $PARENT_DIR/deployed.json)
+echo -e "deployed.json: $JSON_DEPLOYED"
 RELAYER_CONFIG_PATH=$(echo "$JSON_DEPLOYED" | jq -r '.data.relayer.configPath')
 echo -e "Relayer path: $RELAYER_CONFIG_PATH"
 CHOSEN_NETWORK=$(echo "$JSON_DEPLOYED" | jq -r '.data.secret.network')
@@ -20,6 +23,6 @@ echo -e "Latest Secret Gateway code hash for $CHOSEN_NETWORK is $SECRET_GATEWAY_
 
 apt install -y yq
 # https://fabianlee.org/2022/12/20/yq-update-deeply-nested-elements-in-yaml/
-yq '."secretdev-1".code_hash = $SECRET_GATEWAY_CONTRACT_CODE_HASH' $RELAYER_CONFIG_PATH
+yq ".\"secretdev-1\".code_hash = \"$SECRET_GATEWAY_CONTRACT_CODE_HASH\"" $RELAYER_CONFIG_PATH
 
 echo -e "Finished updating Secret Gateway code hash in the Relayer configuration"
