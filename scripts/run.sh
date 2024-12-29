@@ -79,25 +79,30 @@ rm -rf /mnt/storage1/.chains
 
 touch ~/.zprofile
 
+ZPROFILE_PATH=~/.zprofile
+
 nvm_cmd=$(which nvm)
 if [ -z $nvm_cmd ]; then
-  echo -e "Installing NVM and adding to PATH"
 
-  printf '%s' '
-  # nvm installation
-  export NVM_DIR="$HOME/.nvm" && (
-    git clone https://github.com/nvm-sh/nvm.git "$NVM_DIR"
-    cd "$NVM_DIR"
-    git checkout `git describe --abbrev=0 --tags --match "v[0-9]*" $(git rev-list --tags --max-count=1)`
-  ) && \. "$NVM_DIR/nvm.sh"
+  if ! grep -q NVM_DIR "$ZPROFILE_PATH"; then
+    echo -e "Adding to PATH"
 
-  export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+    printf '%s' '
+    # nvm installation
+    export NVM_DIR="$HOME/.nvm" && (
+      git clone https://github.com/nvm-sh/nvm.git "$NVM_DIR"
+      cd "$NVM_DIR"
+      git checkout `git describe --abbrev=0 --tags --match "v[0-9]*" $(git rev-list --tags --max-count=1)`
+    ) && \. "$NVM_DIR/nvm.sh"
 
-  # node path
-  export PATH="/root/.nvm/versions/node/v18.20.5/bin/node/v18.20.5/bin/node:$PATH"
-  ' >> ~/.zprofile
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+    # node path
+    export PATH="/root/.nvm/versions/node/v18.20.5/bin/node/v18.20.5/bin/node:$PATH"
+    ' >> ~/.zprofile
+  fi
 
   source ~/.zprofile
 else
@@ -225,8 +230,8 @@ yarn run secret:uploadAndInstantiateGateway
 
 ## TODO - write output to config.ts including code id, code hash, and contract hash
 
-# PART 2
-yarn run secret:querySecretGatewayPubkey
+# SKIP: PART 2
+# yarn run secret:querySecretGatewayPubkey
 
 # TODO - update config.ts
 
@@ -247,6 +252,9 @@ cd ~/ltfschoen/SecretPath/TNLS-Relayers
 # git stash
 # git pull origin nunya
 # git checkout nunya
+
+# Set the Secret Gateway code hash in the Relay config.yml file for the network to be the latest deployed code hash
+bash ./set-relayer.sh
 
 ## TODO - configure these files
 # /root/ltfschoen/SecretPath/TNLS-Relayers/config.yml

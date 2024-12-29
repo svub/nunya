@@ -25,12 +25,14 @@ The guide uses `scp` to copy file changes that are being made on a local machine
 	git fetch origin submit-pubkey:submit-pubkey
 	git checkout submit-pubkey
 	```
+	* Configure the config.ts file, and both the .env files that are in both the packages/hardhat and packages/secret-contract-scripts directories 
 * Clone https://github.com/ltfschoen/SecretPath into `~/ltfschoen`
 * Fetch latest from branch 'nunya'
 	```
 	git fetch origin nunya:nunya
 	git checkout nunya
 	```
+	* Configure the .env file, and config.yml file
 * Run the following on a remote server:
 	```
 	./scripts/run.sh
@@ -196,30 +198,30 @@ scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
   yarn run secret:instantiateGateway
   ```
 
-  * Get the Secret Gateway public key (signing verification key '0x' prefixed hex string) and base64 encryption key
-	```bash
-	yarn run secret:querySecretGatewayPubkey
-  ```
+  * SKIP: Get the Secret Gateway public key (signing verification key '0x' prefixed hex string) and base64 encryption key
+		```bash
+		yarn run secret:querySecretGatewayPubkey
+		```
 
-  Example output:
-	```
-	res queryPubkey:  {
-	  encryption_key: '...',
-	  verification_key: '0x...'
-	}
-	```
+		Example output:
+		```
+		res queryPubkey:  {
+			encryption_key: '...',
+			verification_key: '0x...'
+		}
+		```
 
-  * Paste `verification_key` into Gateway.sol for value of `secret_gateway_signer_pubkey`
-  * Redeploy if differs Gateway.sol 
+		* Paste `verification_key` into Gateway.sol for value of `secret_gateway_signer_pubkey`
+		* Redeploy if differs Gateway.sol 
 
-	* Paste them into config.ts, `gatewayContractPublicKey` with `verification_key` and `gatewayContractEncryptionKeyForChaChaPoly1305` with `encryption_key`
+		* Paste them into config.ts, `gatewayContractPublicKey` with `verification_key` and `gatewayContractEncryptionKeyForChaChaPoly1305` with `encryption_key`
 
-	* UPDATE CONFIG AND RUN ON LOCAL IF DIFFERS
-  ```bash
-  SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/config/config.ts
-  DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/config/config.ts
-  scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
-  ```
+		* UPDATE CONFIG AND RUN ON LOCAL IF DIFFERS
+		```bash
+		SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/config/config.ts
+		DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/config/config.ts
+		scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+		```
 
   ```bash
 	yarn run secret:clean

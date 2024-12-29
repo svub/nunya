@@ -4,7 +4,17 @@ dotenv.config();
 // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-testnet-pulsar-3-contracts
 // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-mainnet-secret-4-contracts
 
-let config = {
+class Config {
+  networkSettings: any = {};
+  constructor(initialSettings: any) {
+    this.networkSettings = initialNetworkSettings;
+  }
+}
+
+let initialNetworkSettings = {
+  relayer: {
+    configPath: process.env.RELAYER_CONFIG_PATH,
+  },
   evm: {
     network: "localhost",
     localhost: {
@@ -109,5 +119,7 @@ let config = {
     }
   }
 };
+
+let config = new Config(initialNetworkSettings);
 
 export default config;

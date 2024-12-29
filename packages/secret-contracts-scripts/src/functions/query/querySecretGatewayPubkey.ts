@@ -22,9 +22,9 @@ export const querySecretGatewayPubkey = async (params: any) => {
 
 async function main() {
   const { chainId, endpoint, secretGateway: { gatewayContractAddress, gatewayContractCodeHash } } =
-    config.secret.network == "testnet"
-    ? config.secret.testnet
-    : config.secret.localhost;
+    config.networkSettings.secret.network == "testnet"
+    ? config.networkSettings.secret.testnet
+    : config.networkSettings.secret.localhost;
 
   let params = {
     endpoint: endpoint,

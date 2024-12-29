@@ -1,0 +1,57 @@
+{
+  "deployed": {
+    "relayer": {
+      "configPath": ""
+    },
+    "evm": {
+      "localhost": {
+        "chainId": "",
+        "endpoint": "",
+        "nunyaBusinessContractAddress": "",
+        "gatewayContractAddress": ""
+      },
+      "sepolia": {
+        "chainId": "11155111",
+        "endpoint": "",
+        "nunyaBusinessContractAddress": "0xAFFF311821C3F3AF863C7103BB17BDC1Ba04603D",
+        "gatewayContractAddress": "0x1E4B12A9F82b33DA1127B27861EFf5E652de7a6F"
+      }
+    },
+    "secret": {
+      "testnet": {
+        "chainId": "",
+        "endpoint": "",
+        "secretNunya": {
+          "nunyaContractCodeId": "",
+          "nunyaContractCodeHash": "",
+          "nunyaContractAddress": ""
+        },
+        "secretGateway": {
+          "gatewayContractCodeId": "",
+          "gatewayContractAddress": "",
+          "gatewayContractCodeHash": "",
+          "gatewayContractAdminAddress": "",
+          "gatewayContractPublicKey": "",
+          "gatewayContractEncryptionKeyForChaChaPoly1305": ""
+        }
+      },
+      "localhost": {
+        "chainId": "",
+        "endpoint": "",
+        "secretNunya": {
+          "nunyaContractCodeId": "",
+          "nunyaContractCodeHash": "",
+          "nunyaContractAddress": ""
+        },
+        "secretGateway": {
+          "gatewayContractCodeId": "",
+          "gatewayContractAddress": "",
+          "gatewayContractCodeHash": "",
+          "gatewayContractAdminAddress": "",
+          "gatewayContractPublicKey": "",
+          "gatewayContractEncryptionKeyForChaChaPoly1305": ""
+        }
+      }
+    }
+  } 
+}

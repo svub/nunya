@@ -18,20 +18,26 @@ if (!globalThis.crypto) globalThis.crypto = webcrypto;
 // Then, use ECDH to create the encryption key
 // Reference: https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/usecases/vrf/using-encrypted-payloads-for-vrf#generating-the-encryption-key-using-ecdh
 export async function generateKeys() {
-  const { chainId, endpoint, secretNunya: { nunyaContractAddress, nunyaContractCodeHash }, secretGateway: { gatewayContractAddress, gatewayContractCodeHash, gatewayContractEncryptionKeyForChaChaPoly1305 } } =
-  config.secret.network == "testnet"
-  ? config.secret.testnet
-  : config.secret.localhost;
+  let varsSecret;
+  if (config.networkSettings.secret.network == "testnet") {
+    varsSecret = config.networkSettings.secret.testnet;
+  } else if (config.networkSettings.secret.network == "localhost") {
+    varsSecret = config.networkSettings.secret.localhost;
+  } else {
+    throw new Error(`Unsupported Secret network.`)
+  }
+  const { chainId, endpoint, secretNunya: { nunyaContractAddress, nunyaContractCodeHash }, secretGateway: { gatewayContractAddress, gatewayContractCodeHash, gatewayContractEncryptionKeyForChaChaPoly1305 } } = varsSecret;
+  
 
-  let vars;
-  if (config.evm.network == "sepolia") {
-    vars = config.evm.sepolia;
-  } else if (config.evm.network == "localhost") {
-    vars = config.evm.localhost;
+  let varsEvm;
+  if (config.networkSettings.evm.network == "sepolia") {
+    varsEvm = config.networkSettings.evm.sepolia;
+  } else if (config.networkSettings.evm.network == "localhost") {
+    varsEvm = config.networkSettings.evm.localhost;
   } else {
     throw new Error(`Unsupported network.`)
   }
-  const { privateKey } = vars;
+  const { privateKey } = varsEvm;
 
   if (gatewayContractEncryptionKeyForChaChaPoly1305 == "") {
     throw Error("Unable to obtain Secret Network Gateway information");

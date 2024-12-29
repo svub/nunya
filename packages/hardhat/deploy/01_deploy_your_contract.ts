@@ -4,6 +4,8 @@ import { Contract, SigningKey, Wallet, getBytes, ethers, formatEther, parseEther
 import config from "../hardhat.config";
 import * as dotenv from "dotenv";
 dotenv.config();
+import { loadDeployed } from "../helpers/loadDeployed";
+import { writeDeployed } from "../helpers/writeDeployed";
 
 const logging = true;
 
@@ -56,7 +58,9 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   const deployerPrivateKeyLocalNetwork = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
   const deployerAddressLocalNetwork = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 
+  let isLocal;
   if (hre.network.name == "sepolia") {
+    isLocal = false;
     console.log("hre.network.name: ", hre.network.name);
     if (process.env.DEPLOYER_ADDRESS == "" || process.env.DEPLOYER_PRIVATE_KEY == "") {
       throw new Error(`Please add deployer address and private key to the .env file for Sepolia Network.`)
@@ -66,6 +70,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     deployerPublicKeyBytes = getDeployerPublicKeyBytes(deployer);
     providerRpc = String(config.networks?.sepolia);
   } else {
+    isLocal = true;
     deployer = deployerPrivateKeyLocalNetwork;
     deployerAddress = deployerAddressLocalNetwork;
     deployerPublicKeyBytes = getDeployerPublicKeyBytes(deployer);
@@ -122,6 +127,20 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   // const nunyaContractDeployedAt = await hre.ethers.getContractAt("NunyaBusiness", nunyaContract.address);
   // const newSecretUserTx = await nunyaContractDeployedAt.newSecretUser(deployer, { value: parseEther("0.0001") });
   // console.log("tx hash:", newSecretUserTx.hash);
+
+  const deployed = await loadDeployed();
+  if (isLocal) {
+    deployed.data.evm.localhost.chainId = chainId?.toString() || "";
+    deployed.data.evm.localhost.endpoint = providerRpc;
+    deployed.data.evm.localhost.nunyaBusinessContractAddress = nunyaContract.address;
+    deployed.data.evm.localhost.gatewayContractAddress = gateway.address;
+  } else {
+    deployed.data.evm.sepolia.chainId = chainId?.toString() || "";
+    deployed.data.evm.sepolia.endpoint = providerRpc;
+    deployed.data.evm.sepolia.nunyaBusinessContractAddress = nunyaContract.address;
+    deployed.data.evm.sepolia.gatewayContractAddress = gateway.address;
+  }
+  await writeDeployed(deployed);
 };
 
 export default deployYourContract;

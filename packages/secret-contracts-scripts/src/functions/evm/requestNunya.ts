@@ -15,20 +15,25 @@ import { hexlify } from "ethers/lib/utils.js";
 import { assert } from "console";
 import { RequestParams } from "../../types/index.js";
 
-const { chainId: secretChainId, secretNunya: { nunyaContractAddress, nunyaContractCodeHash } } =
-  config.secret.network == "testnet"
-  ? config.secret.testnet
-  : config.secret.localhost;
+let varsSecret;
+if (config.networkSettings.secret.network == "testnet") {
+  varsSecret = config.networkSettings.secret.testnet;
+} else if (config.networkSettings.secret.network == "localhost") {
+  varsSecret = config.networkSettings.secret.localhost;
+} else {
+  throw new Error(`Unsupported Secret network.`)
+}
+const { chainId: secretChainId, secretNunya: { nunyaContractAddress, nunyaContractCodeHash } } = varsSecret;
 
-let vars;
-if (config.evm.network == "sepolia") {
-  vars = config.evm.sepolia;
-} else if (config.evm.network == "localhost") {
-  vars = config.evm.localhost;
+let varsEvm;
+if (config.networkSettings.evm.network == "sepolia") {
+  varsEvm = config.networkSettings.evm.sepolia;
+} else if (config.networkSettings.evm.network == "localhost") {
+  varsEvm = config.networkSettings.evm.localhost;
 } else {
   throw new Error(`Unsupported network.`)
 }
-const { chainId: evmChainId, endpoint, nunyaBusinessContractAddress, gatewayContractAddress, privateKey } = vars;
+const { chainId: evmChainId, endpoint, nunyaBusinessContractAddress, gatewayContractAddress, privateKey } = varsEvm;
 
 export const requestNunya = async (params: RequestParams) => {
   const { callbackSelectorName, callbackGasLimitAmount, requestFunctionName, requestEthValue, secretContractRequestHandle, secretContractRequestHandleArgs } = params;

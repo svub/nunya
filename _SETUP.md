@@ -12,6 +12,7 @@
 **Quick Start** with section: [_QUICKSTART.md](./_QUICKSTART.md), otherwise if that doesn't work:
 
 **Start Here** with section [Setup Secret](#setup-secret") and follow the instructions from there.
+  * TODO - Update this to mention how to configure and use ./scripts/run.sh like how the QUICKSTART file does it
 
 Help judges and other developers understand the project.
 
@@ -356,7 +357,7 @@ git submodule update --init --recursive
 
       * Note: If you get error `TypeError: URL.canParse is not a function` then you're likely using the wrong Node.js version, so just change to the project root directory and run `nvm use` in that terminal tab.
 
-  * Add the `CODE_ID` to `secretGateway -> gatewayContractCodeId` and `CODE_HASH` to `secretGateway -> gatewayContractCodeHash` respectively to the relevant config.secret.<network> in ./packages/secret-contracts-scripts/src/config/config.ts
+  * Add the `CODE_ID` to `secretGateway -> gatewayContractCodeId` and `CODE_HASH` to `secretGateway -> gatewayContractCodeHash` respectively to the relevant config.networkSettings.secret.<network> in ./packages/secret-contracts-scripts/src/config/config.ts
   * Add the terminal log to ./logs_secret/uploadGatewaySecretLocalhost.log
 
   > IMPORTANT: If deployment of the code with `await secretjs.tx.compute.storeCode` is unsuccessful, then check if Beta version of secretjs is necessary incase the Secret Testnet is being upgraded.
@@ -367,7 +368,7 @@ git submodule update --init --recursive
   yarn run secret:instantiateGateway
   ```
 
-  * Add the `SECRET_ADDRESS` to `gatewayContractAddress` in the relevant config.secret.<network> in ./nunya/packages/secret-contracts-scripts/src/config/config.ts
+  * Add the `SECRET_ADDRESS` to `gatewayContractAddress` in the relevant config.networkSettings.secret.<network> in ./nunya/packages/secret-contracts-scripts/src/config/config.ts
   * Add the terminal log to ./logs_secret/instantiateOutput.log
   * Add the Secret Localhost chain logs to ./logs_secret/instantiateGatewaySecretLocalhostChainOutput.log
   * View on Secret Localhost block explorer
@@ -375,24 +376,24 @@ git submodule update --init --recursive
 
   * Note: In order to populate the `secret.localhost.secretGateway.gatewayContractPublicKey` and `secret.localhost.secretGateway.gatewayContractEncryptionKeyForChaChaPoly1305` do the following:
 
-  * Get the Secret Gateway public key (signing verification key '0x' prefixed hex string) and base64 encryption key
+  * SKIP: Get the Secret Gateway public key (signing verification key '0x' prefixed hex string) and base64 encryption key
 
-  ```bash
-  yarn run secret:querySecretGatewayPubkey
-  ```
+    ```bash
+    yarn run secret:querySecretGatewayPubkey
+    ```
 
-  Example output:
-	```
-	res queryPubkey:  {
-	  encryption_key: '...',
-	  verification_key: '0x...'
-	}
-	```
+    Example output:
+    ```
+    res queryPubkey:  {
+      encryption_key: '...',
+      verification_key: '0x...'
+    }
+    ```
 
-  * Paste `verification_key` into Gateway.sol for value of `secret_gateway_signer_pubkey`
-  * Redeploy if differs Gateway.sol 
+    * Paste `verification_key` into Gateway.sol for value of `secret_gateway_signer_pubkey`
+    * Redeploy if differs Gateway.sol 
 
-	* Paste them into config.ts, `gatewayContractPublicKey` with `verification_key` and `gatewayContractEncryptionKeyForChaChaPoly1305` with `encryption_key`
+    * Paste them into config.ts, `gatewayContractPublicKey` with `verification_key` and `gatewayContractEncryptionKeyForChaChaPoly1305` with `encryption_key`
 
   * NEXT, [Deploy Nunya Contract on Localhost](#deploy-nunya-contract-on-localhost)
 
@@ -654,16 +655,17 @@ cd SecretPath/TNLS-Relayers
 
 * Open file ./nunya/packages/secret-contracts-scripts/src/config/config.ts
 * Check ./nunya/packages/secret-contracts-scripts/.env has been created from the .env-sample file
+  * Ensure that in the .env file that RELAYER_CONFIG_PATH is set to the path of the config.yml file of the relayer on the same machine, because if you run ./scripts/run.sh it will automatically update the relayer config.yml file if the Secret Gateway contract code hash changes in order for it to work.
 
 * Reference: https://docs.scrt.network/secret-network-documentation/development/example-contracts/tools-and-libraries/local-secret#advantages-of-localsecret-vs.-a-public-testnet
 
 ###### Testnet
 
-* Edit config.secret.network to be "testnet"
+* Edit config.networkSettings.secret.network to be "testnet"
 
 ###### Localhost
 
-* Edit config.secret.network to be "localhost"
+* Edit config.networkSettings.secret.network to be "localhost"
   * Ensure `ENDPOINT_LOCAL` is set to where you are running the Secret Localhost (e.g. `http://<IP_ADDRESS>:1317`)
   * Ensure that `secretGateway` -> `address`, `gatewayContractCodeHash`, `gatewayPublicKey`, and `gatewayEncryptionKeyForChaChaPoly1305` and set to where you deployed the Gateway on Localhost
 
@@ -752,7 +754,7 @@ OR (combine with instantiate)
 yarn run secret:uploadAndInstantiateNunya
 ```
 
-* Add the `CODE_ID` to `codeId` and `CODE_HASH` to `secretNunya -> nunyaContractCodeHash` respectively to the relevant config.secret.<network> in ./packages/secret-contracts-scripts/src/config/config.ts
+* Add the `CODE_ID` to `codeId` and `CODE_HASH` to `secretNunya -> nunyaContractCodeHash` respectively to the relevant config.networkSettings.secret.<network> in ./packages/secret-contracts-scripts/src/config/config.ts
 * Add the terminal log to ./logs_secret/uploadOutput.log
 
 > IMPORTANT: If deployment of the code with `await secretjs.tx.compute.storeCode` is unsuccessful, then check if Beta version of secretjs is necessary incase the Secret Testnet is being upgraded.
@@ -761,7 +763,7 @@ yarn run secret:uploadAndInstantiateNunya
 yarn run secret:instantiate
 ```
 
-* Add the `SECRET_ADDRESS` to `nunyaContractAddress` in the relevant config.secret.<network> in ./nunya/packages/secret-contracts-scripts/src/config/config.ts
+* Add the `SECRET_ADDRESS` to `nunyaContractAddress` in the relevant config.networkSettings.secret.<network> in ./nunya/packages/secret-contracts-scripts/src/config/config.ts
 * Add the terminal log to ./logs_secret/instantiateOutput.log
 
 * View logs at ./logs_secret/instantiateOutput.log
@@ -816,7 +818,7 @@ yarn run secret:instantiate
     yarn run secret:upload
     ```
 
-  * Add the `CODE_ID` to `secretNunya -> nunyaContractCodeId` and `CODE_HASH` to `secretNunya -> nunyaContractCodeHash` respectively to the relevant config.secret.<network> in ./packages/secret-contracts-scripts/src/config/config.ts
+  * Add the `CODE_ID` to `secretNunya -> nunyaContractCodeId` and `CODE_HASH` to `secretNunya -> nunyaContractCodeHash` respectively to the relevant config.networkSettings.secret.<network> in ./packages/secret-contracts-scripts/src/config/config.ts
   * Add the terminal log to ./logs_secret/uploadNunyaSecretLocalhost.log
 
   > IMPORTANT: If deployment of the code with `await secretjs.tx.compute.storeCode` is unsuccessful, then check if Beta version of secretjs is necessary incase the Secret Testnet is being upgraded.
@@ -825,7 +827,7 @@ yarn run secret:instantiate
   yarn run secret:instantiate
   ```
 
-  * Add the `SECRET_ADDRESS` to `nunyaContractAddress` in the relevant config.secret.<network> in ./nunya/packages/secret-contracts-scripts/src/config/config.ts
+  * Add the `SECRET_ADDRESS` to `nunyaContractAddress` in the relevant config.networkSettings.secret.<network> in ./nunya/packages/secret-contracts-scripts/src/config/config.ts
   * Add the Secret Localhost chain logs to ./logs_secret/instantiateNunyaSecretLocalhostChainOutput.log
   * View on Secret Localhost block explorer
   * Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
@@ -984,7 +986,7 @@ Options:
       * Scroll down to the "Deployed Contracts" section that is autogenerated to interact with the deployed contract
       * Click `setGatewayAddress` to create a transaction after providing the following argument to call the NunyaBusiness contracts transaction using the latest value from ./nunya/packages/secret-contracts-scripts/src/config/config.ts
         * Retrieve its value by clicking to call `CustomGateway`
-      * Click `unsafeSetSecretContractInfo` to create a transaction after providing the following arguments `config.secret.testnet.secretNunya.nunyaContractCodeHash` and `config.secret.testnet.secretNunya.nunyaContractAddress` using values from ./nunya/packages/secret-contracts-scripts/src/config/config.ts
+      * Click `unsafeSetSecretContractInfo` to create a transaction after providing the following arguments `config.networkSettings.secret.testnet.secretNunya.nunyaContractCodeHash` and `config.networkSettings.secret.testnet.secretNunya.nunyaContractAddress` using values from ./nunya/packages/secret-contracts-scripts/src/config/config.ts
         * Retrieve their values by clicking to calls `routing_info` and `routing_code_hash`
       * Click `unsafeRequestValue` to create a transaction after providing the following arguments `0xb6c2b131` and `10000000`
         * FIXME - Why get error `Paid Callback Fee Too Low` from the `requestValue` function in the Gateway EVM contract https://sepolia.etherscan.io/tx/0xdab1b76f3ede8042c850a483a28d73c23a271e5eac37d0e500b55d625fbdbabb. It may be necessary to deploy to local network for debugging.

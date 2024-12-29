@@ -3,6 +3,8 @@ import * as fs from "fs";
 import path from 'path';
 import { fileURLToPath } from 'url';
 import config from './config/config.js';
+import { loadDeployed } from "./loadDeployed.js";
+import { writeDeployed } from "./writeDeployed.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,21 +16,34 @@ const walletOptions = {
   bech32Prefix: 'secret',
 }
 
-const isLocal = config.secret.network == "testnet";
-const { walletMnemonic, isOptimizedContractWasm, secretNunya: { nunyaContractWasmPath }, secretGateway: { gatewayContractAddress, gatewayContractCodeHash, gatewayContractPublicKey }, chainId, endpoint } =
-  isLocal == false
-  ? config.secret.testnet
-  : config.secret.localhost;
-
-let vars;
-if (config.evm.network == "sepolia") {
-  vars = config.evm.sepolia;
-} else if (config.evm.network == "localhost") {
-  vars = config.evm.localhost;
-} else {
-  throw new Error(`Unsupported network.`)
+let isLocal: boolean;
+if (config.networkSettings.secret.network == "testnet") {
+  isLocal = false;
+} else if (config.networkSettings.secret.network == "localhost") {
+  isLocal = true;
+} else if (config.networkSettings.secret.network == "mainnet") {
+  throw new Error(`Unsupported Secret network.`)
 }
-const { nunyaBusinessContractAddress } = vars;
+
+let varsSecret;
+if (config.networkSettings.secret.network == "testnet") {
+  varsSecret = config.networkSettings.secret.testnet;
+} else if (config.networkSettings.secret.network == "localhost") {
+  varsSecret = config.networkSettings.secret.localhost;
+} else {
+  throw new Error(`Unsupported Secret network.`)
+}
+const { walletMnemonic, isOptimizedContractWasm, secretNunya: { nunyaContractWasmPath }, secretGateway: { gatewayContractAddress, gatewayContractCodeHash, gatewayContractPublicKey }, chainId, endpoint } = varsSecret;
+
+let varsEvm;
+if (config.networkSettings.evm.network == "sepolia") {
+  varsEvm = config.networkSettings.evm.sepolia;
+} else if (config.networkSettings.evm.network == "localhost") {
+  varsEvm = config.networkSettings.evm.localhost;
+} else {
+  throw new Error(`Unsupported Ethereum network.`)
+}
+const { nunyaBusinessContractAddress } = varsEvm;
 
 if (walletMnemonic == "") {
   throw Error("Unable to obtain mnemonic phrase");
@@ -215,14 +230,15 @@ async function main () {
       console.log(`CODE_ID: ${res.codeId}`);
       console.log(`CODE_HASH: ${res.contractCodeHash}`);
 
-      // TODO: Add res.codeId and res.contractCodeHash to config.ts file
+      let deployed = await loadDeployed();
       if (isLocal) {
-        config.secret.localhost.secretNunya.nunyaContractCodeId = res.codeId;
-        config.secret.localhost.secretNunya.nunyaContractCodeHash = res.contractCodeHash;
+        deployed.data.secret.localhost.secretNunya.nunyaContractCodeId = res.codeId;
+        deployed.data.secret.localhost.secretNunya.nunyaContractCodeHash = res.contractCodeHash;
       } else {
-        config.secret.testnet.secretNunya.nunyaContractCodeId = res.codeId;
-        config.secret.testnet.secretNunya.nunyaContractCodeHash = res.contractCodeHash;
+        deployed.data.secret.testnet.secretNunya.nunyaContractCodeId = res.codeId;
+        deployed.data.secret.testnet.secretNunya.nunyaContractCodeHash = res.contractCodeHash;
       }
+      await writeDeployed(deployed);
 
       const codeParams = {
         codeId: res.codeId,
@@ -233,11 +249,13 @@ async function main () {
         .then(async (contractParams: CONTRACT_PARAMS) => {
           console.log("SECRET_ADDRESS: ", contractParams.contractAddress);
 
+          deployed = await loadDeployed();
           if (isLocal) {
-            config.secret.localhost.secretNunya.nunyaContractAddress = contractParams.contractAddress;
+            deployed.data.secret.localhost.secretNunya.nunyaContractAddress = contractParams.contractAddress;
           } else {
-            config.secret.testnet.secretNunya.nunyaContractAddress = contractParams.contractAddress;
+            deployed.data.secret.testnet.secretNunya.nunyaContractAddress = contractParams.contractAddress;
           }
+          await writeDeployed(deployed);
         })
         .catch((error: any) => {
           console.error("Error:", error);

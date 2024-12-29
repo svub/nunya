@@ -6,15 +6,15 @@ import gatewayAbi from "../../../hardhat/artifacts/contracts/Gateway.sol/Gateway
 import nunyaAbi from "../../../hardhat/artifacts/contracts/NunyaBusiness.sol/NunyaBusiness.json" assert { type: "json" };
 import config from '../config/config.js';
 
-let vars;
-if (config.evm.network == "sepolia") {
-  vars = config.evm.sepolia;
-} else if (config.evm.network == "localhost") {
-  vars = config.evm.localhost;
+let varsEvm;
+if (config.networkSettings.evm.network == "sepolia") {
+  varsEvm = config.networkSettings.evm.sepolia;
+} else if (config.networkSettings.evm.network == "localhost") {
+  varsEvm = config.networkSettings.evm.localhost;
 } else {
   throw new Error(`Unsupported network.`)
 }
-const { chainId, endpoint, nunyaBusinessContractAddress, gatewayContractAddress, privateKey } = vars;
+const { chainId, endpoint, nunyaBusinessContractAddress, gatewayContractAddress, privateKey } = varsEvm;
 
 // Sets the deployed Gateway address storage value for the NunyaBusiness contract
 async function setGatewayAddress() {
@@ -29,13 +29,13 @@ async function setGatewayAddress() {
   
   let provider;
   provider = new ethers.providers.JsonRpcProvider(endpoint);
-  console.log(provider);
+  // console.log(provider);
   await provider.detectNetwork();
   const signer = new Wallet(privateKey, provider);
   const address = signer.address;
   console.log("Public address:", address, "\n");
   signer.connect(provider);
-  console.log("signer is: ", provider.getSigner());
+  // console.log("signer is: ", provider.getSigner());
   const balance = await provider.getBalance(address);
   console.log("balance:", +ethers.utils.formatEther(balance));
   console.log("nonce:", +(await provider.getTransactionCount(address)));
@@ -49,7 +49,7 @@ async function setGatewayAddress() {
   console.log("Setting the Gateway address in the Nunya contract to: ", gatewayContractAddress);
   // Set the gateway address now that the Nunya contract and Gateway contract have been deployed and funded
   const nunyaContractInstance = new Contract(nunyaBusinessContractAddress, ifaceNunya, signer);
-  console.log('nunyaContractInstance', nunyaContractInstance);
+  // console.log('nunyaContractInstance', nunyaContractInstance);
   
   const setGatewayAddressReceipt = await nunyaContractInstance.setGatewayAddress(
     gatewayContractAddress, { value: utils.parseEther("0.0001") }

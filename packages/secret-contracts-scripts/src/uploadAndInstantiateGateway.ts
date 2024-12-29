@@ -4,6 +4,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import config from './config/config.js';
 import { getSecretGatewayContractKeys } from "./functions/query/getSecretGatewayContractKeys.js";
+import { loadDeployed } from "./loadDeployed.js";
+import { writeDeployed } from "./writeDeployed.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,11 +17,12 @@ const walletOptions = {
   bech32Prefix: 'secret',
 }
 
-const isLocal = config.secret.network == "testnet";
+const isLocal = config.networkSettings.secret.network == "localhost";
 const { walletMnemonic, isOptimizedContractWasm, secretNunya: { nunyaContractWasmPath }, secretGateway: { gatewayContractAdminAddress, gatewayContractCodeId, gatewayContractCodeHash, gatewayContractWasmPath }, chainId, endpoint } =
   isLocal == false
-  ? config.secret.testnet
-  : config.secret.localhost;
+  ? config.networkSettings.secret.testnet
+  : config.networkSettings.secret.localhost;
+const { configPath } = config.networkSettings.relayer;
 
 if (walletMnemonic == "") {
   throw Error("Unable to obtain mnemonic phrase");
@@ -45,6 +48,20 @@ async function main () {
 
   console.log('endpoint: ', endpoint);
   // console.log('secretjs: ', secretjs);
+
+  let deployed = await loadDeployed();
+  if (isLocal) {
+    deployed.data.relayer.configPath = configPath;
+
+    deployed.data.secret.localhost.chainId = chainId;
+    deployed.data.secret.localhost.endpoint = endpoint;
+  } else {
+    deployed.data.relayer.configPath = configPath;
+
+    deployed.data.secret.testnet.chainId = chainId;
+    deployed.data.secret.testnet.endpoint = endpoint;
+  }
+  await writeDeployed(deployed);
 
   const { balance } = await secretjs.query.bank.balance({
     address: wallet.address,
@@ -192,13 +209,19 @@ async function main () {
       console.log(`CODE_ID: ${res.codeId}`);
       console.log(`CODE_HASH: ${res.contractCodeHash}`);
 
+      let deployed = await loadDeployed();
       if (isLocal) {
-        config.secret.localhost.secretGateway.gatewayContractCodeId = res.contractCodeHash;
-        config.secret.localhost.secretGateway.gatewayContractCodeHash = res.contractCodeHash;
+        deployed.data.secret.localhost.secretGateway.gatewayContractAdminAddress = gatewayContractAdminAddress;
+
+        deployed.data.secret.localhost.secretGateway.gatewayContractCodeId = res.contractCodeHash;
+        deployed.data.secret.localhost.secretGateway.gatewayContractCodeHash = res.contractCodeHash;
       } else {
-        config.secret.testnet.secretGateway.gatewayContractCodeId = res.contractCodeHash;
-        config.secret.testnet.secretGateway.gatewayContractCodeHash = res.contractCodeHash;
+        deployed.data.secret.testnet.secretGateway.gatewayContractAdminAddress = gatewayContractAdminAddress;
+
+        deployed.data.secret.testnet.secretGateway.gatewayContractCodeId = res.contractCodeHash;
+        deployed.data.secret.testnet.secretGateway.gatewayContractCodeHash = res.contractCodeHash;
       }
+      await writeDeployed(deployed);
 
       const codeParams = {
         codeId: res.codeId,
@@ -209,11 +232,13 @@ async function main () {
         .then(async (contractParams: CONTRACT_PARAMS) => {
           console.log("SECRET_ADDRESS: ", contractParams.contractAddress);
 
+          deployed = await loadDeployed();
           if (isLocal) {
-            config.secret.localhost.secretGateway.gatewayContractAddress = contractParams.contractAddress;
+            deployed.data.secret.localhost.secretGateway.gatewayContractAddress = contractParams.contractAddress;
           } else {
-            config.secret.testnet.secretGateway.gatewayContractAddress = contractParams.contractAddress;
+            deployed.data.secret.testnet.secretGateway.gatewayContractAddress = contractParams.contractAddress;
           }
+          await writeDeployed(deployed);
 
           // TODO: Refactor and put common types in types.ts
           type EphemeralKeys = {
@@ -233,13 +258,15 @@ async function main () {
           console.log('secretGatewayContractKeys.encryption_key: ', secretGatewayContractKeys.encryption_key);
           console.log('secretGatewayContractKeys.verification_key: ', secretGatewayContractKeys.verification_key);
 
+          deployed = await loadDeployed();
           if (isLocal) {
-            config.secret.localhost.secretGateway.gatewayContractEncryptionKeyForChaChaPoly1305 = secretGatewayContractKeys.encryption_key;
-            config.secret.localhost.secretGateway.gatewayContractPublicKey = secretGatewayContractKeys.verification_key;
+            deployed.data.secret.localhost.secretGateway.gatewayContractEncryptionKeyForChaChaPoly1305 = secretGatewayContractKeys.encryption_key;
+            deployed.data.secret.localhost.secretGateway.gatewayContractPublicKey = secretGatewayContractKeys.verification_key;
           } else {
-            config.secret.testnet.secretGateway.gatewayContractEncryptionKeyForChaChaPoly1305 = secretGatewayContractKeys.encryption_key;
-            config.secret.testnet.secretGateway.gatewayContractPublicKey = secretGatewayContractKeys.verification_key;
+            deployed.data.secret.testnet.secretGateway.gatewayContractEncryptionKeyForChaChaPoly1305 = secretGatewayContractKeys.encryption_key;
+            deployed.data.secret.testnet.secretGateway.gatewayContractPublicKey = secretGatewayContractKeys.verification_key;
           }
+          await writeDeployed(deployed);
         })
         .catch((error: any) => {
           console.error("Error:", error);
