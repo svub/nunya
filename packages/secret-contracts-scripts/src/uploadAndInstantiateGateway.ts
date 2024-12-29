@@ -50,6 +50,10 @@ async function main () {
   // console.log('secretjs: ', secretjs);
 
   let deployed = await loadDeployed();
+
+  deployed.data.evm.network = config.networkSettings.evm.network;
+  deployed.data.secret.network = config.networkSettings.secret.network;
+
   if (isLocal) {
     deployed.data.relayer.configPath = configPath;
 
