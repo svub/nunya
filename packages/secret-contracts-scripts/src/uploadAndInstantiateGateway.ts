@@ -3,6 +3,7 @@ import * as fs from "fs";
 import path from 'path';
 import { fileURLToPath } from 'url';
 import config from './config/config.js';
+import { getSecretGatewayContractKeys } from "./functions/query/getSecretGatewayContractKeys.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,8 +15,9 @@ const walletOptions = {
   bech32Prefix: 'secret',
 }
 
+const isLocal = config.secret.network == "testnet";
 const { walletMnemonic, isOptimizedContractWasm, secretNunya: { nunyaContractWasmPath }, secretGateway: { gatewayContractAdminAddress, gatewayContractCodeId, gatewayContractCodeHash, gatewayContractWasmPath }, chainId, endpoint } =
-  config.secret.network == "testnet"
+  isLocal == false
   ? config.secret.testnet
   : config.secret.localhost;
 
@@ -52,25 +54,25 @@ async function main () {
   console.log('balance: ', balance);
 
   type INIT_MSG = {
-    admin: String,
+    admin: string,
   };
 
   type CODE_PARAMS = {
-    codeId: String,
-    contractCodeHash: String,
+    codeId: string,
+    contractCodeHash: string,
   };
 
   type CONTRACT_PARAMS = {
-    contractAddress: String,
-    contractCodeHash: String,
+    contractAddress: string,
+    contractCodeHash: string,
   };
 
   // TODO: Refactor into its own file
   let uploadContract = async () => {
     console.log("Starting deployment...");
 
-    let codeId: String;
-    let contractCodeHash: String;
+    let codeId: string;
+    let contractCodeHash: string;
     let tx: any;
     let txParams = {
       sender: wallet.address,
@@ -102,9 +104,7 @@ async function main () {
 
     // View tx in block explorer - https://docs.scrt.network/secret-network-documentation/overview-ecosystem-and-technology/ecosystem-overview/explorers-and-tools
 
-    codeId = String(
-      tx?.arrayLog?.find((log: any) => log?.type === "message" && log?.key === "code_id")?.value
-    );
+    codeId = tx?.arrayLog?.find((log: any) => log?.type === "message" && log?.key === "code_id")?.value;
 
     if (tx?.rawLog) {
       console.log("tx.rawLog: ", tx?.rawLog);
@@ -138,7 +138,7 @@ async function main () {
       throw Error("Unable to instantiate without codeId and contractCodeHash");
     }
 
-    let contractAddress: String;
+    let contractAddress: string;
 
     if (!params.codeId || !params.contractCodeHash) {
       throw new Error("codeId or contractCodeHash is not set.");
@@ -192,7 +192,13 @@ async function main () {
       console.log(`CODE_ID: ${res.codeId}`);
       console.log(`CODE_HASH: ${res.contractCodeHash}`);
 
-      // TODO: Add res.codeId and res.contractCodeHash to config.ts file
+      if (isLocal) {
+        config.secret.localhost.secretGateway.gatewayContractCodeId = res.contractCodeHash;
+        config.secret.localhost.secretGateway.gatewayContractCodeHash = res.contractCodeHash;
+      } else {
+        config.secret.testnet.secretGateway.gatewayContractCodeId = res.contractCodeHash;
+        config.secret.testnet.secretGateway.gatewayContractCodeHash = res.contractCodeHash;
+      }
 
       const codeParams = {
         codeId: res.codeId,
@@ -202,6 +208,38 @@ async function main () {
       await instantiateContract(codeParams)
         .then(async (contractParams: CONTRACT_PARAMS) => {
           console.log("SECRET_ADDRESS: ", contractParams.contractAddress);
+
+          if (isLocal) {
+            config.secret.localhost.secretGateway.gatewayContractAddress = contractParams.contractAddress;
+          } else {
+            config.secret.testnet.secretGateway.gatewayContractAddress = contractParams.contractAddress;
+          }
+
+          // TODO: Refactor and put common types in types.ts
+          type EphemeralKeys = {
+            encryption_key: string,
+            verification_key: string,
+          }
+
+          let params = {
+            endpoint: endpoint,
+            chainId: chainId,
+            contractAddress: contractParams.contractAddress,
+            contractCodeHash: res.contractCodeHash,
+          };
+
+          // Fetch the latest from the Secret Gateway since it is generated randomly when instantiated rather than rely on user having populated it in config.ts already
+          const secretGatewayContractKeys: EphemeralKeys = await getSecretGatewayContractKeys(params);
+          console.log('secretGatewayContractKeys.encryption_key: ', secretGatewayContractKeys.encryption_key);
+          console.log('secretGatewayContractKeys.verification_key: ', secretGatewayContractKeys.verification_key);
+
+          if (isLocal) {
+            config.secret.localhost.secretGateway.gatewayContractEncryptionKeyForChaChaPoly1305 = secretGatewayContractKeys.encryption_key;
+            config.secret.localhost.secretGateway.gatewayContractPublicKey = secretGatewayContractKeys.verification_key;
+          } else {
+            config.secret.testnet.secretGateway.gatewayContractEncryptionKeyForChaChaPoly1305 = secretGatewayContractKeys.encryption_key;
+            config.secret.testnet.secretGateway.gatewayContractPublicKey = secretGatewayContractKeys.verification_key;
+          }
         })
         .catch((error: any) => {
           console.error("Error:", error);

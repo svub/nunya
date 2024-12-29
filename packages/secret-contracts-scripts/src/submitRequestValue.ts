@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 dotenv.config();
-import { requestNunya } from "./requestNunya.js";
+import { requestNunya } from "./functions/evm/requestNunya.js";
 import { RequestParams } from "./types/index.js";
 
 async function unsafeSubmitRequestValue() {

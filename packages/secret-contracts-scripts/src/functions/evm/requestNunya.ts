@@ -4,16 +4,16 @@ import * as dotenv from "dotenv";
 dotenv.config();
 import { ethers, Wallet } from "ethers";
 import { NonceManager } from "@ethersproject/experimental";
-import config from './config/config.js';
-import gatewayAbi from "../../hardhat/artifacts/contracts/Gateway.sol/Gateway.json" assert { type: "json" };
-import nunyaAbi from "../../hardhat/artifacts/contracts/NunyaBusiness.sol/NunyaBusiness.json" assert { type: "json" };
-import { generateKeys } from "./functions/secretpath/generateKeys.js";
+import config from './../../config/config.js';
+import gatewayAbi from "../../../../hardhat/artifacts/contracts/Gateway.sol/Gateway.json" assert { type: "json" };
+import nunyaAbi from "../../../../hardhat/artifacts/contracts/NunyaBusiness.sol/NunyaBusiness.json" assert { type: "json" };
+import { generateKeys } from "../../functions/secretpath/generateKeys.js";
 // import getPublicClientAddress from "./functions/secretpath/getPublicClientAddress.js";
-import { constructPayload } from "./functions/secretpath/constructPayload.js";
-import { encryptPayload } from "./functions/secretpath/encryptPayload.js";
+import { constructPayload } from "../../functions/secretpath/constructPayload.js";
+import { encryptPayload } from "../../functions/secretpath/encryptPayload.js";
 import { hexlify } from "ethers/lib/utils.js";
 import { assert } from "console";
-import { RequestParams } from "./types/index.js";
+import { RequestParams } from "../../types/index.js";
 
 const { chainId: secretChainId, secretNunya: { nunyaContractAddress, nunyaContractCodeHash } } =
   config.secret.network == "testnet"

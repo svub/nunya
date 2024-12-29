@@ -14,8 +14,9 @@ const walletOptions = {
   bech32Prefix: 'secret',
 }
 
+const isLocal = config.secret.network == "testnet";
 const { walletMnemonic, isOptimizedContractWasm, secretNunya: { nunyaContractWasmPath }, secretGateway: { gatewayContractAddress, gatewayContractCodeHash, gatewayContractPublicKey }, chainId, endpoint } =
-  config.secret.network == "testnet"
+  isLocal == false
   ? config.secret.testnet
   : config.secret.localhost;
 
@@ -70,30 +71,30 @@ async function main () {
 
   console.log('balance: ', balance);
 
-  type Binary = String;
+  type Binary = string;
 
   type INIT_MSG = {
-    gateway_address: String,
-    gateway_hash: String,
+    gateway_address: string,
+    gateway_hash: string,
     gateway_key: Binary,
-    nunya_business_contract_address: String,
+    nunya_business_contract_address: string,
   };
 
   type CODE_PARAMS = {
-    codeId: String,
-    contractCodeHash: String,
+    codeId: string,
+    contractCodeHash: string,
   };
 
   type CONTRACT_PARAMS = {
-    contractAddress: String,
-    contractCodeHash: String,
+    contractAddress: string,
+    contractCodeHash: string,
   };
 
   let uploadContract = async () => {
     console.log("Starting deployment...");
 
-    let codeId: String;
-    let contractCodeHash: String;
+    let codeId: string;
+    let contractCodeHash: string;
     let tx: any;
     let txParams = {
       sender: wallet.address,
@@ -124,9 +125,7 @@ async function main () {
 
     // View tx in block explorer - https://docs.scrt.network/secret-network-documentation/overview-ecosystem-and-technology/ecosystem-overview/explorers-and-tools
 
-    codeId = String(
-      tx?.arrayLog?.find((log: any) => log?.type === "message" && log?.key === "code_id")?.value
-    );
+    codeId = tx?.arrayLog?.find((log: any) => log?.type === "message" && log?.key === "code_id")?.value;
 
     if (tx?.rawLog) {
       console.log("tx.rawLog: ", tx?.rawLog);
@@ -159,7 +158,7 @@ async function main () {
       throw Error("Unable to instantiate without codeId and contractCodeHash");
     }
 
-    let contractAddress: String;
+    let contractAddress: string;
 
     if (!params.codeId || !params.contractCodeHash) {
       throw new Error("codeId or contractCodeHash is not set.");
@@ -217,6 +216,13 @@ async function main () {
       console.log(`CODE_HASH: ${res.contractCodeHash}`);
 
       // TODO: Add res.codeId and res.contractCodeHash to config.ts file
+      if (isLocal) {
+        config.secret.localhost.secretNunya.nunyaContractCodeId = res.codeId;
+        config.secret.localhost.secretNunya.nunyaContractCodeHash = res.contractCodeHash;
+      } else {
+        config.secret.testnet.secretNunya.nunyaContractCodeId = res.codeId;
+        config.secret.testnet.secretNunya.nunyaContractCodeHash = res.contractCodeHash;
+      }
 
       const codeParams = {
         codeId: res.codeId,
@@ -226,6 +232,12 @@ async function main () {
       await instantiateContract(codeParams)
         .then(async (contractParams: CONTRACT_PARAMS) => {
           console.log("SECRET_ADDRESS: ", contractParams.contractAddress);
+
+          if (isLocal) {
+            config.secret.localhost.secretNunya.nunyaContractAddress = contractParams.contractAddress;
+          } else {
+            config.secret.testnet.secretNunya.nunyaContractAddress = contractParams.contractAddress;
+          }
         })
         .catch((error: any) => {
           console.error("Error:", error);

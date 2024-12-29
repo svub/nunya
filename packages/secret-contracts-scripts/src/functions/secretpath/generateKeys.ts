@@ -5,7 +5,7 @@ import { arrayify, SigningKey } from "ethers/lib/utils.js";
 import * as secp from "@noble/secp256k1";
 import { base64_to_bytes, sha256 } from "@blake.regalia/belt";
 import config from '../../config/config.js';
-import { getSecretGatewayPubkey } from "../query/getSecretGatewayPubkey.js";
+import { getSecretGatewayContractKeys } from "../query/getSecretGatewayContractKeys.js";
 import { assert } from "console";
 
 // Polyfill thankfully suggested here https://www.npmjs.com/package/@noble/secp256k1 to overcome error
@@ -54,7 +54,7 @@ export async function generateKeys() {
   // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-testnet-pulsar-3-contracts
   // Note: If you provide an invalid Secret Gateway public key you may get error:
   // `Error: Invalid point data`
-  // const gatewayContractPublicKey = gatewayContractEncryptionKeyForChaChaPoly1305;
+  // const secretGatewayContractEncryptionKey = gatewayContractEncryptionKeyForChaChaPoly1305;
 
   let params = {
     endpoint: endpoint,
@@ -66,25 +66,25 @@ export async function generateKeys() {
   // TODO: Refactor and put common types in types.ts
   type EphemeralKeys = {
     encryption_key: string,
-    verification_key: string,
+    verification_key: string, // public key
   }
 
   // Fetch the latest from the Secret Gateway since it is generated randomly when instantiated rather than rely on user having populated it in config.ts already
-  const gatewayContractPublicKey: EphemeralKeys = await getSecretGatewayPubkey(params);
-  console.log('gatewayContractPublicKey.encryption_key: ', gatewayContractPublicKey.encryption_key);
-  const gatewayContractPublicKeyBytes = base64_to_bytes(gatewayContractPublicKey.encryption_key);
-  console.log('gatewayContractPublicKeyBytes: ', gatewayContractPublicKeyBytes);
+  const secretGatewayContractKeys: EphemeralKeys = await getSecretGatewayContractKeys(params);
+  console.log('secretGatewayContractKeys.encryption_key: ', secretGatewayContractKeys.encryption_key);
+  const secretGatewayContractEncryptionKeyBytes = base64_to_bytes(secretGatewayContractKeys.encryption_key);
+  console.log('secretGatewayContractEncryptionKeyBytes: ', secretGatewayContractEncryptionKeyBytes);
 
   // https://github.com/SolarRepublic/neutrino/blob/main/src/secp256k1.ts#L334
   // `ReferenceError: crypto is not defined` error is caused by `await sha256`
   // at sha256 (file:///root/nunya/packages/secret-contracts-scripts/node_modules/@blake.regalia/belt/dist/mjs/data.js:80:56)
-  // const sharedSecret = ecdh(userPrivateKeyBytes, gatewayContractPublicKeyBytes);
-  // const sharedKey = await sha256(ecdh(userPrivateKeyBytes, gatewayContractPublicKeyBytes));
+  // const sharedSecret = ecdh(userPrivateKeyBytes, secretGatewayContractEncryptionKeyBytes);
+  // const sharedKey = await sha256(ecdh(userPrivateKeyBytes, secretGatewayContractEncryptionKeyBytes));
 
-  const gatewayContractPublicKeyHex = ["0x", secp.etc.bytesToHex(gatewayContractPublicKeyBytes)].join("");
-  console.log('gatewayContractPublicKeyHex: ', gatewayContractPublicKeyHex);
+  const secretGatewayContractPublicKeyHex = ["0x", secp.etc.bytesToHex(secretGatewayContractEncryptionKeyBytes)].join("");
+  console.log('secretGatewayContractPublicKeyHex: ', secretGatewayContractPublicKeyHex);
   assert!(secp.utils.isValidPrivateKey((wallet.privateKey).slice(2)), "invalid private key");
-  const sharedSecret = secp.getSharedSecret((wallet.privateKey).slice(2), secp.etc.bytesToHex(gatewayContractPublicKeyBytes));
+  const sharedSecret = secp.getSharedSecret((wallet.privateKey).slice(2), secp.etc.bytesToHex(secretGatewayContractEncryptionKeyBytes));
   console.log('sharedSecret: ', sharedSecret);
   const sharedKey = await sha256(sharedSecret);
   console.log('sharedKey: ', sharedKey);

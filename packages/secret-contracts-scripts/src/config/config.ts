@@ -4,7 +4,7 @@ dotenv.config();
 // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-testnet-pulsar-3-contracts
 // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-mainnet-secret-4-contracts
 
-const config = {
+let config = {
   evm: {
     network: "localhost",
     localhost: {
@@ -99,6 +99,7 @@ const config = {
         // 'pub_key': {'@type': '/cosmos.crypto.secp256k1.PubKey', 'key': 'A4K+MyJNnNcdt78SncjhArLWNnDRHapkZFsemjmf9/7A'
         gatewayContractAdminAddress: "secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg",
         // obtain from running `yarn run secret:querySecretGatewayPubkey`
+        // Verification Key
         gatewayContractPublicKey: "0x0447a28b05adeb426155e4dcced3babc48d820523a478ee34f3b6d47382d82b96c240c1c168bd83d9d9776e01b8dc21d5485f922c070fbdddf655cdae5c301055d",
         // obtain from running `yarn run secret:querySecretGatewayPubkey`
         // Note: Used in generateKey.ts

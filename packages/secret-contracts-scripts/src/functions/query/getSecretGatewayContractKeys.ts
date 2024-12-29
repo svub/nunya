@@ -5,7 +5,7 @@ type EphemeralKeys = {
   verification_key: string,
 }
 
-export const getSecretGatewayPubkey = async (params: any) => {
+export const getSecretGatewayContractKeys = async (params: any) => {
   const secretjs = new SecretNetworkClient({
     url: params.endpoint,
     chainId: params.chainId,
@@ -18,4 +18,3 @@ export const getSecretGatewayPubkey = async (params: any) => {
   // console.log(query_tx);
   return query_tx;
 }
-
