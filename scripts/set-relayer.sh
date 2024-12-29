@@ -12,17 +12,23 @@ echo -e "Relayer path: $RELAYER_CONFIG_PATH"
 CHOSEN_NETWORK=$(echo "$JSON_DEPLOYED" | jq -r '.data.secret.network')
 
 SECRET_GATEWAY_CONTRACT_CODE_HASH=""
+SECRET_GATEWAY_CONTRACT_ADDRESS=""
 if [ $CHOSEN_NETWORK == "localhost" ]; then
   SECRET_GATEWAY_CONTRACT_CODE_HASH=$(echo "$JSON_DEPLOYED" | jq -r '.data.secret.localhost.secretGateway.gatewayContractCodeHash')
+  SECRET_GATEWAY_CONTRACT_ADDRESS=$(echo "$JSON_DEPLOYED" | jq -r '.data.secret.localhost.secretGateway.gatewayContractAddress')
 elif [ $CHOSEN_NETWORK == "testnet" ]; then
   SECRET_GATEWAY_CONTRACT_CODE_HASH=$(echo "$JSON_DEPLOYED" | jq -r '.data.secret.testnet.secretGateway.gatewayContractCodeHash')
+  SECRET_GATEWAY_CONTRACT_ADDRESS=$(echo "$JSON_DEPLOYED" | jq -r '.data.secret.testnet.secretGateway.gatewayContractAddress')
 else
   echo -e "Chosen network not supported"
 fi
 echo -e "Latest Secret Gateway code hash for $CHOSEN_NETWORK is $SECRET_GATEWAY_CONTRACT_CODE_HASH"
+echo -e "Latest Secret Gateway contract address for $CHOSEN_NETWORK is $SECRET_GATEWAY_CONTRACT_ADDRESS"
 
 apt install -y yq
 # https://fabianlee.org/2022/12/20/yq-update-deeply-nested-elements-in-yaml/
 yq ".\"secretdev-1\".code_hash = \"$SECRET_GATEWAY_CONTRACT_CODE_HASH\"" $RELAYER_CONFIG_PATH
-
 echo -e "Finished updating Secret Gateway code hash in the Relayer configuration"
+
+yq ".\"secretdev-1\".contract_address = \"$SECRET_GATEWAY_CONTRACT_ADDRESS\"" $RELAYER_CONFIG_PATH
+echo -e "Finished updating Secret Gateway address in the Relayer configuration"
