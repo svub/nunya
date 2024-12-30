@@ -17,18 +17,12 @@ const walletOptions = {
 }
 
 let isLocal: boolean;
-if (config.networkSettings.secret.network == "testnet") {
-  isLocal = false;
-} else if (config.networkSettings.secret.network == "localhost") {
-  isLocal = true;
-} else if (config.networkSettings.secret.network == "mainnet") {
-  throw new Error(`Unsupported Secret network.`)
-}
-
 let varsSecret;
 if (config.networkSettings.secret.network == "testnet") {
+  isLocal = false;
   varsSecret = config.networkSettings.secret.testnet;
 } else if (config.networkSettings.secret.network == "localhost") {
+  isLocal = true;
   varsSecret = config.networkSettings.secret.localhost;
 } else {
   throw new Error(`Unsupported Secret network.`)

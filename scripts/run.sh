@@ -133,7 +133,7 @@ sudo chown -R ethlocal_service /root/nunya/packages/hardhat/node_modules/hardhat
 sudo chmod 755 /opt/ethlocal/hardhat
 sudo chmod 755 ~/nunya/packages/hardhat/node_modules/.bin/hardhat
 sudo chmod 755 ~/nunya/packages/hardhat/node_modules/hardhat/internal/cli/bootstrap.js
-ls -al /opt/ethlocal
+# ls -al /opt/ethlocal
 
 # Create service file
 

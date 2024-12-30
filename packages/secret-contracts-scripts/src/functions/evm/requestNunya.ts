@@ -5,6 +5,7 @@ dotenv.config();
 import { ethers, Wallet } from "ethers";
 import { NonceManager } from "@ethersproject/experimental";
 import config from './../../config/config.js';
+import { loadDeployed } from "../../loadDeployed.js";
 import gatewayAbi from "../../../../hardhat/artifacts/contracts/Gateway.sol/Gateway.json" assert { type: "json" };
 import nunyaAbi from "../../../../hardhat/artifacts/contracts/NunyaBusiness.sol/NunyaBusiness.json" assert { type: "json" };
 import { generateKeys } from "../../functions/secretpath/generateKeys.js";
@@ -15,16 +16,6 @@ import { hexlify } from "ethers/lib/utils.js";
 import { assert } from "console";
 import { RequestParams } from "../../types/index.js";
 
-let varsSecret;
-if (config.networkSettings.secret.network == "testnet") {
-  varsSecret = config.networkSettings.secret.testnet;
-} else if (config.networkSettings.secret.network == "localhost") {
-  varsSecret = config.networkSettings.secret.localhost;
-} else {
-  throw new Error(`Unsupported Secret network.`)
-}
-const { chainId: secretChainId, secretNunya: { nunyaContractAddress, nunyaContractCodeHash } } = varsSecret;
-
 let varsEvm;
 if (config.networkSettings.evm.network == "sepolia") {
   varsEvm = config.networkSettings.evm.sepolia;
@@ -33,12 +24,33 @@ if (config.networkSettings.evm.network == "sepolia") {
 } else {
   throw new Error(`Unsupported network.`)
 }
-const { chainId: evmChainId, endpoint, nunyaBusinessContractAddress, gatewayContractAddress, privateKey } = varsEvm;
+const { privateKey } = varsEvm;
 
 export const requestNunya = async (params: RequestParams) => {
   const { callbackSelectorName, callbackGasLimitAmount, requestFunctionName, requestEthValue, secretContractRequestHandle, secretContractRequestHandleArgs } = params;
   const ifaceGateway = new ethers.utils.Interface(gatewayAbi.abi);
   const ifaceNunya = new ethers.utils.Interface(nunyaAbi.abi);
+
+  let deployed = await loadDeployed();
+  let varsDeployedEvm;
+  if (deployed.data.evm.network == "sepolia") {
+    varsDeployedEvm = deployed.data.evm.sepolia;
+  } else if (deployed.data.evm.network == "localhost") {
+    varsDeployedEvm = deployed.data.evm.localhost;
+  } else {
+    throw new Error(`Unsupported network.`)
+  }
+  const { chainId: evmChainId, endpoint: evmEndpoint, nunyaBusinessContractAddress, gatewayContractAddress } = varsDeployedEvm;
+
+  let varsDeployedSecret;
+  if (deployed.data.secret.network == "testnet") {
+    varsDeployedSecret = deployed.data.secret.testnet;
+  } else if (deployed.data.secret.network == "localhost") {
+    varsDeployedSecret = deployed.data.secret.localhost;
+  } else {
+    throw new Error(`Unsupported network.`)
+  }
+  const { secretNunya: { nunyaContractCodeHash, nunyaContractAddress } } = varsDeployedSecret;
 
   const routing_contract = nunyaContractAddress;
   const routing_code_hash = nunyaContractCodeHash;
@@ -49,7 +61,7 @@ export const requestNunya = async (params: RequestParams) => {
   }
 
   let provider;
-  provider = new ethers.providers.JsonRpcProvider(endpoint);
+  provider = new ethers.providers.JsonRpcProvider(evmEndpoint);
   console.log(provider);
   await provider.detectNetwork();
   const signer = new Wallet(privateKey, provider);
@@ -93,7 +105,7 @@ export const requestNunya = async (params: RequestParams) => {
   // Data are the calldata/parameters that are passed into the contract
   const data = JSON.stringify(secretContractRequestHandleArgs);
 
-  assert!(evmChainId.toString() == (await provider.getNetwork()).chainId.toString());
+  assert!(evmChainId == (await provider.getNetwork()).chainId.toString());
 
   // EVM gateway contract address
   // const publicClientAddress = await getPublicClientAddress(evmChainId);
@@ -188,31 +200,31 @@ export const requestNunya = async (params: RequestParams) => {
   // let amountOfGas;
   // let my_gas = 150000;
 
-  // if (evmChainId.toString() === "4202") {
+  // if (evmChainId === "4202") {
   //   amountOfGas = gasFee.mul(callbackGasLimit).mul(100000).div(2);
-  // } else if (evmChainId.toString() === "128123") {
+  // } else if (evmChainId === "128123") {
   //   amountOfGas = gasFee.mul(callbackGasLimit).mul(1000).div(2);
   //   my_gas = 15000000;
-  // } else if (evmChainId.toString() === "1287") {
+  // } else if (evmChainId === "1287") {
   //   amountOfGas = gasFee.mul(callbackGasLimit).mul(1000).div(2);
   //   my_gas = 15000000;
-  // } else if (evmChainId.toString() === "300") {
+  // } else if (evmChainId === "300") {
   //   amountOfGas = gasFee.mul(callbackGasLimit).mul(100000).div(2);
   //   my_gas = 15000000;
-  // } else if (evmChainId.toString() === "5003") {
+  // } else if (evmChainId === "5003") {
   //   amountOfGas = gasFee.mul(callbackGasLimit).mul(1000000).div(2);
   //   my_gas = 1500000000;
-  // } else if (evmChainId.toString() === "80002") {
+  // } else if (evmChainId === "80002") {
   //   amountOfGas = gasFee.mul(callbackGasLimit).mul(100).div(2);
   //   my_gas = 200000;
-  // } else if (evmChainId.toString() === "1995") {
+  // } else if (evmChainId === "1995") {
   //   amountOfGas = gasFee.mul(callbackGasLimit).mul(100).div(2);
   //   my_gas = 200000;
-  // } else if (evmChainId.toString() === "713715") {
+  // } else if (evmChainId === "713715") {
   //   amountOfGas = gasFee.mul(callbackGasLimit).mul(100).div(2);
   //   my_gas = 200000;
   // } else {
-  //   // Note: Sepolia Ethereum has evmChainId 11155111
+  //   // Note: Sepolia Ethereum has chainId 11155111
   //   amountOfGas = gasFee.mul(callbackGasLimit).mul(3).div(2);
   // }
   // // Note: Only if get error `replacement fee too low` then just increase gasPrice by 10%
@@ -256,7 +268,7 @@ export const requestNunya = async (params: RequestParams) => {
     gasPrice: hexlify(my_gas),
     nonce: nextNonceNum,
     data: functionData, // function to call and args
-    chainId: evmChainId,
+    chainId: parseInt(evmChainId),
   }
 
   tx = await managedSigner.sendTransaction(txParamsSend);

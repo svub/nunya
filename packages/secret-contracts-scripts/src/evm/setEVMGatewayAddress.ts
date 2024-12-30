@@ -5,6 +5,7 @@ import { ethers, Contract, Wallet, utils } from "ethers";
 import gatewayAbi from "../../../hardhat/artifacts/contracts/Gateway.sol/Gateway.json" assert { type: "json" };
 import nunyaAbi from "../../../hardhat/artifacts/contracts/NunyaBusiness.sol/NunyaBusiness.json" assert { type: "json" };
 import config from '../config/config.js';
+import { loadDeployed } from "../loadDeployed.js";
 
 let varsEvm;
 if (config.networkSettings.evm.network == "sepolia") {
@@ -14,10 +15,22 @@ if (config.networkSettings.evm.network == "sepolia") {
 } else {
   throw new Error(`Unsupported network.`)
 }
-const { chainId, endpoint, nunyaBusinessContractAddress, gatewayContractAddress, privateKey } = varsEvm;
+const { endpoint: evmEndpoint, privateKey } = varsEvm;
 
 // Sets the deployed Gateway address storage value for the NunyaBusiness contract
 async function setGatewayAddress() {
+
+  let deployed = await loadDeployed();
+  let varsDeployedEvm;
+  if (deployed.data.evm.network == "sepolia") {
+    varsDeployedEvm = deployed.data.evm.sepolia;
+  } else if (deployed.data.evm.network == "localhost") {
+    varsDeployedEvm = deployed.data.evm.localhost;
+  } else {
+    throw new Error(`Unsupported network.`)
+  }
+  const { nunyaBusinessContractAddress, gatewayContractAddress } = varsDeployedEvm;
+
   if (nunyaBusinessContractAddress == "") {
     console.error("Please deploy Nunya.business contract first");
   }
@@ -28,7 +41,7 @@ async function setGatewayAddress() {
   }
   
   let provider;
-  provider = new ethers.providers.JsonRpcProvider(endpoint);
+  provider = new ethers.providers.JsonRpcProvider(evmEndpoint);
   // console.log(provider);
   await provider.detectNetwork();
   const signer = new Wallet(privateKey, provider);
