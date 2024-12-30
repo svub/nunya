@@ -217,12 +217,12 @@ async function main () {
       if (isLocal) {
         deployed.data.secret.localhost.secretGateway.gatewayContractAdminAddress = gatewayContractAdminAddress;
 
-        deployed.data.secret.localhost.secretGateway.gatewayContractCodeId = res.contractCodeHash;
+        deployed.data.secret.localhost.secretGateway.gatewayContractCodeId = res.codeId;
         deployed.data.secret.localhost.secretGateway.gatewayContractCodeHash = res.contractCodeHash;
       } else {
         deployed.data.secret.testnet.secretGateway.gatewayContractAdminAddress = gatewayContractAdminAddress;
 
-        deployed.data.secret.testnet.secretGateway.gatewayContractCodeId = res.contractCodeHash;
+        deployed.data.secret.testnet.secretGateway.gatewayContractCodeId = res.codeId;
         deployed.data.secret.testnet.secretGateway.gatewayContractCodeHash = res.contractCodeHash;
       }
       await writeDeployed(deployed);
