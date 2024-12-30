@@ -77,39 +77,8 @@ rm -rf /opt/ethlocal
 rm -rf /opt/relayer
 rm -rf /mnt/storage1/.chains
 
-touch ~/.zprofile
-
-ZPROFILE_PATH=~/.zprofile
-
-nvm_cmd=$(which nvm)
-if [ -z $nvm_cmd ]; then
-
-  if ! grep -q NVM_DIR "$ZPROFILE_PATH"; then
-    echo -e "Adding to PATH"
-
-    printf '%s' '
-    # nvm installation
-    export NVM_DIR="$HOME/.nvm" && (
-      git clone https://github.com/nvm-sh/nvm.git "$NVM_DIR"
-      cd "$NVM_DIR"
-      git checkout `git describe --abbrev=0 --tags --match "v[0-9]*" $(git rev-list --tags --max-count=1)`
-    ) && \. "$NVM_DIR/nvm.sh"
-
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-    # node path
-    export PATH="/root/.nvm/versions/node/v18.20.5/bin/node/v18.20.5/bin/node:$PATH"
-    ' >> ~/.zprofile
-  fi
-
-  source ~/.zprofile
-else
-	echo -e "Detected NVM"
-fi
-
-source ~/.zprofile
+# update environment with PATH so nvm available
+source ~/.zshrc
 
 nvm install
 nvm use

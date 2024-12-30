@@ -38,3 +38,7 @@ packages/secret-instantiate-contract/.env
 packages/nextjs/contracts/deployedContracts.ts
 
 ## NB hardhat ignores are in packages/hardhat/.gitignore
+
+# yq files
+yq.1
+install-man-page.sh
