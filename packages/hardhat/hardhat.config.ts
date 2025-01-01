@@ -1,6 +1,7 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 import { HardhatUserConfig } from "hardhat/config";
+import { HDAccountsUserConfig, HttpNetworkAccountsUserConfig } from "hardhat/types";
 import "@nomicfoundation/hardhat-ethers";
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@typechain/hardhat";
@@ -10,26 +11,40 @@ import "@nomicfoundation/hardhat-verify";
 import "hardhat-deploy";
 import "hardhat-deploy-ethers";
 
-const providerRpcUrlEthereumSepolia = process.env.PROVIDER_RPC_ETHEREUM_SEPOLIA || process.env.PROVIDER_RPC;
-// If not set, it uses ours Alchemy's default API key, which doesn't work (gives ProviderError: The team owning this app is inactive. Please contact support at https://dashboard.alchemyapi.io/support)
-// You can get your own at https://dashboard.alchemyapi.io.
-// If not set, it uses the hardhat account 0 private key.
-const FALLBACK_ALCHEMY_API_KEY = "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
-const providerApiKeyAlchemy = process.env.ALCHEMY_API_KEY || FALLBACK_ALCHEMY_API_KEY;
-const providerApiKeyGeoblock = process.env.GETBLOCK_API_KEY;
+const mainnetProviderApiKeyAlchemy = process.env.ETH_MAINNET_ALCHEMY_API_KEY || process.env.FALLBACK_ETH_MAINNET_ALCHEMY_API_KEY;
+const sepoliaProviderApiKeyGeoblock = process.env.ETH_SEPOLIA_GETBLOCK_API_KEY;
 // If not set, it uses ours Etherscan default API key.
 const etherscanApiKey = process.env.ETHERSCAN_API_KEY || "DNXJA8RX2Q3VZ4URQIWP7Z68CJXQZSC6AW";
 
-const { MNEMONIC } = process.env;
-const deployerPrivateKey =
-  process.env.DEPLOYER_PRIVATE_KEY ?? "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+const accountsValuesOptions = {
+  mainnet: {
+    private: [process.env.ETH_MAINNET_PRIVATE_KEY] || undefined,
+    mnemonic: { mnemonic: process.env.ETH_MAINNET_MNEMONIC || "" },
+  },
+  testnet: {
+    private: [process.env.ETH_TESTNET_PRIVATE_KEY] || undefined,
+    mnemonic: { mnemonic: process.env.ETH_TESTNET_MNEMONIC || "" },
+  },
+  development: {
+    private: [process.env.ETH_DEVELOPMENT_PRIVATE_KEY] || undefined,
+    mnemonic: { mnemonic: process.env.ETH_DEVELOPMENT_MNEMONIC || "" },
+  }
+}
 
-// DO NOT OUTPUT THE VALUES
-console.log("providerRpcUrlEthereumSepolia: ", providerRpcUrlEthereumSepolia !== "");
-console.log("providerApiKeyAlchemy: ", providerApiKeyAlchemy !== "");
-console.log("providerApiKeyGeoblock: ", providerApiKeyGeoblock !== "");
-console.log("etherscanApiKey: ", etherscanApiKey !== "");
-console.log("deployerPrivateKey or MNEMONIC provided: ", deployerPrivateKey !== "" || MNEMONIC !== "");
+let accountsValues = {
+  mainnet: 
+    process.env.USE_PRIVATE_KEY_OR_MNEMONIC == "private"
+    ? accountsValuesOptions.mainnet.private
+    : accountsValuesOptions.mainnet.mnemonic,
+  testnet: 
+    process.env.USE_PRIVATE_KEY_OR_MNEMONIC == "private"
+    ? accountsValuesOptions.testnet.private
+    : accountsValuesOptions.testnet.mnemonic,
+  development: 
+    process.env.USE_PRIVATE_KEY_OR_MNEMONIC == "private"
+    ? accountsValuesOptions.development.private
+    : accountsValuesOptions.development.mnemonic,
+}
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -56,91 +71,90 @@ const config: HardhatUserConfig = {
   networks: {
     localhost: {
       chainId: 31337,
-      url: "http://127.0.0.1:8545/",
+      url: process.env.ETH_DEVELOPMENT_PROVIDER_RPC,
     },
     // View the networks that are pre-configured.
     // If the network you are looking for is not here you can add new network settings
     hardhat: {
       forking: {
-        url: `https://eth-mainnet.alchemyapi.io/v2/${providerApiKeyAlchemy}`,
+        url: `https://eth-mainnet.alchemyapi.io/v2/${mainnetProviderApiKeyAlchemy}`,
         enabled: process.env.MAINNET_FORKING_ENABLED === "true",
       },
     },
     // mainnet: {
     //   url: `https://eth-mainnet.alchemyapi.io/v2/${providerApiKey}`,
-    //   accounts: [deployerPrivateKey],
+    //   accounts: accountsValues.mainnet as HttpNetworkAccountsUserConfig,
     // },
     sepolia: {
       // Other providers https://chainlist.org/chain/11155111
       chainId: 11155111,
-      url: providerRpcUrlEthereumSepolia,
-      // accounts: { mnemonic: MNEMONIC },
-      accounts: [deployerPrivateKey],
+      url: process.env.ETH_SEPOLIA_PROVIDER_RPC,
+      accounts: accountsValues.testnet as HttpNetworkAccountsUserConfig,
       timeout: 100_000_000,
     },
     // arbitrum: {
     //   url: `https://arb-mainnet.g.alchemy.com/v2/${providerApiKey}`,
-    //   accounts: [deployerPrivateKey],
+    //   accounts: accountsValues.mainnet as HttpNetworkAccountsUserConfig,
     // },
     // arbitrumSepolia: {
     //   url: `https://arb-sepolia.g.alchemy.com/v2/${providerApiKey}`,
-    //   accounts: [deployerPrivateKey],
+    //   accounts: accountsValues.testnet as HttpNetworkAccountsUserConfig,
     // },
     // optimism: {
     //   url: `https://opt-mainnet.g.alchemy.com/v2/${providerApiKey}`,
-    //   accounts: [deployerPrivateKey],
+    //   accounts: accountsValues.mainnet as HttpNetworkAccountsUserConfig,
     // },
     // optimismSepolia: {
     //   url: `https://opt-sepolia.g.alchemy.com/v2/${providerApiKey}`,
-    //   accounts: [deployerPrivateKey],
+    //   accounts: accountsValues.testnet as HttpNetworkAccountsUserConfig,
     // },
     // polygon: {
     //   url: `https://polygon-mainnet.g.alchemy.com/v2/${providerApiKey}`,
-    //   accounts: [deployerPrivateKey],
+    //   accounts: accountsValues.mainnet as HttpNetworkAccountsUserConfig,
     // },
     // polygonMumbai: {
     //   url: `https://polygon-mumbai.g.alchemy.com/v2/${providerApiKey}`,
-    //   accounts: [deployerPrivateKey],
+    //   accounts: accountsValues.testnet as HttpNetworkAccountsUserConfig,
     // },
     // polygonZkEvm: {
     //   url: `https://polygonzkevm-mainnet.g.alchemy.com/v2/${providerApiKey}`,
-    //   accounts: [deployerPrivateKey],
+    //   accounts: accountsValues.mainnet as HttpNetworkAccountsUserConfig,
     // },
     // polygonZkEvmTestnet: {
     //   url: `https://polygonzkevm-testnet.g.alchemy.com/v2/${providerApiKey}`,
-    //   accounts: [deployerPrivateKey],
+    //   accounts: accountsValues.testnet as HttpNetworkAccountsUserConfig,
     // },
     // gnosis: {
     //   url: "https://rpc.gnosischain.com",
-    //   accounts: [deployerPrivateKey],
+    //   accounts: accountsValues.mainnet as HttpNetworkAccountsUserConfig,
     // },
     // chiado: {
     //   url: "https://rpc.chiadochain.net",
-    //   accounts: [deployerPrivateKey],
+    //   accounts: accountsValues.mainnet as HttpNetworkAccountsUserConfig,
     // },
     // base: {
     //   url: "https://mainnet.base.org",
-    //   accounts: [deployerPrivateKey],
+    //   accounts: accountsValues.mainnet as HttpNetworkAccountsUserConfig,
     // },
     // baseSepolia: {
     //   url: "https://sepolia.base.org",
-    //   accounts: [deployerPrivateKey],
+    //   accounts: accountsValues.testnet as HttpNetworkAccountsUserConfig,
     // },
     // scrollSepolia: {
     //   url: "https://sepolia-rpc.scroll.io",
-    //   accounts: [deployerPrivateKey],
+    //   accounts: accountsValues.testnet as HttpNetworkAccountsUserConfig,
     // },
     // scroll: {
     //   url: "https://rpc.scroll.io",
-    //   accounts: [deployerPrivateKey],
+    //   accounts: accountsValues.mainnet as HttpNetworkAccountsUserConfig,
     // },
     // pgn: {
     //   url: "https://rpc.publicgoods.network",
-    //   accounts: [deployerPrivateKey],
+    //   accounts: accountsValues.mainnet as HttpNetworkAccountsUserConfig,
     // },
     // pgnTestnet: {
     //   url: "https://sepolia.publicgoods.network",
-    //   accounts: [deployerPrivateKey],
+    //   accounts: accountsValues.testnet as HttpNetworkAccountsUserConfig,
     // },
   },
   // configuration for harhdat-verify plugin

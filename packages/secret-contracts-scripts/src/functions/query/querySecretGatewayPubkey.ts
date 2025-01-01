@@ -1,5 +1,5 @@
 import { SecretNetworkClient } from "secretjs";
-import config from '../../config/config.js';
+import { loadDeployed } from "../../loadDeployed.js";
 
 type EphemeralKeys = {
   encryption_key: string,
@@ -21,14 +21,20 @@ export const querySecretGatewayPubkey = async (params: any) => {
 }
 
 async function main() {
-  const { chainId, endpoint, secretGateway: { gatewayContractAddress, gatewayContractCodeHash } } =
-    config.networkSettings.secret.network == "testnet"
-    ? config.networkSettings.secret.testnet
-    : config.networkSettings.secret.localhost;
+  let deployed = await loadDeployed();
+  let varsDeployedSecret;
+  if (deployed.data.secret.network == "testnet") {
+    varsDeployedSecret = deployed.data.secret.testnet;
+  } else if (deployed.data.secret.network == "localhost") {
+    varsDeployedSecret = deployed.data.secret.localhost;
+  } else {
+    throw new Error(`Unsupported network.`)
+  }
+  const { chainId: secretChainId, endpoint: secretEndpoint, secretGateway: { gatewayContractAddress, gatewayContractCodeHash } } = varsDeployedSecret;
 
   let params = {
-    endpoint: endpoint,
-    chainId: chainId,
+    endpoint: secretEndpoint,
+    chainId: secretChainId,
     contractAddress: gatewayContractAddress,
     contractCodeHash: gatewayContractCodeHash,
   };

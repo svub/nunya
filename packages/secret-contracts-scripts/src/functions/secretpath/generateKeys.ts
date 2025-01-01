@@ -5,6 +5,7 @@ import { arrayify, SigningKey } from "ethers/lib/utils.js";
 import * as secp from "@noble/secp256k1";
 import { base64_to_bytes, sha256 } from "@blake.regalia/belt";
 import config from '../../config/config.js';
+import { loadDeployed } from "../../loadDeployed.js";
 import { getSecretGatewayContractKeys } from "../query/getSecretGatewayContractKeys.js";
 import { assert } from "console";
 
@@ -18,17 +19,6 @@ if (!globalThis.crypto) globalThis.crypto = webcrypto;
 // Then, use ECDH to create the encryption key
 // Reference: https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/usecases/vrf/using-encrypted-payloads-for-vrf#generating-the-encryption-key-using-ecdh
 export async function generateKeys() {
-  let varsSecret;
-  if (config.networkSettings.secret.network == "testnet") {
-    varsSecret = config.networkSettings.secret.testnet;
-  } else if (config.networkSettings.secret.network == "localhost") {
-    varsSecret = config.networkSettings.secret.localhost;
-  } else {
-    throw new Error(`Unsupported Secret network.`)
-  }
-  const { chainId, endpoint, secretNunya: { nunyaContractAddress, nunyaContractCodeHash }, secretGateway: { gatewayContractAddress, gatewayContractCodeHash, gatewayContractEncryptionKeyForChaChaPoly1305 } } = varsSecret;
-  
-
   let varsEvm;
   if (config.networkSettings.evm.network == "sepolia") {
     varsEvm = config.networkSettings.evm.sepolia;
@@ -38,6 +28,18 @@ export async function generateKeys() {
     throw new Error(`Unsupported network.`)
   }
   const { privateKey } = varsEvm;
+
+  let deployed = await loadDeployed();
+  let varsDeployedSecret;
+  if (deployed.data.secret.network == "testnet") {
+    varsDeployedSecret = deployed.data.secret.testnet;
+  } else if (deployed.data.secret.network == "localhost") {
+    varsDeployedSecret = deployed.data.secret.localhost;
+  } else {
+    throw new Error(`Unsupported network.`)
+  }
+  const { chainId: secretChainId, endpoint: secretEndpoint, secretNunya: { nunyaContractCodeHash, nunyaContractAddress }, secretGateway: { gatewayContractAddress, gatewayContractCodeHash, gatewayContractEncryptionKeyForChaChaPoly1305 } } = varsDeployedSecret;
+
 
   if (gatewayContractEncryptionKeyForChaChaPoly1305 == "") {
     throw Error("Unable to obtain Secret Network Gateway information");
@@ -63,8 +65,8 @@ export async function generateKeys() {
   // const secretGatewayContractEncryptionKey = gatewayContractEncryptionKeyForChaChaPoly1305;
 
   let params = {
-    endpoint: endpoint,
-    chainId: chainId,
+    endpoint: secretEndpoint,
+    chainId: secretChainId,
     contractAddress: gatewayContractAddress,
     contractCodeHash: gatewayContractCodeHash,
   };

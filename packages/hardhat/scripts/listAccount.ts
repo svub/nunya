@@ -5,7 +5,7 @@ import QRCode from "qrcode";
 import { config } from "hardhat";
 
 async function main() {
-  const privateKey = process.env.DEPLOYER_PRIVATE_KEY;
+  const privateKey = process.env.ETH_TESTNET_PRIVATE_KEY;
 
   if (!privateKey) {
     console.log("🚫️ You don't have a deployer account. Run `yarn hardhat:generate` first");

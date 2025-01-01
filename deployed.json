@@ -1,15 +1,15 @@
 {
   "data": {
     "relayer": {
-      "configPath": ""
+      "path": "/root/ltfschoen-backup"
     },
     "evm": {
-      "network": "",
+      "network": "localhost",
       "localhost": {
-        "chainId": "",
-        "endpoint": "",
-        "nunyaBusinessContractAddress": "",
-        "gatewayContractAddress": ""
+        "chainId": "31337",
+        "endpoint": "http://127.0.0.1:8545",
+        "nunyaBusinessContractAddress": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "gatewayContractAddress": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
       },
       "sepolia": {
         "chainId": "11155111",
@@ -19,7 +19,7 @@
       }
     },
     "secret": {
-      "network": "",
+      "network": "localhost",
       "testnet": {
         "chainId": "",
         "endpoint": "",
@@ -38,22 +38,22 @@
         }
       },
       "localhost": {
-        "chainId": "",
-        "endpoint": "",
+        "chainId": "secretdev-1",
+        "endpoint": "http://172.105.184.209:1317",
         "secretNunya": {
-          "nunyaContractCodeId": "",
-          "nunyaContractCodeHash": "",
-          "nunyaContractAddress": ""
+          "nunyaContractCodeId": "2",
+          "nunyaContractCodeHash": "0e1904c8f258b365d24865041ab51de62fdbf515d15e8fe785774662201c809a",
+          "nunyaContractAddress": "secret1gyruqan6yxf0q423t8z5zce3x7np35uw8s8wqc"
         },
         "secretGateway": {
-          "gatewayContractCodeId": "",
-          "gatewayContractAddress": "",
-          "gatewayContractCodeHash": "",
-          "gatewayContractAdminAddress": "",
-          "gatewayContractPublicKey": "",
-          "gatewayContractEncryptionKeyForChaChaPoly1305": ""
+          "gatewayContractCodeId": "1",
+          "gatewayContractAddress": "secret1mfk7n6mc2cg6lznujmeckdh4x0a5ezf6hx6y8q",
+          "gatewayContractCodeHash": "774c551b6afa0abe37162d1303c69b94c6a7395fcd6cfefddfd23ba3bcd61b78",
+          "gatewayContractAdminAddress": "secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg",
+          "gatewayContractPublicKey": "0x0444577cda3998e4195eb9008eedea424d2f40f089dc5ef8cf8e2342492911b37e724ad6e0ba76730d298598c03bfa69fe37dc6b1954dc0fa48d783e838902bf0f",
+          "gatewayContractEncryptionKeyForChaChaPoly1305": "A0RXfNo5mOQZXrkAju3qQk0vQPCJ3F74z44jQkkpEbN+"
         }
       }
     }
-  } 
+  }
 }

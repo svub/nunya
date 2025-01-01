@@ -8,7 +8,7 @@ async function writeDeployed (newDeployed: any) {
     const newJsonData = JSON.stringify(newDeployed, null, 2);
 
     await writeFile(filePath, newJsonData, { flag: 'w+' });
-    console.log("Updated deployed.json");
+    console.log("Updated deployed.json hardhat: ", newJsonData);
   } catch (err) {
     console.log(err);
   }

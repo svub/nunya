@@ -16,20 +16,20 @@ import { hexlify } from "ethers/lib/utils.js";
 import { assert } from "console";
 import { RequestParams } from "../../types/index.js";
 
-let varsEvm;
-if (config.networkSettings.evm.network == "sepolia") {
-  varsEvm = config.networkSettings.evm.sepolia;
-} else if (config.networkSettings.evm.network == "localhost") {
-  varsEvm = config.networkSettings.evm.localhost;
-} else {
-  throw new Error(`Unsupported network.`)
-}
-const { privateKey } = varsEvm;
-
 export const requestNunya = async (params: RequestParams) => {
   const { callbackSelectorName, callbackGasLimitAmount, requestFunctionName, requestEthValue, secretContractRequestHandle, secretContractRequestHandleArgs } = params;
   const ifaceGateway = new ethers.utils.Interface(gatewayAbi.abi);
   const ifaceNunya = new ethers.utils.Interface(nunyaAbi.abi);
+
+  let varsEvm;
+  if (config.networkSettings.evm.network == "sepolia") {
+    varsEvm = config.networkSettings.evm.sepolia;
+  } else if (config.networkSettings.evm.network == "localhost") {
+    varsEvm = config.networkSettings.evm.localhost;
+  } else {
+    throw new Error(`Unsupported network.`)
+  }
+  const { privateKey } = varsEvm;
 
   let deployed = await loadDeployed();
   let varsDeployedEvm;
@@ -237,9 +237,9 @@ export const requestNunya = async (params: RequestParams) => {
   // TODO: Move calling `unsafeSetSecretContractInfo` into a separate script that gets run first.
 
   // Note: Previously in the gateway evm contract onlyOwner was set to be whoever created the contract in its
-  // constructor (e.g. the `DEPLOYER_ADDRESS`) with `owner = msg.sender` but `setSecretContractInfo`
+  // constructor (e.g. the `ETH_TESTNET_ADDRESS`) with `owner = msg.sender` but `setSecretContractInfo`
   // function in the gateway evm contract only allows `onlyOwner` to call it, but the caller is using
-  // `nunyaContract.unsafeSetSecretContractInfo` the NunyaBusiness contract instead of that `DEPLOYER_ADDRESS`
+  // `nunyaContract.unsafeSetSecretContractInfo` the NunyaBusiness contract instead of that `ETH_TESTNET_ADDRESS`
   // is calling that function in the gateway evm contract, so it was changed to be
   // `owner = nunyaBusinessAddress`
   let txParams = {

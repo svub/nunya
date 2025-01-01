@@ -195,10 +195,6 @@ yarn install
 yarn run secret:clean
 yarn run secret:uploadAndInstantiateGateway
 
-## TODO - automatically if contract code hash changes then try to update the `contract_code_hash` and `contract_address` in ~/ltfschoen/SecretPath/TNLS-Relayers/config.yml
-
-## TODO - write output to config.ts including code id, code hash, and contract hash
-
 # SKIP: PART 2
 # yarn run secret:querySecretGatewayPubkey
 
@@ -216,19 +212,28 @@ docker exec -it secretdev secretcli tx bank send secret1ap26qrlp8mcq2pg6r47w43l0
 
 # Part 4
 
+apt install -y jq
+echo -e "Folder: $PWD"
+# PARENT_DIR="$(dirname "$PWD")"
+JSON_DEPLOYED=$(cat $PWD/deployed.json)
+echo -e "deployed.json: $JSON_DEPLOYED"
+RELAYER_PATH=$(echo "$JSON_DEPLOYED" | jq -r '.data.relayer.path')
+echo -e "RELAYER_PATH: $RELAYER_PATH"
+
 # TODO - update to clone and checkout if folder not exist
-cd ~/ltfschoen/SecretPath/TNLS-Relayers
+cd $RELAYER_PATH/SecretPath/TNLS-Relayers
 # git stash
 # git pull origin nunya
 # git checkout nunya
 
 cd ~/nunya
 # Set the Secret Gateway code hash in the Relay config.yml file for the network to be the latest deployed code hash
+# TODO: Provide $JSON_DEPLOYED $RELAYER_PATH as arguments using `jq tostring` or similar
 bash ~/nunya/scripts/set-relayer.sh
 
 ## TODO - configure these files
-# /root/ltfschoen/SecretPath/TNLS-Relayers/config.yml
-# /root/ltfschoen/SecretPath/TNLS-Relayers/.env
+# $RELAYER_PATH/SecretPath/TNLS-Relayers/config.yml
+# $RELAYER_PATH/SecretPath/TNLS-Relayers/.env
 
 # Part 5
 
@@ -242,13 +247,13 @@ sudo chmod 755 /opt/relayer/start.sh
 sudo chmod 755 /opt/relayer/node.sh
 
 sudo rm /opt/relayer/web_app.py
-# create symlink in /opt/relayer to /root/ltfschoen/SecretPath/TNLS-Relayers/web_app.py
-sudo ln -s ~/ltfschoen/SecretPath/TNLS-Relayers/web_app.py /opt/relayer/web_app.py
+# create symlink in /opt/relayer to $RELAYER_PATH/SecretPath/TNLS-Relayers/web_app.py
+sudo ln -s $RELAYER_PATH/SecretPath/TNLS-Relayers/web_app.py /opt/relayer/web_app.py
 sudo chown -R relayer_service /opt/relayer
-sudo chown -R relayer_service ~/ltfschoen/SecretPath/TNLS-Relayers
+sudo chown -R relayer_service $RELAYER_PATH/SecretPath/TNLS-Relayers
 # change permission to symlink and where it points to
 sudo chmod 755 /opt/relayer/web_app.py
-sudo chmod 755 ~/ltfschoen/SecretPath/TNLS-Relayers/web_app.py
+sudo chmod 755 $RELAYER_PATH/SecretPath/TNLS-Relayers/web_app.py
 
 # Create service file
 
@@ -269,7 +274,7 @@ touch /etc/systemd/system/relayer.service
   echo 'SyslogIdentifier=relayer'
   echo 'SyslogFacility=local7'
   echo 'KillSignal=SIGHUP'
-  echo 'WorkingDirectory=/root/ltfschoen/SecretPath/TNLS-Relayers' # run from inside the project where dependencies are installed
+  echo "WorkingDirectory=$RELAYER_PATH/SecretPath/TNLS-Relayers" # run from inside the project where dependencies are installed
   echo 'ExecStart=/opt/relayer/start.sh'
   echo '[Install]'
   echo 'WantedBy=multi-user.target'
@@ -289,3 +294,5 @@ cd ~/nunya
 nvm use
 # yarn run secret:submitRequestValue
 # yarn run secret:submitRetrievePubkey
+
+exit 0

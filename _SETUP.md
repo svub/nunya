@@ -655,7 +655,7 @@ cd SecretPath/TNLS-Relayers
 
 * Open file ./nunya/packages/secret-contracts-scripts/src/config/config.ts
 * Check ./nunya/packages/secret-contracts-scripts/.env has been created from the .env-sample file
-  * Ensure that in the .env file that RELAYER_CONFIG_PATH is set to the path of the config.yml file of the relayer on the same machine, because if you run ./scripts/run.sh it will automatically update the relayer config.yml file if the Secret Gateway contract code hash changes in order for it to work.
+  * Ensure that in the .env file that RELAYER_PATH is set to the path of the /SecretPath/TNLS-Relayers/config.yml file of the relayer on the same machine, because if you run ./scripts/run.sh it will automatically update the relayer config.yml file if the Secret Gateway contract code hash changes in order for it to work.
 
 * Reference: https://docs.scrt.network/secret-network-documentation/development/example-contracts/tools-and-libraries/local-secret#advantages-of-localsecret-vs.-a-public-testnet
 

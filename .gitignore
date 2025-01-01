@@ -22,7 +22,9 @@ node_modules
 # cli
 dist
 
+# logs
 logs/
+ethlocal.service.log
 
 **/node_modules/
 **/yarn-error.log

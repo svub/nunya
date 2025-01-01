@@ -7,18 +7,17 @@ import nunyaAbi from "../../../hardhat/artifacts/contracts/NunyaBusiness.sol/Nun
 import config from '../config/config.js';
 import { loadDeployed } from "../loadDeployed.js";
 
-let varsEvm;
-if (config.networkSettings.evm.network == "sepolia") {
-  varsEvm = config.networkSettings.evm.sepolia;
-} else if (config.networkSettings.evm.network == "localhost") {
-  varsEvm = config.networkSettings.evm.localhost;
-} else {
-  throw new Error(`Unsupported network.`)
-}
-const { endpoint: evmEndpoint, privateKey } = varsEvm;
-
 // Sets the deployed Gateway address storage value for the NunyaBusiness contract
 async function setGatewayAddress() {
+  let varsEvm;
+  if (config.networkSettings.evm.network == "sepolia") {
+    varsEvm = config.networkSettings.evm.sepolia;
+  } else if (config.networkSettings.evm.network == "localhost") {
+    varsEvm = config.networkSettings.evm.localhost;
+  } else {
+    throw new Error(`Unsupported network.`)
+  }
+  const { endpoint: evmEndpoint, privateKey } = varsEvm;  
 
   let deployed = await loadDeployed();
   let varsDeployedEvm;

@@ -55,7 +55,7 @@
     "secret:instantiateGateway": "yarn workspace secret-contracts-scripts instantiateGateway",
     "secret:uploadAndInstantiateGateway": "yarn workspace secret-contracts-scripts uploadAndInstantiateGateway"
   },
-  "packageManager": "yarn@4.2.2",
+  "packageManager": "yarn@4.5.3",
   "dependencies": {
     "eslint-plugin-react": "^7.37.1",
     "qrcode.react": "^4.0.1"

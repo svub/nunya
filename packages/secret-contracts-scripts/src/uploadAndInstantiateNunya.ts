@@ -6,67 +6,90 @@ import config from './config/config.js';
 import { loadDeployed } from "./loadDeployed.js";
 import { writeDeployed } from "./writeDeployed.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-console.log('__dirname: ', __dirname);
-
-const walletOptions = {
-  hdAccountIndex: 0,
-  coinType: 529,
-  bech32Prefix: 'secret',
-}
-
-let isLocal: boolean;
-let varsSecret;
-if (config.networkSettings.secret.network == "testnet") {
-  isLocal = false;
-  varsSecret = config.networkSettings.secret.testnet;
-} else if (config.networkSettings.secret.network == "localhost") {
-  isLocal = true;
-  varsSecret = config.networkSettings.secret.localhost;
-} else {
-  throw new Error(`Unsupported Secret network.`)
-}
-const { walletMnemonic, isOptimizedContractWasm, secretNunya: { nunyaContractWasmPath }, secretGateway: { gatewayContractAddress, gatewayContractCodeHash, gatewayContractPublicKey }, chainId, endpoint } = varsSecret;
-
-let varsEvm;
-if (config.networkSettings.evm.network == "sepolia") {
-  varsEvm = config.networkSettings.evm.sepolia;
-} else if (config.networkSettings.evm.network == "localhost") {
-  varsEvm = config.networkSettings.evm.localhost;
-} else {
-  throw new Error(`Unsupported Ethereum network.`)
-}
-const { nunyaBusinessContractAddress } = varsEvm;
-
-if (walletMnemonic == "") {
-  throw Error("Unable to obtain mnemonic phrase");
-}
-
-if (gatewayContractAddress == "" || gatewayContractCodeHash == "" || gatewayContractPublicKey == "") {
-  throw Error("Unable to obtain Secret Network Gateway information");
-}
-
-if (nunyaBusinessContractAddress == "" ) {
-  throw Error("Unable to obtain Nunya.business EVM contract address");
-}
-
-const wallet = new Wallet(walletMnemonic, walletOptions);
-console.log('wallet address: ', wallet.address);
-
-const rootPath = path.join(__dirname, '../../../'); // relative to ./dist
-console.log('rootPath', rootPath)
-// const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${nunyaContractWasmPath}`);
-// Optimised nunya-contract
-const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${isOptimizedContractWasm ? "optimized-wasm/" : ""}${nunyaContractWasmPath}`);
-
-// Convert from Bytes (Uint8Array) to Base64
-const gatewayContractPublicKeyBase64 = Buffer.from(gatewayContractPublicKey.substring(2), "hex").toString("base64");
-
 async function main () {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  console.log('__dirname: ', __dirname);
+  
+  const walletOptions = {
+    hdAccountIndex: 0,
+    coinType: 529,
+    bech32Prefix: 'secret',
+  }
+  
+  let isLocalEvm: boolean;
+  let deployed = await loadDeployed();
+  let varsDeployedEvm;
+  if (deployed.data.evm.network == "sepolia") {
+    isLocalEvm = false;
+    varsDeployedEvm = deployed.data.evm.sepolia;
+  } else if (deployed.data.evm.network == "localhost") {
+    isLocalEvm = true;
+    varsDeployedEvm = deployed.data.evm.localhost;
+  } else {
+    throw new Error(`Unsupported network.`)
+  }
+  const { nunyaBusinessContractAddress } = varsDeployedEvm;
+  
+  let isLocalSecretDeployed: boolean;
+  let varsDeployedSecret;
+  if (deployed.data.secret.network == "testnet") {
+    isLocalSecretDeployed = false;
+    varsDeployedSecret = deployed.data.secret.testnet;
+  } else if (deployed.data.secret.network == "localhost") {
+    isLocalSecretDeployed = true;
+    varsDeployedSecret = deployed.data.secret.localhost;
+  } else {
+    throw new Error(`Unsupported network.`)
+  }
+  const { secretGateway: { gatewayContractAddress, gatewayContractCodeHash, gatewayContractPublicKey } } = varsDeployedSecret;
+  
+  let isLocalSecretInit: boolean;
+  let varsSecret;
+  if (config.networkSettings.secret.network == "testnet") {
+    isLocalSecretInit = false;
+    varsSecret = config.networkSettings.secret.testnet;
+  } else if (config.networkSettings.secret.network == "localhost") {
+    isLocalSecretInit = true;
+    varsSecret = config.networkSettings.secret.localhost;
+  } else {
+    throw new Error(`Unsupported Secret network.`)
+  }
+  const { walletMnemonic, isOptimizedContractWasm, secretNunya: { nunyaContractWasmPath }, chainId: secretChainId, endpoint: secretEndpoint } = varsSecret;
+  
+  // must be all true or all false other
+  const arrIsLocal = [isLocalSecretInit, isLocalSecretDeployed, isLocalEvm];
+  if (!(arrIsLocal.includes(true) || !arrIsLocal.includes(false))) {
+    throw Error("Must choose either local, testnet, or mainnet consistently across networks");
+  }
+  
+  if (walletMnemonic == "") {
+    throw Error("Unable to obtain mnemonic phrase");
+  }
+  
+  if (gatewayContractAddress == "" || gatewayContractCodeHash == "" || gatewayContractPublicKey == "") {
+    throw Error("Unable to obtain Secret Network Gateway information");
+  }
+  
+  if (nunyaBusinessContractAddress == "" ) {
+    throw Error("Unable to obtain Nunya.business EVM contract address");
+  }
+  
+  const wallet = new Wallet(walletMnemonic, walletOptions);
+  console.log('wallet address: ', wallet.address);
+  
+  const rootPath = path.join(__dirname, '../../../'); // relative to ./dist
+  console.log('rootPath', rootPath)
+  // const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${nunyaContractWasmPath}`);
+  // Optimised nunya-contract
+  const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${isOptimizedContractWasm ? "optimized-wasm/" : ""}${nunyaContractWasmPath}`);
+  
+  // Convert from Bytes (Uint8Array) to Base64
+  const gatewayContractPublicKeyBase64 = Buffer.from(gatewayContractPublicKey.substring(2), "hex").toString("base64");
+  
   const secretjs = new SecretNetworkClient({
-    chainId: chainId,
-    url: endpoint || "",
+    chainId: secretChainId,
+    url: secretEndpoint || "",
     wallet: wallet,
     walletAddress: wallet.address,
   });
@@ -225,7 +248,8 @@ async function main () {
       console.log(`CODE_HASH: ${res.contractCodeHash}`);
 
       let deployed = await loadDeployed();
-      if (isLocal) {
+      // TODO: Add Secret mainnet support
+      if (isLocalSecretDeployed) {
         deployed.data.secret.localhost.secretNunya.nunyaContractCodeId = res.codeId;
         deployed.data.secret.localhost.secretNunya.nunyaContractCodeHash = res.contractCodeHash;
       } else {
@@ -244,7 +268,7 @@ async function main () {
           console.log("SECRET_ADDRESS: ", contractParams.contractAddress);
 
           deployed = await loadDeployed();
-          if (isLocal) {
+          if (isLocalSecretDeployed) {
             deployed.data.secret.localhost.secretNunya.nunyaContractAddress = contractParams.contractAddress;
           } else {
             deployed.data.secret.testnet.secretNunya.nunyaContractAddress = contractParams.contractAddress;

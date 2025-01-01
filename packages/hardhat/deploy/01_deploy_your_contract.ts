@@ -15,8 +15,8 @@ const value = 0;
 // const value = 1337;
 // const value = ethers.utils.parseEther("0.0000001337");
 
-function getDeployerPublicKeyBytes(deployer: string) {
-  const deployerWallet = new Wallet(deployer);
+function getDeployerPublicKeyBytes(deployerPrivateKey: string) {
+  const deployerWallet = new Wallet(deployerPrivateKey);
   console.log("Generating keys for deployer public address:", deployerWallet.address, "\n");
   const userPublicKey = new SigningKey(deployerWallet.privateKey).compressedPublicKey;
   console.log('userPublicKey: ', userPublicKey);
@@ -39,7 +39,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     When deploying to live networks (e.g `yarn hardhat:deploy --network sepolia`), the deployer account
     should have sufficient balance to pay for the gas fees for contract creation.
 
-    You can generate a random account with `yarn hardhat:generate` which will fill DEPLOYER_PRIVATE_KEY
+    You can generate a random account with `yarn hardhat:generate` which will fill ETH_TESTNET_PRIVATE_KEY
     with a random private key in the .env file (then used on hardhat.config.ts)
     You can run the `yarn hardhat:account` command to check your balance in every network.
   */
@@ -49,43 +49,37 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   console.log("chain id: ", chainId);
 
   let providerRpc;
-  let deployer;
+  let deployerPrivateKey;
   let deployerAddress;
   let deployerPublicKeyBytes;
-  // Ethereum Local Network
-  // Account #0: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 (10000 ETH)
-  // Private Key: 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-  const deployerPrivateKeyLocalNetwork = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
-  const deployerAddressLocalNetwork = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 
-  let isLocal;
   if (hre.network.name == "sepolia") {
-    isLocal = false;
     console.log("hre.network.name: ", hre.network.name);
-    if (process.env.DEPLOYER_ADDRESS == "" || process.env.DEPLOYER_PRIVATE_KEY == "") {
+    if (process.env.ETH_TESTNET_ADDRESS == "" || process.env.ETH_TESTNET_PRIVATE_KEY == "") {
       throw new Error(`Please add deployer address and private key to the .env file for Sepolia Network.`)
     }
-    deployer = process.env.DEPLOYER_PRIVATE_KEY || "";  // config.networks?.sepolia?.accounts[0];
-    deployerAddress = process.env.DEPLOYER_ADDRESS || "";
-    deployerPublicKeyBytes = getDeployerPublicKeyBytes(deployer);
-    providerRpc = String(config.networks?.sepolia);
+    deployerPrivateKey = process.env.ETH_TESTNET_PRIVATE_KEY || ""; // config.networks?.sepolia?.accounts[0];
+    deployerAddress = process.env.ETH_TESTNET_ADDRESS || "";
+    deployerPublicKeyBytes = getDeployerPublicKeyBytes(deployerPrivateKey);
+    providerRpc = process.env.ETH_SEPOLIA_PROVIDER_RPC;
+  } else if (hre.network.name = "localhost") {
+    deployerPrivateKey = process.env.ETH_DEVELOPMENT_PRIVATE_KEY || "";
+    deployerAddress = process.env.ETH_DEVELOPMENT_ADDRESS || "";
+    deployerPublicKeyBytes = getDeployerPublicKeyBytes(deployerPrivateKey);
+    providerRpc = process.env.ETH_DEVELOPMENT_PROVIDER_RPC;
   } else {
-    isLocal = true;
-    deployer = deployerPrivateKeyLocalNetwork;
-    deployerAddress = deployerAddressLocalNetwork;
-    deployerPublicKeyBytes = getDeployerPublicKeyBytes(deployer);
-    providerRpc = "http://127.0.0.1:8545/";
+    console.log("Unsupported network: ", hre.network.name);
+    throw Error("Unsupported network");
   }
 
   if (logging) {
     console.log("deployerAddress: ", deployerAddress);
-
     const balance = await hre.ethers.provider.getBalance(deployerAddress);
     console.log("Deployer account balance:", hre.ethers.formatEther(balance), "ETH");
   }
 
   const nunyaContract = await deploy("NunyaBusiness", {
-    from: deployer,
+    from: deployerPrivateKey,
     // Contract constructor arguments
     args: [],
     log: true,
@@ -98,7 +92,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   console.log("Successfully deployed NunyaBusiness to address: ", nunyaContract.address);
 
   const gateway = await deploy("Gateway", {
-    from: deployer,
+    from: deployerPrivateKey,
     args: [nunyaContract.address, deployerPublicKeyBytes],
     log: true,
     gasLimit: 30000000,
@@ -125,20 +119,24 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
 
   // // Call the gateway function now that the Nunya contract has been funded
   // const nunyaContractDeployedAt = await hre.ethers.getContractAt("NunyaBusiness", nunyaContract.address);
-  // const newSecretUserTx = await nunyaContractDeployedAt.newSecretUser(deployer, { value: parseEther("0.0001") });
+  // const newSecretUserTx = await nunyaContractDeployedAt.newSecretUser(deployerPrivateKey, { value: parseEther("0.0001") });
   // console.log("tx hash:", newSecretUserTx.hash);
 
   const deployed = await loadDeployed();
-  if (isLocal) {
+  deployed.data.evm.network = hre.network.name;
+  if (hre.network.name == "localhost") {
     deployed.data.evm.localhost.chainId = chainId?.toString() || "";
     deployed.data.evm.localhost.endpoint = providerRpc;
     deployed.data.evm.localhost.nunyaBusinessContractAddress = nunyaContract.address;
     deployed.data.evm.localhost.gatewayContractAddress = gateway.address;
-  } else {
+  } else if (hre.network.name == "sepolia") {
     deployed.data.evm.sepolia.chainId = chainId?.toString() || "";
     deployed.data.evm.sepolia.endpoint = providerRpc;
     deployed.data.evm.sepolia.nunyaBusinessContractAddress = nunyaContract.address;
     deployed.data.evm.sepolia.gatewayContractAddress = gateway.address;
+  } else {
+    console.log("Unsupported network: ", hre.network.name);
+    throw Error("Unsupported network");
   }
   await writeDeployed(deployed);
 };

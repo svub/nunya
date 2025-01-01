@@ -2,13 +2,21 @@
 
 # Only run after ./scripts/run.sh
 
+echo -e "set-relayer.sh"
+
 apt install -y jq
 echo -e "Folder: $PWD"
 # PARENT_DIR="$(dirname "$PWD")"
 JSON_DEPLOYED=$(cat $PWD/deployed.json)
 echo -e "deployed.json: $JSON_DEPLOYED"
-RELAYER_CONFIG_PATH=$(echo "$JSON_DEPLOYED" | jq -r '.data.relayer.configPath')
-echo -e "Relayer path: $RELAYER_CONFIG_PATH"
+RELAYER_PATH=$(echo "$JSON_DEPLOYED" | jq -r '.data.relayer.path')
+echo -e "RELAYER_PATH: $RELAYER_PATH"
+
+# TODO - update to clone and checkout if folder not exist
+cd $RELAYER_PATH/SecretPath/TNLS-Relayers
+
+RELAYER_CONFIG_PATH=$RELAYER_PATH/SecretPath/TNLS-Relayers/config.yml
+echo -e "Relayer config path: $RELAYER_CONFIG_PATH"
 CHOSEN_NETWORK=$(echo "$JSON_DEPLOYED" | jq -r '.data.secret.network')
 
 SECRET_GATEWAY_CONTRACT_CODE_HASH=""
@@ -40,6 +48,8 @@ fi
 # https://mikefarah.gitbook.io/yq/usage/properties
 # note: use `strenv(MY_ENV)` or not `$MY_ENV`
 
+# WARNING: `yq` removes empty lines from the config.yml file
+# TODO: Find a workaround https://stackoverflow.com/questions/57627243/how-to-prevent-yq-removing-comments-and-empty-lines
 export C_HASH=$SECRET_GATEWAY_CONTRACT_CODE_HASH && yq -i ".secretdev-1.code_hash = strenv(C_HASH)" $RELAYER_CONFIG_PATH
 echo -e "Finished updating Secret Gateway code hash in the Relayer configuration"
 

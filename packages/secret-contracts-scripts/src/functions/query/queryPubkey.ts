@@ -1,5 +1,6 @@
 import { SecretNetworkClient } from "secretjs";
 import config from '../../config/config.js';
+import { loadDeployed } from "../../loadDeployed.js";
 
 export const queryPubkey = async (params: any) => {
   const secretjs = new SecretNetworkClient({
@@ -16,14 +17,21 @@ export const queryPubkey = async (params: any) => {
 }
 
 async function main() {
-  const { chainId, endpoint, secretNunya: { nunyaContractCodeId, nunyaContractAddress, nunyaContractCodeHash } } =
-    config.networkSettings.secret.network == "testnet"
-    ? config.networkSettings.secret.testnet
-    : config.networkSettings.secret.localhost;
+  let deployed = await loadDeployed();
+  let varsDeployedSecret;
+  if (deployed.data.secret.network == "testnet") {
+    varsDeployedSecret = deployed.data.secret.testnet;
+  } else if (deployed.data.secret.network == "localhost") {
+    varsDeployedSecret = deployed.data.secret.localhost;
+  } else {
+    throw new Error(`Unsupported network.`)
+  }
+  const { chainId: secretChainId, endpoint: secretEndpoint, secretNunya: { nunyaContractCodeId, nunyaContractAddress, nunyaContractCodeHash } } = varsDeployedSecret;
 
+  
   let params = {
-    endpoint: endpoint,
-    chainId: chainId,
+    endpoint: secretEndpoint,
+    chainId: secretChainId,
     contractAddress: nunyaContractAddress,
     contractCodeHash: nunyaContractCodeHash,
   };

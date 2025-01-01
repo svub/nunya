@@ -14,7 +14,7 @@ async function writeDeployed (newDeployed: any) {
     let newJsonData = JSON.stringify(newDeployed, null, 2);
 
     await writeFile(filePath, newJsonData, { flag: 'w+' });
-    console.log("Updated deployed.json");
+    console.log("Updated deployed.json secret-contracts-scripts: ", newJsonData);
   } catch (err) {
     console.error(err);
   }

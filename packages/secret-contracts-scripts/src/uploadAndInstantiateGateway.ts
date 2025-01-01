@@ -7,46 +7,46 @@ import { getSecretGatewayContractKeys } from "./functions/query/getSecretGateway
 import { loadDeployed } from "./loadDeployed.js";
 import { writeDeployed } from "./writeDeployed.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-console.log('__dirname: ', __dirname);
-
-const walletOptions = {
-  hdAccountIndex: 0,
-  coinType: 529,
-  bech32Prefix: 'secret',
-}
-
-const isLocal = config.networkSettings.secret.network == "localhost";
-const { walletMnemonic, isOptimizedContractWasm, secretNunya: { nunyaContractWasmPath }, secretGateway: { gatewayContractAdminAddress, gatewayContractCodeId, gatewayContractCodeHash, gatewayContractWasmPath }, chainId, endpoint } =
-  isLocal == false
-  ? config.networkSettings.secret.testnet
-  : config.networkSettings.secret.localhost;
-const { configPath } = config.networkSettings.relayer;
-
-if (walletMnemonic == "") {
-  throw Error("Unable to obtain mnemonic phrase");
-}
-
-const wallet = new Wallet(walletMnemonic, walletOptions);
-console.log('wallet address: ', wallet.address);
-
-const rootPath = path.join(__dirname, '../../../'); // relative to ./dist
-console.log('rootPath', rootPath)
-// const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${nunyaContractWasmPath}`);
-// Optimised nunya-contract
-// const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${isOptimizedContractWasm ? "optimized-wasm/" : ""}${nunyaContractWasmPath}`);
-const secret_gateway_contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/secret-gateway/${isOptimizedContractWasm ? "optimized-wasm/" : ""}${gatewayContractWasmPath}`);
-
 async function main () {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  console.log('__dirname: ', __dirname);
+  
+  const walletOptions = {
+    hdAccountIndex: 0,
+    coinType: 529,
+    bech32Prefix: 'secret',
+  }
+  
+  const isLocal = config.networkSettings.secret.network == "localhost";
+  const { walletMnemonic, isOptimizedContractWasm, secretNunya: { nunyaContractWasmPath }, secretGateway: { gatewayContractAdminAddress, gatewayContractCodeId, gatewayContractCodeHash, gatewayContractWasmPath }, chainId: secretChainId, endpoint: secretEndpoint } =
+    isLocal == false
+    ? config.networkSettings.secret.testnet
+    : config.networkSettings.secret.localhost;
+  const relayerPath = config.networkSettings.relayer.path;
+  
+  if (walletMnemonic == "") {
+    throw Error("Unable to obtain mnemonic phrase");
+  }
+  
+  const wallet = new Wallet(walletMnemonic, walletOptions);
+  console.log('wallet address: ', wallet.address);
+  
+  const rootPath = path.join(__dirname, '../../../'); // relative to ./dist
+  console.log('rootPath', rootPath)
+  // const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${nunyaContractWasmPath}`);
+  // Optimised nunya-contract
+  // const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${isOptimizedContractWasm ? "optimized-wasm/" : ""}${nunyaContractWasmPath}`);
+  const secret_gateway_contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/secret-gateway/${isOptimizedContractWasm ? "optimized-wasm/" : ""}${gatewayContractWasmPath}`);
+  
   const secretjs = new SecretNetworkClient({
-    chainId: chainId,
-    url: endpoint || "",
+    chainId: secretChainId,
+    url: secretEndpoint || "",
     wallet: wallet,
     walletAddress: wallet.address,
   });
 
-  console.log('endpoint: ', endpoint);
+  console.log('secretEndpoint: ', secretEndpoint);
   // console.log('secretjs: ', secretjs);
 
   let deployed = await loadDeployed();
@@ -55,15 +55,17 @@ async function main () {
   deployed.data.secret.network = config.networkSettings.secret.network;
 
   if (isLocal) {
-    deployed.data.relayer.configPath = configPath;
+    console.log("isLocal - relayerPath: ", relayerPath);
+    deployed.data.relayer.path = relayerPath;
 
-    deployed.data.secret.localhost.chainId = chainId;
-    deployed.data.secret.localhost.endpoint = endpoint;
+    deployed.data.secret.localhost.chainId = secretChainId;
+    deployed.data.secret.localhost.endpoint = secretEndpoint;
   } else {
-    deployed.data.relayer.configPath = configPath;
+    console.log("isLocal - relayerPath: ", relayerPath);
+    deployed.data.relayer.path = relayerPath;
 
-    deployed.data.secret.testnet.chainId = chainId;
-    deployed.data.secret.testnet.endpoint = endpoint;
+    deployed.data.secret.testnet.chainId = secretChainId;
+    deployed.data.secret.testnet.endpoint = secretEndpoint;
   }
   await writeDeployed(deployed);
 
@@ -251,8 +253,8 @@ async function main () {
           }
 
           let params = {
-            endpoint: endpoint,
-            chainId: chainId,
+            endpoint: secretEndpoint,
+            chainId: secretChainId,
             contractAddress: contractParams.contractAddress,
             contractCodeHash: res.contractCodeHash,
           };
