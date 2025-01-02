@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# References:
+# - https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/basics/cross-chain-messaging/secretpath/how-to-deploy-secretpath-on-your-chain#setting-up-the-virtual-environment
+# - https://docs.anaconda.com/miniconda/install/#quick-command-line-install
+
 DIRECTORY=/root/miniconda3
 if [ ! -d "$DIRECTORY" ]; then
   echo "$DIRECTORY does not exist."
@@ -17,8 +21,13 @@ source ~/.zshrc
 
 conda create -y --name secretpath_env python=3.11
 
-# install relayer dependencies and activate conda environment
+# Install relayer dependencies and activate conda environment
+# Environment location: /root/miniconda3/envs/secretpath_env
+# Activate environment `conda activate secretpath_env` or deactivate `conda deactivate`
 conda activate secretpath_env
+
+# Check that it is using the latest version of the Python secret-sdk
+# in requirements.txt https://github.com/secretanalytics/secret-sdk-python/releases
 pip install -r requirements.txt --no-dependencies
 pip install --upgrade lru-dict
 
