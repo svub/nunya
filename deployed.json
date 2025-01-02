@@ -1,7 +1,7 @@
 {
   "data": {
     "relayer": {
-      "path": "/root/ltfschoen-backup"
+      "path": "/root/nunya/packages/relayer"
     },
     "evm": {
       "network": "localhost",
@@ -50,8 +50,8 @@
           "gatewayContractAddress": "secret1mfk7n6mc2cg6lznujmeckdh4x0a5ezf6hx6y8q",
           "gatewayContractCodeHash": "774c551b6afa0abe37162d1303c69b94c6a7395fcd6cfefddfd23ba3bcd61b78",
           "gatewayContractAdminAddress": "secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg",
-          "gatewayContractPublicKey": "0x0444577cda3998e4195eb9008eedea424d2f40f089dc5ef8cf8e2342492911b37e724ad6e0ba76730d298598c03bfa69fe37dc6b1954dc0fa48d783e838902bf0f",
-          "gatewayContractEncryptionKeyForChaChaPoly1305": "A0RXfNo5mOQZXrkAju3qQk0vQPCJ3F74z44jQkkpEbN+"
+          "gatewayContractPublicKey": "0x04a7eda3a6078e43a2b4a6141e502282e050543ea4f7651fe4d1b3efcd7573657c4013fe856461d6def58838ebb2d99f77078b2c4a19f6974876a2515155fc7144",
+          "gatewayContractEncryptionKeyForChaChaPoly1305": "Aqfto6YHjkOitKYUHlAiguBQVD6k92Uf5NGz7811c2V8"
         }
       }
     }

@@ -5,22 +5,16 @@
 * [Usage Guidelines](#usage)
 * [Setup Frontend & Solidity Contracts](#setup-frontend)
 * [Setup Secret Contracts](#setup-secret)
-* [About Custom Gateways and Relayers](#about-gateways-relayers)
 
 ### Usage Guidelines <a id="usage"></a> 
 
 **Quick Start** with section: [_QUICKSTART.md](./_QUICKSTART.md), otherwise if that doesn't work:
 
 **Start Here** with section [Setup Secret](#setup-secret") and follow the instructions from there.
-  * TODO - Update this to mention how to configure and use ./scripts/run.sh like how the QUICKSTART file does it
 
-Help judges and other developers understand the project.
+This should help developers understand the project, otherwise please create an issue.
 
 See the [DEMO_AND_VIDEO](./_DEMO_AND_VIDEO.md) file for details.
-
-* **IMPORTANT**: Private secret contract on Secret Network must be deployed before deploying EVM gateway contract since it must be modified to include its address `routing_info` and code hash `routing_code_hash`.
-
-* **NOTE**: The public key of the user that deploys the custom Nunya.Business contract is sent through to the custom EVM Gateway contract so only that user may call that custom EVM Gateway contract, however we actually want to try and use the default EVM Gateway contract that has been deployed by the Secret network team with minimal changes and move the logic to the Secret contract instead. Apart from the creator of the Nunya.Business contract, the only other users that call any Secret network functions are accounts whose public keys are provided by the creator of the Nunya.Business giving those accounts permission to call the withdraw function.
 
 ### Setup Frontend and Solidity Contracts <a id="setup-frontend"></a> 
 
@@ -654,7 +648,7 @@ cd SecretPath/TNLS-Relayers
 ##### Deploy Nunya Contract on Localhost <a id="deploy-nunya-contract-on-localhost"></a>
 
 * Open file ./nunya/packages/secret-contracts-scripts/src/config/config.ts
-* Check ./nunya/packages/secret-contracts-scripts/.env has been created from the .env-sample file
+* Check ./nunya/packages/secret-contracts-scripts/.env has been created from the .env.example file
   * Ensure that in the .env file that RELAYER_PATH is set to the path of the /SecretPath/TNLS-Relayers/config.yml file of the relayer on the same machine, because if you run ./scripts/run.sh it will automatically update the relayer config.yml file if the Secret Gateway contract code hash changes in order for it to work.
 
 * Reference: https://docs.scrt.network/secret-network-documentation/development/example-contracts/tools-and-libraries/local-secret#advantages-of-localsecret-vs.-a-public-testnet
@@ -1006,15 +1000,3 @@ yarn run secret:queryPubkey
 ```
 yarn run secret:submit
 ```
-
-### About Custom Gateways and Relayers <a id="about-gateways-relayers"></a> 
-
-See https://github.com/ltfschoen/SecretPath for source code associated with the following:
-
-* Custom Public Gateway on Ethereum Sepolia
-* Custom Relay Network
-* Custom Private Gateway on Secret Network
-
-The deployed [NunyaBusiness.sol](./packages/hardhat/contracts/NunyaBusiness.sol) contract on Ethereum Sepolia shall interact with the Public Gateway.
-
-The deployed [Nunya Secret Private Contract](./packages/secret-contracts/nunya-contract/src/contract.rs) on Secret Network shall interact with the Private Gateway on Secret Network 

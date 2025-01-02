@@ -2,54 +2,11 @@
 
 # Important: Only configured to work on Linux since cannot run on macOS Silicon due to SGX
 
-# Part 1
+# Part 1 - Secret Network Development Node Docker Container
 
-# Note:
-# Run `cd ~/nunya && git stash && cd ~/ltfschoen && git stash` to remove changed files
+PROJECT_ROOT=$1
 
-# # Commands
-#
-# ## Restart Secret Network Development Node
-# ```
-# docker stop secretdev && docker rm secretdev && sleep 5 &&
-# cd ~/nunya/packages/secret-contracts/secret-gateway && nvm use &&
-# docker run -it --rm -p 9091:9091 -p 26657:26657 -p 26656:26656 -p 1317:1317 -p 5000:5000 -v $PWD:/root/code --name secretdev ghcr.io/scrtlabs/localsecret:v1.15.0-beta.19
-# docker logs -f secretdev | tee ~/nunya/docker.log
-# ```
-#
-# ## Reload Ethereum Network Development service file after changes
-# ```
-# systemctl daemon-reload
-# ```
-#
-# ## Other
-# ```
-# systemctl enable ethlocal
-# systemctl stop ethlocal
-# systemctl daemon-reload
-# systemctl start ethlocal
-# systemctl restart ethlocal
-# systemctl status ethlocal
-# journalctl -u ethlocal.service -f
-# ```
-# ## Reload Relayer service file after changes
-# ```
-# systemctl daemon-reload
-# ```
-#
-# ## Other
-# ```
-# systemctl enable relayer
-# systemctl stop relayer
-# systemctl daemon-reload
-# systemctl start relayer
-# systemctl restart relayer
-# systemctl status relayer
-# journalctl -u relayer.service -f
-# ```
-
-# Secret Network Development Node
-cd ~/nunya
+cd $PROJECT_ROOT
 
 rm docker.log
 
@@ -92,22 +49,18 @@ corepack enable
 corepack prepare yarn@v4.5.3 --activate
 yarn install
 
-# TODO - update to clone and checkout if folder not exist
-# git stash
-# git pull origin submit-pubkey
-# git checkout submit-pubkey
-
-cd ~/nunya/packages/secret-contracts/secret-gateway
+cd $PROJECT_ROOT/packages/secret-contracts/secret-gateway
 git submodule update --init --recursive
 nvm use
 docker stop secretdev && docker rm secretdev
 sleep 5
 # run `make start-server` in daemon background mode
 docker run -it -d --rm -p 9091:9091 -p 26657:26657 -p 26656:26656 -p 1317:1317 -p 5000:5000 -v $PWD:/root/code --name secretdev ghcr.io/scrtlabs/localsecret:v1.15.0-beta.19
-# docker logs -f secretdev | tee ~/nunya/docker.log
+# docker logs -f secretdev | tee $PROJECT_ROOT/docker.log
 
-# Ethereum Network Development Node
-cd ~/nunya/packages/hardhat
+# Part 2 - Ethereum Network Development Node Service
+
+cd $PROJECT_ROOT/packages/hardhat
 nvm use
 
 sudo adduser ethlocal_service --system --no-create-home
@@ -115,7 +68,7 @@ DB_STORAGE="/mnt/storage1"
 mkdir -p $DB_STORAGE/.chains
 
 mkdir -p /opt/ethlocal
-cp ~/nunya/scripts/ethlocal/start.sh /opt/ethlocal
+cp $PROJECT_ROOT/scripts/ethlocal/start.sh /opt/ethlocal
 sudo chown -R ethlocal_service /opt/ethlocal
 sudo chmod 755 /opt/ethlocal/start.sh
 
@@ -123,16 +76,16 @@ sudo chmod 755 /opt/ethlocal/start.sh
 
 sudo rm /opt/ethlocal/hardhat
 # create symlink
-sudo ln -s ~/nunya/packages/hardhat/node_modules/.bin/hardhat /opt/ethlocal/hardhat
+sudo ln -s $PROJECT_ROOT/packages/hardhat/node_modules/.bin/hardhat /opt/ethlocal/hardhat
 # change permission to symlink and where it points to
 sudo chown -R ethlocal_service $DB_STORAGE/.chains
 sudo chown -R ethlocal_service /opt/ethlocal
-sudo chown -R ethlocal_service ~/nunya/packages/hardhat/node_modules/.bin/
-sudo chown -R ethlocal_service /root/nunya/packages/hardhat/node_modules/hardhat/
+sudo chown -R ethlocal_service $PROJECT_ROOT/packages/hardhat/node_modules/.bin/
+sudo chown -R ethlocal_service $PROJECT_ROOT/packages/hardhat/node_modules/hardhat/
 # change permission to symlink and where it points to
 sudo chmod 755 /opt/ethlocal/hardhat
-sudo chmod 755 ~/nunya/packages/hardhat/node_modules/.bin/hardhat
-sudo chmod 755 ~/nunya/packages/hardhat/node_modules/hardhat/internal/cli/bootstrap.js
+sudo chmod 755 $PROJECT_ROOT/packages/hardhat/node_modules/.bin/hardhat
+sudo chmod 755 $PROJECT_ROOT/packages/hardhat/node_modules/hardhat/internal/cli/bootstrap.js
 # ls -al /opt/ethlocal
 
 # Create service file
@@ -158,7 +111,7 @@ touch /etc/systemd/system/ethlocal.service
   # Note: Must be inside a hardhat project to run the command otherwise error
   # Error HH1: You are not inside a Hardhat project.
   # It runs this from directory root `/` hence the error. Suggest move into a script where can change directory.
-  echo 'WorkingDirectory=/root/nunya/packages/hardhat' # must be run inside a Hardhat project
+  echo "WorkingDirectory=$PROJECT_ROOT/packages/hardhat" # must be run inside a Hardhat project
   echo '[Install]'
   echo 'WantedBy=multi-user.target'
 } > /etc/systemd/system/ethlocal.service
@@ -175,42 +128,39 @@ systemctl enable ethlocal
 systemctl start ethlocal
 systemctl status ethlocal
 
-cd ~/nunya
+# Part 3 - Ethereum Contracts Deployment to Ethereum Network Development Node
+
+cd $PROJECT_ROOT
 nvm use
 yarn hardhat:clean
 yarn hardhat:compile
 yarn hardhat:deploy --network localhost
 yarn run secret:setEVMGatewayAddress
 
-cd ~/nunya/packages/secret-contracts/nunya-contract
+# Part 4 - Secret Contract custom Gateway and custom private Secret Contarct Deployment to Secret Network Development Node
+
+cd $PROJECT_ROOT/packages/secret-contracts/nunya-contract
 make clean
 make build
 
-cd ~/nunya/packages/secret-contracts/secret-gateway
+cd $PROJECT_ROOT/packages/secret-contracts/secret-gateway
 make clean
 make build
 
-cd ~/nunya
+cd $PROJECT_ROOT
 yarn install
 yarn run secret:clean
 yarn run secret:uploadAndInstantiateGateway
 
-# SKIP: PART 2
 # yarn run secret:querySecretGatewayPubkey
-
-# TODO - update config.ts
-
-# PART 3
-
-## TODO - upload and instantiate private Secret contract
 
 yarn run secret:clean
 yarn run secret:uploadAndInstantiateNunya
+
 docker exec -it secretdev secretcli tx bank send secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03 secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg 100000000000000000uscrt -y
+# docker exec -it secretdev secretcli query bank balances secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg | jq
 
-# TODO - update config.ts
-
-# Part 4
+# Part 5 - Relayer
 
 apt install -y jq
 echo -e "Folder: $PWD"
@@ -220,28 +170,18 @@ echo -e "deployed.json: $JSON_DEPLOYED"
 RELAYER_PATH=$(echo "$JSON_DEPLOYED" | jq -r '.data.relayer.path')
 echo -e "RELAYER_PATH: $RELAYER_PATH"
 
-# TODO - update to clone and checkout if folder not exist
-cd $RELAYER_PATH/SecretPath/TNLS-Relayers
-# git stash
-# git pull origin nunya
-# git checkout nunya
-
-cd ~/nunya
+cd $PROJECT_ROOT
 # Set the Secret Gateway code hash in the Relay config.yml file for the network to be the latest deployed code hash
 # TODO: Provide $JSON_DEPLOYED $RELAYER_PATH as arguments using `jq tostring` or similar
-bash ~/nunya/scripts/set-relayer.sh
+bash $PROJECT_ROOT/scripts/set-relayer.sh
 
-## TODO - configure these files
-# $RELAYER_PATH/SecretPath/TNLS-Relayers/config.yml
-# $RELAYER_PATH/SecretPath/TNLS-Relayers/.env
-
-# Part 5
+# Part 6 - Relayer (continued)
 
 sudo adduser relayer_service --system --no-create-home
 
 mkdir -p /opt/relayer
-cp ~/nunya/scripts/relayer/start.sh /opt/relayer
-cp ~/nunya/scripts/relayer/node.sh /opt/relayer
+cp $PROJECT_ROOT/scripts/relayer/start.sh /opt/relayer
+cp $PROJECT_ROOT/scripts/relayer/node.sh /opt/relayer
 sudo chown -R relayer_service /opt/relayer
 sudo chmod 755 /opt/relayer/start.sh
 sudo chmod 755 /opt/relayer/node.sh
@@ -288,11 +228,12 @@ systemctl enable relayer
 systemctl start relayer
 systemctl status relayer
 
-# Part 6
+# Part 7
 
-cd ~/nunya
+cd $PROJECT_ROOT
 nvm use
 # yarn run secret:submitRequestValue
 # yarn run secret:submitRetrievePubkey
 
+echo -e "Finished loading"
 exit 0

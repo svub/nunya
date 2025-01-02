@@ -25,6 +25,9 @@ dist
 # logs
 logs/
 ethlocal.service.log
+secret.service.log
+secret-docker.log
+relayer.service.log
 
 **/node_modules/
 **/yarn-error.log
