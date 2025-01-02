@@ -92,18 +92,18 @@ In this guide it assumes that you are making changes directly on a local machine
 	* Install Plugin "Remote Explorer"
 	* Remote Explorer
 	* Click SSH > + (Note: Replace the IP address below with your own)
-		* Enter `ssh root@172.105.184.209`, choose to update /Users/luke/ssh/config
-		* Click 172.105.184.209 > "root" > "Connect in Current Window"
-	* Go to Extensions, search for "solidity", and click the apply that extension to "SSH 172.105.184.209" for syntax highlighting
+		* Enter `ssh root@X.X.X.X`, choose to update /Users/luke/ssh/config
+		* Click X.X.X.X > "root" > "Connect in Current Window"
+	* Go to Extensions, search for "solidity", and click the apply that extension to "SSH X.X.X.X" for syntax highlighting
 	* Use the "Terminal" in Visual Studio code to interact
 
 ### Prepare Services <a id="prepare-services"></a>
 
 #### Installation
 
-* Connect to remote server or use local machine if supported (e.g. in the example shown below the Linode server IP address is 172.105.184.209)
+* Connect to remote server or use local machine if supported (e.g. in the example shown below the Linode server IP address is X.X.X.X)
 ```bash
-ssh root@172.105.184.209
+ssh root@X.X.X.X
 ```
 * Configure `PROJECT_ROOT` to be the path to the directory where you want to install it.
 	```bash

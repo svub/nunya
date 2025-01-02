@@ -28,6 +28,7 @@ ethlocal.service.log
 secret.service.log
 secret-docker.log
 relayer.service.log
+run.log
 
 **/node_modules/
 **/yarn-error.log
