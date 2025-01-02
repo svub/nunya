@@ -94,7 +94,7 @@ let initialNetworkSettings = {
         // IMPORTANT: If this changes, we update the deployer.json and automatically update the `code_hash` for this network in Relayer config.yml file to match this value
         // otherwise you will get an error `Message contains mismatched contract hash` whenever you try to interact
         // with the Secret Gateway via the Relayer.
-        gatewayContractCodeHash: "", // only know after upload
+        // gatewayContractCodeHash: "", // only know after upload
         // Generated with Keplar wallet using "Connect with Google" to obtain a private key and used in the
         // .env file of the custom Secret Relayer. The `pub_key` associated with it may be obtained through debugging
         // `account_info = data.get('account', {})` in the Relayer with `self.logger.info(f"sync_account_number_and_sequence: account_info {account_info}")`

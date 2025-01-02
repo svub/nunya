@@ -2,962 +2,266 @@
 
 **Table of contents**
 
+* [Introduction](#intro)
 * [Usage Guidelines](#usage)
-* [Setup Frontend & Solidity Contracts](#setup-frontend)
-* [Setup Secret Contracts](#setup-secret)
+* [Prepare Services](#prepare-services)
+* [Run Services](#run-services)
+* [Example Interactions](#interact-with-services).
+* [WIP - Run Tests](#run-tests)
+* [WIP - Run Frontend](#run-frontend)
 
-### Usage Guidelines <a id="usage"></a> 
+## Introduction <a id="intro"></a> 
 
-**Quick Start** with section: [_QUICKSTART.md](./_QUICKSTART.md), otherwise if that doesn't work:
+This repository currently allows you to use a script to quickly run the following services and use them to deploy relevant smart contracts to them and observe their outputs in a development environment after configurating environment variables. Further scripts may be run to interact with the smart contracts.
 
-**Start Here** with section [Setup Secret](#setup-secret") and follow the instructions from there.
+It has only been fully configured to use Local development networks, not Testnets or Mainnet yet. It may work on Testnets, but further modifications may be required to run on Mainnet.
 
-This should help developers understand the project, otherwise please create an issue.
+This should make it easy to then customise it for your use case, incorporate tests and deploy it to testnet or mainnet.
 
-See the [DEMO_AND_VIDEO](./_DEMO_AND_VIDEO.md) file for details.
+### Development Environment
 
-### Setup Frontend and Solidity Contracts <a id="setup-frontend"></a> 
+#### Services
 
-#### Requirements
+* Custom Ethereum Nunya contract [NunyaBusiness.sol](./packages/hardhat/contracts/NunyaBusiness.sol) contract gets deployed on an Ethereum Development Node that is running in a systemd service that is running. Calls to it shall interact with the custom Public Gateway.
+* Custom Ethereum Public Gateway contract also gets deployed on an Ethereum Development Node. It was copied from https://github.com/SecretSaturn/SecretPath/blob/main/TNLS-Gateways/public-gateway/src/Gateway.sol and modified. Ideally in future the changes made to it should be transferred to a fork at https://github.com/ltfschoen/SecretPath and used instead
+* Custom Relayer uses this fork https://github.com/ltfschoen/SecretPath. It is configured to listens to events emitted by each Gateway and broadcast transactions from the source chain to the destination chain. 
+* Custom [Private Secret Gateway contract](./packages/secret-contracts/secret-gateway) gets deployed on Secret Development Network running in a Docker container. It was copied from https://github.com/ltfschoen/SecretPath/tree/main/TNLS-Gateways/secret and modified. It interacts with the Custom Relayer and the Nunya Private contract that gets deployed on on Secret Development Network.
+* Custom private Secret [Nunya contract](./packages/secret-contracts/nunya-contract/src/contract.rs) gets deployed on Secret Development Network.
 
-Before you begin, you need to install the following tools:
-
-- [Node (>= v18.18)](https://nodejs.org/en/download/)
-- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
-- [Git](https://git-scm.com/downloads)
-
-#### Quickstart
-
-To get started, follow the steps below:
-
-1. Install dependencies:
-
+```mermaid
+flowchart LR
+      A[Frontend Client]-->B(Nunya Ethereum Network Public Contract);
+      B-->C{custom Ethereum Network Public Gateway};
+      C-->D(((custom Relay Network)));
+      D-->E{custom Secret Network Private Gateway};
+      E-->F(Nunya Secret Network Private Contract);
+      F-->E;
+      E-->D;
+      D-->C;
+      C-->B;
+      B-->A;
+      style E stroke:#d83,stroke-width:3px;
 ```
-yarn install
-```
 
-2. Configure environment variables
+Reference: https://github.com/SecretSaturn/SecretPath/edit/main/TNLS-Gateways/secret/README.md
 
-* Hardhat
+### Codebase Map
 
-Copy the example and add the relevant keys from https://etherscan.io/ and https://account.getblock.io and https://dashboard.alchemy.com/apps.
+* $PROJECT_ROOT/scripts/run.sh - Script that establishes the Ethereum Development Node service, Secret Development Node service, and Relayer service
+* $PROJECT_ROOT/deployed.json - Output after deployment with $PROJECT_ROOT/scripts/run.sh identifying deployed contract information
+* $PROJECT_ROOT/packages/hardhat - Ethereum Solidity contracts, deployment configuration, scripts, and deployed ABI artifacts.
+  * $PROJECT_ROOT/packages/hardhat/.env.example - Example environment variables for deploying Ethereum Solidity contracts
+  * $PROJECT_ROOT/packages/hardhat/hardhat.config.ts - Hardhat configuration used for deploying Ethereum Solidity contracts to different networks
+  * NunyaBusiness contract - $PROJECT_ROOT/packages/contracts/NunyaBusiness.sol
+  * Custom EVM Gateway contract based on [this](https://github.com/SecretSaturn/SecretPath/blob/main/TNLS-Gateways/public-gateway/src/Gateway.sol) - $PROJECT_ROOT/packages/contracts/Gateway.sol
+  * Deployment scripts - $PROJECT_ROOT/packages/hardhat/deploy
+  * Deployed contract ABI artifacts - $PROJECT_ROOT/packages/hardhat/artifacts
+* $PROJECT_ROOT/packages/nextjs - Frontend based on ScaffoldETH 2
+  * $PROJECT_ROOT/packages/nextjs/.env.example - Example environment variables for frontend
+  * Homepage - $PROJECT_ROOT/packages/nextjs/app/page.tsx
+* $PROJECT_ROOT/packages/relayer/SecretPath/TNLS-Relayers - Git Submodule based on [this](https://github.com/ltfschoen/SecretPath/pull/1) fork of the Relayer with modifications.
+  * $PROJECT_ROOT/packages/relayer/SecretPath/TNLS-Relayers/config.yml - Configuration of source and destination networks used by Relayer
+  * $PROJECT_ROOT/packages/relayer/SecretPath/TNLS-Relayers/config.yml - Configuration of private keys used to broadcast transactions emited from a source network to a destination network by the Relayer
+  * Note: Ignore other subfolders within $PROJECT_ROOT/packages/relayer/SecretPath/ since they are not being used from that Git Submodule
+* $PROJECT_ROOT/packages/secret-contracts
+  * $PROJECT_ROOT/packages/secret-contracts-scripts/.env.example - Example environment variables to deploy Secret contracts and integrate with Relayer
+  * $PROJECT_ROOT/packages/secret-contracts-scripts/src/config/config.ts - configuration file for pre-deployment that uses .env file
+  * $PROJECT_ROOT/packages/secret-contracts/nunya-contract - custom private Nunya Secret contract
+  * $PROJECT_ROOT/packages/secret-contracts/secret-gateway - custom Secret Network Gateway based on [this](https://github.com/SecretSaturn/SecretPath/tree/main/TNLS-Gateways/secret)
+  * $PROJECT_ROOT/packages/secret-contracts-scripts/src/submitRequestValue.ts - custom end-to-end Example script
+  * $PROJECT_ROOT/packages/secret-contracts-scripts/src/submitRetrievePubkey.ts - custom end-to-end Example script
 
-Note that Alchemy does not support Ethereum Sepolia, so use [Geoblocks](https://getblock.io/) instead to get an API key for Ethereum Sepolia JSON-RPC.
+### Usage Guidelines <a id="usage"></a>
+
+Start with [Setup Services](#prepare-services).
+
+> MAINTAINERS: If you are a maintainer of this repository, then consider initially following the steps in [_MAINTAINER](./_MAINTAINER.md).
+
+#### Assumptions, Constraints, Exclusions
+
+In this guide it assumes the Ethereum Local Network, Secret Local Network, and Relayer are being run on a local or remote machine running Linux, since macOS may not support SGX.
+
+If necessary, use `scp` to copy file changes that are being made on a local machine across to the remote machine (e.g. `scp -r $SOURCE root@$REMOTE_IP:$DESTINATION`).
+
+In this guide it assumes that you are making changes directly on a local machine or a remote server that supports SGX using `vim` or similar, or otheriwse configuring your code editor like Visual Studio Code to do so.
+
+#### Configure Code Editor
+
+* Setup remote editing if using remote Linux server
+	* Install and open Visual Studio Code
+	* Install Plugin "Remote Explorer"
+	* Remote Explorer
+	* Click SSH > + (Note: Replace the IP address below with your own)
+		* Enter `ssh root@172.105.184.209`, choose to update /Users/luke/ssh/config
+		* Click 172.105.184.209 > "root" > "Connect in Current Window"
+	* Go to Extensions, search for "solidity", and click the apply that extension to "SSH 172.105.184.209" for syntax highlighting
+	* Use the "Terminal" in Visual Studio code to interact
+
+### Prepare Services <a id="prepare-services"></a>
+
+#### Installation
+
+* Connect to remote server or use local machine if supported (e.g. in the example shown below the Linode server IP address is 172.105.184.209)
 ```bash
-cp ./packages/hardhat/.env.example ./packages/hardhat/.env
-```
-Verify the contents of ./packages/hardhat/hardhat.config.ts
-
-> IMPORTANT: Update Gateway.sol to change the value of `task_destination_network` and `secret_gateway_signer_address` to be the deployed Gateway address on the Mainnet or Testnet or Localhost of the Secret Network, to match the value stored in ./packages/secret-contracts-scripts/src/config/config.ts, and comment out the values for the network not being used.
-
-* Nextjs
-
-Use the same Alchemy API key. Obtain a WalletConnect project ID at https://cloud.walletconnect.com
-```bash
-cp ./packages/nextjs/.env.example ./packages/nextjs/.env
-```
-Verify the contents of ./packages/nextjs/scaffold.config.ts
-
-3. Setup network
-
-* **Local Network** (on remote machine)
-
-* Connect to Linode (e.g. in the example shown below the Linode server IP address is 172.105.184.209)
-```
 ssh root@172.105.184.209
 ```
+* Configure `PROJECT_ROOT` to be the path to the directory where you want to install it.
+	```bash
+	export PROJECT_ROOT="/root/nunya"
+  export USE_NETWORK="localhost" # alternatively "testnet" or "mainnet"
+	```
+* Clone https://github.com/svub/nunya into `$PROJECT_ROOT`
+* Fetch latest from branch 'submit-pubkey'.
+	```bash
+	BRANCH_NUNYA="submit-pubkey"
+	cd $PROJECT_ROOT
+	git fetch origin $BRANCH_NUNYA:$BRANCH_NUNYA
+	git checkout $BRANCH_NUNYA
+	cd $PROJECT_ROOT/packages/secret-contracts/secret-gateway
+	git submodule update --init --recursive
+	nvm use
+	docker stop secretdev && docker rm secretdev
+	```
 
-If you want to run a local network:
+* Initialise Gitsubmodules to include the Relayer and the relevant branch
+	```bash
+	git submodule update --init --recursive --remote
+	```
 
-Note: Use `accounts: [deployerPrivateKey]` or `accounts: { mnemonic: MNEMONIC }` in ./packages/hardhat/hardhat.config.ts and specify the IP Address where it is being run.
+#### Configure Environment Variables
 
-* Terminal 1
-```
-yarn hardhat:chain
-```
-* Note: It is necessary to restart the chain after chaining the EVM Gateway code, otherwise it may deploy the EVM Gateway to a different address
-
-Example output:
-```
-Started HTTP and WebSocket JSON-RPC server at http://172.105.184.209:8545/
-
-Accounts
-========
-...
-```
-
-* Compile and Deploy to Local Network
-```
-nvm use lts/hydrogen
-yarn hardhat:clean
-yarn hardhat:compile
-yarn hardhat:deploy --network localhost
-```
-
-This command starts a local Ethereum network using Hardhat. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/hardhat/hardhat.config.ts`.
-
-* **Testnet**
-
-Check configured correctly.
-
-```
-yarn hardhat:clean
-yarn hardhat:compile
-yarn hardhat:deploy --network sepolia
-```
-
-> Note: The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn hardhat:deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
-
-Note: If it has deployed previously it will output `Nothing to compile. No need to generate any newer typings.`. To make a fresh deployment first run `yarn run hardhat:clean` from the project root folder.
-
-Example of output:
-```
-Generating typings for: 9 artifacts in dir: typechain-types for target: ethers-v6
-Successfully generated 20 typings!
-Compiled 9 Solidity files successfully (evm target: paris).
-network:  sepolia
-chain id:  11155111
-hre.network.name:  sepolia
-deployerAddress:  0x83De04f1aad8ABF1883166B14A29c084b7B8AB59
-Deployer account balance: 6.938448757518362804 ETH
-deploying "NunyaBusiness" (tx: 0x95ce8c146374df85ce0f0f5425e65a2e33092a74b972495c005fa038fe094d33)...: deployed at 0xAFFF311821C3F3AF863C7103BB17BDC1Ba04603D with 2871810 gas
-Successfully deployed NunyaBusiness to address:  0xAFFF311821C3F3AF863C7103BB17BDC1Ba04603D
-deploying "Gateway" (tx: 0x0c5c2b097801afec5518d3714095569b7df2a53dcde0802c192d036dbd95a66a)...: deployed at 0x1E4B12A9F82b33DA1127B27861EFf5E652de7a6F with 3337833 gas
-Successfully deployed Gateway to address:  0x1E4B12A9F82b33DA1127B27861EFf5E652de7a6F
-setGatewayAddressTx tx hash: 0xefc300507bbddb3ca95dc178d95b857a3771fd0a0334626f036edfe6ffda4343
-👋 Nunya contract: 0xAFFF311821C3F3AF863C7103BB17BDC1Ba04603D
-NunyaBusiness balance:  0.0005
-Gateway balance:  0.0
-```
-
-> Warning: Do not rename 01_deploy_your_contract.ts to 00_deploy_your_contract.ts or it will only compile but will not deploy
-4. Add the deployed Nunya.business Contract Address to `nunyaBusinessContractAddress` and Gateway address `gatewayContractAddress` for the relevant network in ./nunya/packages/secret-contracts-scripts/src/config/config.ts
-
-5. Call the Nunya.business Contract `setEVMGatewayAddress` function to set the Gateway EVM address in its state.
-
-* Run script:
-```bash
-yarn run secret:setEVMGatewayAddress
-```
-
-Example transaction hash: https://sepolia.etherscan.io/tx/0xef7a241e3eba870138323440e910e2a0e608654a46bd7720af8e03ed63618f3a
-
-6. View the contract in block explorer (if not deploying to localhost)
-
-Example previous deployment: 
-  NunyaBusiness: https://sepolia.etherscan.io/address/0xAFFF311821C3F3AF863C7103BB17BDC1Ba04603D#code
-
-  Gateway: https://sepolia.etherscan.io/address/0x1E4B12A9F82b33DA1127B27861EFf5E652de7a6F#code
-
-7. Interact with deployed EVM Gateway via the NunyaBusiness contract
-
-Assumes that you have already uploaded and instantiated the custom Secret contract in the [Setup Secret Contracts](#setup-secret) section.
-
-Skip to the [`submitRequestValue`](#submit-request-value) step in the [Setup Secret Contracts](#setup-secret) section.
-
-
-8. On a third terminal, start the Nunya NextJS app:
-
-```
-yarn start
-```
-
-Visit app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
-
-Run smart contract test with `yarn hardhat:test`
-
-- Edit smart contracts such as `NunyaBusiness.sol` in `packages/hardhat/contracts`
-- Edit frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
-- Edit deployment scripts in `packages/hardhat/deploy`
-
-### Setup Secret Contract <a id="setup-secret"></a> 
-
-* Reference https://docs.scrt.network/secret-network-documentation/development/readme-1
-
-#### Install Dependencies
-
-* Install Git and Make - https://docs.scrt.network/secret-network-documentation/development/readme-1/setting-up-your-environment#install-requirements
-
-* Install Rust
-  ```
-  rustup update
-  rustup default stable
-  rustup target add wasm32-unknown-unknown
-  source "$HOME/.cargo/env"
-  ```
-* Install Cargo Generate
-  ```
-  cargo install cargo-generate --features vendored-openssl
-  ```
-
-* Install dependencies
-  ```
-  nvm use
-  npm install --global lerna
-  yarn set version 4.5.3
-  corepack enable
-  corepack prepare yarn@v4.5.3 --activate
-  ```
-
-* Install SecretCLI on Linux
+* Generate the .env files for the Ethereum and Secret contracts, and associated scripts from the .env.example files.
   ```bash
-  wget https://github.com/scrtlabs/SecretNetwork/releases/download/v1.15.0-beta.18/secretcli-Linux
-  chmod +x secretcli-Linux
-  mv secretcli-Linux /usr/bin/secretcli
-  echo 'PATH=/usr/bin/secretcli:$PATH' >> ~/.bashrc && source ~/.bashrc
-  secretcli --help
+  ETH_CONTRACTS_PATH=$PROJECT_ROOT/packages/hardhat
+  cp $ETH_CONTRACTS_PATH/.env.example $ETH_CONTRACTS_PATH/.env
+
+  SCRIPTS_PATH=$PROJECT_ROOT/packages/secret-contracts-scripts
+  cp $SCRIPTS_PATH/.env.example $SCRIPTS_PATH/.env
+
+  FRONTEND_PATH=$PROJECT_ROOT/packages/nextjs
+  cp $FRONTEND_PATH/.env.example $FRONTEND_PATH/.env
   ```
+* Configure the following files:
+  * $PROJECT_ROOT/packages/hardhat/.env
+    * Add the relevant keys from https://etherscan.io/ and https://account.getblock.io and https://dashboard.alchemy.com/apps.
+    * Note that Alchemy does not support Ethereum Sepolia Testnet, so if using testnet then use [Geoblocks](https://getblock.io/) instead to get an API key for Ethereum Sepolia JSON-RPC.
+    * Verify the Ethereum network configuration in ./packages/hardhat/hardhat.config.ts
+  * $PROJECT_ROOT/packages/secret-contracts-scripts/src/config/config.ts
+  * $PROJECT_ROOT/packages/secret-contract-scripts/.env
+    * Ensure that in the .env file that `RELAYER_PATH` is set to the path `$PROJECT_ROOT/packages/relayer` if using Gitsubmodules, since that will be the parent directory of ./SecretPath/TNLS-Relayers/config.yml, which includes the configuration file of the relayer on the same machine, because if you run ./scripts/run.sh it will automatically update that relayer config.yml file if the Secret Gateway contract code hash changes in order for it to work.
+    * If you want to deploy to Secret Development Network and Ethereum Development Network, then change the value of `USE_ETH_NETWORK` and `USE_SECRET_NETWORK` to both be the same value of `localhost`. Alternatively to use Secret Testnet and Ethereum Sepolia Tesetnet change the value of `USE_ETH_NETWORK` to `sepolia` and change the value of `USE_SECRET_NETWORK` to `testnet`. These environment variable values are used in $PROJECT_ROOT/packages/secret-contracts-scripts/src/config/config.ts under `config.networkSettings.evm.network` and `config.networkSettings.secret.network` to determine what network to deploy the contracts to.
+  * $PROJECT_ROOT/packages/nextjs/.env
+    * Use the same Alchemy API key. Obtain a WalletConnect project ID at https://cloud.walletconnect.com
+    * Verify the contents of ./packages/nextjs/scaffold.config.ts
 
-##### Deploy Gateway and Relayer of SecretPath on Localhost
-
-* Connect to Linode. Note: Replace the IP address with the address of your remote server.
-```
-ssh root@172.105.184.209
-```
-
-* Start Localhost server with chain-id `secretdev-1`
-
-```bash
-cd ./packages/secret-contracts/secret-gateway
-docker stop secretdev && docker rm secretdev
-make start-server
-```
-
-* Ports:
-  * RPC, 26657, secretcli, Keplr, cosmjs
-  * gRPC-web, 9091, secretjs@v1.4 (deprecated)
-  * SCRT Faucet, 5000, to get SCRT
-  * LCD, 1317, secretjs, Keplr, secretjs@v0.17.5 (deprecated)
-
-* Note: Localhost accounts that each have an initial balance of 1000000000000000000uscrt
-```bash
-a
-secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03
-A07oJJ9n4TYTnD7ZStYyiPbB3kXOZvqIMkchGmmPRAzf
-grant rice replace explain federal release fix clever romance raise often wild taxi quarter soccer fiber love must tape steak together observe swap guitar
-
-b
-secret1fc3fzy78ttp0lwuujw7e52rhspxn8uj52zfyne
-AgGQoJ1UiOfUW1PKCAnoYS
-jelly shadow frog dirt dragon use armed praise universe win jungle close inmate rain oil canvas beauty pioneer chef soccer icon dizzy thunder meadow
-
-c
-secret1ajz54hz8azwuy34qwy9fkjnfcrvf0dzswy0lqq
-AvK5BGEsO3kikflW0NlfV9cdVJcxVJgLh7tgh4TGS3Cg
-chair love bleak wonder skirt permit say assist aunt credit roast size obtain minute throw sand usual age smart exact enough room shadow charge
-
-d
-secret1ldjxljw7v4vk6zhyduywh04hpj0jdwxsmrlatf
-AzBzrKqSZp3YXMzITB8ZAqYysO0YCjtV
-word twist toast cloth movie predict advance crumble escape whale sail such angry muffin balcony keen move employ cook valve hurt glimpse breeze brick
-```
-
-Deploy Relayer of SecretPath on Localhost
-
-###### Deploy Gateway of SecretPath on Localhost
-
-* Note: An example of the Gateway to be deployed on Secret Network is here https://github.com/SecretSaturn/SecretPath/tree/main/TNLS-Gateways/secret. This example was used to create github/svub/nunya/packages/secret-contracts/secret-gateway
-
-* Connect to Linode
-```
-ssh root@172.105.184.209
-```
-
-* Clone the Github repo containing the Secret Gateway and initialise the submodules
-```
-mkdir -p github/ltfschoen && cd github/ltfschoen
-git clone https://github.com/svub/nunya
-cd nunya
-git fetch origin submit-pubkey:submit-pubkey
-git checkout submit-pubkey
-cd packages/secret-contracts/secret-gateway
-git submodule update --init --recursive
-```
-
-* Terminal Tab 1: Install Docker if necessary
-  * MacOS: Install Docker for Mac
-  * Linux: Run the following and set a password
-    ```bash
-    sudo apt-get remove docker docker-engine docker.io containerd runc
-    sudo apt-get update && sudo apt-get upgrade -y \
-    && sudo apt-get install apt-transport-https ca-certificates curl gnupg-agent software-properties-common -y \
-    && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - \
-    && sudo apt-key fingerprint 0EBFCD88 \
-    && sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
-    && sudo apt-get update \
-    && sudo apt-get install docker-ce docker-ce-cli containerd.io -y \
-    && adduser user \
-    && usermod -aG docker user \
-    && systemctl restart docker \
-    && systemctl enable docker \
-    && sudo apt-get install -y docker-compose-plugin
-    ```
-
-* Terminal Tab 1: Secret Localhost (Localsecret)
-  ```
-  make start-server
-  ```
-
-* Terminal Tab 2: Option A (SecretJS) Compile, Upload, Instantiate:
-  * Change back to the project root directory
-  * Run the following on the local machine to copy the relevant environment variables to the remote machine
-    ```
-    REMOTE_IP=172.105.184.209
-    SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/hardhat/.env
-    DESTINATION=/root/nunya/packages/hardhat/.env
-    scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
-
-    SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/.env
-    DESTINATION=/root/nunya/packages/secret-contracts-scripts/.env
-    scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
-
-    SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/config/config.ts
-    DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/config/config.ts
-    scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
-    ```
-	* UPDATE CONFIG `gatewayContractAdminAddress` before deploy Secret Gateway
+* Generate the .env file for the Relayer
   ```bash
-  SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/config/config.ts
-  DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/config/config.ts
-  scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+  RELAYER_PATH=$PROJECT_ROOT/packages/relayer
+  cp $RELAYER_PATH/SecretPath/TNLS-Relayers/.env.example $RELAYER_PATH/SecretPath/TNLS-Relayers/.env
   ```
-
-  * Linux, or, install NVM, then:
-    ```
-    apt update
-    nvm install lts/hydrogen
-    nvm use lts/hydrogen
-    npm install -g yarn
-    npm install -g corepack
-    yarn set version 4.5.3
-    corepack enable
-    corepack prepare yarn@v4.5.3 --activate
-
-    # we need the latest ABI file to be generated /hardhat/artifacts/contracts/Gateway.sol/Gateway.json
-    # since it is used in the Secret network script `secret:uploadGateway`
-    yarn hardhat:clean
-    yarn hardhat:compile
-
-    yarn install
-    yarn run secret:clean
-    yarn run secret:uploadGateway
-    ```
-
-    OR 
-
-    ```bash
-    yarn run secret:uploadAndInstantiateGateway
-    ```
-
-      * Note: If you get error `TypeError: URL.canParse is not a function` then you're likely using the wrong Node.js version, so just change to the project root directory and run `nvm use` in that terminal tab.
-
-  * Add the `CODE_ID` to `secretGateway -> gatewayContractCodeId` and `CODE_HASH` to `secretGateway -> gatewayContractCodeHash` respectively to the relevant config.networkSettings.secret.<network> in ./packages/secret-contracts-scripts/src/config/config.ts
-  * Add the terminal log to ./logs_secret/uploadGatewaySecretLocalhost.log
-
-  > IMPORTANT: If deployment of the code with `await secretjs.tx.compute.storeCode` is unsuccessful, then check if Beta version of secretjs is necessary incase the Secret Testnet is being upgraded.
-
-	> IMPORTANT: If the CODE_HASH changes due to changes in the Secret Gateway codebase, it is also necessary to update the `code_hash` in the Relay to match it.
-
-  ```
-  yarn run secret:instantiateGateway
-  ```
-
-  * Add the `SECRET_ADDRESS` to `gatewayContractAddress` in the relevant config.networkSettings.secret.<network> in ./nunya/packages/secret-contracts-scripts/src/config/config.ts
-  * Add the terminal log to ./logs_secret/instantiateOutput.log
-  * Add the Secret Localhost chain logs to ./logs_secret/instantiateGatewaySecretLocalhostChainOutput.log
-  * View on Secret Localhost block explorer
-  * Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
-
-  * Note: In order to populate the `secret.localhost.secretGateway.gatewayContractPublicKey` and `secret.localhost.secretGateway.gatewayContractEncryptionKeyForChaChaPoly1305` do the following:
-
-  * SKIP: Get the Secret Gateway public key (signing verification key '0x' prefixed hex string) and base64 encryption key
-
-    ```bash
-    yarn run secret:querySecretGatewayPubkey
-    ```
-
-    Example output:
-    ```
-    res queryPubkey:  {
-      encryption_key: '...',
-      verification_key: '0x...'
-    }
-    ```
-
-    * Paste `verification_key` into Gateway.sol for value of `secret_gateway_signer_pubkey`
-    * Redeploy if differs Gateway.sol 
-
-    * Paste them into config.ts, `gatewayContractPublicKey` with `verification_key` and `gatewayContractEncryptionKeyForChaChaPoly1305` with `encryption_key`
-
-  * NEXT, [Deploy Nunya Contract on Localhost](#deploy-nunya-contract-on-localhost)
-
-* IGNORE - Terminal Tab 2: Option B (SecretCLI) Compile, Upload, Instantiate:
-  * [Compile](https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy#compile-the-code). Note: Outputs contract.wasm or contract.wasm.gz file in the root directory being the ./SecretPath/TNLS-Gateways/secret/ folder. Using `make build-mainnet-reproducible` will remove contract.wasm so only the optimised contract.wasm.gz remains. Warning: If you only run `make build-mainnet` then you will get this error https://github.com/svub/nunya/issues/8 when deploying.
-
-    * Secret Gateway Contract. Note: Wait until the Docker container exists first.
-      ```
-      make clean
-      make build
-      ```
-      * Note: If `wasm-opt` binary is required but not installed on macOS install it with `brew install binaryen` or on Linux with `apt install binaryen`
-      * Note: Use `make build-mainnet-reproducible` to deploy to Testnet
-      * Note: The default Makefile originally used `--features="debug-print"` but running that gives error `the package secret_gateway depends on secret-cosmwasm-std, with features: debug-print but secret-cosmwasm-std does not have these features.`. The reason why it was removed is mentioned here:
-          * https://github.com/CosmWasm/cosmwasm/issues/1841
-            * https://github.com/CosmWasm/wasmvm/pull/453
-          * https://github.com/CosmWasm/cosmwasm/pull/1667
-          * https://github.com/CosmWasm/cosmwasm/pull/1953
-        * Solution:
-          * https://github.com/CosmWasm/cosmwasm/blob/main/contracts/cyberpunk/tests/integration.rs#L126
-        * TODO: For Production on mainnet, configure it to use a debug-print or debug_print with a custom feature flag and wrap use of `set_debug_handler` with it so debug logs aren't output in production.
-
-  * Note: Use existing secretdev Docker container that is running already.
-
-  * Copy compiled Secret Gateway contract to the Docker container
-    ```
-    make copy-secret-gateway-contract-local
-    ```
-
-  * Store compiled Secret Gateway contract on Localhost (Localsecret network)
-    ```
-    make store-secret-gateway-contract-local
-    ```
-    * Optional: To enter the Docker container to interact manually with secretcli:
-      ```bash
-      docker exec -it secretdev /bin/bash
-      secretcli --help
-      secretcli keys list
-      ls /root/.secretd/config
-      ```
-
-    * Example output:
-      ```
-      {"height":"0","txhash":"A5A2E9864A3F455AD503935AE739B4E898F71A5B5BFCDB7B7D6934942297223C","codespace":"","code":0,"data":"","raw_log":"","logs":[],"info":"","gas_wanted":"0","gas_used":"0","tx":null,"timestamp":"","events":[]}
-      ```
-    * Note that in the Secret Localsecret chain logs it output `num_txs=1`:
-      ```
-      11:43AM INF finalizing commit of block hash=9B39F1E7367B876F61E45CFD0DE3EC55CE59D140A4604E35622D8C6CDEE1BB66 height=115 module=consensus num_txs=1 root=371919C2BE93B7F0C2B81837770B871592793F8A74847C04593F27F8A62109A1
-      ```
-      * TODO: Why didn't it output `"height":"115"` instead of `"height":"0"`?
-      * TODO: Why doesn't it output the CODE_ID and CODE_HASH? Use Option A instead until resolve this issue.
-
-
-###### Deploy Relayer of SecretPath on Localhost
-
-* Reference: https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/basics/cross-chain-messaging/secretpath/how-to-deploy-secretpath-on-your-chain
-
-* Connect to Linode
-```
-ssh root@172.105.184.209
-```
-
-* Clone the Relayer Github repo and initialise the submodules
-```
-mkdir -p ltfschoen && cd ltfschoen
-git clone https://github.com/ltfschoen/SecretPath
-git fetch origin nunya:nunya
-git checkout nunya
-cd SecretPath/TNLS-Relayers
-```
-
-* Check that it is using the latest version of the Python secret-sdk in requirements.txt https://github.com/secretanalytics/secret-sdk-python/releases
-
-* Configure the Relayer
-  * Reference: https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/basics/cross-chain-messaging/secretpath/how-to-deploy-secretpath-on-your-chain#configuring-the-relayer
-
-  * Edit Relayer Configuration
-    ```
-    cd ../../TNLS-Relayers
-    vim config.yml
-    ```
-  
-  * TODO: If deployed EVM Gateway contract address or API endpoint change, update
-    * `contract_address` and `api_endpoint` of chain_id 31337
-    * `contract_address` and `api_endpoint` of chain_id secretdev-1
-
-
-* Edit ./SecretPath/TNLS-Relayers/.env
-  ```
-  cp ./SecretPath/TNLS-Relayers/.env.example ./SecretPath/TNLS-Relayers/.env
-  ```
-
-  * IGNORE - Generate an Ethereum wallet with address, private key, mnemonic phrase, and encrypted JSON file using MyCrypto desktop from Github https://github.com/MyCryptoHQ/MyCrypto/releases/tag/1.7.17 and ensure that you verify the checksum of the download. Import that into Keplar browser extension using the **private key** to obtain the associated Secret Network address. Verify that the Ethereum address on the Ethereum Network in the Keplar wallet once imported matches the Ethereum address that was chosen.
-
-  * Localhost
-    * Add for Localhost of Ethereum the private key into `ethereum-private-key = XXXXX` of the .env file /Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/.env
-      * IMPORTANT: Exclude the leading `0x`
-
-    * Create a new Keplar Wallet that must use Google to generate an associated private key.
-      * Add for Localhost of Secret Network the private key to `secret-private-key = XXXXX` associated with that address (e.g. secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg)
+* Configure the following files for the Relayer:
+  * $PROJECT_ROOT/packages/relayer/SecretPath/TNLS-Relayers/.env
+    * Development
+      * Create a new Keplar Wallet that must use Google to generate an associated private key. 
+        * Add a value for `secret-private-key` that you obtain from creating a new Keplar Wallet that must use Google to generate an associated private key, and exclude the '0x' prefix, that is associated with an address (e.g. secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg)
+      * Add for Ethereum Development Node the private key into `ethereum-private-key = XXXXX` of the .env file $PROJECT_ROOT/packages/secret-contracts-scripts/.env. IMPORTANT: Exclude the leading `0x`
+    * Testnet
+      * Add for Ethereum Sepolia the private key into `ethereum-private-key = XXXXX` of the .env file to be the same as that used in $PROJECT_ROOT/packages/secret-contracts-scripts/.env for `ETH_TESTNET_PRIVATE_KEY`
         * IMPORTANT: Exclude the leading `0x`
+  * $PROJECT_ROOT/packages/relayer/SecretPath/TNLS-Relayers/config.yml
+    * Check there is a `chain_id` and `api_endpoint` for both an Ethereum Network and a Secret Network, that should both be for development, testing, or mainnet usage. This should already be pre-configured.
 
-  * Testnet
-    * Add for Ethereum Sepolia the private key into `ethereum-private-key = XXXXX` of the .env file /Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/.env to be the same as `DEPLOYER_PRIVATE_KEY`
-      * IMPORTANT: Exclude the leading `0x`
+> Warning: Do not rename $PROJECT_ROOT/packages/hardhat/deploy/01_deploy_your_contract.ts to 00_deploy_your_contract.ts or it will only compile but will not deploy.
 
-    * TODO - similar to approach used on Localhost for Secret Network
-      * IMPORTANT: Exclude the leading `0x`
+Continue with [Run Services](#run-services).
 
-* If you edit the config.yml file on your local machine (instead of directly on the server), copy it to the server
-  ```
-  REMOTE_IP=172.105.184.209
-  SOURCE=/Users/luke/code/clones/github/ltfschoen/SecretPath/TNLS-Relayers/config.yml
-  DESTINATION=/root/ltfschoen/SecretPath/TNLS-Relayers/config.yml
-  scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+### Run Services <a id="run-services"></a>
 
-  REMOTE_IP=172.105.184.209
-  SOURCE=/Users/luke/code/clones/github/ltfschoen/SecretPath/TNLS-Relayers/.env
-  DESTINATION=/root/ltfschoen/SecretPath/TNLS-Relayers/.env
-  scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+* Run the following to start the Secret Development Node docker container, the Ethereum Development Node systemd service, and the Relayer systemd service.
+	```bash
+  cd $PROJECT_ROOT
+	$PROJECT_ROOT/scripts/run.sh $PROJECT_ROOT $USE_NETWORK | tee $PROJECT_ROOT/run.log
+	```
+	* Note: If you modified your custom Secret Gateway code and the CODE_HASH changes, the script automatically update the `code_hash` of the Relay in the relevant Gitsubmodule to match it.
+* Wait. The script outputs "Finished loading" when finished
 
-  REMOTE_IP=172.105.184.209
-  SOURCE=/Users/luke/code/clones/github/ltfschoen/SecretPath/TNLS-Relayers/base_interface.py
-  DESTINATION=/root/ltfschoen/SecretPath/TNLS-Relayers/base_interface.py
-  scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
+Continue with [Example Interactions](#interact-with-services).
 
-  REMOTE_IP=172.105.184.209
-  SOURCE=/Users/luke/code/clones/github/ltfschoen/SecretPath/TNLS-Relayers/scrt_interface.py
-  DESTINATION=/root/ltfschoen/SecretPath/TNLS-Relayers/scrt_interface.py
-  scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
-  ```
+### Example Interactions <a id="interact-with-services"></a>
 
-* IGNORE - Transfer some Localhost Ethereum tokens from a default account like `Account #0` that is shown when running Ethereum Localhost to that Ethereum wallet address associated with the private key `ethereum-private-key`.
-  ```
-  Account #0: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 (10000 ETH)
-  privateKey: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
-  ```
+The following are examples that interact with the Ethereum and Secret contracts using running services via the relayer.
 
-  * TODO - is this necessary? why not just use the default account?
+#### Examples
 
-* Transfer some Localhost Secret tokens from a default account that is shown when running Secret Localhost (e.g. secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03) to that Secret wallet address (e.g. secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg).
-  * Reference: https://docs.scrt.network/secret-network-documentation/infrastructure/secret-cli/configuration
-
-  ```
-  docker exec -it secretdev /bin/bash
-  secretcli config view
-  secretcli config set client node tcp://localhost:26657
-  secretcli config set client chain-id secretdev-1
-  secretcli config set client output json
-  secretcli config set client keyring-backend test
-  secretcli config view client --output-format json
-  secretcli config home
-
-  secretcli query bank balances secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03 | jq
-  secretcli query bank balances secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg | jq
-  ```
-  * Note: Configuration is stored in /root/.secretd/config/client.toml
-  * Note: `keyring-backend` is where the keys are stored from possible options including: (os|file|kwallet|pass|test|memory)
-  * Note: We need the 300000uscrt to process the broadcast the `submitRequestValue` transaction from the relayer, so give them more than that.
-  * Note: If you forget to do this before running the relayer, then you might get error `[SCRT Interface: ERROR] Failed to fetch account info: HTTP 404`
-  ```
-  secretcli tx bank send secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03 secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg 100000000000000000uscrt -y
-
-  secretcli query bank balances secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg | jq
-  ```
-
-    * Note: This is necessary because the default account only has a mnemonic phrase, not a private key.
-
-  * IGNORE
-    ```
-    a_mnemonic="grant rice replace explain federal release fix clever romance raise often wild taxi quarter soccer fiber love must tape steak together observe swap guitar"
-    echo $a_mnemonic | secretcli keys add account --recover
-    secretcli keys show account
-    
-    # it should output `secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03`
-
-    b_mnemonic="jelly shadow frog dirt dragon use armed praise universe win jungle close inmate rain oil canvas beauty pioneer chef soccer icon dizzy thunder meadow"
-    echo $b_mnemonic | secretcli keys add account2 --recover
-    secretcli keys show account2
-
-    # it should output `secret1fc3fzy78ttp0lwuujw7e52rhspxn8uj52zfyne`
-
-    custom_mnemonic="<INSERT_MNEMONIC_PHRASE>"
-    echo $custom_mnemonic | secretcli keys add custom --hd-path="m/44'/60'/0'/0" --recover
-    secretcli keys show custom
-    ```
-
-    * IGNORE
-      * TODO - why doesn't the wallet address recovered with `custom_mnemonic` match the one that was generated with MyCrypto when recovering it with that mnemonic phrase? is it possible to recover with the private key instead so it recovers the correct wallet address?
-      * Note: Used `m/44'/60'/0'/0` since that was the default HD path chosen when generating the wallet in MyCrypto for use with Metamask that uses BIP44 derivation, where the HD path is defined as `m / purpose' / coin_type' / account' / change / address_index`
-      References: 
-        * https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
-        * https://ethereum.stackexchange.com/questions/19055/what-is-the-difference-between-m-44-60-0-0-and-m-44-60-0
-      * Note: The `coin_type` is `529` for Secret Network by default, but we generated it using MyCrypto for Ether, which is `60`
-      References:
-        * https://help.keplr.app/articles/how-to-set-a-custom-derivation-path
-      * TODO
-        * https://github.com/scrtlabs/SecretNetwork/issues/1690
-        * https://github.com/scrtlabs/SecretNetwork/issues/1689
-
-* Install Miniconde
-  * References:
-    * https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/basics/cross-chain-messaging/secretpath/how-to-deploy-secretpath-on-your-chain#setting-up-the-virtual-environment
-    * https://docs.anaconda.com/miniconda/install/#quick-command-line-install
-
-  * Linux
-    ```
-    mkdir -p ~/miniconda3
-    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
-    bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
-    rm ~/miniconda3/miniconda.sh
-    ```
-
-  * Activate Miniconda
-    ```
-    source ~/miniconda3/bin/activate
-    conda init --all
-    source ~/.zshrc
-    ```
-  
-  * Setup
-    ```
-    conda -y create --name secretpath_env python=3.11
-    ```
-
-    * Outputs:
-      ```
-      environment location: /root/miniconda3/envs/secretpath_env
-
-      # To activate this environment, use
-      #
-      #     $ conda activate secretpath_env
-      #
-      # To deactivate an active environment, use
-      #
-      #     $ conda deactivate
-      ```
-
-    * Install Relayer dependencies and activate Conda environment
-      ```
-      cd ~/ltfschoen/SecretPath/TNLS-Relayers
-      conda activate secretpath_env
-      pip install -r requirements.txt --no-dependencies
-      pip install --upgrade lru-dict
-      ```
-    * Run the Relayer
-      ```
-      python3 web_app.py
-      ```
-    
-    * TODO - customize the relayer logs
-    * TODO - run the relayer as a service with logs
-
-    * Note: The relayer is configured to listen each gateway and forwards relevant messages.
-
-#### Configure
-
-##### Deploy Nunya Contract on Localhost <a id="deploy-nunya-contract-on-localhost"></a>
-
-* Open file ./nunya/packages/secret-contracts-scripts/src/config/config.ts
-* Check ./nunya/packages/secret-contracts-scripts/.env has been created from the .env.example file
-  * Ensure that in the .env file that RELAYER_PATH is set to the path of the /SecretPath/TNLS-Relayers/config.yml file of the relayer on the same machine, because if you run ./scripts/run.sh it will automatically update the relayer config.yml file if the Secret Gateway contract code hash changes in order for it to work.
-
-* Reference: https://docs.scrt.network/secret-network-documentation/development/example-contracts/tools-and-libraries/local-secret#advantages-of-localsecret-vs.-a-public-testnet
-
-###### Testnet
-
-* Edit config.networkSettings.secret.network to be "testnet"
-
-###### Localhost
-
-* Edit config.networkSettings.secret.network to be "localhost"
-  * Ensure `ENDPOINT_LOCAL` is set to where you are running the Secret Localhost (e.g. `http://<IP_ADDRESS>:1317`)
-  * Ensure that `secretGateway` -> `address`, `gatewayContractCodeHash`, `gatewayPublicKey`, and `gatewayEncryptionKeyForChaChaPoly1305` and set to where you deployed the Gateway on Localhost
-
-#### Create, Compile and Deploy (Upload and Instantiate) Secret Contract
-
-##### Create, Compile
-
-* Note: To build on macOS it was necessary to run the following first as specified here https://github.com/rust-bitcoin/rust-secp256k1/issues/283#issuecomment-1590391777. Other details https://github.com/briansmith/ring/issues/1824
-
-```
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-brew install llvm
-llvm-config --version
-echo "export AR=$(which llvm-ar)" >> ~/.zshrc
-echo "export CC=$(which clang)" >> ~/.zshrc
-source ~/.zshrc
-``` 
-
-* Run Docker (e.g. Docker Desktop on macOS)
-
-* Remove any old Docker containers, if necessary
-```
-docker rmi sco
-```
-
-* [Compile](https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy#compile-the-code). Note: Outputs contract.wasm and contract.wasm.gz file in the root directory of the secret-contracts/nunya-contract folder. Using `make build-mainnet-reproducible` will remove contract.wasm so only the optimised contract.wasm.gz remains. Warning: If you only run `make build-mainnet` then you will get this error https://github.com/svub/nunya/issues/8 when deploying.
-
-###### Testnet
-
-  * Nunya Contract
-    ```
-    cd packages/secret-contracts/nunya-contract
-    make clean
-    make build-mainnet-reproducible
-    ```
-
-  OR
-
-  * My Counter Contract (Example only)
-    ```
-    cd packages/secret-contracts/my-counter-contract
-    make clean
-    make build-mainnet-reproducible
-    ```
-
-###### Localhost
-
-  * Nunya Contract
-    ```
-    cd packages/secret-contracts/nunya-contract
-    make clean
-    make build
-    ```
-
-##### Deploy (Upload and Instantiate)
-
-###### Testnet
-
-* Upload and Instantiate 
-
-> IMPORTANT: Prior to Upload step it is necessary to recompile changes if any.
-
-> IMPORTANT: Prior to Upload step it is necessary to configure the wallet, network, and endpoint to use either Local or Testnet, and to specify what project's compiled smart contract WASM file to use and whether to use the optimized build (e.g. ./nunya-contract/optimized-wasm/secret_evm_storage.wasm.gz or ./nunya-contract/contract.wasm.gz) in the script ./packages/secret-contracts-scripts/src/index.ts
-
-> IMPORTANT: Prior to Instantiation step it is necessary to deploy the EVM Gateway
-
-* Update the secretjs dependency in ./packages/secret-contracts-scripts/package.json to use a version from https://github.com/scrtlabs/secret.js/tags that works (e.g. 1.15.0-beta.1) by asking the Secret Network team.
-Use 1.15.0-beta.1.
-Note that 1.15.0-beta.2 may only upload but does not instantiate.
-Note that 1.15.0-beta.0 does not upload at all.
-
-> IMPORTANT: Errors deploying may be because of mismatched types, for example InstantiateMsg here https://github.com/svub/nunya/blob/45e884194e8183229e3d7c61ccba7d789ff996b1/packages/secret-contracts/nunya-contract/src/msg.rs#L16C12-L16C26 must match here https://github.com/svub/nunya/blob/45e884194e8183229e3d7c61ccba7d789ff996b1/packages/secret-contracts-scripts/src/instantiate.ts#L92
-
-> IMPORTANT: Both upload and instantiate must be performed using the same version of secretjs
-
-```
-yarn install
-cd ../../../
-yarn run secret:clean
-yarn run secret:upload
-```
-
-OR (combine with instantiate)
+* Request Value.
 
 ```bash
-yarn run secret:uploadAndInstantiateNunya
+nvm use
+yarn run secret:submitRequestValue
 ```
 
-* Add the `CODE_ID` to `codeId` and `CODE_HASH` to `secretNunya -> nunyaContractCodeHash` respectively to the relevant config.networkSettings.secret.<network> in ./packages/secret-contracts-scripts/src/config/config.ts
-* Add the terminal log to ./logs_secret/uploadOutput.log
-
-> IMPORTANT: If deployment of the code with `await secretjs.tx.compute.storeCode` is unsuccessful, then check if Beta version of secretjs is necessary incase the Secret Testnet is being upgraded.
-
+```mermaid
+sequenceDiagram
+Note left of Nunya EVM Contract: yarn run secret:submitRequestValue
+Nunya EVM Contract ->> EVM Gateway Contract: unsafeRequestValue()
+loop Relayer relaying detected messages
+    EVM Gateway Contract-->Relayer: Listen for event and broadcast response
+    Relayer-->Secret Gateway Contract: Listen for event and broadcast
+end
+EVM Gateway Contract->>Relayer: Detect event emitted by `send()`
+Relayer->>Secret Gateway Contract: Broadcast received messages
+Secret Gateway Contract->>Nunya Secret Contract: Send tx to `request_value()`
+Nunya Secret Contract->>Secret Gateway: Response from `request_value()`
+Secret Gateway Contract->>Relayer: Forward response of `request_value()`
+Relayer->>EVM Gateway Contract: Forward response to `postExecution()`
+EVM Gateway Contract-->>Nunya EVM Contract: Forward to `fulfilledValueCallback()`
 ```
-yarn run secret:instantiate
+
+It interacts with the Ethereum Development Network by calling the custom deployed EVM NunyaBusiness contract that in turn calls the custom deployed EVM Gateway, which emits an event that is picked up by the custom Relayer, which broadcasts a transaction on the Secret Development Network to the custom deployed Secret Gateway contract, which then calls the custom deployed private Nunya Secret contract, and then the target function returns a response that is sent back via same route in reverse that ends up in a callback function in the custom deployed EVM NunyaBusiness contract.
+
+
+* Retrieve Public Key
+
+```bash
+nvm use
+yarn run secret:submitRetrievePubkey
 ```
 
-* Add the `SECRET_ADDRESS` to `nunyaContractAddress` in the relevant config.networkSettings.secret.<network> in ./nunya/packages/secret-contracts-scripts/src/config/config.ts
-* Add the terminal log to ./logs_secret/instantiateOutput.log
+```mermaid
+sequenceDiagram
+Note left of Nunya EVM Contract: yarn run secret:submitRetrievePubkey
+Nunya EVM Contract ->> EVM Gateway Contract: unsafeRetrieveSecretContractPubkey()
+loop Relayer relaying detected messages
+    EVM Gateway Contract-->Relayer: Listen for event and broadcast response
+    Relayer-->Secret Gateway Contract: Listen for event and broadcast
+end
+EVM Gateway Contract->>Relayer: Detect event emitted by `send()`
+Relayer->>Secret Gateway Contract: Broadcast received messages
+Secret Gateway Contract->>Nunya Secret Contract: Send tx to `retrieve_pubkey()`
+Nunya Secret Contract->>Secret Gateway Contract: Response from `retrieve_pubkey()`
+Secret Gateway Contract->>Relayer: Forward response of `retrieve_pubkey()`
+Relayer->>EVM Gateway Contract: Forward response to `postExecution()`
+EVM Gateway Contract-->>Nunya EVM Contract: Forward to `fulfilledSecretContractPubkeyCallback()`
+```
 
-* View logs at ./logs_secret/instantiateOutput.log
-* View on Secret Testnet block explorer at https://testnet.ping.pub/secret/
+* TODO: See [_SPECIFICATION](./_SPECIFICATION.md) and [_DEMO_AND_VIDEO](./_DEMO_AND_VIDEO.md) and Github Issues for additional features that need to be added.
 
-* Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
+#### Queries
 
-###### Localhost
-
-* Terminal Tab 1
-  * Note: Only run `make start-server if not already running
+* Get the Secret Gateway public key (signing verification key '0x' prefixed hex string) and base64 encryption key. Note that the ./scripts/run.sh script already automatically uses a similar script to this to copy and paste the `gatewayContractPublicKey` with `verification_key` and `gatewayContractEncryptionKeyForChaChaPoly1305` with `encryption_key` into $PROJECT_ROOT/packages/secret-contracts-scripts/src/config/config.ts
   ```bash
-  make start-server
-  ```
-    * Note: `docker logs -f --tail 10 secretdev` to view its logs
-
-* Terminal Tab 2: Option A (SecretJS) Compile, Upload, Instantiate:
-  * Change back to the project root directory
-  * Run the following on the local machine to copy the relevant environment variables to the remote machine
-    ```
-    REMOTE_IP=172.105.184.209
-    SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/hardhat/.env
-    DESTINATION=/root/nunya/packages/hardhat/.env
-    scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
-
-    SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/.env
-    DESTINATION=/root/nunya/packages/secret-contracts-scripts/.env
-    scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
-
-    SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/config/config.ts
-    DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/config/config.ts
-    scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
-    ```
-  * Linux, or, install NVM, then:
-    ```
-    apt update
-    nvm install lts/hydrogen
-    nvm use lts/hydrogen
-    npm install -g yarn
-    npm install -g corepack
-    yarn set version 4.5.3
-    corepack enable
-    corepack prepare yarn@v4.5.3 --activate
-
-    # we need the latest ABI file to be generated /hardhat/artifacts/contracts/NunyaBusiness.sol/NunyaBusiness.json
-    # since it is used in the Secret network script `secret:upload`
-    yarn hardhat:clean
-    yarn hardhat:compile
-
-    yarn install
-    yarn run secret:clean
-    yarn run secret:upload
-    ```
-
-  * Add the `CODE_ID` to `secretNunya -> nunyaContractCodeId` and `CODE_HASH` to `secretNunya -> nunyaContractCodeHash` respectively to the relevant config.networkSettings.secret.<network> in ./packages/secret-contracts-scripts/src/config/config.ts
-  * Add the terminal log to ./logs_secret/uploadNunyaSecretLocalhost.log
-
-  > IMPORTANT: If deployment of the code with `await secretjs.tx.compute.storeCode` is unsuccessful, then check if Beta version of secretjs is necessary incase the Secret Testnet is being upgraded.
-
-  ```
-  yarn run secret:instantiate
+  yarn run secret:querySecretGatewayPubkey
   ```
 
-  * Add the `SECRET_ADDRESS` to `nunyaContractAddress` in the relevant config.networkSettings.secret.<network> in ./nunya/packages/secret-contracts-scripts/src/config/config.ts
-  * Add the Secret Localhost chain logs to ./logs_secret/instantiateNunyaSecretLocalhostChainOutput.log
-  * View on Secret Localhost block explorer
-  * Reference https://docs.scrt.network/secret-network-documentation/development/readme-1/compile-and-deploy
+#### WIP - Remix
 
-  * NEXT: Assuming that the EVM contracts NunyaBusiness and Gateway have already been deployed on localhost, then skip to [submitRequestValue](#submit-request-value), otherwise go through [Setup Frontend](#setup-frontend) first.
-
-* IGNORE - Option B:
-```
-make copy-nunya-contract-local
-make store-nunya-contract-local
-```
-
-* TODO: How to configure the Secret Gateway in Nunya Secret Contract?
-
-#### Interact with Deployed Secret Contract via Deployed EVM Gateway to `submitRequestValue` <a id="submit-request-value"></a> 
-
-##### Localhost
-
-	* Record logs from Localsecret since the output is too long otherwise. Press CTRL+C to cancel when PostExecution occurs in Ethereum Local Network logs to indicate it has finished. 
-		```bash
-		docker logs -f secretdev | tee ~/nunya/docker.log
-		```
-
-	* Run end-to-end transaction
-
-		```bash
-		cd ~/nunya
-		nvm use
-		yarn run secret:submitRequestValue
-    yarn run secret:submitRetrievePubkey
-		```
-
-	* Copy Localsecret logs from remote machine to local.  
-		```bash
-		REMOTE_IP=172.105.184.209
-		SOURCE=/root/nunya/docker.log
-		DESTINATION=/Users/luke/code/clones/github/svub/nunya
-		scp -r root@$REMOTE_IP:$SOURCE $DESTINATION
-		```
-
-##### Testnet
-
-TODO
-
-#### Interact with Deployed Secret Contract via Deployed EVM Gateway to `submitRequestValue` <a id="submit-request-value"></a> 
-
-##### Localhost
-
-* Record logs from Localsecret since the output is too long otherwise. Press CTRL+C to cancel when PostExecution occurs in Ethereum Local Network logs to indicate it has finished. 
-  ```bash
-  docker logs -f secretdev | tee ~/nunya/docker.log
-  ```
-
-1. Script submitRequestValue.ts
-	* Run end-to-end transaction
-
-		```bash
-		yarn run secret:submitRequestValue
-    yarn run secret:submitRetrievePubkey
-		```
-
-  * View logs. Use console.log in Solidity
-
-  * Note: To quickly rebuild and redeploy if Solidity files get changed run the following:
-    * Local machine
-      ```
-      REMOTE_IP=172.105.184.209
-      SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/hardhat/contracts/Gateway.sol
-      DESTINATION=/root/nunya/packages/hardhat/contracts/Gateway.sol
-      scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
-
-      REMOTE_IP=172.105.184.209
-      SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/submitRequestValue.ts
-      DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/submitRequestValue.ts
-      scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
-      ```
-    * Remote server
-      * Terminal 1
-        ```
-        yarn hardhat:chain
-        ```
-      * Terminal 2
-        ```
-        yarn hardhat:clean && yarn hardhat:compile && yarn hardhat:deploy --network localhost
-        ```
-        * Update config.ts with an updated gateway deployment address if it changed
-        * Copy it across if it changes:
-          ```
-          REMOTE_IP=172.105.184.209
-          SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/hardhat/.env
-          DESTINATION=/root/nunya/packages/hardhat/.env
-          scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
-
-          SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/.env
-          DESTINATION=/root/nunya/packages/hardhat/.env
-          scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
-
-          SOURCE=/Users/luke/code/clones/github/svub/nunya/packages/secret-contracts-scripts/src/config/config.ts
-          DESTINATION=/root/nunya/packages/secret-contracts-scripts/src/config/config.ts
-          scp -r $SOURCE root@$REMOTE_IP:$DESTINATION
-          ```
-
-        ```
-        yarn run secret:setEVMGatewayAddress && yarn run secret:submitRequestValue
-        yarn run secret:submitRetrievePubkey
-        ```
-      * View logs in both terminals
-
-      * Add log outputs to:
-        * ./logs_secret/submitRequestValueLocalhostEthereumLogs.log - Logs from the JavaScript in terminal where you run `yarn run secret:submitRequestValue` 
-        * ./logs_secret/submitRequestValueLocalhostRelayerLogs.log - Logs from Relayer
-        * ./logs_secret/submitRequestValueLocalhostSecretLogs.log - Logs from Secret Network running locally
-        * ./logs_secret/submitRequestValueLocalhostEthereumLogs.log - Logs from Ethereum Network running locally
-
-2. Remix
-  * If necessary, similar to how used with Testnet below
-
-##### Testnet
-
-Options:
-
-1. Script submitRequestValue.ts
-    ```bash
-    yarn run secret:submitRequestValue
-    yarn run secret:submitRetrievePubkey
-    ```
-
-2. Remix
-
-* FIXME - the below is outdated and needs to be updated
+* FIXME - below is outdated and needs to be updated to include interaction with Ethereum Development Network deployment
 
 * Interact with the deployed Gateway EVM contract on Sepolia Ethereum
   * Open Remix https://remix.ethereum.org/
     * Choose "File explorer" tab on the left
     * Choose "Upload Folder" icon
-    * Choose the contracts folder ./svub/nunya/packages/hardhat/contracts containing the Solidity files
+    * Choose the contracts folder $PROJECT_ROOT/packages/hardhat/contracts containing the Solidity files
     * Gateway.sol
       * Open Gateway.sol
         * Click compile icon
@@ -969,34 +273,156 @@ Options:
         * Select "Sepolia Testnet - Metamask"
       * Click "Sepolia Testnet - Metamask" from the "Environment" drop-down list
       * Allow Metamask to switch to Sepolia network in the popup that appears
-      * Open Metamask and click the Remix icon and choose to "Connect more accounts..." to remix.ethereum.org and connect the address associated with the DEPLOYER_ADDRESS used in the .env file
-      * Select "Account" to be that DEPLOYER_ADDRESS
-      * Enter the deployed Gateway EVM address on Sepolia Testnet (e.g. mentioned in ./nunya/packages/secret-contracts-scripts/src/config/config.ts) and click "At Address"
+      * Open Metamask and click the Remix icon and choose to "Connect more accounts..." to remix.ethereum.org and connect the address associated with the ETH_DEVELOPMENT_ADDRESS used in the .env file
+      * Select "Account" to be that ETH_DEVELOPMENT_ADDRESS
+      * Enter the deployed Gateway EVM address on Sepolia Testnet (e.g. mentioned in $PROJECT_ROOT/packages/secret-contracts-scripts/src/config/config.ts) and click "At Address"
+        * Note: For Ethereum Development Network where a custom Gateway is deployed then we would obtain it from $PROJECT_ROOT/deployed.json after first deploying it.
       * Scroll down to the "Deployed Contracts" section that is autogenerated to interact with the deployed contract
       * Click "secret_gateway_signer_address" to call the Gateway contract getter for that constant and return its value that should be shown as 0x2821E794B01ABF0cE2DA0ca171A1fAc68FaDCa06
     * NunyaBusiness.sol
       * Repeat relevant initial steps above for NunyaBusiness.sol
-      * Enter the deployed NunyaBusiness EVM address on Sepolia Testnet (e.g. mentioned in ./nunya/packages/secret-contracts-scripts/src/config/config.ts) and click "At Address"
+      * Enter the deployed NunyaBusiness EVM address on Sepolia Testnet (e.g. mentioned in $PROJECT_ROOT/packages/secret-contracts-scripts/src/config/config.ts) and click "At Address"
       * Scroll down to the "Deployed Contracts" section that is autogenerated to interact with the deployed contract
-      * Click `setGatewayAddress` to create a transaction after providing the following argument to call the NunyaBusiness contracts transaction using the latest value from ./nunya/packages/secret-contracts-scripts/src/config/config.ts
+      * Click `setGatewayAddress` to create a transaction after providing the following argument to call the NunyaBusiness contracts transaction using the latest value from $PROJECT_ROOT/packages/secret-contracts-scripts/src/config/config.ts
+        * Note: For Ethereum Development Network where a custom Gateway is deployed then we would obtain it from $PROJECT_ROOT/deployed.json after first deploying it.
         * Retrieve its value by clicking to call `CustomGateway`
-      * Click `unsafeSetSecretContractInfo` to create a transaction after providing the following arguments `config.networkSettings.secret.testnet.secretNunya.nunyaContractCodeHash` and `config.networkSettings.secret.testnet.secretNunya.nunyaContractAddress` using values from ./nunya/packages/secret-contracts-scripts/src/config/config.ts
+      * Click `unsafeSetSecretContractInfo` to create a transaction after providing the following arguments `config.networkSettings.secret.testnet.secretNunya.nunyaContractCodeHash` and `config.networkSettings.secret.testnet.secretNunya.nunyaContractAddress` using values from $PROJECT_ROOT/packages/secret-contracts-scripts/src/config/config.ts
+        * Note: For Ethereum Development Network where a custom Gateway is deployed then we would obtain it from $PROJECT_ROOT/deployed.json after first deploying it.
         * Retrieve their values by clicking to calls `routing_info` and `routing_code_hash`
       * Click `unsafeRequestValue` to create a transaction after providing the following arguments `0xb6c2b131` and `10000000`
-        * FIXME - Why get error `Paid Callback Fee Too Low` from the `requestValue` function in the Gateway EVM contract https://sepolia.etherscan.io/tx/0xdab1b76f3ede8042c850a483a28d73c23a271e5eac37d0e500b55d625fbdbabb. It may be necessary to deploy to local network for debugging.
-          * See reason in Localhost attempt above.
+        * If you do not provide a value of at least 2.5 ETH you will get error `Paid Callback Fee Too Low` from the `requestValue` function in the Gateway EVM contract similar to this https://sepolia.etherscan.io/tx/0xdab1b76f3ede8042c850a483a28d73c23a271e5eac37d0e500b55d625fbdbabb. It may be necessary to deploy to local network for debugging.
 
-##### Unsorted
+### Debugging Services <a id="debugging-services"></a>
 
-###### Testnet
+#### Watch Services Logs
 
-* Query Pubkey
-```
-cd ../../../
-yarn run secret:queryPubkey
+* Watch logs of 
+	* Ethereum Local Node. Verify it calls `PostExecution` and the callback function in NunyaBusiness.sol contract.
+		```bash
+		journalctl -u ethlocal.service -f | tee ~/nunya/ethlocal.service.log
+		```
+	* Secret Local Node. Optional `docker logs -f --tail 10 secretdev`.
+		```bash
+		docker logs -f secretdev | tee ~/nunya/secret.service.log
+		```
+		* Decode the base64 `result` value (e.g. `eyJ...n0=\` from Localsecret logs at https://base64.guru/converter/decode/text
+			```bash
+			INFO  [enclave_contract_engine::wasm3] debug_print: "msg: PostExecutionMsg {\n    result: \"eyJfcmVxdWVzdF9pZCI6eyJuZXR3b3JrIjoiMzEzMzciLCJ0YXNrX2lkIjoiNCJ9LCJfa2V5IjpbMiwyNTEsMTg4LDE0MywxNjMsMTExLDM0LDE1OCwxNjcsODIsMTE1LDE4OSwyNSwyMzksMTcyLDEyNiw4LDY3LDIzMCwxMzgsNTAsNzcsODEsMTEzLDEyMiwyMDEsNzYsMjE5LDI0Myw1NSwxMzQsMjE0LDg2XSwiX2NvZGUiOjAsIl9udW55YV9idXNpbmVzc19jb250cmFjdF9hZGRyZXNzIjoiMHhBRkZGMzExODIxQzNGM0FGODYzQzcxMDNCQjE3QkRDMUJhMDQ2MDNEIn0=\"
+			```
+	* Relayer
+		```bash
+		journalctl -u relayer.service -f | tee ~/nunya/relayer.service.log
+		```
+
+#### Troubleshooting
+
+##### Restart Secret Network Development Node
+
+```bash
+docker stop secretdev && \
+docker rm secretdev && \
+sleep 5 && \
+cd $PROJECT_ROOT/packages/secret-contracts/secret-gateway && nvm use && make start-server && \
+docker logs -f secretdev | tee $PROJECT_ROOT/docker.log
 ```
 
-* TODO: Transaction `secretContract.retrievePubkey`
+##### Restart Ethereum Development Node Service
+
+```bash
+systemctl stop ethlocal
+systemctl enable ethlocal
+systemctl daemon-reload
+systemctl start ethlocal
+systemctl restart ethlocal
+systemctl status ethlocal
+journalctl -u ethlocal.service -f
 ```
-yarn run secret:submit
+
+### Restart Relayer Service
 ```
+systemctl stop relayer
+systemctl enable relayer
+systemctl daemon-reload
+systemctl start relayer
+systemctl restart relayer
+systemctl status relayer
+journalctl -u relayer.service -f
+```
+
+### Check SecretCLI Version and SecretJS Version 
+
+Check use of consistent versions across the codebase (e.g. `v1.15.0-beta.19`).
+
+### Error `TypeError: URL.canParse is not a function`
+
+This means you are likely using the wrong Node.js version, so just change to the project root directory and run `nvm use` in that terminal tab to use the version specified in the .nvmrc file.
+
+### Unable to upload code to Secret Network using `await secretjs.tx.compute.storeCode`
+
+Check if Beta version of secretjs is necessary incase the Secret Testnet is being upgraded or change to a different version. Update the secretjs dependency in $PROJECT_ROOT/packages/secret-contracts-scripts/package.json to use a version from https://github.com/scrtlabs/secret.js/tags that both uploads and instantiates (e.g. v1.15.0-beta.19) by asking the Secret Network team.
+
+> IMPORTANT: Errors deploying may be because of mismatched types, for example InstantiateMsg here https://github.com/svub/nunya/blob/45e884194e8183229e3d7c61ccba7d789ff996b1/packages/secret-contracts/nunya-contract/src/msg.rs#L16C12-L16C26 must match here https://github.com/svub/nunya/blob/45e884194e8183229e3d7c61ccba7d789ff996b1/packages/secret-contracts-scripts/src/instantiate.ts#L92
+
+### Unable to automatically update the `code_hash` in the config.yml file of the Relayer
+
+If the CODE_HASH changes due to changes in the Secret Gateway codebase, the script ./scripts/run.sh should automatically update update the `code_hash` in the Relayer to match it. If that is not occuring then check whether deployer.json is being updated by the scripts like $PROJECT_ROOT/packages/secret-contracts-scripts/src/uploadAndInstantiateGateway.ts that may have have been run, and inspect the file ./scripts/run.sh or ./scripts/set-relayer.sh that reads the deployer.json file for deployed contract information to check it is updating the Relayer using `yq` correctly. 
+
+### Check latest Python secret-sdk is being used in the Relayer
+
+Check that it is using the latest version of the Python secret-sdk in requirements.txt https://github.com/secretanalytics/secret-sdk-python/releases
+
+### Configuration to Build Secret contracts on macOS (assuming the macOS supports SGX and is not an M1, M2, etc)
+
+> Note: Support in scripts of this repository has only been provided so far for Linux that supports SGX, however tips to help deploy it on other machines that may also support SGX are provided.
+
+To build on macOS it was necessary to run the following first as specified here https://github.com/rust-bitcoin/rust-secp256k1/issues/283#issuecomment-1590391777. Other details https://github.com/briansmith/ring/issues/1824
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install llvm
+llvm-config --version
+echo "export AR=$(which llvm-ar)" >> ~/.zshrc
+echo "export CC=$(which clang)" >> ~/.zshrc
+source ~/.zshrc
+```
+
+### Unable to debug in production on mainnet
+
+* Note: The default Makefile originally used `--features="debug-print"` but running that gives error `the package secret_gateway depends on secret-cosmwasm-std, with features: debug-print but secret-cosmwasm-std does not have these features.`. The reason why it was removed is mentioned here:
+    * https://github.com/CosmWasm/cosmwasm/issues/1841
+      * https://github.com/CosmWasm/wasmvm/pull/453
+    * https://github.com/CosmWasm/cosmwasm/pull/1667
+    * https://github.com/CosmWasm/cosmwasm/pull/1953
+  * Solution:
+    * https://github.com/CosmWasm/cosmwasm/blob/main/contracts/cyberpunk/tests/integration.rs#L126
+  * TODO: For Production on mainnet, configure it to use a debug-print or debug_print with a custom feature flag and wrap use of `set_debug_handler` with it so debug logs aren't output in production.
+
+### WIP - Run Tests <a id="run-tests"></a> 
+
+Run smart contract test with `yarn hardhat:test`
+
+### WIP - Run Frontend <a id="run-frontend"></a>
+
+#### Requirements
+
+Before you begin, you need to install the following tools:
+
+- [Node (>= v18.18)](https://nodejs.org/en/download/)
+  - Note: Optionally via NVM
+- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
+- [Git](https://git-scm.com/downloads)
+
+#### Quickstart
+
+Start the Nunya NextJS app:
+
+```bash
+yarn start
+```
+
+Visit app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
+
+Further changes:
+* Edit smart contracts such as `NunyaBusiness.sol` in `packages/hardhat/contracts`
+* Edit frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
+* Edit deployment scripts in `packages/hardhat/deploy`

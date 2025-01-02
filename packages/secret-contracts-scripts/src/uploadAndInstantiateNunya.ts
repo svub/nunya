@@ -83,24 +83,22 @@ async function main () {
   // const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${nunyaContractWasmPath}`);
   // Optimised nunya-contract
   const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${isOptimizedContractWasm ? "optimized-wasm/" : ""}${nunyaContractWasmPath}`);
-  
+  console.log('contract_wasm: ', contract_wasm);
   // Convert from Bytes (Uint8Array) to Base64
   const gatewayContractPublicKeyBase64 = Buffer.from(gatewayContractPublicKey.substring(2), "hex").toString("base64");
-  
+  console.log('gatewayContractPublicKeyBase64: ', gatewayContractPublicKeyBase64);
   const secretjs = new SecretNetworkClient({
     chainId: secretChainId,
     url: secretEndpoint || "",
     wallet: wallet,
     walletAddress: wallet.address,
   });
-
   // console.log('secretjs: ', secretjs);
 
   const { balance } = await secretjs.query.bank.balance({
     address: wallet.address,
     denom: "uscrt",
   });
-
   console.log('balance: ', balance);
 
   type Binary = string;
@@ -134,6 +132,7 @@ async function main () {
       source: "",
       builder: "",
     };
+    // console.log('txParams: ', txParams);
     // ../../packages/secret-contracts-scripts/node_modules/secretjs/src/secret_network_client.ts
     let txOptions = {
       gasLimit: 10_000_000, // default 25_000
@@ -145,11 +144,13 @@ async function main () {
       broadcastCheckIntervalMs: 24_000, // default 6_000 for 6 second block
       broadcastMode: BroadcastMode.Async,
     };
+    // console.log('txOptions: ', txOptions);
     try {
       tx = await secretjs.tx.compute.storeCode(txParams, txOptions);
     } catch (e) {
-      console.log('error: ', e);
+      console.log('error uploading Secret Nunya contract: ', e);
     }
+    console.log('tx: ', tx);
 
     if (typeof tx == undefined) {
       throw Error("Unable to obtain codeId");
@@ -158,6 +159,7 @@ async function main () {
     // View tx in block explorer - https://docs.scrt.network/secret-network-documentation/overview-ecosystem-and-technology/ecosystem-overview/explorers-and-tools
 
     codeId = tx?.arrayLog?.find((log: any) => log?.type === "message" && log?.key === "code_id")?.value;
+    console.log('codeId: ', codeId);
 
     if (tx?.rawLog) {
       console.log("tx.rawLog: ", tx?.rawLog);

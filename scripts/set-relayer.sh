@@ -42,7 +42,7 @@ wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY}.tar.
 source ~/.zshrc
 
 if [ ! -f /usr/bin/yq ]; then
-    echo "yq not found"
+  echo "yq not found"
 fi
 
 # https://mikefarah.gitbook.io/yq/usage/properties

@@ -11,7 +11,8 @@ PORT="8545"
 
 # Important: systemd service must be configured with the `WorkingDirectory` pointing to a Hardhat project
 # that you may debug here with `echo $PWD` if necessary
-CMD="$NODE_PATH node --network hardhat --no-deploy --watch --port $PORT
+# CMD="$NODE_PATH node --network hardhat --no-deploy --watch --port $PORT
+CMD="$NODE_PATH node --network hardhat --no-deploy --port $PORT
 "
 
 echo "-----------------------"

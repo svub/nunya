@@ -46,12 +46,12 @@
           "nunyaContractAddress": "secret1gyruqan6yxf0q423t8z5zce3x7np35uw8s8wqc"
         },
         "secretGateway": {
-          "gatewayContractCodeId": "1",
-          "gatewayContractAddress": "secret1mfk7n6mc2cg6lznujmeckdh4x0a5ezf6hx6y8q",
-          "gatewayContractCodeHash": "774c551b6afa0abe37162d1303c69b94c6a7395fcd6cfefddfd23ba3bcd61b78",
+          "gatewayContractCodeId": "2",
+          "gatewayContractAddress": "secret1gyruqan6yxf0q423t8z5zce3x7np35uw8s8wqc",
+          "gatewayContractCodeHash": "28e460006f968e69d48797832c22a564c3077e170a63c772bcc077f099da14ba",
           "gatewayContractAdminAddress": "secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg",
-          "gatewayContractPublicKey": "0x04a7eda3a6078e43a2b4a6141e502282e050543ea4f7651fe4d1b3efcd7573657c4013fe856461d6def58838ebb2d99f77078b2c4a19f6974876a2515155fc7144",
-          "gatewayContractEncryptionKeyForChaChaPoly1305": "Aqfto6YHjkOitKYUHlAiguBQVD6k92Uf5NGz7811c2V8"
+          "gatewayContractPublicKey": "0x041401d96329bc48ec810b3ca8140b419c0ab6b820a0fb0775e2bc5234d37f8da0fea791b1d14a70347d9e2ca1b025a94b3182ee32f7761de31176dfdc979a8fa0",
+          "gatewayContractEncryptionKeyForChaChaPoly1305": "AhQB2WMpvEjsgQs8qBQLQZwKtrggoPsHdeK8UjTTf42g"
         }
       }
     }
