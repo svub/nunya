@@ -19,7 +19,7 @@ async function main () {
   }
   
   const isLocal = config.networkSettings.secret.network == "localhost";
-  const { walletMnemonic, isOptimizedContractWasm, secretNunya: { nunyaContractWasmPath }, secretGateway: { gatewayContractAdminAddress, gatewayContractCodeId, gatewayContractCodeHash, gatewayContractWasmPath }, chainId: secretChainId, endpoint: secretEndpoint } =
+  const { walletMnemonic, isOptimizedContractWasm, secretNunya: { nunyaContractWasmPath }, secretGateway: { gatewayContractAdminAddress, gatewayContractCodeId, gatewayContractCodeHash, gatewayContractWasmPath, gatewayContractWasmPathOptimized }, chainId: secretChainId, endpoint: secretEndpoint } =
     isLocal == false
     ? config.networkSettings.secret.testnet
     : config.networkSettings.secret.localhost;
@@ -34,11 +34,11 @@ async function main () {
   
   const rootPath = path.join(__dirname, '../../../'); // relative to ./dist
   console.log('rootPath', rootPath)
-  // const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${nunyaContractWasmPath}`);
-  // Optimised nunya-contract
-  // const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${isOptimizedContractWasm ? "optimized-wasm/" : ""}${nunyaContractWasmPath}`);
-  const secret_gateway_contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/secret-gateway/${isOptimizedContractWasm ? "optimized-wasm/" : ""}${gatewayContractWasmPath}`);
-  
+  const secretGatewayContractWASMPath = `${rootPath}packages/secret-contracts/secret-gateway/${isOptimizedContractWasm ? "optimized-wasm/" + gatewayContractWasmPathOptimized : gatewayContractWasmPath}`;
+  console.log('secretGatewayContractWASMPath: ', secretGatewayContractWASMPath);
+  const secret_gateway_contract_wasm: any = fs.readFileSync(secretGatewayContractWASMPath);
+  // console.log('secret_gateway_contract_wasm: ', secret_gateway_contract_wasm);
+
   const secretjs = new SecretNetworkClient({
     chainId: secretChainId,
     url: secretEndpoint || "",

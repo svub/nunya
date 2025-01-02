@@ -42,6 +42,7 @@ let initialNetworkSettings = {
         // nunyaContractCodeHash: "", // only know after upload
         // nunyaContractAddress: "", // only know after instantiate
         nunyaContractWasmPath: "contract.wasm.gz",
+        nunyaContractWasmPathOptimized: "secret_evm_storage.wasm.gz"
       },
       // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-mainnet-secret-4-contracts
       secretGateway: {
@@ -52,6 +53,7 @@ let initialNetworkSettings = {
         // gatewayContractPublicKey: "0x04a0d632acd0d2f5da02fc385ea30a8deab4d5639d1a821a3a552625ad0f1759d0d2e80ca3adb236d90caf1b12e0ddf3a351c5729b5e00505472dca6fed5c31e2a",
         // gatewayContractEncryptionKeyForChaChaPoly1305: "AqDWMqzQ0vXaAvw4XqMKjeq01WOdGoIaOlUmJa0PF1nQ",
         gatewayContractWasmPath: "secret-gateway-contract.wasm.gz",
+        gatewayContractWasmPathOptimized: "secret_gateway.wasm.gz",
       }
     },
     testnet: {
@@ -64,6 +66,7 @@ let initialNetworkSettings = {
         // nunyaContractCodeHash: "b44049cbf187939df9f9857905197ecbc06e99702b3332b12cb6d968f39d88b2", // only know after upload
         // nunyaContractAddress: "secret1h09whd3z8s9ms66mavd9rjm8r2rpew2trm0nkp", // only know after instantiate
         nunyaContractWasmPath: "contract.wasm.gz",
+        nunyaContractWasmPathOptimized: "secret_evm_storage.wasm.gz"
       },
       // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-testnet-pulsar-3-contracts
       secretGateway: {
@@ -74,11 +77,12 @@ let initialNetworkSettings = {
         // gatewayContractPublicKey: "0x046d0aac3ef10e69055e934ca899f508ba516832dc74aa4ed4d741052ed5a568774d99d3bfed641a7935ae73aac8e34938db747c2f0e8b2aa95c25d069a575cc8b",
         // gatewayContractEncryptionKeyForChaChaPoly1305: "A20KrD7xDmkFXpNMqJn1CLpRaDLcdKpO1NdBBS7VpWh3",
         gatewayContractWasmPath: "secret-gateway-contract.wasm.gz",
+        gatewayContractWasmPathOptimized: "secret_gateway.wasm.gz",
       }
     },
     localhost: {
       walletMnemonic: process.env.SECRET_DEVELOPMENT_MNEMONIC,
-      isOptimizedContractWasm: false,
+      isOptimizedContractWasm: true,
       chainId: "secretdev-1",
       endpoint: process.env.SECRET_DEVELOPMENT_ENDPOINT,
       secretNunya: {
@@ -86,6 +90,7 @@ let initialNetworkSettings = {
         // nunyaContractCodeHash: "", // only know after upload
         // nunyaContractAddress: "", // only know after instantiate
         nunyaContractWasmPath: "contract.wasm.gz",
+        nunyaContractWasmPathOptimized: "secret_evm_storage.wasm.gz"
       },
       secretGateway: {
         // IMPORTANT: Updated in deployed.json after deployment instead of here that only serves inputs 
@@ -106,6 +111,7 @@ let initialNetworkSettings = {
         // Obtain from running `yarn run secret:querySecretGatewayPubkey`
         // gatewayContractEncryptionKeyForChaChaPoly1305: "",
         gatewayContractWasmPath: "secret-gateway-contract.wasm.gz",
+        gatewayContractWasmPathOptimized: "secret_gateway.wasm.gz",
       }
     }
   }

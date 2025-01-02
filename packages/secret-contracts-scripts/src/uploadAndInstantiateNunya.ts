@@ -55,7 +55,7 @@ async function main () {
   } else {
     throw new Error(`Unsupported Secret network.`)
   }
-  const { walletMnemonic, isOptimizedContractWasm, secretNunya: { nunyaContractWasmPath }, chainId: secretChainId, endpoint: secretEndpoint } = varsSecret;
+  const { walletMnemonic, isOptimizedContractWasm, secretNunya: { nunyaContractWasmPath, nunyaContractWasmPathOptimized }, chainId: secretChainId, endpoint: secretEndpoint } = varsSecret;
   
   // must be all true or all false other
   const arrIsLocal = [isLocalSecretInit, isLocalSecretDeployed, isLocalEvm];
@@ -80,10 +80,10 @@ async function main () {
   
   const rootPath = path.join(__dirname, '../../../'); // relative to ./dist
   console.log('rootPath', rootPath)
-  // const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${nunyaContractWasmPath}`);
-  // Optimised nunya-contract
-  const contract_wasm: any = fs.readFileSync(`${rootPath}packages/secret-contracts/nunya-contract/${isOptimizedContractWasm ? "optimized-wasm/" : ""}${nunyaContractWasmPath}`);
-  console.log('contract_wasm: ', contract_wasm);
+  const contractWasmPath = `${rootPath}packages/secret-contracts/nunya-contract/${isOptimizedContractWasm ? "optimized-wasm/" + nunyaContractWasmPathOptimized : nunyaContractWasmPath}`;
+  console.log('contractWasmPath: ', contractWasmPath);
+  const contract_wasm: any = fs.readFileSync(contractWasmPath);
+  // console.log('contract_wasm: ', contract_wasm);
   // Convert from Bytes (Uint8Array) to Base64
   const gatewayContractPublicKeyBase64 = Buffer.from(gatewayContractPublicKey.substring(2), "hex").toString("base64");
   console.log('gatewayContractPublicKeyBase64: ', gatewayContractPublicKeyBase64);
@@ -93,6 +93,7 @@ async function main () {
     wallet: wallet,
     walletAddress: wallet.address,
   });
+  console.log('secretEndpoint: ', secretEndpoint);
   // console.log('secretjs: ', secretjs);
 
   const { balance } = await secretjs.query.bank.balance({

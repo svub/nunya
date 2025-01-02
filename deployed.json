@@ -42,16 +42,16 @@
         "endpoint": "http://172.105.184.209:1317",
         "secretNunya": {
           "nunyaContractCodeId": "2",
-          "nunyaContractCodeHash": "0e1904c8f258b365d24865041ab51de62fdbf515d15e8fe785774662201c809a",
+          "nunyaContractCodeHash": "57f4f72804e180100c7108282fc46fa6275bee92829a3faa9e18526c9105948e",
           "nunyaContractAddress": "secret1gyruqan6yxf0q423t8z5zce3x7np35uw8s8wqc"
         },
         "secretGateway": {
-          "gatewayContractCodeId": "2",
-          "gatewayContractAddress": "secret1gyruqan6yxf0q423t8z5zce3x7np35uw8s8wqc",
-          "gatewayContractCodeHash": "28e460006f968e69d48797832c22a564c3077e170a63c772bcc077f099da14ba",
+          "gatewayContractCodeId": "1",
+          "gatewayContractAddress": "secret1mfk7n6mc2cg6lznujmeckdh4x0a5ezf6hx6y8q",
+          "gatewayContractCodeHash": "be3db4b4c42d33300eee7801769a4176ed3046f23c08812fc2a85bc76075e1d5",
           "gatewayContractAdminAddress": "secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg",
-          "gatewayContractPublicKey": "0x041401d96329bc48ec810b3ca8140b419c0ab6b820a0fb0775e2bc5234d37f8da0fea791b1d14a70347d9e2ca1b025a94b3182ee32f7761de31176dfdc979a8fa0",
-          "gatewayContractEncryptionKeyForChaChaPoly1305": "AhQB2WMpvEjsgQs8qBQLQZwKtrggoPsHdeK8UjTTf42g"
+          "gatewayContractPublicKey": "0x04509cae738e3e67ef99924e300f44cda07c913a4c5c43729d9935465a8174126ab69f0813749cfe75a61602783e7cdc50f95f7ca47086bb6551e2a9760a6bda98",
+          "gatewayContractEncryptionKeyForChaChaPoly1305": "AlCcrnOOPmfvmZJOMA9EzaB8kTpMXENynZk1RlqBdBJq"
         }
       }
     }

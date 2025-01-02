@@ -4,8 +4,6 @@
 
 # Part 1 - Secret Network
 
-PROJECT_ROOT=$1
-USE_NETWORK=$2
 echo -e "PROJECT_ROOT: $PROJECT_ROOT"
 echo -e "USE_NETWORK: $USE_NETWORK"
 cd $PROJECT_ROOT
@@ -244,15 +242,23 @@ yarn run secret:setEVMGatewayAddress
 # Warning: If you only run `make build-mainnet` then you will get this error https://github.com/svub/nunya/issues/8 when deploying.
 #
 # Note: Use `make build-mainnet-reproducible` for both Testnet and Mainnet, NOT just Mainnet
-if [ $USE_NETWORK == "localhost" ]; then
-  cd $PROJECT_ROOT/packages/secret-contracts/nunya-contract
-  make clean
-  make build
+#
+# TODO: Read from deployed.json using `$CHOSEN_NETWORK` to determine whether `isOptimizedContractWasm`
+# is true or false and based on that decide whether to perform optimized build or not.
+# Currently `isOptimizedContractWasm` is only in config.ts, so we need to migrate contents of
+# config.ts to deployed.json sooner since we can read that from here, instead of using `$USE_NETWORK`,
+# since we want to use .env files, not passing environment variables from command line
+if [[ $USE_NETWORK == "localhost" || $USE_NETWORK == "testnet" || $USE_NETWORK == "mainnet" ]]; then
+  # unoptimized may cause issues
 
-  cd $PROJECT_ROOT/packages/secret-contracts/secret-gateway
-  make clean
-  make build
-elif [ $CHOSEN_NETWORK == "testnet" || $CHOSEN_NETWORK == "mainnet" ]; then
+  # cd $PROJECT_ROOT/packages/secret-contracts/nunya-contract
+  # make clean
+  # make build
+
+  # cd $PROJECT_ROOT/packages/secret-contracts/secret-gateway
+  # make clean
+  # make build
+
   # Remove any old Docker containers, if necessary, that were used to compile the Testnet or Mainnet code
   docker rmi sco
 

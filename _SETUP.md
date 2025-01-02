@@ -163,11 +163,11 @@ ssh root@172.105.184.209
   * $PROJECT_ROOT/packages/relayer/SecretPath/TNLS-Relayers/.env
     * Development
       * Create a new Keplar Wallet that must use Google to generate an associated private key. 
-        * Add a value for `secret-private-key` that you obtain from creating a new Keplar Wallet that must use Google to generate an associated private key, and exclude the '0x' prefix, that is associated with an address (e.g. secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg)
-      * Add for Ethereum Development Node the private key into `ethereum-private-key = XXXXX` of the .env file $PROJECT_ROOT/packages/secret-contracts-scripts/.env. IMPORTANT: Exclude the leading `0x`
+        * Add a value for `secret-private-key` that you obtain from creating a new Keplar Wallet that must use Google to generate an associated private key, that is associated with an address (e.g. secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg)
+      * Add for Ethereum Development Node the private key into `ethereum-private-key = XXXXX` of the .env file to be the same as that used in $PROJECT_ROOT/packages/secret-contracts-scripts/.env. for `ETH_DEVELOPMENT_PRIVATE_KEY`. IMPORTANT: Exclude the leading `0x`.
     * Testnet
       * Add for Ethereum Sepolia the private key into `ethereum-private-key = XXXXX` of the .env file to be the same as that used in $PROJECT_ROOT/packages/secret-contracts-scripts/.env for `ETH_TESTNET_PRIVATE_KEY`
-        * IMPORTANT: Exclude the leading `0x`
+        * IMPORTANT: Exclude the leading `0x`.
   * $PROJECT_ROOT/packages/relayer/SecretPath/TNLS-Relayers/config.yml
     * Check there is a `chain_id` and `api_endpoint` for both an Ethereum Network and a Secret Network, that should both be for development, testing, or mainnet usage. This should already be pre-configured.
 
@@ -179,8 +179,10 @@ Continue with [Run Services](#run-services).
 
 * Run the following to start the Secret Development Node docker container, the Ethereum Development Node systemd service, and the Relayer systemd service.
 	```bash
+	export PROJECT_ROOT="/root/nunya"
+  export USE_NETWORK="localhost" # alternatively "testnet" or "mainnet"
   cd $PROJECT_ROOT
-	$PROJECT_ROOT/scripts/run.sh $PROJECT_ROOT $USE_NETWORK | tee $PROJECT_ROOT/run.log
+	$PROJECT_ROOT/scripts/run.sh | tee $PROJECT_ROOT/run.log
 	```
 	* Note: If you modified your custom Secret Gateway code and the CODE_HASH changes, the script automatically update the `code_hash` of the Relay in the relevant Gitsubmodule to match it.
 * Wait. The script outputs "Finished loading" when finished
@@ -244,7 +246,7 @@ Relayer->>EVM Gateway Contract: Forward response to `postExecution()`
 EVM Gateway Contract-->>Nunya EVM Contract: Forward to `fulfilledSecretContractPubkeyCallback()`
 ```
 
-* TODO: See [_SPECIFICATION](./_SPECIFICATION.md) and [_DEMO_AND_VIDEO](./_DEMO_AND_VIDEO.md) and Github Issues for additional features that need to be added.
+* TODO: See [_DEV_DEEPDIVE](./DEV_DEEPDIVE.md) and [_SPECIFICATION](./_SPECIFICATION.md) and [_DEMO_AND_VIDEO](./_DEMO_AND_VIDEO.md) and Github Issues for additional features that need to be added.
 
 #### Queries
 
@@ -356,6 +358,10 @@ Check use of consistent versions across the codebase (e.g. `v1.15.0-beta.19`).
 ### Error `TypeError: URL.canParse is not a function`
 
 This means you are likely using the wrong Node.js version, so just change to the project root directory and run `nvm use` in that terminal tab to use the version specified in the .nvmrc file.
+
+### Error `failed to execute message; message index: 0: Execution error: Error during static Wasm validation: Wasm bytecode could not be deserialized. Deserialization error: "Invalid table reference (128)": create contract failed` or `failed to execute message; message index: 0: Execution error: Error during static Wasm validation: Wasm bytecode could not be deserialized. Deserialization error: "I/O Error: UnexpectedEof": create contract failed`
+
+This error may occur if you try to upload the Secret contracts using `make build` instead of the optimised build using `make build-mainnet-reproducible`.
 
 ### Unable to upload code to Secret Network using `await secretjs.tx.compute.storeCode`
 
