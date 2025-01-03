@@ -31,7 +31,7 @@ const accountsValuesOptions = {
   }
 }
 
-let accountsValues = {
+const accountsValues = {
   mainnet: 
     process.env.USE_PRIVATE_KEY_OR_MNEMONIC == "private"
     ? accountsValuesOptions.mainnet.private
