@@ -423,10 +423,11 @@ Before you begin, you need to install the following tools:
 Start the Nunya NextJS app:
 
 ```bash
+yarn
 yarn start
 ```
 
-Visit app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
+Visit app on: `http://localhost:3000` or `http://X.X.X.X:3000` if hosted on a remote server where X.X.X.X is its IP address. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
 
 Further changes:
 * Edit smart contracts such as `NunyaBusiness.sol` in `packages/hardhat/contracts`
