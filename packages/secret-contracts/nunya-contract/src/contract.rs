@@ -242,17 +242,26 @@ fn retrieve_pubkey(
 
     let response_status_code: ResponseStatusCode = 0u16;
 
-    let data = ResponseRetrievePubkeyStoreMsg {
-        _request_id: task.clone(),
-        _key: my_keys.public_key,
-        _code: response_status_code,
-        _nunya_business_contract_address: config.nunya_business_contract_address,
-    };
+    let newline: String = "\n".to_string();
+    let result1 = String::from_utf8(my_keys.public_key)?;
+    let result2 = task.clone().task_id.to_string();
+    let result3 = response_status_code.to_string();
+    let result_str = result1 + &newline + &result2 + &newline + &result3;
 
-    let json_string =
-        serde_json_wasm::to_string(&data).map_err(|err| StdError::generic_err(err.to_string()))?;
+    // convert string to base64
+    let result = general_purpose::STANDARD.encode(result_str.as_str());
 
-    let result = general_purpose::STANDARD.encode(json_string);
+    // let data = ResponseRetrievePubkeyStoreMsg {
+    //     _request_id: task.clone(),
+    //     _key: my_keys.public_key,
+    //     _code: response_status_code,
+    //     _nunya_business_contract_address: config.nunya_business_contract_address,
+    // };
+
+    // let json_string =
+    //     serde_json_wasm::to_string(&data).map_err(|err| StdError::generic_err(err.to_string()))?;
+
+    // let result = general_purpose::STANDARD.encode(json_string);
 
     // Get the contract's code hash using the gateway address
     let gateway_code_hash = get_contract_code_hash(&deps, config.gateway_address.to_string())?;

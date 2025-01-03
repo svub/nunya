@@ -9,9 +9,11 @@ import "hardhat/console.sol";
 // import "./IDummyGateway.sol";
 import "./IGateway.sol";
 
+// import "./Base64.sol";
+
 import "./JsmnSolLib.sol";
 
-import "./JSONParser.sol";
+// import "./JSONParser.sol";
 
 import "./Utils.sol";
 
@@ -21,6 +23,7 @@ import "./Ownable.sol";
  * @notice Gateway Receiver
  * @author
  */
+// contract NunyaBusiness is Ownable, Utils, Base64 {
 contract NunyaBusiness is Ownable, Utils {
 
     enum FunctionCallType {
@@ -199,6 +202,13 @@ contract NunyaBusiness is Ownable, Utils {
         emit RetrievePubkey(requestId);
     }
 
+    // TODO: Move to Utils.sol
+    // https://ethereum.stackexchange.com/a/148341/9680
+    // https://ethereum.stackexchange.com/a/78560/9680
+    // function trim(string calldata str, uint start, uint end) external pure returns(string memory) {
+    //     return str[start:end];
+    // }
+
     /// @notice Callback by the CustomGateway with the requested value
     /// @param _requestId requestId of the request that was initally called
     // TODO: Add other args to doc comments: _key Public key of the custom Secret contract deployed on the Secret network
@@ -206,8 +216,21 @@ contract NunyaBusiness is Ownable, Utils {
     // function fulfilledSecretContractPubkeyCallback (uint256 _requestId, uint256 _key, uint16 _code, address _nunya_business_contract_address) public onlyGateway validateRequest(_requestId, FunctionCallType.GET_KEY) {
         console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - _requestId: ", _requestId);
         console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - data.length: ", data.length);
-        console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - data: ");
+        console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - data (hex): ");
         console.logBytes(data);
+
+        // // Strip the `0x` prefix to revert what was done by the Secret Gateway here ./packages/secret-contracts/secret-gateway/src/contract.rs
+        // string memory dataHexStr = trim(string(data), 2, data.length - 1);
+        // bytes memory dataBytes = abi.encodePacked(hex"A76A95918C39eE40d4a43CFAF19C35050E32E271")
+
+        // `data` is a hex literal (e.g. `hex"..."`) since `0x` was added in the
+        // Secret Gateway here ./packages/secret-contracts/secret-gateway/src/contract.rs
+        // bytes memory dataBytes = abi.encodePacked(data);
+
+        // string memory dataBytes = this.trim(string(data), 2, data.length - 1);
+        // bytes memory dataBase64 = Base64.decode(dataBytes);
+        // console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - data (base64): ", string(dataBase64));
+
         // Note: `Transaction ran out of gas` error if try to parse JSON response that has been prepared in the private Secret contract.
         // To prevent it from out of gas errors then try sending it as the first key and converting the value into a fixed-length hash using Keccak256
         // so it is easy to find the start and end of the `result` by index.
@@ -220,7 +243,7 @@ contract NunyaBusiness is Ownable, Utils {
         // }
 
         // emit FulfilledPubkey(_requestId, secretContractPubkey);
-        emit FulfilledPubkey(_requestId, data);
+        // emit FulfilledPubkey(_requestId, dataBase64);
 
         // TODO: Implement the below instead when get working with `data` response initially
         
