@@ -22,7 +22,13 @@ node_modules
 # cli
 dist
 
+# logs
 logs/
+ethlocal.service.log
+secret.service.log
+secret-docker.log
+relayer.service.log
+run.log
 
 **/node_modules/
 **/yarn-error.log
@@ -31,7 +37,7 @@ logs/
 .nx/cache
 tsconfig.tsbuildinfo
 .env
-packages/secret-upload-contract/.env
+packages/secret-contracts-scripts/.env
 packages/secret-instantiate-contract/.env
 
 ## ignore different deployments while we are in dev (comment this once contracts stable)
@@ -39,3 +45,6 @@ packages/nextjs/contracts/deployedContracts.ts
 
 ## NB hardhat ignores are in packages/hardhat/.gitignore
 
+# yq files
+yq.1
+install-man-page.sh

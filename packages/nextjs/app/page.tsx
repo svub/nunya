@@ -1,5 +1,6 @@
 "use client";
 
+import RetrievePubkey from "./_components/retrievePubkey";
 import CreateAccount from "./_components/createAccount";
 import CreatePaymentReference from "./_components/createPaymentReference";
 import Withdraw from "./_components/withdraw";
@@ -19,6 +20,7 @@ const Home: NextPage = () => {
 
         <p className="text-base">Create a payment link and add it to your invoice to start receiving payments.</p>
 
+        <RetrievePubkey></RetrievePubkey>
         <CreateAccount></CreateAccount>
         <CreatePaymentReference></CreatePaymentReference>
         <Withdraw></Withdraw>

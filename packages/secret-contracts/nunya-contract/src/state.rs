@@ -21,6 +21,8 @@ pub struct State {
     pub gateway_address: Addr,
     pub gateway_hash: String,
     pub gateway_key: Binary,
+    pub nunya_business_contract_address: String,
+    pub owner: Addr,
 }
 
 // Secret contract keys
@@ -37,10 +39,17 @@ pub struct PaymentReferenceBalance {
     pub balance: Coin,
 }
 
+// TODO - not implemented yet
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct PaymentReceipt {
     pub payment_reference: String,
+    // TODO: Why am I using CosmWasm Uint256 instead of Rust uint256, do we really need the extra methods associated with it
     pub amount: Uint256,
     pub denomination: String,
     pub sig: Binary,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub struct InputRequestValue {
+    pub myArg: String
 }

@@ -1,0 +1,68 @@
+wallet address:  secret1am2mk908456twwgehmaua85s6laar4yr3awzzj
+rootPath /Users/luke/code/clones/github/svub/nunya
+balance:  { denom: 'uscrt', amount: '64338311' }
+Starting deployment...
+tx:  {
+  height: 7820071,
+  timestamp: '2024-11-22T15:48:26Z',
+  transactionHash: 'AEEA0ABBECAEB6B71D26F7DDF71BCD365F92E96250C3E9F94A41CFBFD737B89F',
+  code: 0,
+  codespace: '',
+  info: '',
+  tx: {
+    '@type': '/cosmos.tx.v1beta1.Tx',
+    body: {
+      messages: [Array],
+      memo: '',
+      timeout_height: '0',
+      extension_options: [],
+      non_critical_extension_options: []
+    },
+    auth_info: { signer_infos: [Array], fee: [Object], tip: null },
+    signatures: [
+      'kO8vJQiwh64pxEQiBtCh8B2qx7MSRuIxNHqBsZZB+NV2mgI1D4XjtQdfa4kvrh2dfTprAg4g9ggEyJO87zm36A=='
+    ]
+  },
+  rawLog: '',
+  jsonLog: [ { msg_index: 0, events: [Array] } ],
+  arrayLog: [
+    {
+      msg: 0,
+      type: 'message',
+      key: 'action',
+      value: '/secret.compute.v1beta1.MsgStoreCode'
+    },
+    {
+      msg: 0,
+      type: 'message',
+      key: 'sender',
+      value: 'secret1am2mk908456twwgehmaua85s6laar4yr3awzzj'
+    },
+    { msg: 0, type: 'message', key: 'module', value: 'compute' },
+    {
+      msg: 0,
+      type: 'message',
+      key: 'signer',
+      value: 'secret1am2mk908456twwgehmaua85s6laar4yr3awzzj'
+    },
+    { msg: 0, type: 'message', key: 'code_id', value: '12247' }
+  ],
+  events: [
+    { type: 'coin_spent', attributes: [Array] },
+    { type: 'coin_received', attributes: [Array] },
+    { type: 'transfer', attributes: [Array] },
+    { type: 'message', attributes: [Array] },
+    { type: 'tx', attributes: [Array] },
+    { type: 'tx', attributes: [Array] },
+    { type: 'tx', attributes: [Array] },
+    { type: 'message', attributes: [Array] },
+    { type: 'message', attributes: [Array] },
+    { type: 'message', attributes: [Array] }
+  ],
+  data: [ Uint8Array(3) [ 8, 215, 95 ] ],
+  gasUsed: 1995018,
+  gasWanted: 5000000,
+  ibcResponses: []
+}
+CODE_ID: 12247
+CODE_HASH: b44049cbf187939df9f9857905197ecbc06e99702b3332b12cb6d968f39d88b2

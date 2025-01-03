@@ -4,6 +4,7 @@
   "scripts": {
     "account": "hardhat run scripts/listAccount.ts",
     "chain": "hardhat node --network hardhat --no-deploy",
+    "chain-watch": "hardhat node --network hardhat --no-deploy --watch",
     "clean": "hardhat clean",
     "compile": "hardhat compile",
     "deploy": "yarn clean && hardhat deploy",

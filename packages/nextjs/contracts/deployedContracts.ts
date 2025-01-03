@@ -5,193 +5,21 @@
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
-  11155111: {
-    DummyGatewayContract: {
-      address: "0x77257FE5ef16d11CFA91D8fDaA79Fc9e47541BE7",
-      abi: [
-        {
-          stateMutability: "payable",
-          type: "fallback",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "secret",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "ref",
-              type: "string",
-            },
-          ],
-          name: "createPaymentReference",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "secret",
-              type: "string",
-            },
-          ],
-          name: "newSecretUser",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "secret",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "ref",
-              type: "string",
-            },
-            {
-              internalType: "uint256",
-              name: "amount",
-              type: "uint256",
-            },
-            {
-              internalType: "string",
-              name: "denomination",
-              type: "string",
-            },
-          ],
-          name: "pay",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "secret",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "ref",
-              type: "string",
-            },
-            {
-              internalType: "uint256",
-              name: "amount",
-              type: "uint256",
-            },
-            {
-              internalType: "string",
-              name: "denomination",
-              type: "string",
-            },
-            {
-              internalType: "uint256",
-              name: "userPubkey",
-              type: "uint256",
-            },
-          ],
-          name: "payWithReceipt",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "retrievePubkey",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "secret",
-              type: "string",
-            },
-            {
-              internalType: "uint256",
-              name: "amount",
-              type: "uint256",
-            },
-            {
-              internalType: "string",
-              name: "denomination",
-              type: "string",
-            },
-            {
-              internalType: "address",
-              name: "withdrawalAddress",
-              type: "address",
-            },
-          ],
-          name: "withdrawTo",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          stateMutability: "payable",
-          type: "receive",
-        },
-      ],
-      inheritedFunctions: {},
-    },
+  31337: {
     Gateway: {
-      address: "0x5Be91fd4b49489bb3aEc8bE2F5Fa1d83FD8C5A1b",
+      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
       abi: [
         {
           inputs: [
             {
               internalType: "address",
-              name: "secretGatewaySignerAddr",
+              name: "nunyaContractAddress",
               type: "address",
+            },
+            {
+              internalType: "bytes",
+              name: "deployerPublicKeyBytes",
+              type: "bytes",
             },
           ],
           stateMutability: "nonpayable",
@@ -208,6 +36,32 @@ const deployedContracts = {
             },
           ],
           name: "FulfilledRandomWords",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+          ],
+          name: "FulfilledRequestValue",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+          ],
+          name: "FulfilledSecretContractRetrievePubkey",
           type: "event",
         },
         {
@@ -324,29 +178,46 @@ const deployedContracts = {
           type: "fallback",
         },
         {
-          inputs: [],
-          name: "VRF_routing_code_hash",
-          outputs: [
+          inputs: [
             {
-              internalType: "string",
-              name: "",
-              type: "string",
+              internalType: "bytes32",
+              name: "data",
+              type: "bytes32",
             },
           ],
-          stateMutability: "view",
+          name: "bytes32ToBytes",
+          outputs: [
+            {
+              internalType: "bytes",
+              name: "",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "pure",
           type: "function",
         },
         {
-          inputs: [],
-          name: "VRF_routing_info",
-          outputs: [
+          inputs: [
             {
               internalType: "string",
-              name: "",
+              name: "x",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "y",
               type: "string",
             },
           ],
-          stateMutability: "view",
+          name: "compStr",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "pure",
           type: "function",
         },
         {
@@ -468,6 +339,19 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "uint256",
+              name: "_newNonce",
+              type: "uint256",
+            },
+          ],
+          name: "increaseNonce",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
               name: "_newTaskId",
               type: "uint256",
             },
@@ -513,6 +397,45 @@ const deployedContracts = {
             },
           ],
           stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "nonce",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "nunyaAddressBase64",
+          outputs: [
+            {
+              internalType: "bytes28",
+              name: "",
+              type: "bytes28",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "owner_public_key",
+          outputs: [
+            {
+              internalType: "bytes",
+              name: "",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -738,50 +661,26 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [
-            {
-              internalType: "uint32",
-              name: "_numWords",
-              type: "uint32",
-            },
-            {
-              internalType: "uint32",
-              name: "_callbackGasLimit",
-              type: "uint32",
-            },
-          ],
-          name: "requestRandomness",
+          inputs: [],
+          name: "routing_code_hash",
           outputs: [
             {
-              internalType: "uint256",
-              name: "requestId",
-              type: "uint256",
+              internalType: "string",
+              name: "",
+              type: "string",
             },
           ],
-          stateMutability: "payable",
+          stateMutability: "view",
           type: "function",
         },
         {
           inputs: [],
-          name: "retrievePubkey",
+          name: "routing_info",
           outputs: [
             {
-              internalType: "uint256",
+              internalType: "string",
               name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "pure",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "secret_gateway_signer_address",
-          outputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
+              type: "string",
             },
           ],
           stateMutability: "view",
@@ -869,6 +768,30 @@ const deployedContracts = {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "string",
+              name: "_routingInfo",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "_routingCodeHash",
+              type: "string",
+            },
+          ],
+          name: "setSecretContractInfo",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "isSet",
+              type: "bool",
+            },
+          ],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "taskId",
           outputs: [
@@ -922,6 +845,25 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "uint256",
+              name: "a",
+              type: "uint256",
+            },
+          ],
+          name: "toBytes",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
               name: "x",
               type: "uint256",
             },
@@ -935,6 +877,13 @@ const deployedContracts = {
             },
           ],
           stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "upgradeHandler",
+          outputs: [],
+          stateMutability: "nonpayable",
           type: "function",
         },
         {
@@ -976,19 +925,18 @@ const deployedContracts = {
           type: "receive",
         },
       ],
-      inheritedFunctions: {},
+      inheritedFunctions: {
+        bytes32ToBytes: "contracts/Utils.sol",
+        compStr: "contracts/Utils.sol",
+        itoa31: "contracts/Utils.sol",
+        uint256toBytesString: "contracts/Utils.sol",
+      },
     },
     NunyaBusiness: {
-      address: "0x41E52332e76988AFBc38280583a7A02492177C65",
+      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
       abi: [
         {
-          inputs: [
-            {
-              internalType: "address payable",
-              name: "_gateway",
-              type: "address",
-            },
-          ],
+          inputs: [],
           stateMutability: "payable",
           type: "constructor",
         },
@@ -1009,6 +957,44 @@ const deployedContracts = {
             },
           ],
           name: "AccountCreated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "bytes",
+              name: "data",
+              type: "bytes",
+            },
+          ],
+          name: "FulfilledPubkey",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "bytes",
+              name: "data",
+              type: "bytes",
+            },
+          ],
+          name: "FulfilledValue",
           type: "event",
         },
         {
@@ -1111,6 +1097,32 @@ const deployedContracts = {
               name: "requestId",
               type: "uint256",
             },
+          ],
+          name: "RequestedValue",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+          ],
+          name: "RetrievePubkey",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
             {
               indexed: false,
               internalType: "uint16",
@@ -1125,6 +1137,19 @@ const deployedContracts = {
             },
           ],
           name: "SecretNetworkError",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "bool",
+              name: "isSet",
+              type: "bool",
+            },
+          ],
+          name: "SetSecretContractInfo",
           type: "event",
         },
         {
@@ -1155,6 +1180,62 @@ const deployedContracts = {
         {
           stateMutability: "payable",
           type: "fallback",
+        },
+        {
+          inputs: [],
+          name: "CustomGateway",
+          outputs: [
+            {
+              internalType: "address payable",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "data",
+              type: "bytes32",
+            },
+          ],
+          name: "bytes32ToBytes",
+          outputs: [
+            {
+              internalType: "bytes",
+              name: "",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "x",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "y",
+              type: "string",
+            },
+          ],
+          name: "compStr",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
         },
         {
           inputs: [
@@ -1224,6 +1305,61 @@ const deployedContracts = {
           name: "emitSecretNetworkError",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_requestId",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "data",
+              type: "bytes",
+            },
+          ],
+          name: "fulfilledSecretContractPubkeyCallback",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_requestId",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "data",
+              type: "bytes",
+            },
+          ],
+          name: "fulfilledValueCallback",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "x",
+              type: "uint256",
+            },
+          ],
+          name: "itoa31",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "y",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "pure",
           type: "function",
         },
         {
@@ -1400,28 +1536,229 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_requestId",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "_key",
-              type: "uint256",
-            },
-          ],
-          name: "setSecretContractPubkeyCallback",
+          inputs: [],
+          name: "payoutBalance",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
         },
         {
           inputs: [],
-          name: "unsafeGetSecretContractPubkey",
+          name: "secretContractPubkey",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address payable",
+              name: "_CustomGateway",
+              type: "address",
+            },
+          ],
+          name: "setGatewayAddress",
           outputs: [],
-          stateMutability: "nonpayable",
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "x",
+              type: "uint256",
+            },
+          ],
+          name: "uint256toBytesString",
+          outputs: [
+            {
+              internalType: "bytes",
+              name: "s",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "_payloadHash",
+              type: "bytes32",
+            },
+            {
+              internalType: "address",
+              name: "_userAddress",
+              type: "address",
+            },
+            {
+              internalType: "string",
+              name: "_routingInfo",
+              type: "string",
+            },
+            {
+              components: [
+                {
+                  internalType: "bytes",
+                  name: "user_key",
+                  type: "bytes",
+                },
+                {
+                  internalType: "bytes",
+                  name: "user_pubkey",
+                  type: "bytes",
+                },
+                {
+                  internalType: "string",
+                  name: "routing_code_hash",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "task_destination_network",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "handle",
+                  type: "string",
+                },
+                {
+                  internalType: "bytes12",
+                  name: "nonce",
+                  type: "bytes12",
+                },
+                {
+                  internalType: "uint32",
+                  name: "callback_gas_limit",
+                  type: "uint32",
+                },
+                {
+                  internalType: "bytes",
+                  name: "payload",
+                  type: "bytes",
+                },
+                {
+                  internalType: "bytes",
+                  name: "payload_signature",
+                  type: "bytes",
+                },
+              ],
+              internalType: "struct ExecutionInfo",
+              name: "_info",
+              type: "tuple",
+            },
+          ],
+          name: "unsafeRequestSecretContractPubkey",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "_payloadHash",
+              type: "bytes32",
+            },
+            {
+              internalType: "address",
+              name: "_userAddress",
+              type: "address",
+            },
+            {
+              internalType: "string",
+              name: "_routingInfo",
+              type: "string",
+            },
+            {
+              components: [
+                {
+                  internalType: "bytes",
+                  name: "user_key",
+                  type: "bytes",
+                },
+                {
+                  internalType: "bytes",
+                  name: "user_pubkey",
+                  type: "bytes",
+                },
+                {
+                  internalType: "string",
+                  name: "routing_code_hash",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "task_destination_network",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "handle",
+                  type: "string",
+                },
+                {
+                  internalType: "bytes12",
+                  name: "nonce",
+                  type: "bytes12",
+                },
+                {
+                  internalType: "uint32",
+                  name: "callback_gas_limit",
+                  type: "uint32",
+                },
+                {
+                  internalType: "bytes",
+                  name: "payload",
+                  type: "bytes",
+                },
+                {
+                  internalType: "bytes",
+                  name: "payload_signature",
+                  type: "bytes",
+                },
+              ],
+              internalType: "struct ExecutionInfo",
+              name: "_info",
+              type: "tuple",
+            },
+          ],
+          name: "unsafeRequestValue",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "_routingInfo",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "_routingCodeHash",
+              type: "string",
+            },
+          ],
+          name: "unsafeSetSecretContractInfo",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "payable",
           type: "function",
         },
         {
@@ -1496,7 +1833,12 @@ const deployedContracts = {
           type: "receive",
         },
       ],
-      inheritedFunctions: {},
+      inheritedFunctions: {
+        bytes32ToBytes: "contracts/Utils.sol",
+        compStr: "contracts/Utils.sol",
+        itoa31: "contracts/Utils.sol",
+        uint256toBytesString: "contracts/Utils.sol",
+      },
     },
   },
 } as const;

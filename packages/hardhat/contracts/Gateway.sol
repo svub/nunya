@@ -5,27 +5,16 @@ pragma solidity ^0.8.26;
 // TODO remove in production
 import "hardhat/console.sol";
 
-// TODO: remove since do not need this in the file it is an interface of
-import "./IGateway.sol";
-
 // We need JSON parsing to introspect on the `pay` function
 import "./JsmnSolLib.sol";
 
-// https://github.com/ltfschoen/benzcoin/blob/master/contracts/Owned.sol
-contract Ownable {
-    address internal owner;
+import "./Utils.sol";
 
-    modifier onlyOwner {
-      require(msg.sender == owner);
-      _;
-    }
+import "./Base64.sol";
 
-    constructor() { 
-      owner = msg.sender;
-    }
-}
+import "./Ownable.sol";
 
-contract Gateway is Ownable {
+contract Gateway is Ownable, Utils, Base64 {
     /*//////////////////////////////////////////////////////////////
                               Constants
     //////////////////////////////////////////////////////////////*/
@@ -39,18 +28,41 @@ contract Gateway is Ownable {
     bytes32 immutable chain_id_1; bytes32 immutable chain_id_2; 
     bytes32 immutable chain_id_3; uint256 immutable chain_id_length; 
 
+    // CONFIGURE
+
+    // SecretPath mainnet (secret-4) contracts
+    // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-mainnet-secret-4-contracts
     //string constant public task_destination_network = "secret-4";
+    // This is the Derived Ethereum Address from the Public Key of the deployed Gateway contract on the Secret Network Mainnet
+    //uint256 immutable public secret_gateway_signer_pubkey = 0x04a0d632acd0d2f5da02fc385ea30a8deab4d5639d1a821a3a552625ad0f1759d0d2e80ca3adb236d90caf1b12e0ddf3a351c5729b5e00505472dca6fed5c31e2a;
     //address constant public secret_gateway_signer_address = 0x88e43F4016f8282Ea6235aC069D02BA1cE5417aB;
-    string constant public task_destination_network = "pulsar-3";
-    address immutable public secret_gateway_signer_address = 0x2821E794B01ABF0cE2DA0ca171A1fAc68FaDCa06;
 
-    //Secret VRF additions
-    //string constant public VRF_routing_info = "secret10jyexwp4zrv50eysn3l7n4n2spf0u380lcq5nz";
-    string constant public VRF_routing_info = "secret1cknezaxnzfys2w8lyyrr7fed9wxejvgq7alhqx";
+    // SecretPath testnet (pulsar-3) contracts
+    // https://docs.scrt.network/secret-network-documentation/confidential-computing-layer/ethereum-evm-developer-toolkit/supported-networks/secret-gateway/secretpath-testnet-pulsar-3-contracts
+    //string constant public task_destination_network = "pulsar-3";
+    // This is the Derived Ethereum Address from the Public Key of the deployed Gateway contract on the Secret Network Testnet
+    // uint256 immutable public secret_gateway_signer_pubkey = 0x046d0aac3ef10e69055e934ca899f508ba516832dc74aa4ed4d741052ed5a568774d99d3bfed641a7935ae73aac8e34938db747c2f0e8b2aa95c25d069a575cc8b;
+    //address immutable public secret_gateway_signer_address = 0x2821E794B01ABF0cE2DA0ca171A1fAc68FaDCa06;
 
-    string constant public VRF_routing_code_hash = "0b9395a7550b49d2b8ed73497fd2ebaf896c48950c4186e491ded6d22e58b8c3";
-    bytes constant VRF_info = abi.encodePacked('}","routing_info":"',VRF_routing_info,'","routing_code_hash":"',VRF_routing_code_hash,'","user_address":"0x0000","user_key":"AAA=","callback_address":"');
+    // SecretPath localhost () contracts
+    // Note: Match the value shown in ../../../packages/secret-contracts-scripts/src/config/config.ts
+    string constant public task_destination_network = "secretdev-1";
+    // TODO: Create a function to set these values? Or is it generated randomly each time the Secret Gateway contract is deployed?
+    // This is the Derived Ethereum Address from the Public Key of the deployed Gateway contract on the Secret Network Testnet
+    // uint256 immutable public secret_gateway_signer_pubkey = 0x041d515b717dfd0389615e2368e7ca2aee86f4b3f325a10ef4f3e6edf87d099b8b88d7f01a8b38dbc722a6d899033b5bb059bc3431543e4821ad0e8034a923ab18;
+    // address immutable public secret_gateway_signer_address = ???;
 
+    // TODO: Add deployed custom Secret contract address to be same as `SECRET_ADDRESS` and codehash `CONTRACT_CODE_HASH` used in scripts
+    string public routing_info = "";
+    string public routing_code_hash = "";
+
+    // Note: Since contracts only have an address, but not public keys, where the addresses are
+    // derived from the address of the user (or other contract) that created them, which are in
+    // turn are derived from the public key of a normal user's keypair. So we will use the public
+    // key of the `owner` that created the Gateway contract.
+    bytes public owner_public_key;
+
+    bytes28 public nunyaAddressBase64 = encodeAddressToBase64(address(owner));
 
     /*//////////////////////////////////////////////////////////////
                               Structs
@@ -88,6 +100,7 @@ contract Gateway is Ownable {
     //////////////////////////////////////////////////////////////*/
 
     uint256 public taskId;
+    uint256 public nonce;
 
     /// @dev Task ID => Task
     mapping(uint256 => Task) public tasks;
@@ -102,7 +115,9 @@ contract Gateway is Ownable {
                               Helpers
     //////////////////////////////////////////////////////////////*/
 
-   function ethSignedPayloadHash(bytes memory payload) public pure returns (bytes32 payloadHash) {
+    // Note: Why isn't a random nonce used to generate this, similar to how that
+    // is done in encryptPayload.ts to generate the payloadHash there?
+    function ethSignedPayloadHash(bytes memory payload) public pure returns (bytes32 payloadHash) {
         assembly {
             // Take scratch memory for the data to hash
             let data := mload(0x40)
@@ -118,6 +133,7 @@ contract Gateway is Ownable {
     /// @param _signature The signature
     /// @return signerAddress The address of the signer
 
+    // Reference: https://docs.ethers.org/v6/cookbook/signing/
     function recoverSigner(bytes32 _signedMessageHash, bytes calldata _signature) public view returns (address signerAddress) {
         require(_signature.length == 65, "Invalid Signature Length");
         
@@ -144,7 +160,10 @@ contract Gateway is Ownable {
     /// @param data The address data to encode
     /// @return result The bytes28 encoded string
 
+    // Note - It may be only possible to call this function `encodeAddressToBase64` a few times
+    // in some functions, otherwise it generates error `Error: Transaction reverted without a reason`.
     function encodeAddressToBase64(address data) public pure returns (bytes28 result) {
+        console.log("------ Gateway.encodeAddressToBase64");
         bytes memory table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
         assembly {
             let resultPtr := mload(0x00) // Load scratch memory pointer
@@ -181,169 +200,6 @@ contract Gateway is Ownable {
         }
     }
 
-
-    /// @notice Converts a uint256 value into its string representation
-    /// @param x The uint256 value to convert
-    /// @return s The bytes string representation of the uint256 value
-
-    function uint256toBytesString(uint256 x) public pure returns (bytes memory s) {
-        unchecked {
-            if (x < 1e31) { 
-                uint256 c1 = itoa31(x);
-                assembly {
-                    s := mload(0x40) // Set s to point to the free memory pointer
-                    let z := shr(248, c1) // Extract the digit count for c1
-                    mstore(s, z) // Allocate 32 bytes for the string length
-                    mstore(add(s, 32), shl(sub(256, mul(z, 8)), c1)) // Store c2 adjusted by z digits
-                    mstore(0x40, add(s, 64)) // Update the free memory pointer
-                }
-            }   
-            else if (x < 1e62) {
-                uint256 c1 = itoa31(x);
-                uint256 c2 = itoa31(x/1e31);
-                assembly {
-                    s := mload(0x40) // Set s to the free memory pointer
-                    let z := shr(248, c2) // Extract the digit count for c2
-                    mstore(s, add(z, 31)) // Allocate space for z digits of c2 + 31 bytes of c1
-                    mstore(add(s, 32), shl(sub(256, mul(z, 8)), c2)) // Store c2 adjusted by z digits
-                    mstore(add(s, add(32, z)), shl(8,c1)) // Store the last 31 bytes of c1
-                    mstore(0x40, add(s, 96)) // Update the free memory pointer
-                }
-            } else {
-                uint256 c1 = itoa31(x);
-                uint256 c2 = itoa31(x/1e31);
-                uint256 c3 = itoa31(x/1e62);
-                assembly {
-                    s := mload(0x40) // Set s to point to the free memory pointer
-                    let z := shr(248, c3) // Extract the digit count for c3
-                    mstore(s, add(z, 62)) // Allocate 32 bytes for the string length
-                    mstore(add(s, 32), shl(sub(256, mul(z, 8)), c3)) // Store c3 adjusted by z digits
-                    mstore(add(s, add(32, z)), shl(8, c2)) // Store the last 31 bytes of c2 starting at z bytes
-                    mstore(add(s, add(63, z)), shl(8, c1)) // Store the last 31 bytes of c3 starting at z + 31 bytes
-                    mstore(0x40, add(s, 128)) // Update the free memory pointer to point beyond the allocated space
-                }
-            }
-        }
-    }
-    /// @notice Helper function for UInt256 Conversion
-    /// @param x The uint256 value to convert
-    /// @return y The string representation of the uint256 value as a
-
-    function itoa31 (uint256 x) public pure returns (uint256 y) {
-        unchecked {
-                //Core principle: last byte contains the mantissa of the number
-                //first 31 bytes contain the converted number. 
-                //Start with 0x30 byte offset, then add the number on it. 
-                //0x30 + the number = the byte in hex that represents that number
-                y = 0x0030303030303030303030303030303030303030303030303030303030303030
-                    // Convert the number into ASCII digits and place them in the correct position
-                    + (x % 10)
-                    + ((x / 1e1 % 10) << 8);
-
-                // Use checkpoints to reduce unnecessary divisions and modulo operations
-                if (x < 1e3) {
-                    if (x >= 1e2) return y += ((x * 0x290) & (0xf << 16)) | (3 << 248); // Three digits
-                    if (x >= 1e1) return y += 2 << 248; // Two digits
-                    return y += 1 << 248; // One digit
-                }
-
-                y +=  ((x / 1e2 % 10) << 16)
-                    + ((x / 1e3 % 10) << 24)
-                    + ((x / 1e4 % 10) << 32);
-
-                if (x < 1e6) {
-                    if (x >= 1e5) return y += ((x * 0xa7c5ad) & (0xf << 40)) | (6 << 248); // Six digits
-                    if (x >= 1e4) return y += 5 << 248; // Five digits
-                    return y += 4 << 248; // Four digits
-                }
-
-                y +=  ((x / 1e5 % 10) << 40)
-                    + ((x / 1e6 % 10) << 48)
-                    + ((x / 1e7 % 10) << 56);
-
-                if (x < 1e9) {
-                    if (x >= 1e8) return y += ((x * 0x2af31dc462) & (0xf << 64)) | (9 << 248); // Nine digits
-                    if (x >= 1e7) return y += 8 << 248; // Eight digits
-                    return y += 7 << 248; // Seven digits
-                }
-
-                y +=  ((x / 1e8 % 10) << 64)
-                    + ((x / 1e9 % 10) << 72)
-                    + ((x / 1e10 % 10) << 80);
-
-                if (x < 1e12) {
-                    if (x >= 1e11) return y += ((x * 0xafebff0bcb24b) & (0xf << 88)) | (12 << 248); // Twelve digits
-                    if (x >= 1e10) return y += 11 << 248; // Eleven digits
-                    return y += 10 << 248; // Ten digits
-                }
-
-                y +=  ((x / 1e11 % 10) << 88)
-                    + ((x / 1e12 % 10) << 96)
-                    + ((x / 1e13 % 10) << 104);
-
-                if (x < 1e15) {
-                    if (x >= 1e14) return y += ((x * 0x2d09370d42573603e) & (0xf << 112)) | (15 << 248); // Fifteen digits
-                    if (x >= 1e13) return y += 14 << 248; // Fourteen digits
-                    return y += 13 << 248; // Thirteen digits
-                }
-
-                y +=  ((x / 1e14 % 10) << 112)
-                    + ((x / 1e15 % 10) << 120)
-                    + ((x / 1e16 % 10) << 128);
-
-                if (x < 1e18) {
-                    if (x >= 1e17) return y += ((x * 0xb877aa3236a4b44909bf) & (0xf << 136)) | (18 << 248); // Eighteen digits
-                    if (x >= 1e16) return y += 17 << 248; // Seventeen digits
-                    return y += 16 << 248; // Sixteen digits
-                }
-
-                y +=  ((x / 1e17 % 10) << 136)
-                    + ((x / 1e18 % 10) << 144)
-                    + ((x / 1e19 % 10) << 152);
-
-                if (x < 1e21) {
-                    if (x >= 1e20) return y += ((x * 0x2f394219248446baa23d2ec8) & (0xf << 160)) | (21 << 248); // Twenty-one digits
-                    if (x >= 1e19) return y += 20 << 248; // Twenty digits
-                    return y += 19 << 248; // Nineteen digits
-                }
-
-                y +=  ((x / 1e20 % 10) << 160)
-                    + ((x / 1e21 % 10) << 168)
-                    + ((x / 1e22 % 10) << 176);
-
-                if (x < 1e24) {
-                    if (x >= 1e23) return y += ((x * 0xc16d9a0095928a2775b7053c0f2) & (0xf << 184)) | (24 << 248); // Twenty-four digits
-                    if (x >= 1e22) return y += 23 << 248; // Twenty-three digits
-                    return y += 22 << 248; // Twenty-two digits
-                }
-
-                y +=  ((x / 1e23 % 10) << 184)
-                    + ((x / 1e24 % 10) << 192)
-                    + ((x / 1e25 % 10) << 200);
-
-                if (x < 1e27) {
-                    if (x >= 1e26) return y += ((x * 0x318481895d962776a54d92bf80caa07) & (0xf << 208)) | (27 << 248); // Twenty-seven digits
-                    if (x >= 1e25) return y += 26 << 248; // Twenty-six digits
-                    return y += 25 << 248; // Twenty-five digits
-                }
-
-                y +=  ((x / 1e26 % 10) << 208)
-                    + ((x / 1e27 % 10) << 216)
-                    + ((x / 1e28 % 10) << 224);
-
-                if (x < 1e30) {
-                    if (x >= 1e29) return y += ((x * 0xcad2f7f5359a3b3e096ee45813a0433060) & (0xf << 232)) | (30 << 248); // Thirty digits
-                    if (x >= 1e28) return y += 29 << 248; // Twenty-nine digits
-                    else return y += 28 << 248; // Twenty-eight digits
-                }
-
-                y +=  ((x / 1e29 % 10) << 232)
-                    + ((x / 1e30 % 10) << 240); 
-
-                return y += 31 << 248; // Thirty-one digits
-            }
-    }
-
     function getChainId(bytes32 chain_id_1_tmp, bytes32 chain_id_2_tmp, bytes32 chain_id_3_tmp, uint256 chain_id_length_tmp) public pure returns (string memory result) {
         assembly {
             result := mload(0x40)
@@ -378,17 +234,69 @@ contract Gateway is Ownable {
     /// @param data The bytes memory data to convert
     /// @return result The calldata for the returned data
 
+    // code: `result := mload(0x40)`
+    // intro:
+    //   - each message call starts with a cleared memory. all locations are initially defined as zero.
+    //   - calldata memory can be addressed at byte level, but can only read 32-byte words at a time
+    // notes:
+    //   - Solidity always stores a free memory pointer at memory position 0x40, i.e. a reference to the first unused word in memory
+    //   - The initial 64 bytes of assembly level memory are reserved for the EVM, ensuring we are not overwriting memory that is used internally by Solidity
+    // about: 
+    //   - load by reading from a free memory pointer at 0x40 and storing it in variable `result`
+    //
+    // code: `mstore(add(result, 32), callback_selector)`
+    // about:
+    //   - `mstore(add(result, 32), callback_selector)` means the value to store of `callback_selector` is stored at a memory address,
+    //     which is the position between the free memory pointer at `result` and 32 bytes
+    //
+    // code: `mstore(result, add(100, data.length))`
+    // notes:
+    //   - `mstore(start_address_location, value_to_store)` EVM opcode interacts with memory. 
+    //     it writes a word value from the top of the stack to memory at a specified address, and has an EVM opcode of 0x52
+    //   - `add(x, y)`  opcode that adds the top two elements on the stack and pushes the result onto the stack, performing addition operations
+    // about:
+    //   - `mstore(result, add(100, data.length))` means the value to store, which is the position between 100 bytes and `data.length` bytes
+    //     (after the free memory pointer at 0x40), is stored at the memory address `result` (updating the free memory pointer)
+    //
+    // code: `calldatacopy(add(result, 132), data.offset, data.length)`
+    // notes:
+    //   - calldatacopy:
+    //     - copies bytes of the transaction calldata to a memory pointer
+    //     - expects three arguments (t, f, s):
+    //     - Solidity lets you access calldata through msg.data
+    // about:
+    //   - copies `data.length` bytes of read-only calldata (s) at position `data.offset` (f) into memory at position `add(result, 132))` (t)
+    //     that is between `result` + 132 bytes
+    //
+    // code: `mstore(0x40, add(add(result, 132), data.length))`
+    // about:
+    //   - position between `result` bytes and 132 bytes, and the position between that range and `data.length`, is stored at free memory pointer `0x40`
+    //     and store at free memory pointer
     function prepareResultBytesToCallbackData(bytes4 callback_selector, uint256 _taskId, bytes calldata data) public pure returns (bytes memory result) {
+        console.log("------ Gateway.prepareResultBytesToCallbackData - _taskId: ", _taskId);
+        console.log("------ Gateway.prepareResultBytesToCallbackData - data.length: ", data.length);
         assembly {
             result := mload(0x40) 
             mstore(result, add(100, data.length))
-            mstore(add(result, 32), callback_selector)
-            mstore(add(result, 36), _taskId)
-            mstore(add(result, 68), 0x40)
-            mstore(add(result, 100), data.length) 
-            calldatacopy(add(result, 132), data.offset, data.length)
+            mstore(add(result, 32), callback_selector) // Load value `callback_selector` and store at `result` + 32 (it is bytes4)
+            mstore(add(result, 36), _taskId) // Load `_taskId` and store at `result` + 36
+            mstore(add(result, 68), 0x40) // Load `0x40` (free memory pointer) and store at `result` + 68
+            mstore(add(result, 100), data.length) // Load `data.length` and store at `result` + 100
+            calldatacopy(add(result, 132), data.offset, data.length) // Update the free memory pointer with that loaded from `data.length` and stored at `result` + 132 bytes
             mstore(0x40, add(add(result, 132), data.length))
         }
+    }
+
+    /// @notice Converts a uint256 into bytes
+    // https://ethereum.stackexchange.com/a/78487/9680
+    // TODO: Is this a duplicate of `uint256toBytesString` function?
+    // TODO: Consider renaming to more descriptive function name like `uint256ToBytes32` to avoid conflicts
+    function toBytes(uint256 a) public pure returns (bytes32) {
+        uint i;
+        for (i = 0; i < 33; i++) {
+            if (a / 256**i == 0) break;
+        }
+        return bytes32(a) << (32-i)*8;
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -411,28 +319,29 @@ contract Gateway is Ownable {
     /// @notice Emitted when the VRF callback was fulfilled
     event FulfilledRandomWords(uint256 indexed requestId);
 
-    // /*//////////////////////////////////////////////////////////////
-    //                          Initializer
-    // //////////////////////////////////////////////////////////////*/
+    /// @notice Emitted when the unsafeRequestValue callback was fulfilled
+    event FulfilledRequestValue(uint256 indexed requestId);
 
-    // /// @notice Replaces the constructor for upgradeable contracts
+    /// @notice Emitted when the unsafeRetrievePubkey callback was fulfilled
+    event FulfilledSecretContractRetrievePubkey(uint256 indexed requestId);
 
-    // function initialize() public initializer {
-    //     __Ownable_init(msg.sender);
-    //     taskId = 1;
-    // }
+    // Note: In this custom Gateway.sol, the NunyaBusiness contract address is provided as an argument in its
+    // constructor and set to be the `owner` in storage. Furthermore, we apply `onlyOwner` modifier to this
+    // function that restricts calls to only be allowed to come from a `msg.sender` that is the same as the `owner`.
+    // If it is `msg.sender` then it would allow a call to be made from anyone, even a "fake" NunyaBusiness contract
+    // if `onlyOwner` was removed.
+    // If the Gateway contract by the Secret team was used instead then we would need a way to upgrade that contract
+    // to allow us to set an `owner`-like value that could be used to restrict calls to functions like this.
 
-    constructor(address secretGatewaySignerAddr) {
-        // _disableInitializers();
+    // Constructor
+    constructor(address nunyaContractAddress, bytes memory deployerPublicKeyBytes) {
+        // Initializer
+        // Set owner to be the deployed NunyaBusiness.sol contract
+        owner = nunyaContractAddress;
+        owner_public_key = deployerPublicKeyBytes;
 
-        owner = msg.sender;
         taskId = 1;
-
-        // Used as an override for testing. 
-        // If not specified otherwise for testing, this just defaults to the signing address defined at the top.
-        if (secretGatewaySignerAddr != address(0x0)) {
-            secret_gateway_signer_address = secretGatewaySignerAddr;
-        }
+        nonce = 0;
 
         //Burn in the Chain-ID into the byte code into chain_id_1, chain_id_2 and chain_id_3 and chain_id_length. 
         bytes memory chain_id = uint256toBytesString(block.chainid);
@@ -462,9 +371,17 @@ contract Gateway is Ownable {
     /// @notice Increase the task_id if needed
     /// @param _newTaskId the new task_id
 
-    function increaseTaskId(uint256 _newTaskId) external onlyOwner {
+    function increaseTaskId(uint256 _newTaskId) public onlyOwner {
         require (_newTaskId > taskId, "New task id must be higher than the old task_id");
         taskId = _newTaskId;
+    }
+
+    /// @notice Increase the nonce if needed
+    /// @param _newNonce the new nonce
+
+    function increaseNonce(uint256 _newNonce) public onlyOwner {
+        require (_newNonce > nonce, "New nonce must be higher than the old nonce");
+        nonce = _newNonce;
     }
 
     /// @notice Payout the paid balance to the owner
@@ -490,20 +407,37 @@ contract Gateway is Ownable {
 
     /// @notice Creates a new task with provided execution info
     /// @param _payloadHash Hash of the payload
-    /// @param _userAddress Address of the user .. WARNING - does not perform same purpose in this modified version 
+    /// @param _userAddress Address of the user .. WARNING - does not perform same purpose in this modified version
+    // where the NunyaBusiness.sol contract address is being sent instead 
     /// @param _routingInfo Routing information
     /// @param _info Execution information
 
-    function send(        
+    function send(
         bytes32 _payloadHash,
         address _userAddress,
         string calldata _routingInfo,
         ExecutionInfo calldata _info) 
         external payable returns (uint256 _taskId) {
+        // FIXME: Temporary: Allow anyone to call via `send` otherwise we can't test submitRequestValue.ts
+        // external payable onlyOwner returns (uint256 _taskId) {
+    
+        console.log("------ Gateway.send");
+
+        // TODO: Add constraints if permanent destination like the following so we can integrate into the public gateway
+        // if keccak256(_info.handle) == keccak256("request_value") {
+            // require(address(msg.sender) == address(owner), "sender must be the owner of the deployed Gateway contract");
+
+            // Note: previously _userAddress was msg.sender, but customized for Nunya to be
+            // the deployed NunyaBusiness.sol contract address to be picked up by the relayer that listens to emitted logs
+            // address _userAddress = owner;
+        // }
 
         _taskId = taskId;
-        
+
         uint256 estimatedPrice = estimateRequestPrice(_info.callback_gas_limit);
+        console.log("------ Gateway.send - _info.callback_gas_limit: ", _info.callback_gas_limit);
+        console.log("------ Gateway.send - estimatedPrice: ", estimatedPrice);
+        console.log("------ Gateway.send - msg.value: ", msg.value);
 
         // Refund any excess gas paid beyond the estimated price
         if (msg.value > estimatedPrice) {
@@ -515,7 +449,10 @@ contract Gateway is Ownable {
 
         // Payload hash verification
         require(ethSignedPayloadHash(_info.payload) == _payloadHash, "Invalid Payload Hash");
-        
+
+        // TODO: Alternative: `tasks[taskId] = Task(sliceLastByte(payloadHash), false);`
+        // Reference: https://github.com/SecretFoundation/Secretpath-tutorials/blob/master/encrypted-payloads/evm-contract/contracts/Gateway.sol#L381C9-L381C65
+        //
         // persisting the task
         tasks[_taskId] = Task(bytes31(_payloadHash), false);
 
@@ -523,8 +460,7 @@ contract Gateway is Ownable {
         emit logNewTask(
             _taskId,
             getChainId(chain_id_1, chain_id_2, chain_id_3, chain_id_length),
-            // Note: previously _userAddress but customized for Nunya
-            msg.sender,
+            _userAddress,
             _routingInfo,
             _payloadHash,
             _info
@@ -532,77 +468,6 @@ contract Gateway is Ownable {
 
         //Increase the taskId to be used in the next gateway call. 
 	    taskId = _taskId + 1;
-    }
-
-    /// @notice Requests random words for VRF
-    /// @param _numWords The number of random words requested
-    /// @param _callbackGasLimit The gas limit for the callback
-    /// @return requestId The request ID for the random words
-
-    function requestRandomness(
-        uint32 _numWords,
-        uint32 _callbackGasLimit
-    ) external payable returns (uint256 requestId) {
-
-        requestId = taskId;
-
-        //Set limit on how many random words can be requested
-        require(_numWords <= 2000, "Too Many random words Requested");
-
-        uint256 estimatedPrice = estimateRequestPrice(_callbackGasLimit);
-
-        // Refund any excess gas paid beyond the estimated price
-        if (msg.value > estimatedPrice) {
-            payable(tx.origin).transfer(msg.value - estimatedPrice);
-        } else {
-            // If not enough gas was paid, revert the transaction
-            require(msg.value >= estimatedPrice, "Paid Callback Fee Too Low");
-        }
-
-        //construct the payload that is sent into the Secret Gateway
-        bytes memory payload = bytes.concat(
-            '{"data":"{\\"numWords\\":',
-            uint256toBytesString(_numWords),
-            VRF_info,
-            encodeAddressToBase64(msg.sender), //callback_address
-            '","callback_selector":"OLpGFA==","callback_gas_limit":', // 0x38ba4614 hex value already converted into base64, callback_selector of the fullfillRandomWords function
-            uint256toBytesString(_callbackGasLimit),
-            '}' 
-        );
-
-        //generate the payload hash using the ethereum hash format for messages
-        bytes32 payloadHash = ethSignedPayloadHash(payload);
-
-        bytes memory emptyBytes = hex"0000";
-
-        // ExecutionInfo struct
-        ExecutionInfo memory executionInfo = ExecutionInfo({
-            user_key: emptyBytes, // equals AAA= in base64
-            user_pubkey: emptyBytes, // Fill with 0 bytes
-            routing_code_hash: VRF_routing_code_hash, //RNG Contract codehash on Secret 
-            task_destination_network: task_destination_network,
-            handle: "request_random",
-            nonce: bytes12(0),
-            callback_gas_limit: _callbackGasLimit,
-            payload: payload,
-            payload_signature: emptyBytes // empty signature, fill with 0 bytes
-        });
-
-        // persisting the task
-        tasks[requestId] = Task(bytes31(payloadHash), false);
-
-        //emit the task to be picked up by the relayer
-        emit logNewTask(
-            requestId,
-            getChainId(chain_id_1, chain_id_2, chain_id_3, chain_id_length),
-            tx.origin,
-            VRF_routing_info, //RNG Contract address on Secret 
-            payloadHash,
-            executionInfo
-        );
-
-        //Output the current task_id / request_id to the user and increase the taskId to be used in the next gateway call. 
-        taskId = requestId + 1;
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -615,12 +480,19 @@ contract Gateway is Ownable {
     /// @param _info Post execution information
 
     function postExecution(uint256 _taskId, string calldata _sourceNetwork, PostExecutionInfo calldata _info) external {
-        
+        console.log("------ Gateway.postExecution");
         Task memory task = tasks[_taskId];
 
-        // Check if the task is already completed
-        require(!task.completed,"Task Already Completed");
+        console.log("------ Gateway.postExecution - _taskId: ", _taskId);
+        console.log("------ Gateway.postExecution - _info.result: ");
+        console.logBytes(_info.result);
 
+        // Check if the task is already completed
+        require(!task.completed, "Task Already Completed");
+
+        // TODO: Alternative approach:
+        // Reference: https://github.com/SecretFoundation/Secretpath-tutorials/blob/master/encrypted-payloads/evm-contract/contracts/Gateway.sol#L418
+        //
         // Check if the payload hashes match
         require(bytes31(_info.payload_hash) == task.payload_hash_reduced, "Invalid Payload Hash");
 
@@ -644,62 +516,103 @@ contract Gateway is Ownable {
         // Packet hash verification
         require(packetHash == _info.packet_hash, "Invalid Packet Hash");
 
-        // Packet signature verification
-        require(recoverSigner(packetHash, _info.packet_signature) == secret_gateway_signer_address, "Invalid Packet Signature");
+        console.log("------ Gateway.postExecution - recoverSigner");
+        // FIXME: Temporarily disable since do not know how to obtain `secret_gateway_signer_address` when using Secret Localhost
+        // // Packet signature verification
+        // require(recoverSigner(packetHash, _info.packet_signature) == secret_gateway_signer_address, "Invalid Packet Signature");
         
         //Mark the task as completed
         tasks[_taskId].completed = true;
 
         // Continue with the function execution
 
-        // Additional conversion for Secret VRF into uint256[] if callback_selector matches the fullfillRandomWords selector.
-        bool callbackSuccessful; 
+        // Additional conversion if callback_selector matches
+        bool callbackSuccessful;
+
+        // case where callback_selector is the fulfillRandomWords function
         if (_info.callback_selector == 0x38ba4614) {
+        console.log("------ Gateway.postExecution - callback_selector == 0x38ba4614");
             (callbackSuccessful, ) = address(_info.callback_address).call(
                 prepareRandomnessBytesToCallbackData(0x38ba4614, _taskId, _info.result));
             emit FulfilledRandomWords(_taskId);
         }
+        // fulfilledValueCallback == 0x0f7af612
+        else if (_info.callback_selector == 0x0f7af612) {
+        console.log("------ Gateway.postExecution - callback_selector == 0x0f7af612");
+            (callbackSuccessful, ) = address(_info.callback_address).call(
+                prepareResultBytesToCallbackData(_info.callback_selector, _taskId, _info.result));
+
+            emit FulfilledRequestValue(_taskId);
+        }
+        // fulfilledSecretContractPubkeyCallback == 0xf5a66c73
+        else if (_info.callback_selector == 0xf5a66c73) {
+        console.log("------ Gateway.postExecution - callback_selector == 0xf5a66c73");
+            (callbackSuccessful, ) = address(_info.callback_address).call(
+                prepareResultBytesToCallbackData(_info.callback_selector, _taskId, _info.result));
+
+            emit FulfilledSecretContractRetrievePubkey(_taskId);
+        }
         else {
+        console.log("------ Gateway.postExecution - callback_selector else");
             (callbackSuccessful, ) = address(_info.callback_address).call(
                 prepareResultBytesToCallbackData(_info.callback_selector, _taskId, _info.result));
         }
+        // TODO: Add case where callback_selector is the requestValue function
         emit TaskCompleted(_taskId, callbackSuccessful);
     }
 
+    /*//////////////////////////////////////////////////////////////
+                     New Functions for Upgradeability
+    //////////////////////////////////////////////////////////////*/
+    function upgradeHandler() public {
+    }
+
+    /// @notice Set custom deployed custom Secret contract address to be the same as `SECRET_ADDRESS` and codehash `CONTRACT_CODE_HASH`
+    /// @notice Allows deploying the custom Secret contract address after deploying the Gateway and Nunya contracts
+    /// @param _routingInfo Deployed custom Secret contract address
+    /// @param _routingCodeHash Deployed custom Secret contract code hash
+    /// @return isSet Boolean success or failure
+    function setSecretContractInfo(string memory _routingInfo, string memory _routingCodeHash) external payable onlyOwner returns (bool isSet) {
+        // console.log("------ Gateway.setSecretContractInfo");
+
+        require(compStr(_routingInfo, "") == false, "Invalid Secret contract address");
+        require(compStr(_routingCodeHash, "") == false, "Invalid Secret contract code hash");
+
+        routing_info = _routingInfo;
+        routing_code_hash = _routingCodeHash;
+
+        return true;
+    }
+
     function newSecretUser(string calldata secret) public pure returns (uint256) {
-        // console.log("------ DummyGateway.newSecretUser", secret);
+        // console.log("------ Gateway.newSecretUser", secret);
         return 6;
     }
     function createPaymentReference(string calldata secret, string calldata ref) public pure returns (uint256) {
-        // console.log("------ DummyGateway.createPaymentReference", secret, ref);
+        // console.log("------ Gateway.createPaymentReference", secret, ref);
         return 5;
     }
     // TODO: `string calldata secret` or `uint256 secret`
     function pay(string calldata secret, string calldata ref, uint256 amount, string calldata denomination) public pure returns (uint256) {
-        // console.log("------ DummyGateway.pay", secret, ref, amount, denomination);
+        // console.log("------ Gateway.pay", secret, ref, amount, denomination);
         return 4;
     }
     // TODO: `string calldata secret` or `uint256 secret`
     function payWithReceipt(string calldata secret, string calldata ref, uint256 amount, string calldata denomination, uint256 userPubkey) public pure returns (uint256) {
-        // console.log("------ DummyGateway.payWithReceipt", secret, ref, amount, denomination, userPubkey);
+        // console.log("------ Gateway.payWithReceipt", secret, ref, amount, denomination, userPubkey);
         return 3;
     }
     // TODO: `string calldata secret` or `uint256 secret`
     function withdrawTo(string calldata secret, uint256 amount, string calldata denomination, address withdrawalAddress) public pure returns (uint256) {
-        // console.log("------ DummyGateway.withdraw", secret, amount, denomination, withdrawalAddress);
+        // console.log("------ Gateway.withdraw", secret, amount, denomination, withdrawalAddress);
         return 2;
     }
 
-    function retrievePubkey() public pure returns (uint256){
-        // console.log("------ DummyGateway.retrievePubkey");
-        return 1;
-    }
-
     fallback() external payable {
-        console.log("----- DummyGateway.sol fallback() msg.value:", msg.value);
+        console.log("----- Gateway.sol fallback() msg.value:", msg.value);
     }
 
     receive() external payable {
-        console.log("----- DummyGateway.sol receive() msg.value:", msg.value);
+        console.log("----- Gateway.sol receive() msg.value:", msg.value);
     }
 }

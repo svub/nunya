@@ -48,9 +48,9 @@ checksum = "9d297deb1925b89f2ccc13d7635fa0714f12c87adce1c75356b39ca9b7178567"
 
 [[package]]
 name = "base64"
-version = "0.22.0"
+version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9475866fec1451be56a3c2400fd081ff546538961565ccb5b7142cbd22bc7a51"
+checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
 
 [[package]]
 name = "base64ct"
@@ -161,9 +161,9 @@ dependencies = [
 
 [[package]]
 name = "cosmwasm-schema"
-version = "2.0.0"
+version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a67c099aba9e334bbc1fc8037fe8e7ba91d06b215d9ffa7af91893c44aa420c6"
+checksum = "3e9a7b56d154870ec4b57b224509854f706c9744449548d8a3bf91ac75c59192"
 dependencies = [
  "cosmwasm-schema-derive",
  "schemars",
@@ -174,13 +174,13 @@ dependencies = [
 
 [[package]]
 name = "cosmwasm-schema-derive"
-version = "2.0.0"
+version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8a2bb09168f6e86bf583361fdb0a0fed2625652e9edcfce731cb55ef4cb8de3d"
+checksum = "edd3d80310cd7b86b09dbe886f4f2ca235a5ddb8d478493c6e50e720a3b38a42"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 1.0.109",
+ "syn 2.0.52",
 ]
 
 [[package]]
@@ -774,7 +774,7 @@ name = "secret_evm_storage"
 version = "0.1.0"
 dependencies = [
  "anybuf",
- "base64 0.22.0",
+ "base64 0.22.1",
  "cosmwasm-schema",
  "hex",
  "schemars",

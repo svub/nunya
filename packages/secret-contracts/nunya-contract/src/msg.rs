@@ -17,6 +17,7 @@ pub struct InstantiateMsg {
     pub gateway_address: Addr,
     pub gateway_hash: String,
     pub gateway_key: Binary,
+    pub nunya_business_contract_address: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
@@ -60,10 +61,19 @@ pub struct WithdrawToStoreMsg {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+pub struct ResponseRequestValueMsg {
+    pub _request_id: Task,
+    pub _key: Vec<u8>,
+    pub _code: ResponseStatusCode,
+    pub _nunya_business_contract_address: String,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct ResponseRetrievePubkeyStoreMsg {
     pub _request_id: Task,
     pub _key: Vec<u8>,
     pub _code: ResponseStatusCode,
+    pub _nunya_business_contract_address: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]

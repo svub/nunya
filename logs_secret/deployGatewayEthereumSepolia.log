@@ -1,0 +1,16 @@
+Generating typings for: 9 artifacts in dir: typechain-types for target: ethers-v6
+Successfully generated 20 typings!
+Compiled 9 Solidity files successfully (evm target: paris).
+network:  sepolia
+chain id:  11155111
+hre.network.name:  sepolia
+deployerAddress:  0x83De04f1aad8ABF1883166B14A29c084b7B8AB59
+Deployer account balance: 6.938448757518362804 ETH
+deploying "NunyaBusiness" (tx: 0x95ce8c146374df85ce0f0f5425e65a2e33092a74b972495c005fa038fe094d33)...: deployed at 0xAFFF311821C3F3AF863C7103BB17BDC1Ba04603D with 2871810 gas
+Successfully deployed NunyaBusiness to address:  0xAFFF311821C3F3AF863C7103BB17BDC1Ba04603D
+deploying "Gateway" (tx: 0x0c5c2b097801afec5518d3714095569b7df2a53dcde0802c192d036dbd95a66a)...: deployed at 0x1E4B12A9F82b33DA1127B27861EFf5E652de7a6F with 3337833 gas
+Successfully deployed Gateway to address:  0x1E4B12A9F82b33DA1127B27861EFf5E652de7a6F
+setGatewayAddressTx tx hash: 0xefc300507bbddb3ca95dc178d95b857a3771fd0a0334626f036edfe6ffda4343
+👋 Nunya contract: 0xAFFF311821C3F3AF863C7103BB17BDC1Ba04603D
+NunyaBusiness balance:  0.0005
+Gateway balance:  0.0

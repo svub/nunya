@@ -33,6 +33,7 @@ interface IGateway {
     function prepareRandomnessBytesToCallbackData(bytes4 callback_selector, uint256 requestId, bytes calldata data) external pure returns (bytes memory result);
     function prepareResultBytesToCallbackData(bytes4 callback_selector, uint256 _taskId, bytes calldata data) external pure returns (bytes memory result);
     function increaseTaskId(uint256 _newTaskId) external;
+    function increaseNonce(uint256 _newNonce) external;
     function payoutBalance() external;
     function estimateRequestPrice(uint32 _callbackGasLimit) external view returns (uint256 baseFee);
     function send(        
@@ -41,17 +42,14 @@ interface IGateway {
         string calldata _routingInfo,
         ExecutionInfo calldata _info
     ) external payable returns (uint256 _taskId);
-    function requestRandomness(
-        uint32 _numWords,
-        uint32 _callbackGasLimit
-    ) external payable returns (uint256 requestId);
     function postExecution(uint256 _taskId, string calldata _sourceNetwork, PostExecutionInfo calldata _info) external;
+    function upgradeHandler() external;
+    function setSecretContractInfo(string memory _routingInfo, string memory _routingCodeHash) external payable returns (bool isSet);
     function newSecretUser(string calldata secret) external returns (uint256);
     function createPaymentReference(string calldata secret, string calldata ref) external returns (uint256);
     function pay(string calldata secret, string calldata ref, uint256 amount, string calldata denomination) external returns (uint256);
     function payWithReceipt(string calldata secret, string calldata ref, uint256 amount, string calldata denomination, uint256 userPubkey) external returns (uint256);
     function withdrawTo(string calldata secret, uint256 amount, string calldata _denomination, address withdrawalAddress) external returns (uint256);
-    function retrievePubkey() external returns (uint256);
     fallback() external payable;
     receive() external payable;
 }

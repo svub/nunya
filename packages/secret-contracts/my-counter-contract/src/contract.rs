@@ -17,8 +17,7 @@ pub fn instantiate(
         owner: info.sender.clone(),
     };
 
-    deps.api
-        .debug(format!("Contract was initialized by {}", info.sender).as_str());
+    deps.api.debug(format!("Contract was initialized by {}", info.sender).as_str());
     config(deps.storage).save(&state)?;
 
     Ok(Response::default())

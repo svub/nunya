@@ -1,0 +1,34 @@
+{
+  "name": "secret-contracts-scripts",
+  "version": "0.0.1",
+  "main": "index.js",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "setEVMGatewayAddress": "yarn build && node ./dist/evm/setEVMGatewayAddress.js",
+    "queryPubkey": "yarn build && node ./dist/functions/query/queryPubkey.js",
+    "querySecretGatewayPubkey": "yarn build && node ./dist/functions/query/querySecretGatewayPubkey.js",
+    "submitRequestValue": "yarn build && node ./dist/submitRequestValue.js",
+    "submitRetrievePubkey": "yarn build && node ./dist/submitRetrievePubkey.js",
+    "build": "./node_modules/.bin/tsc --build",
+    "clean": "./node_modules/.bin/tsc --build --clean",
+    "upload": "yarn build && node ./dist/upload.js",
+    "instantiate": "yarn build && node ./dist/instantiate.js",
+    "uploadAndInstantiateNunya": "yarn build && node ./dist/uploadAndInstantiateNunya.js",
+    "uploadGateway": "yarn build && node ./dist/uploadGateway.js",
+    "instantiateGateway": "yarn build && node ./dist/instantiateGateway.js",
+    "uploadAndInstantiateGateway": "yarn build && node ./dist/uploadAndInstantiateGateway.js"
+  },
+  "dependencies": {
+    "@blake.regalia/belt": "~0.35.1",
+    "@ethersproject/experimental": "5.7.0",
+    "@noble/secp256k1": "^2.1.0",
+    "@solar-republic/cosmos-grpc": "^0.15.3",
+    "@solar-republic/neutrino": "~1.2.4",
+    "@types/node": "^22.7.4",
+    "dotenv": "^16.4.5",
+    "ethers": "^5.7.2",
+    "secretjs": "1.15.0-beta.1",
+    "typescript": "^5.6.2"
+  }
+}

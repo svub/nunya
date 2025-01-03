@@ -1,0 +1,4 @@
+[submodule "relayer"]
+	path = packages/relayer/SecretPath
+	url = git@github.com:ltfschoen/SecretPath.git
+	branch = nunya

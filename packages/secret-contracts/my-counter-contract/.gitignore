@@ -1,5 +1,6 @@
 # Build results
 /target
+/optimized-wasm
 Cargo.lock
 contract.wasm*
 

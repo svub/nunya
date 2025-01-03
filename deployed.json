@@ -1,0 +1,59 @@
+{
+  "data": {
+    "relayer": {
+      "path": "/root/nunya/packages/relayer"
+    },
+    "evm": {
+      "network": "localhost",
+      "localhost": {
+        "chainId": "31337",
+        "endpoint": "http://127.0.0.1:8545",
+        "nunyaBusinessContractAddress": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "gatewayContractAddress": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+      },
+      "sepolia": {
+        "chainId": "11155111",
+        "endpoint": "",
+        "nunyaBusinessContractAddress": "0xAFFF311821C3F3AF863C7103BB17BDC1Ba04603D",
+        "gatewayContractAddress": "0x1E4B12A9F82b33DA1127B27861EFf5E652de7a6F"
+      }
+    },
+    "secret": {
+      "network": "localhost",
+      "testnet": {
+        "chainId": "",
+        "endpoint": "",
+        "secretNunya": {
+          "nunyaContractCodeId": "",
+          "nunyaContractCodeHash": "",
+          "nunyaContractAddress": ""
+        },
+        "secretGateway": {
+          "gatewayContractCodeId": "",
+          "gatewayContractAddress": "",
+          "gatewayContractCodeHash": "",
+          "gatewayContractAdminAddress": "",
+          "gatewayContractPublicKey": "",
+          "gatewayContractEncryptionKeyForChaChaPoly1305": ""
+        }
+      },
+      "localhost": {
+        "chainId": "secretdev-1",
+        "endpoint": "http://127.0.0.1:1317",
+        "secretNunya": {
+          "nunyaContractCodeId": "2",
+          "nunyaContractCodeHash": "57f4f72804e180100c7108282fc46fa6275bee92829a3faa9e18526c9105948e",
+          "nunyaContractAddress": "secret1gyruqan6yxf0q423t8z5zce3x7np35uw8s8wqc"
+        },
+        "secretGateway": {
+          "gatewayContractCodeId": "1",
+          "gatewayContractAddress": "secret1mfk7n6mc2cg6lznujmeckdh4x0a5ezf6hx6y8q",
+          "gatewayContractCodeHash": "be3db4b4c42d33300eee7801769a4176ed3046f23c08812fc2a85bc76075e1d5",
+          "gatewayContractAdminAddress": "secret1glfedwlusunwly7q05umghzwl6nf2vj6wr38fg",
+          "gatewayContractPublicKey": "0x047c4f7a52a10c051639ec0edd3e2d44fef02d993de6b8412273a78ca67f9c10c66069161d67278de0c74c501de435335163d6b7c5a22abae70e49d83a2b3debbd",
+          "gatewayContractEncryptionKeyForChaChaPoly1305": "A3xPelKhDAUWOewO3T4tRP7wLZk95rhBInOnjKZ/nBDG"
+        }
+      }
+    }
+  }
+}

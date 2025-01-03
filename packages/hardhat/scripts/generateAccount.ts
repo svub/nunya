@@ -13,7 +13,7 @@ const setNewEnvConfig = (existingEnvConfig = {}) => {
 
   const newEnvConfig = {
     ...existingEnvConfig,
-    DEPLOYER_PRIVATE_KEY: randomWallet.privateKey,
+    ETH_TESTNET_PRIVATE_KEY: randomWallet.privateKey,
   };
 
   // Store in .env
@@ -31,7 +31,7 @@ async function main() {
 
   // .env file exists
   const existingEnvConfig = parse(fs.readFileSync(envFilePath).toString());
-  if (existingEnvConfig.DEPLOYER_PRIVATE_KEY) {
+  if (existingEnvConfig.ETH_TESTNET_PRIVATE_KEY) {
     console.log("⚠️ You already have a deployer account. Check the packages/hardhat/.env file");
     return;
   }

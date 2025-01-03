@@ -63,11 +63,15 @@ const CreatePaymentReference: NextPage = () => {
           // TODO UI feedback
           return console.error("No request ID returned", log);
         }
+        // @ts-ignore
+        // FIXME - type error
         const request = openRequests.get(log.args.requestId);
         if (!request) {
           // TODO UI feedback
           return console.error("No pending request found", log);
         }
+        // @ts-ignore
+        // FIXME - type error
         openRequests.delete(log.args.requestId);
         const reference = log.args.ref; // needs decoding? decoder.decode(referenceBytes as ArrayBuffer);
         if (!reference) {
@@ -75,6 +79,8 @@ const CreatePaymentReference: NextPage = () => {
           return console.error("No reference returned", log);
         }
         console.log("📡 Payment reference created: " + reference);
+        // @ts-ignore
+        // FIXME - type error
         request.reference = reference;
         addReference(request);
       });

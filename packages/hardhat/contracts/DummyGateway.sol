@@ -3,11 +3,11 @@ pragma solidity ^0.8.0;
 
 // TODO remove in production
 import "hardhat/console.sol";
-import "./ISecretContract.sol";
+import "./IDummyGateway.sol";
 
 // Dummy Secret Network EVM Gateway contract (so we can use the contracts on devnet)
 
-contract DummyGatewayContract is ISecretContract {
+contract DummyGatewayContract is IDummyGateway {
     
     function newSecretUser(string calldata secret) external returns (uint256) {
         // console.log("------ DummyGateway.newSecretUser", secret);

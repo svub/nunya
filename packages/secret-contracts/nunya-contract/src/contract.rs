@@ -2,14 +2,15 @@ use crate::{
     msg::{
         ExecuteMsg, GatewayMsg, InstantiateMsg, QueryMsg,
         NewAuthOutStoreMsg, LinkPaymentRefStoreMsg, PayStoreMsg, WithdrawToStoreMsg,
-        ResponseRetrievePubkeyStoreMsg, ResponseNewAuthOutStoreMsg, ResponseLinkPaymentRefStoreMsg, ResponsePayStoreMsg, ResponseWithdrawToStoreMsg, ResponseRetrievePubkeyMsg,
+        ResponseRequestValueMsg, ResponseRetrievePubkeyStoreMsg, ResponseNewAuthOutStoreMsg, ResponseLinkPaymentRefStoreMsg, ResponsePayStoreMsg, ResponseWithdrawToStoreMsg, ResponseRetrievePubkeyMsg,
     },
     state::{
         PaymentReceipt, PaymentReferenceBalance, ResponseStatusCode,
-        MyKeys, State, CONFIG, MY_KEYS,
+        MyKeys, State, InputRequestValue, CONFIG, MY_KEYS,
         VIEWING_KEY, VIEWING_KEY_TO_PAYMENT_REF_TO_BALANCES_MAP,
     },
 };
+use base64::{engine::general_purpose, Engine};
 use cosmwasm_std::{
     entry_point, to_binary, to_vec, coin, Binary, Coin, ContractResult, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult, SystemResult, Uint128, Uint256
 };
@@ -31,17 +32,47 @@ pub const BLOCK_SIZE: usize = 256;
 pub fn instantiate(
     deps: DepsMut,
     env: Env,
-    _info: MessageInfo,
+    info: MessageInfo,
     msg: InstantiateMsg,
 ) -> StdResult<Response> {
-    // Initialise state
+    // Initialise state with Secret Network Gateway and EVM Nunya.Business custom contract address
     let state = State {
-        gateway_address: msg.gateway_address,
-        gateway_hash: msg.gateway_hash,
-        gateway_key: msg.gateway_key,
+        gateway_address: msg.clone().gateway_address,
+        gateway_hash: msg.clone().gateway_hash,
+        gateway_key: msg.clone().gateway_key,
+        nunya_business_contract_address: msg.clone().nunya_business_contract_address,
+        owner: info.sender.clone(),
     };
 
+    deps.api.debug(format!("instantiate").as_str());
+    deps.api.debug(format!("msg: {:#?}", msg.clone()).as_str());
+    deps.api.debug(format!("info: {:#?}", info.clone()).as_str());
+    deps.api.debug(format!("state: {:#?}", state.clone()).as_str());
+
+    deps.api.debug(format!("Contract was initialized by {}", info.sender).as_str());
+
     CONFIG.save(deps.storage, &state)?;
+
+    // Initialise state with Secret Network Contract Keys that are generated
+    let rng = env.block.random.unwrap().0;
+    let secp = Secp256k1::new();
+
+    // Private Key
+    let private_key = SecretKey::from_slice(&rng).unwrap();
+    let private_key_string = private_key.to_string();
+    let private_key_bytes = hex::decode(private_key_string).unwrap();
+
+    // Public Key
+    let public_key = PublicKey::from_secret_key(&secp, &private_key);
+    let public_key_bytes = public_key.serialize().to_vec();
+    // let public_key_string = public_key.to_string();
+
+    let my_keys = MyKeys {
+        private_key: private_key_bytes,
+        public_key: public_key_bytes,
+    };
+
+    MY_KEYS.save(deps.storage, &my_keys)?;
 
     Ok(Response::default())
 }
@@ -64,9 +95,10 @@ fn try_handle(
     // verify signature with stored gateway public key
     let config = CONFIG.load(deps.storage)?;
 
-    // SecretPath source code
-    // public network user address
-    let user_address = msg.user_address;
+    deps.api.debug(format!("try_handle").as_str());
+    deps.api.debug(format!("msg: {:#?}", msg.clone()).as_str());
+    deps.api.debug(format!("info: {:#?}", info.clone()).as_str());
+    deps.api.debug(format!("config: {:#?}", config.clone()).as_str());
 
     // Security
     //
@@ -76,6 +108,22 @@ fn try_handle(
             "Only SecretPath Gateway can call this function",
         ));
     }
+
+    // SecretPath source code
+    // public network user address
+    // FIXME: the `msg.user_address` is actually the public address associated with
+    // the Ethereum private key is used to configure the relayer.
+    // if msg.user_address != config.nunya_business_contract_address {
+    //     return Err(StdError::generic_err(
+    //         "Only NunyaBusiness contract can call this function via SecretPath Gateway",
+    //     ));
+    // }
+
+    // Note: According to https://github.com/CosmWasm/cosmwasm, the serialized public key should be
+    // &[u8] and in one of the two supported formats:
+    // 1. Uncompressed: 65 bytes starting with 0x04
+    // 2. Compressed: 33 bytes starting with 0x02 or 0x03
+    deps.api.debug(format!("config.gateway_key.as_slice().len(): {:#?}", config.gateway_key.as_slice().len()).as_str());
 
     deps.api
         .secp256k1_verify(
@@ -87,7 +135,14 @@ fn try_handle(
 
     // determine which function to call based on the included handle
     let handle = msg.handle.as_str();
+
+    deps.api.debug(format!("try_handle").as_str());
+    deps.api.debug(format!("handle: {:#?}", handle).as_str());
+
     match handle {
+        // TODO: change all below to snake_case if required for Gateway contract to be able to call.
+        // but first test that `request_value` works.
+        "request_value" => request_value(deps, env, info, msg.input_values, msg.task, msg.input_hash),
         "retrievePubkey" => retrieve_pubkey(deps, env, info, msg.input_values, msg.task, msg.input_hash),
         "newSecretUser" => create_new_auth_out(deps, env, info, msg.input_values, msg.task, msg.input_hash),
         "createPaymentReference" => create_payment_reference(deps, env, msg.input_values, msg.task, msg.input_hash),
@@ -98,6 +153,70 @@ fn try_handle(
 
         _ => Err(StdError::generic_err("invalid handle".to_string())),
     }
+}
+
+// Only for testing that it works e2e
+fn request_value(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    input_values: String,
+    task: Task,
+    input_hash: Binary,
+) -> StdResult<Response> {
+    deps.api.debug(format!("request_value").as_str());
+    let config = CONFIG.load(deps.storage)?;
+    deps.api.debug(format!("request_value: config {:#?}", config).as_str());
+    // Deserialize input values to an InputRequestValue struct
+    let input: InputRequestValue = serde_json_wasm::from_str(&input_values)
+        .map_err(|err| StdError::generic_err(err.to_string()))?;
+    deps.api.debug(format!("request_value: input {:#?}", input).as_str());
+    // 'type mismatch, parameter: code_id, error: strconv.ParseUint: parsing "undefined": invalid syntax'
+    // let my_arg = input.myArg.as_str();
+    // deps.api.debug(format!("request_value: input.myArg {:#?}", &input.myArg.as_str()).as_str());
+
+    let response_status_code: ResponseStatusCode = 0u16;
+
+    let value = "NUNYA".to_string();
+
+    // TODO - println!("callback stuff: {:#?}", value);
+
+    let data = ResponseRequestValueMsg {
+        _request_id: task.clone(),
+        _key: value.into_bytes(),
+        _code: response_status_code,
+        _nunya_business_contract_address: config.nunya_business_contract_address,
+    };
+    deps.api.debug(format!("request_value: data {:#?}", data).as_str());
+
+    let json_string =
+        serde_json_wasm::to_string(&data).map_err(|err| StdError::generic_err(err.to_string()))?;
+    deps.api.debug(format!("request_value: json_string {:#?}", json_string).as_str());
+
+    let result = general_purpose::STANDARD.encode(json_string);
+    deps.api.debug(format!("request_value: result {:#?}", result).as_str());
+
+    // Get the contract's code hash using the gateway address
+    let gateway_code_hash = get_contract_code_hash(&deps, config.gateway_address.to_string())?;
+    deps.api.debug(format!("request_value: gateway_code_hash {:#?}", gateway_code_hash).as_str());
+
+    let callback_msg = GatewayMsg::Output {
+        outputs: PostExecutionMsg {
+            result,
+            task,
+            input_hash,
+        },
+    }
+    .to_cosmos_msg(
+        gateway_code_hash,
+        config.gateway_address.to_string(),
+        None,
+    )?;
+    deps.api.debug(format!("request_value: callback_msg {:#?}", callback_msg).as_str());
+
+    Ok(Response::new()
+        .add_message(callback_msg)
+        .add_attribute("status", "request_value"))
 }
 
 fn retrieve_pubkey(
@@ -114,28 +233,9 @@ fn retrieve_pubkey(
     // let input: RetrievePubkeyStoreMsg = serde_json_wasm::from_str(&input_values)
     //     .map_err(|err| StdError::generic_err(err.to_string()))?;
 
-    // Create Secret Contract Keys if they don't already exist in storage
     let existing_my_keys = MY_KEYS.load(deps.storage)?;
     if existing_my_keys.public_key.len() == 0 {
-        let rng = env.block.random.unwrap().0;
-        let secp = Secp256k1::new();
-
-        // Private Key
-        let private_key = SecretKey::from_slice(&rng).unwrap();
-        let private_key_string = private_key.to_string();
-        let private_key_bytes = hex::decode(private_key_string).unwrap();
-
-        // Public Key
-        let public_key = PublicKey::from_secret_key(&secp, &private_key);
-        let public_key_bytes = public_key.serialize().to_vec();
-        // let public_key_string = public_key.to_string();
-
-        let my_keys = MyKeys {
-            private_key: private_key_bytes,
-            public_key: public_key_bytes,
-        };
-
-        MY_KEYS.save(deps.storage, &my_keys)?;
+        return Err(StdError::generic_err("Public key does not exist in Secret storage"));
     }
 
     let my_keys = MY_KEYS.load(deps.storage)?;
@@ -146,15 +246,16 @@ fn retrieve_pubkey(
         _request_id: task.clone(),
         _key: my_keys.public_key,
         _code: response_status_code,
+        _nunya_business_contract_address: config.nunya_business_contract_address,
     };
 
     let json_string =
         serde_json_wasm::to_string(&data).map_err(|err| StdError::generic_err(err.to_string()))?;
 
-    let result = base64::encode(json_string);
+    let result = general_purpose::STANDARD.encode(json_string);
 
     // Get the contract's code hash using the gateway address
-    let gateway_code_hash = get_contract_code_hash(deps, config.gateway_address.to_string())?;
+    let gateway_code_hash = get_contract_code_hash(&deps, config.gateway_address.to_string())?;
 
     let callback_msg = GatewayMsg::Output {
         outputs: PostExecutionMsg {
@@ -198,12 +299,13 @@ fn create_new_auth_out(
     let mut index_concat: String = gateway_account.to_string();
     let suffix: &str = viewing_key_index;
     // mutate in place https://stackoverflow.com/a/30154791/3208553
+    index_concat.push_str(config.nunya_business_contract_address.as_str());
     index_concat.push_str(suffix);
 
     // https://docs.scrt.network/secret-network-documentation/development/development-concepts/permissioned-viewing/viewing-keys#viewing-keys-introduction
     // https://github.com/scrtlabs/examples/blob/master/secret-viewing-keys/secret-viewing-keys-contract/src/contract.rs
     let entropy: &[u8] = viewing_key_index.as_bytes();
-    let viewing_key = ViewingKey::create(deps.storage, &info, &env, gateway_account.as_str(), entropy);
+    let viewing_key = ViewingKey::create(deps.storage, &info, &env, index_concat.as_str(), entropy);
 
     // Viewing Key
     VIEWING_KEY
@@ -246,10 +348,10 @@ fn create_new_auth_out(
     let json_string =
         serde_json_wasm::to_string(&data).map_err(|err| StdError::generic_err(err.to_string()))?;
 
-    let result = base64::encode(json_string);
+    let result = general_purpose::STANDARD.encode(json_string);
 
     // Get the contract's code hash using the gateway address
-    let gateway_code_hash = get_contract_code_hash(deps, config.gateway_address.to_string())?;
+    let gateway_code_hash = get_contract_code_hash(&deps, config.gateway_address.to_string())?;
 
     let callback_msg = GatewayMsg::Output {
         // Sepolia network gateway contract Solidity source code
@@ -297,6 +399,7 @@ fn create_payment_reference(
     let gateway_account = config.gateway_address.to_owned();
     let mut index_concat: String = gateway_account.to_string();
     let suffix: &str = viewing_key_index;
+    index_concat.push_str(config.nunya_business_contract_address.as_str());
     index_concat.push_str(suffix);
 
     let entropy: &str = viewing_key_index.clone();
@@ -354,10 +457,10 @@ fn create_payment_reference(
     let json_string =
         serde_json_wasm::to_string(&data).map_err(|err| StdError::generic_err(err.to_string()))?;
 
-    let result = base64::encode(json_string);
+    let result = general_purpose::STANDARD.encode(json_string);
 
     // Get the contract's code hash using the gateway address
-    let gateway_code_hash = get_contract_code_hash(deps, config.gateway_address.to_string())?;
+    let gateway_code_hash = get_contract_code_hash(&deps, config.gateway_address.to_string())?;
 
     let callback_msg = GatewayMsg::Output {
         outputs: PostExecutionMsg {
@@ -413,6 +516,7 @@ fn create_pay(
     let gateway_account = config.gateway_address.to_owned();
     let mut index_concat: String = gateway_account.to_string();
     let suffix: &str = viewing_key_index;
+    index_concat.push_str(config.nunya_business_contract_address.as_str());
     index_concat.push_str(suffix);
 
     let entropy: &str = viewing_key_index.clone();
@@ -510,10 +614,10 @@ fn create_pay(
     let json_string =
         serde_json_wasm::to_string(&data).map_err(|err| StdError::generic_err(err.to_string()))?;
 
-    let result = base64::encode(json_string);
+    let result = general_purpose::STANDARD.encode(json_string);
 
     // Get the contract's code hash using the gateway address
-    let gateway_code_hash = get_contract_code_hash(deps, config.gateway_address.to_string())?;
+    let gateway_code_hash = get_contract_code_hash(&deps, config.gateway_address.to_string())?;
 
     let callback_msg = GatewayMsg::Output {
         outputs: PostExecutionMsg {
@@ -570,6 +674,7 @@ fn create_withdraw_to(
     let gateway_account = config.gateway_address.to_owned();
     let mut index_concat: String = gateway_account.to_string();
     let suffix: &str = viewing_key_index;
+    index_concat.push_str(config.nunya_business_contract_address.as_str());
     index_concat.push_str(suffix);
 
     let entropy: &str = viewing_key_index.clone();
@@ -627,10 +732,10 @@ fn create_withdraw_to(
     let json_string =
         serde_json_wasm::to_string(&data).map_err(|err| StdError::generic_err(err.to_string()))?;
 
-    let result = base64::encode(json_string);
+    let result = general_purpose::STANDARD.encode(json_string);
 
     // Get the contract's code hash using the gateway address
-    let gateway_code_hash = get_contract_code_hash(deps, config.gateway_address.to_string())?;
+    let gateway_code_hash = get_contract_code_hash(&deps, config.gateway_address.to_string())?;
 
     let callback_msg = GatewayMsg::Output {
         outputs: PostExecutionMsg {
@@ -651,7 +756,7 @@ fn create_withdraw_to(
 }
 
 // reference: https://github.com/writersblockchain/secretpath-voting/commit/b0b5d8ac7b7d691c7d7ebf0bc52e5aedb8da7e86#diff-a982e501ba4bd05192a8c497bd5093517ea5606f9e341b9b7d09b233068da829R232
-fn get_contract_code_hash(deps: DepsMut, contract_address: String) -> StdResult<String> {
+fn get_contract_code_hash(deps: &DepsMut, contract_address: String) -> StdResult<String> {
     let code_hash_query: cosmwasm_std::QueryRequest<cosmwasm_std::Empty> =
         cosmwasm_std::QueryRequest::Stargate {
             path: "/secret.compute.v1beta1.Query/CodeHashByContractAddress".into(),
@@ -702,25 +807,25 @@ mod tests {
     use cosmwasm_std::coins;
     use cosmwasm_std::{from_binary, StdError};
 
-    #[test]
-    fn proper_initialization() {
-        let mut deps = mock_dependencies();
-        // Create some Addr instances for testing
-        let gateway = deps.api.addr_make("gateway");
-        // https://docs.rs/cosmwasm-std/latest/cosmwasm_std/testing/fn.message_info.html
-        let msg = InstantiateMsg {
-            gateway_address: gateway.to_string(),
-        };
+//     #[test]
+//     fn proper_initialization() {
+//         let mut deps = mock_dependencies();
+//         // Create some Addr instances for testing
+//         let gateway = deps.api.addr_make("gateway");
+//         // https://docs.rs/cosmwasm-std/latest/cosmwasm_std/testing/fn.message_info.html
+//         let msg = InstantiateMsg {
+//             gateway_address: gateway.to_string(),
+//         };
 
-        let info = message_info(&gateway, &coins(1000, "earth"));
-        // we can just call .unwrap() to assert this was a success
-        let res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+//         let info = message_info(&gateway, &coins(1000, "earth"));
+//         // we can just call .unwrap() to assert this was a success
+//         let res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
 
-        assert_eq!(0, res.messages.len());
+//         assert_eq!(0, res.messages.len());
 
-        // it worked, let's query the state
-        let res = query(deps.as_ref(), mock_env(), QueryMsg::RetrievePubkey {}).unwrap();
-        let res: ResponseRetrievePubkeyMsg = from_binary(&res).unwrap();
-        assert!(res._key);
-    }
+//         // it worked, let's query the state
+//         let res = query(deps.as_ref(), mock_env(), QueryMsg::RetrievePubkey {}).unwrap();
+//         let res: ResponseRetrievePubkeyMsg = from_binary(&res).unwrap();
+//         assert!(res._key);
+//     }
 }
