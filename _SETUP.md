@@ -433,3 +433,29 @@ Further changes:
 * Edit smart contracts such as `NunyaBusiness.sol` in `packages/hardhat/contracts`
 * Edit frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
 * Edit deployment scripts in `packages/hardhat/deploy`
+
+### WIP - Pop!
+
+### Build and deploy contract
+
+* Build
+```bash
+pop build
+
+* Deploy
+```bash
+pop up contract
+```
+
+### Archive - Create Template
+```bash
+pop new contract --contract-type examples --template cross-contract-calls NunyaBusiness
+
+mkdir -p packages/pop
+mv $PWD/NunyaBusiness $PWD/packages/pop
+```
+
+* Resources:
+  * https://learn.onpop.io
+  * https://github.com/use-ink/ink-examples
+  * https://polkadot.stackexchange.com/
