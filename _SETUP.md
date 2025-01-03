@@ -471,17 +471,18 @@ cd $PROJECT_ROOT/packages/pop-contracts/nunya_business
 
   * Dry-run via an RPC call to estimate the gas usage. It does not submit a transaction
     ```bash
-    pop up contract --constructor new --args false --suri //Alice --dry-run
+    pop up contract --constructor new --args false --suri //Alice --dry-run -y
     ```
   * Top-up deploying account with sufficient balance
 
 * Deploy cotract. Optionally only upload contract and not instantiate `--upload-only`
   ```bash
-  pop up contract --constructor new --args false --suri //Alice
+  pop up contract --constructor new --args false --suri //Alice -y
   ```
 
 * TODO: Find process ID `lsof -i :9944`, contract address, and DB. Kill the process `kill -9 1234`
 * TODO: Deploy to substrate-contracts-node https://github.com/ltfschoen/XCMTemplate/blob/main/docker/run-scn.sh
+* TODO: Incorporate https://github.com/ltfschoen/XCMTemplate for substrate-contracts-node in a Docker container.
 
 * View on https://polkadot.js.org/apps/?rpc=ws://127.0.0.1:9944#/explorer
 
