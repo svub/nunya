@@ -55,6 +55,8 @@ const CreateAccount: NextPage = () => {
           // TODO UI feedback
           return console.error("No request ID returned", log);
         }
+        // @ts-ignore
+        // FIXME - type error
         const request = openRequests.get(log.args.requestId);
         if (!request) {
           // TODO UI feedback
