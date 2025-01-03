@@ -1,14 +1,11 @@
 #!/usr/bin/env bash
 
-
-if [[ "$OSTYPE" == "linux-gnu" ]]; then
-	if [ -f /etc/debian_version ]; then
-    apt update
-  fi
+# Note: Common installation for macOS and Linux
+function install_rust()
+{
+  echo "Installing Rust"
 
   if ! which rustup >/dev/null 2>&1; then
-    # Reference: https://learn.onpop.io/cli/installing-pop-cli/linux
-
     # Install Rust
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
     rustup update
@@ -23,14 +20,38 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
     rustup +nightly show
   else
     rustup update
-  end
+  fi
+}
+
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+  echo "Linux operating system detected."
+
+	if [ -f /etc/debian_version ]; then
+    apt update
+  fi
+
+  # Reference: https://learn.onpop.io/cli/installing-pop-cli/linux
+  install_rust()
 
   if ! which pop >/dev/null 2>&1; then
     cargo install --force --locked pop-cli
-  end
+  fi
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-  echo "macOS operating system is not yet supported."
-  # TODO
+  echo "macOS operating system detected."
+
+  # https://learn.onpop.io/cli/installing-pop-cli/macos
+	if ! which brew >/dev/null 2>&1; then
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+    brew --version
+    brew update
+    brew install cmake openssl protobuf
+	fi
+
+  install_rust
+
+  if ! which pop >/dev/null 2>&1; then
+    cargo install --force --locked pop-cli
+  fi
 
 else
   echo "Unknown operating system is unsupported."

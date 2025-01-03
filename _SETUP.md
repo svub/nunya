@@ -436,26 +436,75 @@ Further changes:
 
 ### WIP - Pop!
 
+### Setup Project Root and Install Dependencies
+
+* Customise this to be the folder where this project is cloned
+```
+export PROJECT_ROOT="$PWD"
+```
+
+```bash
+bash ./scripts/pop/start.sh
+```
+
 ### Build and deploy contract
 
-* Build
+* Build. Note: Use `--release` for optimized production build.
 ```bash
+cd $PROJECT_ROOT/packages/pop-contracts/nunya_business
 pop build
+```
 
-* Deploy
+View built artifacts in $PROJECT_ROOT/packages/pop-contracts/nunya_business/target/ink
+* nunya_business.contract (code + metadata)
+* nunya_business.wasm (the contract's code)
+* nunya_business.json (the contract's metadata)
+
+### Deploy
+
 ```bash
-pop up contract
+cd $PROJECT_ROOT/packages/pop-contracts/nunya_business
+```
+
+* Calculate gas
+  * https://use.ink/basics/gas
+
+  * Dry-run via an RPC call to estimate the gas usage. It does not submit a transaction
+    ```bash
+    pop up contract --constructor new --args false --suri //Alice --dry-run
+    ```
+  * Top-up deploying account with sufficient balance
+
+* Deploy cotract. Optionally only upload contract and not instantiate `--upload-only`
+  ```bash
+  pop up contract --constructor new --args false --suri //Alice
+  ```
+
+* TODO: Find process ID `lsof -i :9944`, contract address, and DB. Kill the process `kill -9 1234`
+* TODO: Deploy to substrate-contracts-node https://github.com/ltfschoen/XCMTemplate/blob/main/docker/run-scn.sh
+
+* View on https://polkadot.js.org/apps/?rpc=ws://127.0.0.1:9944#/explorer
+
+* TODO: interact - https://learn.onpop.io/contracts/guides/deploy-your-contract-locally/deploy-locally-on-pop#interacting-with-our-contract
+
+### Test contract
+
+```bash
+cd $PROJECT_ROOT/packages/pop-contracts/nunya_business
+pop test contract
 ```
 
 ### Archive - Create Template
 ```bash
-pop new contract --contract-type examples --template cross-contract-calls NunyaBusiness
+pop new contract --contract-type examples --template cross-contract-calls nunya_business
 
-mkdir -p packages/pop
-mv $PWD/NunyaBusiness $PWD/packages/pop
+mkdir -p packages/pop-contracts
+mv $PWD/nunya_business $PWD/packages/pop-contracts
 ```
 
 * Resources:
   * https://learn.onpop.io
   * https://github.com/use-ink/ink-examples
   * https://polkadot.stackexchange.com/
+* Support
+  * https://t.me/pop_support
