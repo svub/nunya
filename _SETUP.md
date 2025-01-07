@@ -179,7 +179,7 @@ Continue with [Run Services](#run-services).
 
 * Run the following to start the Secret Development Node docker container, the Ethereum Development Node systemd service, and the Relayer systemd service.
 	```bash
-	export PROJECT_ROOT="/root/nunya"
+	export PROJECT_ROOT="/root/nunya" # or ~/nunya
   export USE_NETWORK="localhost" # alternatively "testnet" or "mainnet"
   cd $PROJECT_ROOT
 	$PROJECT_ROOT/scripts/run.sh | tee $PROJECT_ROOT/run.log
@@ -440,6 +440,7 @@ Further changes:
 
 * Build
 ```bash
+cd $PROJECT_ROOT/packages/pop/NunyaBusiness
 pop build
 
 * Deploy
