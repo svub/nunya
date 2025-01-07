@@ -11,69 +11,73 @@
 pragma solidity ^0.8.26;
 
 contract JSONParser {
-    // Custom error to save gas
-    error InvalidJSONFormat();
+    // Custom error for invalid data format
+    error InvalidDataFormat();
     
-    function extractKeyArray(bytes calldata data) public pure returns (uint8[] memory) {
-        // Skip the base64 decoding as the data is already decoded in this case
+    function extractKeyArray(bytes calldata data) public pure returns (uint256) {
+        // Skip the callback selector (4 bytes) and taskId (32 bytes)
+        // The actual JSON data starts after the ABI encoding overhead
         
-        // Find the "_key" property - we know it comes after "_request_id"
-        // Search for "[" after "_key":" pattern
+        // Find the position of "_key":[
+        bytes memory searchKey = '"_key":[';
         uint256 startPos;
-        uint256 endPos;
+        bool found = false;
         
-        for (uint i = 0; i < data.length - 6; i++) {
-            // Look for "_key":" pattern
-            if (data[i] == '_' && 
-                data[i+1] == 'k' && 
-                data[i+2] == 'e' && 
-                data[i+3] == 'y' &&
-                data[i+4] == '"' &&
-                data[i+5] == ':') {
-                    
-                // Find the opening bracket
-                while (i < data.length && data[i] != '[') {
-                    i++;
+        // Search for the key in chunks to save gas
+        for (uint i = 0; i < data.length - searchKey.length; i += 32) {
+            // Load 32 bytes at a time
+            bytes32 chunk;
+            assembly {
+                chunk := calldataload(add(data.offset, i))
+            }
+            
+            // Check if our search key starts in this chunk
+            bool matchFound = true;
+            for (uint j = 0; j < searchKey.length && i + j < data.length; j++) {
+                if (uint8(chunk[j]) != uint8(searchKey[j])) {
+                    matchFound = false;
+                    break;
                 }
-                startPos = i + 1;
-                
-                // Find the closing bracket
-                while (i < data.length && data[i] != ']') {
-                    i++;
-                }
-                endPos = i;
+            }
+            
+            if (matchFound) {
+                startPos = i + searchKey.length;
+                found = true;
                 break;
             }
         }
         
-        if (startPos == 0 || endPos == 0) revert InvalidJSONFormat();
+        if (!found) revert InvalidDataFormat();
         
-        // Count the numbers (commas + 1)
-        uint256 count = 1;
-        for (uint256 i = startPos; i < endPos; i++) {
-            if (data[i] == ',') count++;
-        }
+        // Extract the array values
+        uint256 result;
+        uint256 currentNumber = 0;
+        uint256 arrayIndex = 0;
         
-        // Create array to store results
-        uint8[] memory result = new uint8[](count);
-        uint256 resultIndex = 0;
-        uint256 currentNum = 0;
-        
-        // Parse numbers
-        for (uint256 i = startPos; i < endPos; i++) {
-            bytes1 char = data[i];
+        // Process only until we hit the closing bracket or exceed 5 numbers
+        for (uint i = startPos; i < data.length && arrayIndex < 5; i++) {
+            uint8 char = uint8(data[i]);
             
-            if (char >= '0' && char <= '9') {
-                currentNum = currentNum * 10 + uint8(uint8(char) - 48);
-            }
-            
-            if (char == ',' || i == endPos - 1) {
-                result[resultIndex] = uint8(currentNum);
-                currentNum = 0;
-                resultIndex++;
+            if (char >= 48 && char <= 57) { // If character is a digit
+                currentNumber = currentNumber * 10 + (char - 48);
+            } else if (char == 44 || char == 93) { // If comma or closing bracket
+                // Pack the number into the result
+                result = (result << 8) | uint8(currentNumber);
+                currentNumber = 0;
+                arrayIndex++;
+                
+                if (char == 93) break; // Exit if closing bracket
             }
         }
         
+        return result;
+    }
+    
+    function unpackArray(uint256 packed) public pure returns (uint8[5] memory) {
+        uint8[5] memory result;
+        for (uint i = 0; i < 5; i++) {
+            result[4-i] = uint8((packed >> (i * 8)) & 0xFF);
+        }
         return result;
     }
 }

@@ -17,6 +17,8 @@ import "./Utils.sol";
 
 import "./Ownable.sol";
 
+import "@openzeppelin/contracts/utils/Strings.sol";
+
 /**
  * @notice Gateway Receiver
  * @author
@@ -47,7 +49,7 @@ contract NunyaBusiness is Ownable, Utils {
 
     IGateway secretContract;
 
-    uint256 public secretContractPubkey;
+    uint8[] public secretContractPubkey;
 
     mapping (uint256 => FunctionCallType) expectedResult;
 
@@ -212,8 +214,17 @@ contract NunyaBusiness is Ownable, Utils {
         // To prevent it from out of gas errors then try sending it as the first key and converting the value into a fixed-length hash using Keccak256
         // so it is easy to find the start and end of the `result` by index.
 
-        // JSONParser parser = new JSONParser();
-        // secretContractPubkey = parser.extractKeyArray(data);
+
+        // Note: If I change `value: parseUnits("10000000", "ether").toString(),` to instead be
+        // `value: parseUnits("10000000", "ether").toString(),` in 01_deploy_your_contracts.ts and use the below
+        // to parse using JSONParser, it says it needs gas of 10000000010500000000000000 but the sender's balance is: 
+        // only 10000000000000000000000. Definately can't parse JSON.
+        JSONParser parser = new JSONParser();
+        uint256 secretContractPubkeyPackedArray = parser.extractKeyArray(data);
+        string memory secretContractPubkeyStr = Strings.toString(secretContractPubkeyPackedArray);
+        uint8[5] memory secretContractPubkey = parser.unpackArray(secretContractPubkeyPackedArray);
+        console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - secretContractPubkey: ", secretContractPubkeyStr);
+
         // // https://github.com/NomicFoundation/hardhat/issues/2043
         // for (uint i=0; i<secretContractPubkey.length; i++) {
         //     console.log("------ NunyaBusiness - fulfilledSecretContractPubkeyCallback - secretContractPubkey: ", i);

@@ -84,7 +84,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     args: [],
     log: true,
     gasLimit: 3000000,
-    value: parseUnits("0.0005", "ether").toString(), // to fund the gateway in the constructor, use when setGatewayAddress is called
+    value: parseUnits("10000000", "ether").toString(), // to fund the gateway in the constructor, use when setGatewayAddress is called
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
     // automatically mining the contract deployment transaction. There is no effect on live networks.
     autoMine: true,

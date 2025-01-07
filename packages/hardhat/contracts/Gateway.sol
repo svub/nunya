@@ -456,10 +456,13 @@ contract Gateway is Ownable, Utils, Base64 {
         // persisting the task
         tasks[_taskId] = Task(bytes31(_payloadHash), false);
 
+        string memory sourceNetwork = getChainId(chain_id_1, chain_id_2, chain_id_3, chain_id_length);
+        console.log("------ Gateway.send - sourceNetwork: ", sourceNetwork);
+
         //emit the task to be picked up by the relayer
         emit logNewTask(
             _taskId,
-            getChainId(chain_id_1, chain_id_2, chain_id_3, chain_id_length),
+            sourceNetwork,
             _userAddress,
             _routingInfo,
             _payloadHash,
